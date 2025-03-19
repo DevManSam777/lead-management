@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <h2>Admin Panel</h2>
+            <ul>
+                <li><a href="#">Leads</a></li>
+                </ul>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Leads Management</h1>
+                <div class="search-filter-sort">
+                    <input type="text" id="searchInput" placeholder="Search leads...">
+                    <select id="filterStatus">
+                        <option value="">All Statuses</option>
+                        <option value="New">New</option>
+                        <option value="Contacted">Contacted</option>
+                        <option value="Qualified">Qualified</option>
+                        <option value="Converted">Converted</option>
+                    </select>
+                    <select id="sortField">
+                        <option value="name">Name</option>
+                        <option value="email">Email</option>
+                        <option value="status">Status</option>
+                    </select>
+                    <select id="sortOrder">
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                </div>
+                <button id="addLeadBtn">Add Lead</button>
+            </header>
+
+            <div class="lead-cards" id="leadCards">
+                </div>
+
+            <div class="modal" id="leadModal">
+                <div class="modal-content">
+                    <span class="close-modal" id="closeModal">&times;</span>
+                    <h2>Lead Details</h2>
+                    <form id="leadForm">
+                        <input type="hidden" id="leadId">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" required>
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" required>
+                        <label for="phone">Phone:</label>
+                        <input type="tel" id="phone">
+                        <label for="status">Status:</label>
+                        <select id="status">
+                            <option value="New">New</option>
+                            <option value="Contacted">Contacted</option>
+                            <option value="Qualified">Qualified</option>
+                            <option value="Converted">Converted</option>
+                        </select>
+                        <button type="submit">Save</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="toast" id="toast">
+                <p id="toastMessage"></p>
+            </div>
+        </main>
+    </div>
+    <script src="./dashboard.js"></script>
+</body>
+</html>
