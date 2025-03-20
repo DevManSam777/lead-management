@@ -84,3 +84,23 @@ textarea {
     margin-top: 20px;
     text-align: center;
 }
+
+
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+    background-color: #fafbfc;
+}
+
+legend {
+    font-weight: bold;
+    padding: 0 10px;
+    color: #2c3e50;
+    font-size: 18px;
+}
+
+fieldset:last-of-type {
+    margin-bottom: 30px;
+}
