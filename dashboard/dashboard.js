@@ -20,10 +20,11 @@ function renderLeads(leadsToRender) {
     const card = document.createElement("div");
     card.className = "lead-card";
     card.innerHTML = `
-            <h3>${lead.name}</h3>
+            <h3>${lead.firstName} ${lead.lastName}</h3>
             <p>Email: ${lead.email}</p>
-            <p>Status: <span class="math-inline">\{lead\.status\}</p\>
-<button onclick\="editLead\('</span>{lead._id}')">Edit</button>
+            <p>Phone: ${lead.phone}</p>
+            <p>Status: <span class="math-inline">${lead.status}<\/p>
+<button onclick="editLead('</span>${lead._id}')">Edit</button>
             <button onclick="deleteLead('${lead._id}')">Delete</button>
         `;
     leadCards.appendChild(card);
