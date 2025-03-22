@@ -16,6 +16,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to the Freelance Lead Management API' });
+});
+
 // Routes
 app.use('/api/leads', leadRoutes);
 
