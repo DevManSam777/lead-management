@@ -1,77 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="./dashboard.css">
-</head>
-<body>
-    <div class="dashboard">
-        <aside class="sidebar">
-            <h2>Admin Panel</h2>
-            <ul>
-                <li><a href="#">Leads</a></li>
-                </ul>
-        </aside>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevLeads Dashboard</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./dashboard.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h1>DevLeads</h1>
+          <p>Lead Management</p>
+        </div>
+        <div class="sidebar-menu">
+          <ul>
+            <li>
+              <a href="#" class="active"
+                ><i class="fas fa-home"></i> <span>Dashboard</span></a
+              >
+            </li>
+            <!-- <li>
+              <a href="#"
+                ><i class="fas fa-user-friends"></i> <span>Leads</span></a
+              >
+            </li> -->
+            <li>
+              <a href="#"
+                ><i class="fas fa-chart-bar"></i> <span>Reports</span></a
+              >
+            </li>
+            <li>
+              <a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </li>
+          </ul>
+        </div>
+      </aside>
 
-        <main class="main-content">
-            <header class="header">
-                <h1>Leads Management</h1>
-                <div class="search-filter-sort">
-                    <input type="text" id="searchInput" placeholder="Search leads...">
-                    <select id="filterStatus">
-                        <option value="">All Statuses</option>
-                        <option value="New">New</option>
-                        <option value="Contacted">Contacted</option>
-                        <option value="Qualified">Qualified</option>
-                        <option value="Converted">Converted</option>
-                    </select>
-                    <select id="sortField">
-                        <option value="name">Name</option>
-                        <option value="email">Email</option>
-                        <option value="status">Status</option>
-                    </select>
-                    <select id="sortOrder">
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
-                    </select>
-                </div>
-                <button id="addLeadBtn">Add Lead</button>
-            </header>
-
-            <div class="lead-cards" id="leadCards">
-                </div>
-
-            <div class="modal" id="leadModal">
-                <div class="modal-content">
-                    <span class="close-modal" id="closeModal">&times;</span>
-                    <h2>Lead Details</h2>
-                    <form id="leadForm">
-                        <input type="hidden" id="leadId">
-                        <label for="name">Name:</label>
-                        <input type="text" id="name" required>
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" required>
-                        <label for="phone">Phone:</label>
-                        <input type="tel" id="phone">
-                        <label for="status">Status:</label>
-                        <select id="status">
-                            <option value="New">New</option>
-                            <option value="Contacted">Contacted</option>
-                            <option value="Qualified">Qualified</option>
-                            <option value="Converted">Converted</option>
-                        </select>
-                        <button type="submit">Save</button>
-                    </form>
-                </div>
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="header">
+          <h2>Lead Management</h2>
+          <div class="search-filter-sort">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search leads..."
+              />
             </div>
+            <select id="filterStatus">
+              <option value="">All Statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="in-progress">In Progress</option>
+              <option value="closed-won">Closed (Won)</option>
+              <option value="closed-lost">Closed (Lost)</option>
+            </select>
+            <select id="sortField">
+              <option value="createdAt">Date</option>
+              <option value="firstName">Name</option>
+              <option value="email">Email</option>
+              <option value="budget">Budget</option>
+              <option value="status">Status</option>
+            </select>
+            <select id="sortOrder">
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+            <button id="addLeadBtn" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Add Lead
+            </button>
+          </div>
+        </header>
 
-            <div class="toast" id="toast">
-                <p id="toastMessage"></p>
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+          <div class="stats-card">
+            <h3>Total Leads</h3>
+            <div class="value" id="totalLeadsValue">0</div>
+            <div class="change positive">
+              <span id="totalLeadsChange">0%</span>
             </div>
-        </main>
+          </div>
+          <div class="stats-card">
+            <h3>New Leads</h3>
+            <div class="value" id="newLeadsValue">0</div>
+            <div class="change positive">
+              <span id="newLeadsChange">0%</span>
+            </div>
+          </div>
+          <div class="stats-card">
+            <h3>Conversion Rate</h3>
+            <div class="value" id="conversionRateValue">0%</div>
+            <div class="change" id="conversionChange">
+              <i class="fas fa-arrow-up"></i> <span>0%</span>
+            </div>
+          </div>
+          <div class="stats-card">
+            <h3>Average Budget</h3>
+            <div class="value" id="avgBudgetValue">$0</div>
+            <div class="change" id="budgetChange">
+              <i class="fas fa-arrow-up"></i> <span>0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle">
+          <button id="gridViewBtn" class="active">
+            <i class="fas fa-th"></i> Grid
+          </button>
+          <button id="listViewBtn"><i class="fas fa-list"></i> List</button>
+        </div>
+
+        <!-- Leads Container -->
+        <div class="leads-container">
+          <div class="leads-header">
+            <h3>Leads</h3>
+          </div>
+
+          <!-- Grid View (Default) -->
+          <div class="lead-cards" id="leadCards">
+            <!-- Lead cards will be generated here -->
+          </div>
+          <!-- Updated Table View (Hidden by default) -->
+          <table class="leads-table" id="leadsTable" style="display: none">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Business</th>
+                <th>Service</th>
+                <th>Website</th>
+                <th>Budget</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody">
+              <!-- Table rows will be generated here -->
+            </tbody>
+          </table>
+        </div>
+      </main>
     </div>
+    <div id="leadModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="modalTitle">Add New Lead</h3>
+        </div>
+        <form id="leadForm">
+          <input type="hidden" id="leadId" />
+
+          <!-- Personal Information Section -->
+          <div class="form-section">
+            <h4>Personal Information</h4>
+            <div class="form-group">
+              <label for="firstName">First Name*</label>
+              <input type="text" id="firstName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name*</label>
+              <input type="text" id="lastName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email*</label>
+              <input type="email" id="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone*</label>
+              <input type="tel" id="phone" required />
+            </div>
+
+            <div class="form-group">
+              <label for="textNumber">Text Number</label>
+              <input type="tel" id="textNumber" />
+            </div>
+          </div>
+
+          <!-- Business Information Section -->
+          <div class="form-section">
+            <h4>Business Information</h4>
+            <div class="form-group">
+              <label for="businessName">Business Name</label>
+              <input type="text" id="businessName" />
+            </div>
+
+            <div class="form-group">
+              <label for="businessPhone">Business Phone</label>
+              <input type="tel" id="businessPhone" />
+            </div>
+
+            <div class="form-group">
+              <label for="businessEmail">Business Email</label>
+              <input type="email" id="businessEmail" />
+            </div>
+
+            <div class="form-group">
+              <label for="businessServices">Business Services</label>
+              <input type="text" id="businessServices" />
+            </div>
+
+            <div class="form-group">
+              <label for="preferredContact">Preferred Contact Method</label>
+              <select id="preferredContact">
+                <option value="">-- Select Contact Method --</option>
+                <option value="phone">Personal Phone</option>
+                <option value="businessPhone">Business Phone</option>
+                <option value="email">Personal Email</option>
+                <option value="text">Text Message</option>
+                <option value="businessEmail">Business Email</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Service Information Section -->
+          <div class="form-section">
+            <h4>Service Information</h4>
+            <div class="form-group">
+              <label for="serviceDesired">Service Desired*</label>
+              <select id="serviceDesired" required>
+                <option value="website">Website</option>
+                <option value="app">App Development</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="hasWebsite">Has Website</label>
+              <select id="hasWebsite">
+                <option value="">-- Select Option --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="websiteAddress">Website Address</label>
+              <input type="url" id="websiteAddress" />
+            </div>
+
+            <div class="form-group">
+              <label for="budget">Budget</label>
+              <div class="budget-group">
+                <input type="text" id="budget" placeholder="Enter amount" />
+                <select id="currency">
+                  <option value="USD">USD</option>
+                  <option value="CAD">CAD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="AUD">AUD</option>
+                  <option value="🍕">🍕</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Information Section -->
+          <div class="form-section">
+            <h4>Lead Status</h4>
+            <div class="form-group">
+              <label for="status">Current Status*</label>
+              <select id="status" required>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="in-progress">In Progress</option>
+                <option value="closed-won">Closed (Won)</option>
+                <option value="closed-lost">Closed (Lost)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="lastContactedAt">Last Contacted Date</label>
+              <input type="date" id="lastContactedAt" />
+            </div>
+          </div>
+
+          <!-- Message and Notes Section -->
+          <div class="form-section">
+            <h4>Message & Notes</h4>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="notes">Internal Notes</label>
+              <textarea id="notes" rows="3"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Lead</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+      <p id="toastMessage"></p>
+    </div>
+
     <script src="./dashboard.js"></script>
-</body>
+  </body>
 </html>
