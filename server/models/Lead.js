@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const leadSchema = new mongoose.Schema({
   firstName: {
@@ -34,17 +34,16 @@ const leadSchema = new mongoose.Schema({
   },
   preferredContact: {
     type: String,
-    required: true,
-    enum: ['phone', 'businessPhone', 'email', 'text', 'businessEmail'],
+    enum: ["phone", "businessPhone", "email", "text", "businessEmail"],
   },
   serviceDesired: {
     type: String,
-    required: true,
-    enum: ['website', 'app'],
+    enum: ["website", "app"],
+    default: "website",
   },
   hasWebsite: {
     type: String,
-    enum: ['yes', 'no'],
+    enum: ["yes", "no"],
   },
   websiteAddress: {
     type: String,
@@ -54,14 +53,20 @@ const leadSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: 'new',
-    enum: ['new', 'contacted', 'in-progress', 'closed-won', 'closed-lost'],
+    default: "new",
+    enum: ["new", "contacted", "in-progress", "closed-won", "closed-lost"],
   },
   notes: {
     type: String,
   },
+  // New fields for budget
   budget: {
-    type: Number,
+    type: String,
+  },
+  currency: {
+    type: String,
+    default: "USD",
+    enum: ["USD", "CAD", "EUR", "GBP", "AUD", "🍕"],
   },
   createdAt: {
     type: Date,
@@ -72,4 +77,4 @@ const leadSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Lead', leadSchema);
+module.exports = mongoose.model("Lead", leadSchema);
