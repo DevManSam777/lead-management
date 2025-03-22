@@ -1,4 +1,421 @@
+
+
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Web Development Service Inquiry</title>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Web Development Inquiry</h1>
+        <form id="inquiry-form">
+            <fieldset>
+                <legend>Personal Information</legend>
+                <div class="form-group">
+                    <label for="firstName" class="required">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName" class="required">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="required">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone" class="required">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="textNumber">Text Number (if different)</label>
+                    <input type="tel" id="textNumber" name="textNumber">
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Business Information</legend>
+                <div class="form-group">
+                    <label for="businessName">Business Name</label>
+                    <input type="text" id="businessName" name="businessName">
+                </div>
+                
+                <div class="form-group">
+                    <label for="businessPhone">Business Phone Number</label>
+                    <input type="tel" id="businessPhone" name="businessPhone">
+                </div>
+
+                <div class="form-group">
+                    <label for="businessEmail">Business Email</label>
+                    <input type="email" id="businessEmail" name="businessEmail">
+                </div>
+                
+                <div class="form-group">
+                    <label for="businessServices">Business Services</label>
+                    <textarea id="businessServices" name="businessServices" rows="3" placeholder="What type of goods and/or services does your business provide?"></textarea>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Service Details</legend>
+                <div class="form-group">
+                    <label class="required">Preferred Contact Method</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="contactPhone" name="preferredContact" value="phone" required>
+                            <label for="contactPhone">Phone</label>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" id="contactEmail" name="preferredContact" value="email">
+                            <label for="contactEmail">Email</label>
+                        </div>
+                       
+                        <div class="radio-option">
+                            <input type="radio" id="contactText" name="preferredContact" value="text">
+                            <label for="contactText">Text</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="contactBusinessPhone" name="preferredContact" value="businessPhone">
+                            <label for="contactBusinessPhone">Business Phone</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="contactBusinessEmail" name="preferredContact" value="businessEmail">
+                            <label for="contactBusinessEmail">Business Email</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required">Service Desired</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="serviceWebsite" name="serviceDesired" value="website" required>
+                            <label for="serviceWebsite">Website</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="serviceApp" name="serviceDesired" value="app">
+                            <label for="serviceApp">App Development</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Do you currently have a website?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="websiteYes" name="hasWebsite" value="yes">
+                            <label for="websiteYes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="websiteNo" name="hasWebsite" value="no">
+                            <label for="websiteNo">No</label>
+                        </div>
+                    </div>
+                    
+                    <div class="conditional-field" id="websiteAddressField">
+                        <label for="websiteAddress">Website Address</label>
+                        <input type="url" id="websiteAddress" name="websiteAddress" placeholder="https://">
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Additional Information</legend>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="3" placeholder="Additional comments"></textarea>
+                </div>
+            </fieldset>
+            <small><span class="asterisk">*</span> = required field</small>
+            <button type="submit" class="btn-submit">Submit Inquiry</button>
+        </form>
+        
+        <div class="success-message" id="success-message">
+            Thank you for your inquiry! We'll be in touch soon.
+        </div>
+    </div>
+
+    <script>
+        // Wait for the DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the form element
+            const form = document.getElementById('inquiry-form');
+            
+            // Helper function to create and show error messages
+            function showError(input, message) {
+                // Remove any existing error message
+                const existingError = input.parentElement.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Create and add new error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = message;
+                input.parentElement.appendChild(errorDiv);
+                
+                // Add error class to the input
+                input.classList.add('invalid');
+            }
+            
+            // Helper function to remove error messages
+            function removeError(input) {
+                const errorDiv = input.parentElement.querySelector('.error-message');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+                input.classList.remove('invalid');
+            }
+            
+            // Validate a phone number
+            function isValidPhone(phone) {
+                // Accept formats like: (123) 456-7890, 123-456-7890, 123.456.7890, 1234567890
+                const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+                return phoneRegex.test(phone);
+            }
+            
+            // Validate an email
+            function isValidEmail(email) {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                return emailRegex.test(email);
+            }
+            
+            // Validate a URL
+            function isValidUrl(url) {
+                if (!url) return true; // Allow empty URLs
+                try {
+                    new URL(url);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+            
+            // Add blur event listeners to validate as user moves between fields
+            const requiredInputs = form.querySelectorAll('input[required], textarea[required]');
+            requiredInputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+            
+            // Add input event listeners to validate as user types
+            const emailInputs = form.querySelectorAll('input[type="email"]');
+            emailInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value.trim() !== '') {
+                        if (!isValidEmail(this.value)) {
+                            showError(this, 'Please enter a valid email address');
+                        } else {
+                            removeError(this);
+                        }
+                    }
+                });
+            });
+            
+            const phoneInputs = form.querySelectorAll('input[type="tel"]');
+            phoneInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value.trim() !== '') {
+                        if (!isValidPhone(this.value)) {
+                            showError(this, 'Please enter a valid phone number');
+                        } else {
+                            removeError(this);
+                        }
+                    }
+                });
+            });
+            
+            const urlInputs = form.querySelectorAll('input[type="url"]');
+            urlInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value.trim() !== '') {
+                        if (!isValidUrl(this.value)) {
+                            showError(this, 'Please enter a valid URL starting with http:// or https://');
+                        } else {
+                            removeError(this);
+                        }
+                    }
+                });
+            });
+            
+            // Function to validate individual field
+            function validateField(field) {
+                if (field.required && field.value.trim() === '') {
+                    showError(field, 'This field is required');
+                    return false;
+                }
+                
+                if (field.type === 'email' && field.value.trim() !== '') {
+                    if (!isValidEmail(field.value)) {
+                        showError(field, 'Please enter a valid email address');
+                        return false;
+                    }
+                }
+                
+                if (field.type === 'tel' && field.value.trim() !== '') {
+                    if (!isValidPhone(field.value)) {
+                        showError(field, 'Please enter a valid phone number');
+                        return false;
+                    }
+                }
+                
+                if (field.type === 'url' && field.value.trim() !== '') {
+                    if (!isValidUrl(field.value)) {
+                        showError(field, 'Please enter a valid URL starting with http:// or https://');
+                        return false;
+                    }
+                }
+                
+                removeError(field);
+                return true;
+            }
+            
+            // Check if radio button groups have a selection
+            function validateRadioGroup(name) {
+                const radioButtons = form.querySelectorAll(`input[name="${name}"]`);
+                const radioGroup = radioButtons[0].parentElement.parentElement.parentElement;
+                const isChecked = [...radioButtons].some(radio => radio.checked);
+                
+                if (!isChecked) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    errorDiv.textContent = 'Please select an option';
+                    
+                    // Remove existing error message if any
+                    const existingError = radioGroup.querySelector('.error-message');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+                    
+                    radioGroup.appendChild(errorDiv);
+                    return false;
+                } else {
+                    const existingError = radioGroup.querySelector('.error-message');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+                    return true;
+                }
+            }
+            
+            // Conditionally validate website URL field
+            function validateWebsiteAddress() {
+                const hasWebsiteYes = document.getElementById('websiteYes');
+                const websiteAddress = document.getElementById('websiteAddress');
+                
+                if (hasWebsiteYes.checked && websiteAddress.value.trim() === '') {
+                    showError(websiteAddress, 'Please provide your website address');
+                    return false;
+                }
+                
+                if (hasWebsiteYes.checked && websiteAddress.value.trim() !== '') {
+                    if (!isValidUrl(websiteAddress.value)) {
+                        showError(websiteAddress, 'Please enter a valid URL starting with http:// or https://');
+                        return false;
+                    }
+                }
+                
+                removeError(websiteAddress);
+                return true;
+            }
+            
+            // Form submission with validation
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                let isValid = true;
+                
+                // Validate all required fields
+                requiredInputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                    }
+                });
+                
+                // Validate radio button groups
+                if (!validateRadioGroup('preferredContact')) {
+                    isValid = false;
+                }
+                
+                if (!validateRadioGroup('serviceDesired')) {
+                    isValid = false;
+                }
+                
+                // Validate conditional website address
+                if (document.getElementById('websiteYes').checked) {
+                    if (!validateWebsiteAddress()) {
+                        isValid = false;
+                    }
+                }
+                
+                if (!isValid) {
+                    // Scroll to the first error
+                    const firstError = document.querySelector('.error-message');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
+                }
+                
+                // If validation passes, prepare form data
+                const formData = new FormData(this);
+                const formObject = {};
+                formData.forEach((value, key) => {
+                    formObject[key] = value;
+                });
+                
+                try {
+                    const response = await fetch('http://localhost:5000/api/leads', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formObject)
+                    });
+                    
+                    if (response.ok) {
+                        document.getElementById('inquiry-form').style.display = 'none';
+                        document.getElementById('success-message').style.display = 'block';
+                    } else {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Server responded with an error');
+                    }
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('There was an error submitting your inquiry: ' + error.message);
+                }
+            });
+
+            // Show/hide website address field based on radio selection
+            document.querySelectorAll('input[name="hasWebsite"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const websiteAddressField = document.getElementById('websiteAddressField');
+                    if (this.value === 'yes') {
+                        websiteAddressField.style.display = 'block';
+                    } else {
+                        websiteAddressField.style.display = 'none';
+                        // Clear any errors when hiding field
+                        removeError(document.getElementById('websiteAddress'));
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -186,4 +603,4 @@
         });
     </script>
 </body>
-</html>
+</html>-->
