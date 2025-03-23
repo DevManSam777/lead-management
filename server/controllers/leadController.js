@@ -75,7 +75,9 @@ exports.deleteLead = async (req, res) => {
       return res.status(404).json({ message: 'Lead not found' });
     }
     
-    await lead.remove();
+    // Changed from lead.remove() to deleteOne()
+    await Lead.deleteOne({ _id: req.params.id });
+    
     res.json({ message: 'Lead removed' });
   } catch (error) {
     console.error(error);

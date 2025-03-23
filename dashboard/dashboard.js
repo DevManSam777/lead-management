@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // This is the Dashboard link (already active)
     });
 
+// Leads icon on sidebar
   // document
   //   .querySelector(".sidebar-menu li:nth-child(1) a")
   //   .addEventListener("click", function (e) {
@@ -1224,9 +1225,19 @@ function sortLeadsAndRender(leadsToSort) {
       const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
       comparison = dateA - dateB;
     } else if (sortField === "firstName") {
-      const nameA = getLeadName(a).toLowerCase();
-      const nameB = getLeadName(b).toLowerCase();
-      comparison = nameA.localeCompare(nameB);
+      // Sort by last name first, then first name
+      const lastNameA = (a.lastName || '').toLowerCase();
+      const lastNameB = (b.lastName || '').toLowerCase();
+      
+      // If last names are different, sort by last name
+      if (lastNameA !== lastNameB) {
+        comparison = lastNameA.localeCompare(lastNameB);
+      } else {
+        // If last names are the same, sort by first name
+        const firstNameA = (a.firstName || '').toLowerCase();
+        const firstNameB = (b.firstName || '').toLowerCase();
+        comparison = firstNameA.localeCompare(firstNameB);
+      }
     } else if (sortField === "budget") {
       // Extract numeric values from budget strings
       const budgetA = a.budget
@@ -1257,6 +1268,30 @@ function sortLeadsAndRender(leadsToSort) {
   renderLeads(sortedLeads);
 }
 
+    // Bridge for combined sort dropdown
+    const combinedSort = document.getElementById('combinedSort');
+    if (combinedSort) { // Check if the element exists
+      const sortField = document.getElementById('sortField');
+      const sortOrder = document.getElementById('sortOrder');
+      
+      // Add event listener to update hidden dropdowns when the combined dropdown changes
+      combinedSort.addEventListener('change', function() {
+        // Get the selected value which has format "field-order"
+        const [field, order] = this.value.split('-');
+        
+        // Update the hidden dropdowns
+        sortField.value = field;
+        sortOrder.value = order;
+        
+        // Trigger change events to make the main JS apply the sorting
+        sortField.dispatchEvent(new Event('change'));
+        sortOrder.dispatchEvent(new Event('change'));
+      });
+      
+      // Initialize with the default value
+      combinedSort.dispatchEvent(new Event('change'));
+    }
+  
 // Open the add lead modal
 function openAddLeadModal() {
   const leadForm = document.getElementById("leadForm");
@@ -1616,12 +1651,22 @@ async function deleteLeadAction(leadId) {
   }
 }
 
-// Show toast notification
-function showToast(message) {
+
+
+function showToast(message, type = 'default') {
   const toast = document.getElementById("toast");
   const toastMessage = document.getElementById("toastMessage");
 
   toastMessage.textContent = message;
+  
+  // Remove any existing type classes
+  toast.classList.remove('deletion');
+  
+  // Add deletion class for delete-related messages
+  if (message.includes('deleted')) {
+    toast.classList.add('deletion');
+  }
+
   toast.style.display = "block";
 
   // Hide toast after 3 seconds

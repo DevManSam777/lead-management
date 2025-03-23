@@ -224,10 +224,6 @@ select {
   text-align: center;
 }
 
-/* Special styles for the new leads change indicator (no "from last week" text) */
-#newLeadsChange {
-  /* No specific styles needed; handled in JS */
-}
 
 /* Fix for ensuring inline elements align properly */
 .stats-card .change span {
@@ -553,18 +549,37 @@ select {
 }
 
 /* Toast Notification */
+/* Updated Toast Notification Styles */
 .toast {
   display: none;
   position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background-color: var(--dark);
+  top: 20px;          /* Position at the top instead of bottom */
+  right: 20px;        /* Position at the right instead of left */
+  background-color: #4caf50;  /* Green background for success */
   color: white;
   padding: 15px 20px;
   border-radius: 5px;
-  box-shadow: var(--hover-shadow);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 2000;
   max-width: 90%;
+  border-left: 4px solid #2e7d32; /* Darker green border */
+}
+
+/* Make "Lead deleted successfully" toast stand out */
+#toast:has(#toastMessage) {
+  background-color: #4caf50; /* Default green */
+  border-left: 4px solid #2e7d32;
+}
+
+/* Target deletion messages when they contain specific text */
+#toast.deletion {
+  background-color: #ff5722 !important; /* Orange for deletion */
+  border-left: 4px solid #d84315 !important;
+}
+
+#toastMessage {
+  margin: 0;
+  font-weight: 500;
 }
 
 /* View Toggle */

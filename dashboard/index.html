@@ -25,18 +25,14 @@
                 ><i class="fas fa-home"></i> <span>Dashboard</span></a
               >
             </li>
-            <!-- <li>
-              <a href="#"
-                ><i class="fas fa-user-friends"></i> <span>Leads</span></a
-              >
-            </li> -->
             <li>
               <a href="#"
                 ><i class="fas fa-chart-bar"></i> <span>Reports</span></a
               >
             </li>
             <li>
-              <a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a>
+              <a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a
+              >
             </li>
           </ul>
         </div>
@@ -63,17 +59,40 @@
               <option value="closed-won">Closed (Won)</option>
               <option value="closed-lost">Closed (Lost)</option>
             </select>
-            <select id="sortField">
+            
+            <!-- Combined sort dropdown with Business Name options -->
+            <select id="combinedSort">
+              <option value="createdAt-desc">Date (Newest First)</option>
+              <option value="createdAt-asc">Date (Oldest First)</option>
+              <option value="lastContactedAt-desc">Last Contacted (Newest First)</option>
+              <option value="lastContactedAt-asc">Last Contacted (Oldest First)</option>
+              <option value="firstName-asc">Name (A to Z)</option>
+              <option value="firstName-desc">Name (Z to A)</option>
+              <option value="businessName-asc">Business Name (A to Z)</option>
+              <option value="businessName-desc">Business Name (Z to A)</option>
+              <option value="email-asc">Email (A to Z)</option>
+              <option value="email-desc">Email (Z to A)</option>
+              <option value="budget-desc">Budget (High to Low)</option>
+              <option value="budget-asc">Budget (Low to High)</option>
+              <option value="status-desc">Status (New to Closed)</option>
+              <option value="status-asc">Status (Closed to New)</option>
+            </select>
+
+            <!-- Hidden original dropdowns that the JS code will still use -->
+            <select id="sortField" style="display: none">
               <option value="createdAt">Date</option>
+              <option value="lastContactedAt">Last Contacted</option>
               <option value="firstName">Name</option>
+              <option value="businessName">Business Name</option>
               <option value="email">Email</option>
               <option value="budget">Budget</option>
               <option value="status">Status</option>
             </select>
-            <select id="sortOrder">
+            <select id="sortOrder" style="display: none">
               <option value="desc">Newest First</option>
               <option value="asc">Oldest First</option>
             </select>
+            
             <button id="addLeadBtn" class="btn btn-primary">
               <i class="fas fa-plus"></i> Add Lead
             </button>
