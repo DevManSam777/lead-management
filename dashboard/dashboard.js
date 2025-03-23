@@ -321,7 +321,7 @@ function getErrorElement(input) {
 function formatCurrency(amount, currency = "USD") {
   // Special case for pizza currency
   if (currency === "🍕") {
-    return `${amount.toFixed(1)} 🍕`;
+    return `${amount.toFixed(2)} 🍕`;
   }
 
   try {
