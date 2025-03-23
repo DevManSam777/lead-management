@@ -6,26 +6,6 @@ let allLeads = [];
 let currentView = "grid"; // 'grid' or 'list'
 let defaultCurrency = "USD"; // Store the default currency
 
-// // Phone number formatting function
-// function formatPhoneNumber(phoneNumber) {
-//   if (!phoneNumber) return "";
-
-//   // Remove all non-digit characters
-//   const cleaned = phoneNumber.replace(/\D/g, "");
-
-//   // Check if we have enough digits for a complete phone number
-//   if (cleaned.length < 10) return phoneNumber; // Return original if not enough digits
-
-//   // Format as XXX-XXX-XXXX
-//   const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-//   if (match) {
-//     return match[1] + "-" + match[2] + "-" + match[3];
-//   }
-
-//   // If it doesn't match the expected pattern, return the original
-//   return phoneNumber;
-// }
-
 // Phone number formatting function
 function formatPhoneNumber(phoneNumber) {
   if (!phoneNumber) return "";
@@ -1000,7 +980,7 @@ function calculateStats() {
 
 // Render leads based on current view
 function renderLeads(leads) {
-  console.log("Rendering leads:", leads); // Debug
+  // console.log("Rendering leads:", leads); // Debug
   if (currentView === "grid") {
     renderGridView(leads);
   } else {
