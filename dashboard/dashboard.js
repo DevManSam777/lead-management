@@ -6,6 +6,26 @@ let allLeads = [];
 let currentView = "grid"; // 'grid' or 'list'
 let defaultCurrency = "USD"; // Store the default currency
 
+// // Phone number formatting function
+// function formatPhoneNumber(phoneNumber) {
+//   if (!phoneNumber) return "";
+
+//   // Remove all non-digit characters
+//   const cleaned = phoneNumber.replace(/\D/g, "");
+
+//   // Check if we have enough digits for a complete phone number
+//   if (cleaned.length < 10) return phoneNumber; // Return original if not enough digits
+
+//   // Format as XXX-XXX-XXXX
+//   const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+//   if (match) {
+//     return match[1] + "-" + match[2] + "-" + match[3];
+//   }
+
+//   // If it doesn't match the expected pattern, return the original
+//   return phoneNumber;
+// }
+
 // Phone number formatting function
 function formatPhoneNumber(phoneNumber) {
   if (!phoneNumber) return "";
@@ -16,7 +36,7 @@ function formatPhoneNumber(phoneNumber) {
   // Check if we have enough digits for a complete phone number
   if (cleaned.length < 10) return phoneNumber; // Return original if not enough digits
 
-  // Format as XXX-XXX-XXXX 
+  // Format as XXX-XXX-XXXX
   const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
   if (match) {
     return match[1] + "-" + match[2] + "-" + match[3];
@@ -1658,10 +1678,12 @@ window.viewLead = function (leadId) {
   document.getElementById("firstName").value = lead.firstName || "";
   document.getElementById("lastName").value = lead.lastName || "";
   document.getElementById("email").value = lead.email || "";
-  document.getElementById("phone").value = lead.phone || "";
-  document.getElementById("textNumber").value = lead.textNumber || "";
+  document.getElementById("phone").value = formatPhoneNumber(lead.phone) || "";
+  document.getElementById("textNumber").value =
+    formatPhoneNumber(lead.textNumber) || "";
+  document.getElementById("businessPhone").value =
+    formatPhoneNumber(lead.businessPhone) || "";
   document.getElementById("businessName").value = lead.businessName || "";
-  document.getElementById("businessPhone").value = lead.businessPhone || "";
   document.getElementById("businessEmail").value = lead.businessEmail || "";
   document.getElementById("businessServices").value =
     lead.businessServices || "";
@@ -1758,10 +1780,12 @@ window.editLead = function (leadId) {
 
   // Fill in all other fields
   document.getElementById("email").value = lead.email || "";
-  document.getElementById("phone").value = lead.phone || "";
-  document.getElementById("textNumber").value = lead.textNumber || "";
+  document.getElementById("phone").value = formatPhoneNumber(lead.phone) || "";
+  document.getElementById("textNumber").value =
+    formatPhoneNumber(lead.textNumber) || "";
+  document.getElementById("businessPhone").value =
+    formatPhoneNumber(lead.businessPhone) || "";
   document.getElementById("businessName").value = lead.businessName || "";
-  document.getElementById("businessPhone").value = lead.businessPhone || "";
   document.getElementById("businessEmail").value = lead.businessEmail || "";
   document.getElementById("businessServices").value =
     lead.businessServices || "";
