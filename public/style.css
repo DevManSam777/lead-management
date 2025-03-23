@@ -7,148 +7,31 @@ body {
   padding: 20px;
   background-color: #f5f7fa;
 }
+
 .form-container {
   background-color: #fff;
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 h1 {
   color: #2c3e50;
   margin-bottom: 30px;
   text-align: center;
 }
-.form-group {
-  margin-bottom: 20px;
-}
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-input[type="url"],
-select,
-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-.radio-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-.radio-option {
-  display: flex;
-  align-items: center;
-  vertical-align: middle;
-}
-.radio-option input {
-  margin-right: 8px;
-}
-.radio-option label {
-  padding-top: 9px;
-}
-.conditional-field {
-  margin-top: 15px;
-  margin-left: 25px;
-  display: none;
-}
-.btn-submit {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  font-size: 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s;
-}
-.btn-submit:hover {
-  background-color: #2980b9;
-}
-.required::after {
-  content: "*";
-  color: #e74c3c;
-  margin-left: 4px;
-}
 
-.asterisk {
-  color: #e74c3c;
-}
-
-small {
-  display: inline-block;
-  font-size: 16px;
-  font-style: italic;
-  margin-bottom: 10px;
-}
-
-.success-message {
-  display: none;
-  background-color: #d4edda;
-  color: #155724;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 20px;
-  text-align: center;
-}
-
-fieldset {
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 20px;
-  margin-bottom: 25px;
-  background-color: #fafbfc;
-}
-
-legend {
-  font-weight: bold;
-  padding: 0 10px;
-  color: #2c3e50;
-  font-size: 18px;
-}
-
-fieldset:last-of-type {
-  margin-bottom: 30px;
-}
-
-body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: #333;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f5f7fa;
-}
-.form-container {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-h1 {
-  color: #2c3e50;
-  margin-bottom: 30px;
-  text-align: center;
-}
 .form-group {
   margin-bottom: 20px;
   position: relative;
 }
+
 label {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
 }
+
 input[type="text"],
 input[type="email"],
 input[type="tel"],
@@ -163,27 +46,33 @@ textarea {
   box-sizing: border-box;
   transition: border-color 0.3s, background-color 0.3s;
 }
+
 .radio-group {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
 }
+
 .radio-option {
   display: flex;
   align-items: center;
   vertical-align: middle;
 }
+
 .radio-option input {
   margin-right: 8px;
 }
+
 .radio-option label {
   padding-top: 9px;
 }
+
 .conditional-field {
   margin-top: 15px;
   margin-left: 25px;
   display: none;
 }
+
 .btn-submit {
   background-color: #3498db;
   color: white;
@@ -195,9 +84,11 @@ textarea {
   width: 100%;
   transition: background-color 0.3s;
 }
+
 .btn-submit:hover {
   background-color: #2980b9;
 }
+
 .required::after {
   content: "*";
   color: #e74c3c;
@@ -213,16 +104,6 @@ small {
   font-size: 16px;
   font-style: italic;
   margin-bottom: 10px;
-}
-
-.success-message {
-  display: none;
-  background-color: #d4edda;
-  color: #155724;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 20px;
-  text-align: center;
 }
 
 fieldset {
@@ -264,28 +145,62 @@ fieldset:last-of-type {
   background-color: rgba(211, 47, 47, 0.05);
 }
 
-input:focus, textarea:focus {
+/* Focus styling */
+input:focus, 
+textarea:focus {
   outline: none;
   border-color: #3498db;
   box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
 }
 
-input.invalid:focus, textarea.invalid:focus {
+input.invalid:focus, 
+textarea.invalid:focus {
   border-color: #d32f2f !important;
   box-shadow: 0 0 3px rgba(211, 47, 47, 0.3);
 }
 
-/* Focus styling */
-input:not(.invalid):focus, 
-textarea:not(.invalid):focus,
 input:not(.invalid):hover, 
 textarea:not(.invalid):hover {
   border-color: #3498db;
 }
 
-/* Valid input visual feedback */
-input:not(.invalid):valid:not(:placeholder-shown),
-textarea:not(.invalid):valid:not(:placeholder-shown) {
+/* Only apply green validation to required fields that are valid */
+input[required]:valid:not(.invalid):not(:placeholder-shown),
+textarea[required]:valid:not(.invalid):not(:placeholder-shown) {
   border-color: #4caf50;
   background-color: rgba(76, 175, 80, 0.05);
+}
+
+/* Keep normal styling for non-required fields */
+input:not([required]),
+textarea:not([required]) {
+  border-color: #ddd;
+  background-color: #fff;
+}
+
+/* Explicitly valid state */
+input.valid,
+textarea.valid {
+  border-color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+/* Toast notification styling */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #d4edda;
+  color: #155724;
+  padding: 15px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transform: translateX(110%);
+  transition: transform 0.3s ease-in-out;
+  max-width: 300px;
+}
+
+.toast-notification.show {
+  transform: translateX(0);
 }

@@ -135,10 +135,6 @@
             <small><span class="asterisk">*</span> = required field</small>
             <button type="submit" class="btn-submit">Submit Inquiry</button>
         </form>
-        
-        <div class="success-message" id="success-message">
-            Thank you for your inquiry! We'll be in touch soon.
-        </div>
     </div>
 
     <script>
@@ -203,6 +199,31 @@
                 } catch (e) {
                     return false;
                 }
+            }
+            
+            // Toast notification function
+            function showToast(message) {
+                // Create toast element if it doesn't exist
+                let toast = document.getElementById('toast-notification');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'toast-notification';
+                    toast.className = 'toast-notification';
+                    document.body.appendChild(toast);
+                }
+                
+                // Set message
+                toast.textContent = message;
+                
+                // Show toast
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+                
+                // Hide toast after 5 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 5000);
             }
             
             // Add blur event listeners to validate as user moves between fields
@@ -394,15 +415,21 @@
                     });
                     
                     if (response.ok) {
-                        document.getElementById('inquiry-form').style.display = 'none';
-                        document.getElementById('success-message').style.display = 'block';
+                        // Show success message as toast notification
+                        showToast('Thank you for your inquiry! We\'ll be in touch soon.');
+                        
+                        // Reset the form
+                        form.reset();
+                        
+                        // Hide any conditional fields
+                        document.getElementById('websiteAddressField').style.display = 'none';
                     } else {
                         const errorData = await response.json();
                         throw new Error(errorData.message || 'Server responded with an error');
                     }
                 } catch (error) {
                     console.error('Error submitting form:', error);
-                    alert('There was an error submitting your inquiry: ' + error.message);
+                    showToast('Error: ' + error.message);
                 }
             });
 

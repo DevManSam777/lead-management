@@ -16,7 +16,7 @@ function formatPhoneNumber(phoneNumber) {
   // Check if we have enough digits for a complete phone number
   if (cleaned.length < 10) return phoneNumber; // Return original if not enough digits
 
-  // Format as (XXX)XXX-XXXX - no space after area code
+  // Format as XXX-XXX-XXXX 
   const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
   if (match) {
     return match[1] + "-" + match[2] + "-" + match[3];
@@ -1646,7 +1646,6 @@ async function saveLead() {
   }
 }
 
-// View lead details
 window.viewLead = function (leadId) {
   const lead = allLeads.find((l) => l._id === leadId);
   if (!lead) {
