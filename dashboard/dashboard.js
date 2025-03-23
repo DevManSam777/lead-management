@@ -862,6 +862,17 @@ function renderLeads(leads) {
   }
 }
 
+// Get lead name based on schema
+function getLeadName(lead) {
+  if (lead.firstName && lead.lastName) {
+    return `${lead.firstName} ${lead.lastName}`;
+  } else if (lead.name) {
+    return lead.name;
+  } else {
+    return "Unknown";
+  }
+}
+
 // Render Grid View
 function renderGridView(leads) {
   const leadCards = document.getElementById("leadCards");
@@ -870,11 +881,6 @@ function renderGridView(leads) {
   if (leads.length === 0) {
     leadCards.innerHTML = '<div class="lead-card"><p>No leads found</p></div>';
     return;
-  }
-
-  // Log first lead for debugging
-  if (leads.length > 0) {
-    console.log("First lead structure:", JSON.stringify(leads[0], null, 2));
   }
 
   leads.forEach((lead) => {
@@ -886,6 +892,7 @@ function renderGridView(leads) {
       ? new Date(lead.createdAt).toLocaleDateString()
       : "N/A";
 
+    // Always display Last Contacted date field
     let lastContactedDate = "N/A";
     if (lead.lastContactedAt) {
       // Parse the stored date
@@ -949,80 +956,35 @@ function renderGridView(leads) {
         ? "No"
         : "N/A";
 
+    // Display business information with N/A as default
+    const businessName = lead.businessName || "N/A";
+    const businessEmail = lead.businessEmail || "N/A";
+
     card.innerHTML = `
             <h3>${fullName}</h3>
             <p><strong>Email:</strong> ${lead.email || "N/A"}</p>
             <p><strong>Phone:</strong> ${lead.phone || "N/A"}</p>
-            ${
-              lead.textNumber
-                ? `<p><strong>Text Number:</strong> ${lead.textNumber}</p>`
-                : ""
-            }
-            ${
-              lead.businessName
-                ? `<p><strong>Business:</strong> ${lead.businessName}</p>`
-                : ""
-            }
-            ${
-              lead.businessPhone
-                ? `<p><strong>Business Phone:</strong> ${lead.businessPhone}</p>`
-                : ""
-            }
-            ${
-              lead.businessEmail
-                ? `<p><strong>Business Email:</strong> ${lead.businessEmail}</p>`
-                : ""
-            }
-            ${
-              lead.preferredContact
-                ? `<p><strong>Preferred Contact:</strong> ${preferredContact}</p>`
-                : ""
-            }
+            ${lead.textNumber ? `<p><strong>Text Number:</strong> ${lead.textNumber}</p>` : ""}
+            <p><strong>Business:</strong> ${businessName}</p>
+            ${lead.businessPhone ? `<p><strong>Business Phone:</strong> ${lead.businessPhone}</p>` : ""}
+            <p><strong>Business Email:</strong> ${businessEmail}</p>
+            ${lead.preferredContact ? `<p><strong>Preferred Contact:</strong> ${preferredContact}</p>` : ""}
             <p><strong>Service:</strong> ${serviceType}</p>
             <p><strong>Has Website:</strong> ${hasWebsite}</p>
-            ${
-              lead.websiteAddress
-                ? `<p><strong>Website:</strong> ${lead.websiteAddress}</p>`
-                : ""
-            }
+            ${lead.websiteAddress ? `<p><strong>Website:</strong> ${lead.websiteAddress}</p>` : ""}
             <p><strong>Budget:</strong> ${budget}</p>
             <p><strong>Created:</strong> ${createdDate}</p>
-            ${
-              lead.lastContactedAt
-                ? `<p><strong>Last Contacted:</strong> ${lastContactedDate}</p>`
-                : ""
-            }
-            <p><strong>Status:</strong> <span class="lead-status status-${(
-              lead.status || "new"
-            ).toLowerCase()}">${capitalizeFirstLetter(
-      lead.status || "new"
-    )}</span></p>
+            <p><strong>Last Contacted:</strong> ${lastContactedDate}</p>
+            <p><strong>Status:</strong> <span class="lead-status status-${(lead.status || "new").toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></p>
             <div class="lead-card-actions">
-                <button onclick="viewLead('${
-                  lead._id
-                }')"><i class="fas fa-eye"></i></button>
-                <button onclick="editLead('${
-                  lead._id
-                }')"><i class="fas fa-edit"></i></button>
-                <button onclick="deleteLead('${
-                  lead._id
-                }')"><i class="fas fa-trash"></i></button>
+                <button onclick="viewLead('${lead._id}')"><i class="fas fa-eye"></i></button>
+                <button onclick="editLead('${lead._id}')"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteLead('${lead._id}')"><i class="fas fa-trash"></i></button>
             </div>
         `;
 
     leadCards.appendChild(card);
   });
-}
-
-// Get lead name based on schema
-function getLeadName(lead) {
-  if (lead.firstName && lead.lastName) {
-    return `${lead.firstName} ${lead.lastName}`;
-  } else if (lead.name) {
-    return lead.name;
-  } else {
-    return "Unknown";
-  }
 }
 
 // Render List View
@@ -1031,7 +993,7 @@ function renderListView(leads) {
   leadsTableBody.innerHTML = "";
 
   if (leads.length === 0) {
-    leadsTableBody.innerHTML = '<tr><td colspan="10">No leads found</td></tr>';
+    leadsTableBody.innerHTML = '<tr><td colspan="12">No leads found</td></tr>';
     return;
   }
 
@@ -1042,6 +1004,21 @@ function renderListView(leads) {
     const createdDate = lead.createdAt
       ? new Date(lead.createdAt).toLocaleDateString()
       : "N/A";
+
+    // Always display Last Contacted date
+    let lastContactedDate = "N/A";
+    if (lead.lastContactedAt) {
+      // Parse the stored date
+      const dateObj = new Date(lead.lastContactedAt);
+      
+      // Fix timezone offset issue
+      if (dateObj.getUTCHours() === 0 && dateObj.getUTCMinutes() === 0) {
+        dateObj.setDate(dateObj.getDate() + 1);
+      }
+      
+      // Format as local date string
+      lastContactedDate = dateObj.toLocaleDateString();
+    }
 
     // Handle name display based on your schema
     const fullName = getLeadName(lead);
@@ -1064,8 +1041,9 @@ function renderListView(leads) {
       }
     }
 
-    // Determine business info
+    // Determine business info and handle empty values
     const business = lead.businessName || "N/A";
+    const businessEmail = lead.businessEmail || "N/A";
 
     // Determine website info
     const website =
@@ -1078,25 +1056,17 @@ function renderListView(leads) {
             <td>${lead.email || "N/A"}</td>
             <td>${lead.phone || "N/A"}</td>
             <td>${business}</td>
+            <td>${businessEmail}</td>
             <td>${serviceType}</td>
             <td>${website}</td>
             <td>${budget}</td>
             <td>${createdDate}</td>
-            <td><span class="lead-status status-${(
-              lead.status || "new"
-            ).toLowerCase()}">${capitalizeFirstLetter(
-      lead.status || "new"
-    )}</span></td>
+            <td>${lastContactedDate}</td>
+            <td><span class="lead-status status-${(lead.status || "new").toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
             <td>
-                <button onclick="viewLead('${
-                  lead._id
-                }')"><i class="fas fa-eye"></i></button>
-                <button onclick="editLead('${
-                  lead._id
-                }')"><i class="fas fa-edit"></i></button>
-                <button onclick="deleteLead('${
-                  lead._id
-                }')"><i class="fas fa-trash"></i></button>
+                <button onclick="viewLead('${lead._id}')"><i class="fas fa-eye"></i></button>
+                <button onclick="editLead('${lead._id}')"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteLead('${lead._id}')"><i class="fas fa-trash"></i></button>
             </td>
         `;
 
@@ -1201,6 +1171,7 @@ function sortLeads() {
   sortLeadsAndRender(allLeads);
 }
 
+// Corrected sortLeadsAndRender function with proper Last Contacted sorting
 function sortLeadsAndRender(leadsToSort) {
   const sortField = document.getElementById("sortField").value;
   const sortOrder = document.getElementById("sortOrder").value;
@@ -1224,6 +1195,34 @@ function sortLeadsAndRender(leadsToSort) {
       const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
       const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
       comparison = dateA - dateB;
+    } else if (sortField === "lastContactedAt") {
+      // Special handling for lastContactedAt
+      const hasContactA = !!a.lastContactedAt;
+      const hasContactB = !!b.lastContactedAt;
+      
+      if (hasContactA !== hasContactB) {
+        // One has contact date and the other doesn't
+        if (sortOrder === "asc") {
+          // For ASC (oldest first): N/A entries first
+          return hasContactA ? 1 : -1;  // false (-1) comes before true (1)
+        } else {
+          // For DESC (newest first): entries with dates first
+          return hasContactA ? -1 : 1;  // true (-1) comes before false (1)
+        }
+      } else if (hasContactA && hasContactB) {
+        // Both have contact dates, compare normally
+        const dateA = new Date(a.lastContactedAt);
+        const dateB = new Date(b.lastContactedAt);
+        comparison = dateA - dateB;
+        
+        // For DESC (newest first): reverse the comparison
+        if (sortOrder === "desc") {
+          comparison = -comparison;  // This will make newer dates come first
+        }
+      } else {
+        // Both don't have contact dates - they're equal
+        comparison = 0;
+      }
     } else if (sortField === "firstName") {
       // Sort by last name first, then first name
       const lastNameA = (a.lastName || '').toLowerCase();
@@ -1238,6 +1237,34 @@ function sortLeadsAndRender(leadsToSort) {
         const firstNameB = (b.firstName || '').toLowerCase();
         comparison = firstNameA.localeCompare(firstNameB);
       }
+    } else if (sortField === "businessName") {
+      // Special handling for business name - prioritize leads with business names
+      const businessA = a.businessName || "";
+      const businessB = b.businessName || "";
+      
+      // If one has a business name and the other doesn't, prioritize the one with a name
+      if (businessA && !businessB) {
+        return -1; // A has business, B doesn't - A comes first
+      } else if (!businessA && businessB) {
+        return 1; // B has business, A doesn't - B comes first
+      } else {
+        // Both have business names or both don't, compare normally
+        comparison = businessA.toLowerCase().localeCompare(businessB.toLowerCase());
+      }
+    } else if (sortField === "businessEmail") {
+      // Special handling for business email - prioritize leads with business emails
+      const emailA = a.businessEmail || "";
+      const emailB = b.businessEmail || "";
+      
+      // If one has a business email and the other doesn't, prioritize the one with an email
+      if (emailA && !emailB) {
+        return -1; // A has email, B doesn't - A comes first
+      } else if (!emailA && emailB) {
+        return 1; // B has email, A doesn't - B comes first
+      } else {
+        // Both have business emails or both don't, compare normally
+        comparison = emailA.toLowerCase().localeCompare(emailB.toLowerCase());
+      }
     } else if (sortField === "budget") {
       // Extract numeric values from budget strings
       const budgetA = a.budget
@@ -1247,6 +1274,23 @@ function sortLeadsAndRender(leadsToSort) {
         ? parseFloat(String(b.budget).replace(/[^\d.-]+/g, ""))
         : 0;
       comparison = budgetA - budgetB;
+    } else if (sortField === "status") {
+      // Custom status order: new, contacted, in-progress, closed-won, closed-lost
+      const statusOrder = {
+        "new": 1,
+        "contacted": 2,
+        "in-progress": 3,
+        "closed-won": 4,
+        "closed-lost": 5
+      };
+      
+      const statusA = a.status ? a.status.toLowerCase() : "new";
+      const statusB = b.status ? b.status.toLowerCase() : "new";
+      
+      const orderA = statusOrder[statusA] || 999;
+      const orderB = statusOrder[statusB] || 999;
+      
+      comparison = orderA - orderB;
     } else {
       // For other fields, do a basic comparison
       const valueA = a[sortField] || "";
@@ -1260,8 +1304,13 @@ function sortLeadsAndRender(leadsToSort) {
       }
     }
 
-    // Apply sort order (ascending or descending)
-    return sortOrder === "asc" ? comparison : -comparison;
+    // Apply sort order (ascending or descending) for normal comparisons
+    // For lastContactedAt we've already handled the orders specially
+    if (sortField === "lastContactedAt") {
+      return comparison;
+    } else {
+      return sortOrder === "asc" ? comparison : -comparison;
+    }
   });
 
   // Render the sorted results

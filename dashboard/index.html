@@ -61,37 +61,42 @@
             </select>
             
             <!-- Combined sort dropdown with Business Name options -->
-            <select id="combinedSort">
-              <option value="createdAt-desc">Date (Newest First)</option>
-              <option value="createdAt-asc">Date (Oldest First)</option>
-              <option value="lastContactedAt-desc">Last Contacted (Newest First)</option>
-              <option value="lastContactedAt-asc">Last Contacted (Oldest First)</option>
-              <option value="firstName-asc">Name (A to Z)</option>
-              <option value="firstName-desc">Name (Z to A)</option>
-              <option value="businessName-asc">Business Name (A to Z)</option>
-              <option value="businessName-desc">Business Name (Z to A)</option>
-              <option value="email-asc">Email (A to Z)</option>
-              <option value="email-desc">Email (Z to A)</option>
-              <option value="budget-desc">Budget (High to Low)</option>
-              <option value="budget-asc">Budget (Low to High)</option>
-              <option value="status-desc">Status (New to Closed)</option>
-              <option value="status-asc">Status (Closed to New)</option>
-            </select>
-
-            <!-- Hidden original dropdowns that the JS code will still use -->
-            <select id="sortField" style="display: none">
-              <option value="createdAt">Date</option>
-              <option value="lastContactedAt">Last Contacted</option>
-              <option value="firstName">Name</option>
-              <option value="businessName">Business Name</option>
-              <option value="email">Email</option>
-              <option value="budget">Budget</option>
-              <option value="status">Status</option>
-            </select>
-            <select id="sortOrder" style="display: none">
-              <option value="desc">Newest First</option>
-              <option value="asc">Oldest First</option>
-            </select>
+           <!-- Combined sort dropdown with Business Email options -->
+<select id="combinedSort">
+    <option value="createdAt-desc">Date (Newest First)</option>
+    <option value="createdAt-asc">Date (Oldest First)</option>
+    <option value="lastContactedAt-desc">Last Contacted (Newest First)</option>
+    <option value="lastContactedAt-asc">Last Contacted (Oldest First)</option>
+    <option value="firstName-asc">Name (A to Z)</option>
+    <option value="firstName-desc">Name (Z to A)</option>
+    <option value="email-asc">Email (A to Z)</option>
+    <option value="email-desc">Email (Z to A)</option>
+    <option value="businessName-asc">Business Name (A to Z)</option>
+    <option value="businessName-desc">Business Name (Z to A)</option>
+    <option value="businessEmail-asc">Business Email (A to Z)</option>
+    <option value="businessEmail-desc">Business Email (Z to A)</option>
+    
+    <option value="budget-desc">Budget (High to Low)</option>
+    <option value="budget-asc">Budget (Low to High)</option>
+    <option value="status-asc">Status (New to Closed)</option>
+    <option value="status-desc">Status (Closed to New)</option>
+  </select>
+  
+  <!-- Hidden original dropdowns that the JS code will still use -->
+  <select id="sortField" style="display: none">
+    <option value="createdAt">Date</option>
+    <option value="lastContactedAt">Last Contacted</option>
+    <option value="firstName">Name</option>
+    <option value="businessName">Business Name</option>
+    <option value="businessEmail">Business Email</option>
+    <option value="email">Email</option>
+    <option value="budget">Budget</option>
+    <option value="status">Status</option>
+  </select>
+  <select id="sortOrder" style="display: none">
+    <option value="desc">Newest First</option>
+    <option value="asc">Oldest First</option>
+  </select>
             
             <button id="addLeadBtn" class="btn btn-primary">
               <i class="fas fa-plus"></i> Add Lead
@@ -149,26 +154,28 @@
           <div class="lead-cards" id="leadCards">
             <!-- Lead cards will be generated here -->
           </div>
-          <!-- Updated Table View (Hidden by default) -->
-          <table class="leads-table" id="leadsTable" style="display: none">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Business</th>
-                <th>Service</th>
-                <th>Website</th>
-                <th>Budget</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="leadsTableBody">
-              <!-- Table rows will be generated here -->
-            </tbody>
-          </table>
+         <!-- Updated Table View with Last Contacted and Business Email columns -->
+<table class="leads-table" id="leadsTable" style="display: none">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Business</th>
+        <th>Business Email</th>
+        <th>Service</th>
+        <th>Website</th>
+        <th>Budget</th>
+        <th>Created</th>
+        <th>Last Contacted</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="leadsTableBody">
+      <!-- Table rows will be generated here -->
+    </tbody>
+  </table>
         </div>
       </main>
     </div>
