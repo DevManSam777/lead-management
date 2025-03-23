@@ -6,6 +6,26 @@ let allLeads = [];
 let currentView = "grid"; // 'grid' or 'list'
 let defaultCurrency = "USD"; // Store the default currency
 
+// Phone number formatting function
+function formatPhoneNumber(phoneNumber) {
+  if (!phoneNumber) return "";
+
+  // Remove all non-digit characters
+  const cleaned = phoneNumber.replace(/\D/g, "");
+
+  // Check if we have enough digits for a complete phone number
+  if (cleaned.length < 10) return phoneNumber; // Return original if not enough digits
+
+  // Format as (XXX)XXX-XXXX - no space after area code
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return match[1] + "-" + match[2] + "-" + match[3];
+  }
+
+  // If it doesn't match the expected pattern, return the original
+  return phoneNumber;
+}
+
 // DOM Elements
 document.addEventListener("DOMContentLoaded", function () {
   // Fetch leads on page load
@@ -82,157 +102,115 @@ document.addEventListener("DOMContentLoaded", function () {
   setupFormValidation();
 });
 
-// // Theme Toggle Functionality
-// function setupThemeToggle() {
-//   // Check for saved theme preference or use preferred color scheme
-//   const currentTheme = localStorage.getItem('theme') || 
-//     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  
-//   // Apply the theme
-//   setTheme(currentTheme);
-  
-//   // Add theme toggle button to the header
-//   const header = document.querySelector('.header');
-//   const toggleButton = document.createElement('button');
-//   toggleButton.className = 'theme-toggle';
-//   toggleButton.id = 'themeToggle';
-//   toggleButton.innerHTML = currentTheme === 'dark' 
-//     ? '<i class="fas fa-sun"></i>' 
-//     : '<i class="fas fa-moon"></i>';
-//   toggleButton.setAttribute('title', currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
-  
-//   // Insert the toggle button after the header title
-//   const headerTitle = header.querySelector('h2');
-//   if (headerTitle) {
-//     headerTitle.parentNode.insertBefore(toggleButton, headerTitle.nextSibling);
-//   } else {
-//     header.prepend(toggleButton);
-//   }
-  
-//   // Add click event listener
-//   toggleButton.addEventListener('click', toggleTheme);
-// }
-
-// // Toggle between light and dark themes
-// // Toggle between light and dark themes
-// function toggleTheme() {
-//   const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-//   const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-  
-//   setTheme(newTheme);
-//   localStorage.setItem('theme', newTheme);
-  
-//   // Update the toggle button icon in the header
-//   const toggleButton = document.getElementById('themeToggle');
-//   if (toggleButton) {
-//     toggleButton.innerHTML = newTheme === 'dark' 
-//       ? '<i class="fas fa-sun"></i>' 
-//       : '<i class="fas fa-moon"></i>';
-//     toggleButton.setAttribute('title', newTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
-//   }
-  
-//   // Update the sidebar toggle icon as well
-//   const sidebarToggle = document.querySelector('.sidebar-menu li:last-child a i');
-//   if (sidebarToggle) {
-//     sidebarToggle.className = `fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}`;
-//   }
-// }
-
 // Update this function in your dashboard.js file
 function setupThemeToggle() {
   // Check for saved theme preference or use preferred color scheme
-  const currentTheme = localStorage.getItem('theme') || 
-    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  
+  const currentTheme =
+    localStorage.getItem("theme") ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
+
   // Apply the theme
   setTheme(currentTheme);
-  
+
   // Add theme toggle button to the header
-  const header = document.querySelector('.header');
-  
+  const header = document.querySelector(".header");
+
   // Check if toggle already exists
-  if (!document.getElementById('themeToggle')) {
-    const toggleButton = document.createElement('button');
-    toggleButton.className = 'theme-toggle';
-    toggleButton.id = 'themeToggle';
-    
+  if (!document.getElementById("themeToggle")) {
+    const toggleButton = document.createElement("button");
+    toggleButton.className = "theme-toggle";
+    toggleButton.id = "themeToggle";
+
     // Add only the icon (text will be added via CSS ::after)
-    toggleButton.innerHTML = currentTheme === 'dark' 
-      ? '<i class="fas fa-sun"></i>' 
-      : '<i class="fas fa-moon"></i>';
-    
-    toggleButton.setAttribute('title', currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
-    
+    toggleButton.innerHTML =
+      currentTheme === "dark"
+        ? '<i class="fas fa-sun"></i>'
+        : '<i class="fas fa-moon"></i>';
+
+    toggleButton.setAttribute(
+      "title",
+      currentTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"
+    );
+
     // Append to body instead of header for absolute positioning
     document.body.appendChild(toggleButton);
-    
+
     // Add click event listener
-    toggleButton.addEventListener('click', toggleTheme);
+    toggleButton.addEventListener("click", toggleTheme);
   }
 }
 
 // Update this function in your dashboard.js file
 function toggleTheme() {
-  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-  
+  const currentTheme =
+    document.documentElement.getAttribute("data-theme") || "light";
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+
   setTheme(newTheme);
-  localStorage.setItem('theme', newTheme);
-  
+  localStorage.setItem("theme", newTheme);
+
   // Update the toggle button icon only (text comes from CSS)
-  const toggleButton = document.getElementById('themeToggle');
+  const toggleButton = document.getElementById("themeToggle");
   if (toggleButton) {
-    toggleButton.innerHTML = newTheme === 'dark' 
-      ? '<i class="fas fa-sun"></i>' 
-      : '<i class="fas fa-moon"></i>';
-    toggleButton.setAttribute('title', newTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+    toggleButton.innerHTML =
+      newTheme === "dark"
+        ? '<i class="fas fa-sun"></i>'
+        : '<i class="fas fa-moon"></i>';
+    toggleButton.setAttribute(
+      "title",
+      newTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"
+    );
   }
 }
 
 // Set theme on HTML element
 function setTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.setAttribute("data-theme", theme);
 }
 
 // Setup theme toggle in the sidebar
 function setupSidebarThemeToggle() {
   // Get all sidebar menu items
-  const sidebarMenuItems = document.querySelectorAll('.sidebar-menu li');
-  
+  const sidebarMenuItems = document.querySelectorAll(".sidebar-menu li");
+
   // If we have at least one item, use the last one for theme toggle
   if (sidebarMenuItems.length > 0) {
     // Use the last item in the list (whatever it is)
     const lastItem = sidebarMenuItems[sidebarMenuItems.length - 1];
-    
+
     if (lastItem) {
-      const link = lastItem.querySelector('a');
+      const link = lastItem.querySelector("a");
       if (link) {
         // Get current theme
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-        
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme") || "light";
+
         // Create the HTML with the icon and text properly aligned
         link.innerHTML = `
-          <i class="fas fa-${currentTheme === 'dark' ? 'sun' : 'moon'}"></i>
+          <i class="fas fa-${currentTheme === "dark" ? "sun" : "moon"}"></i>
           <span style="margin-left: 10px;">Theme Toggle</span>
         `;
-        
+
         // Update click handler
         link.href = "#";
-        
+
         // Remove any existing event listeners and create a fresh link
         const newLink = link.cloneNode(true);
         link.parentNode.replaceChild(newLink, link);
-        
+
         // Add new click handler
-        newLink.addEventListener('click', function(e) {
+        newLink.addEventListener("click", function (e) {
           e.preventDefault();
           toggleTheme();
-          
+
           // Update the sidebar icon when toggling
-          const icon = this.querySelector('i');
+          const icon = this.querySelector("i");
           if (icon) {
-            const newTheme = document.documentElement.getAttribute('data-theme') || 'light';
-            icon.className = `fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}`;
+            const newTheme =
+              document.documentElement.getAttribute("data-theme") || "light";
+            icon.className = `fas fa-${newTheme === "dark" ? "sun" : "moon"}`;
           }
         });
       }
@@ -241,16 +219,16 @@ function setupSidebarThemeToggle() {
 }
 
 // Initialize theme functionality
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   // Setup initial theme
-  const savedTheme = localStorage.getItem('theme');
+  const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
     setTheme(savedTheme);
   }
-  
+
   // Add theme toggle to header
   setupThemeToggle();
-  
+
   // Setup sidebar theme toggle (renamed from replaceSidebarLinks)
   setupSidebarThemeToggle();
 });
@@ -1109,27 +1087,55 @@ function renderGridView(leads) {
     const businessEmail = lead.businessEmail || "N/A";
 
     card.innerHTML = `
-            <h3>${fullName}</h3>
-            <p><strong>Email:</strong> ${lead.email || "N/A"}</p>
-            <p><strong>Phone:</strong> ${lead.phone || "N/A"}</p>
-            ${lead.textNumber ? `<p><strong>Text Number:</strong> ${lead.textNumber}</p>` : ""}
-            <p><strong>Business:</strong> ${businessName}</p>
-            ${lead.businessPhone ? `<p><strong>Business Phone:</strong> ${lead.businessPhone}</p>` : ""}
-            <p><strong>Business Email:</strong> ${businessEmail}</p>
-            ${lead.preferredContact ? `<p><strong>Preferred Contact:</strong> ${preferredContact}</p>` : ""}
-            <p><strong>Service:</strong> ${serviceType}</p>
-            <p><strong>Has Website:</strong> ${hasWebsite}</p>
-            ${lead.websiteAddress ? `<p><strong>Website:</strong> ${lead.websiteAddress}</p>` : ""}
-            <p><strong>Budget:</strong> ${budget}</p>
-            <p><strong>Created:</strong> ${createdDate}</p>
-            <p><strong>Last Contacted:</strong> ${lastContactedDate}</p>
-            <p><strong>Status:</strong> <span class="lead-status status-${(lead.status || "new").toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></p>
-            <div class="lead-card-actions">
-                <button onclick="viewLead('${lead._id}')"><i class="fas fa-eye"></i></button>
-                <button onclick="editLead('${lead._id}')"><i class="fas fa-edit"></i></button>
-                <button onclick="deleteLead('${lead._id}')"><i class="fas fa-trash"></i></button>
-            </div>
-        `;
+    <h3>${fullName}</h3>
+    <p><strong>Email:</strong> ${lead.email || "N/A"}</p>
+    <p><strong>Phone:</strong> ${formatPhoneNumber(lead.phone) || "N/A"}</p>
+    ${
+      lead.textNumber
+        ? `<p><strong>Text Number:</strong> ${formatPhoneNumber(
+            lead.textNumber
+          )}</p>`
+        : ""
+    }
+    <p><strong>Business:</strong> ${businessName}</p>
+    ${
+      lead.businessPhone
+        ? `<p><strong>Business Phone:</strong> ${formatPhoneNumber(
+            lead.businessPhone
+          )}</p>`
+        : ""
+    }
+    <p><strong>Business Email:</strong> ${businessEmail}</p>
+    ${
+      lead.preferredContact
+        ? `<p><strong>Preferred Contact:</strong> ${preferredContact}</p>`
+        : ""
+    }
+    <p><strong>Service:</strong> ${serviceType}</p>
+    <p><strong>Has Website:</strong> ${hasWebsite}</p>
+    ${
+      lead.websiteAddress
+        ? `<p><strong>Website:</strong> ${lead.websiteAddress}</p>`
+        : ""
+    }
+    <p><strong>Budget:</strong> ${budget}</p>
+    <p><strong>Created:</strong> ${createdDate}</p>
+    <p><strong>Last Contacted:</strong> ${lastContactedDate}</p>
+    <p><strong>Status:</strong> <span class="lead-status status-${(
+      lead.status || "new"
+    ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></p>
+    <div class="lead-card-actions">
+        <button onclick="viewLead('${
+          lead._id
+        }')"><i class="fas fa-eye"></i></button>
+        <button onclick="editLead('${
+          lead._id
+        }')"><i class="fas fa-edit"></i></button>
+        <button onclick="deleteLead('${
+          lead._id
+        }')"><i class="fas fa-trash"></i></button>
+    </div>
+`;
 
     leadCards.appendChild(card);
   });
@@ -1157,12 +1163,12 @@ function renderListView(leads) {
     if (lead.lastContactedAt) {
       // Parse the stored date
       const dateObj = new Date(lead.lastContactedAt);
-      
+
       // Fix timezone offset issue
       if (dateObj.getUTCHours() === 0 && dateObj.getUTCMinutes() === 0) {
         dateObj.setDate(dateObj.getDate() + 1);
       }
-      
+
       // Format as local date string
       lastContactedDate = dateObj.toLocaleDateString();
     }
@@ -1187,20 +1193,28 @@ function renderListView(leads) {
     const business = lead.businessName || "N/A";
 
     row.innerHTML = `
-            <td>${fullName}</td>
-            <td>${lead.email || "N/A"}</td>
-            <td>${lead.phone || "N/A"}</td>
-            <td>${business}</td>
-            <td>${budget}</td>
-            <td>${createdDate}</td>
-            <td>${lastContactedDate}</td>
-            <td><span class="lead-status status-${(lead.status || "new").toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
-            <td>
-                <button onclick="viewLead('${lead._id}')"><i class="fas fa-eye"></i></button>
-                <button onclick="editLead('${lead._id}')"><i class="fas fa-edit"></i></button>
-                <button onclick="deleteLead('${lead._id}')"><i class="fas fa-trash"></i></button>
-            </td>
-        `;
+    <td>${fullName}</td>
+    <td>${lead.email || "N/A"}</td>
+    <td>${formatPhoneNumber(lead.phone) || "N/A"}</td>
+    <td>${business}</td>
+    <td>${budget}</td>
+    <td>${createdDate}</td>
+    <td>${lastContactedDate}</td>
+    <td><span class="lead-status status-${(
+      lead.status || "new"
+    ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
+    <td>
+        <button onclick="viewLead('${
+          lead._id
+        }')"><i class="fas fa-eye"></i></button>
+        <button onclick="editLead('${
+          lead._id
+        }')"><i class="fas fa-edit"></i></button>
+        <button onclick="deleteLead('${
+          lead._id
+        }')"><i class="fas fa-trash"></i></button>
+    </td>
+`;
 
     leadsTableBody.appendChild(row);
   });
@@ -1331,25 +1345,25 @@ function sortLeadsAndRender(leadsToSort) {
       // Special handling for lastContactedAt
       const hasContactA = !!a.lastContactedAt;
       const hasContactB = !!b.lastContactedAt;
-      
+
       if (hasContactA !== hasContactB) {
         // One has contact date and the other doesn't
         if (sortOrder === "asc") {
           // For ASC (oldest first): N/A entries first
-          return hasContactA ? 1 : -1;  // false (-1) comes before true (1)
+          return hasContactA ? 1 : -1; // false (-1) comes before true (1)
         } else {
           // For DESC (newest first): entries with dates first
-          return hasContactA ? -1 : 1;  // true (-1) comes before false (1)
+          return hasContactA ? -1 : 1; // true (-1) comes before false (1)
         }
       } else if (hasContactA && hasContactB) {
         // Both have contact dates, compare normally
         const dateA = new Date(a.lastContactedAt);
         const dateB = new Date(b.lastContactedAt);
         comparison = dateA - dateB;
-        
+
         // For DESC (newest first): reverse the comparison
         if (sortOrder === "desc") {
-          comparison = -comparison;  // This will make newer dates come first
+          comparison = -comparison; // This will make newer dates come first
         }
       } else {
         // Both don't have contact dates - they're equal
@@ -1357,23 +1371,23 @@ function sortLeadsAndRender(leadsToSort) {
       }
     } else if (sortField === "firstName") {
       // Sort by last name first, then first name
-      const lastNameA = (a.lastName || '').toLowerCase();
-      const lastNameB = (b.lastName || '').toLowerCase();
-      
+      const lastNameA = (a.lastName || "").toLowerCase();
+      const lastNameB = (b.lastName || "").toLowerCase();
+
       // If last names are different, sort by last name
       if (lastNameA !== lastNameB) {
         comparison = lastNameA.localeCompare(lastNameB);
       } else {
         // If last names are the same, sort by first name
-        const firstNameA = (a.firstName || '').toLowerCase();
-        const firstNameB = (b.firstName || '').toLowerCase();
+        const firstNameA = (a.firstName || "").toLowerCase();
+        const firstNameB = (b.firstName || "").toLowerCase();
         comparison = firstNameA.localeCompare(firstNameB);
       }
     } else if (sortField === "businessName") {
       // Special handling for business name - prioritize leads with business names
       const businessA = a.businessName || "";
       const businessB = b.businessName || "";
-      
+
       // If one has a business name and the other doesn't, prioritize the one with a name
       if (businessA && !businessB) {
         return -1; // A has business, B doesn't - A comes first
@@ -1381,13 +1395,15 @@ function sortLeadsAndRender(leadsToSort) {
         return 1; // B has business, A doesn't - B comes first
       } else {
         // Both have business names or both don't, compare normally
-        comparison = businessA.toLowerCase().localeCompare(businessB.toLowerCase());
+        comparison = businessA
+          .toLowerCase()
+          .localeCompare(businessB.toLowerCase());
       }
     } else if (sortField === "businessEmail") {
       // Special handling for business email - prioritize leads with business emails
       const emailA = a.businessEmail || "";
       const emailB = b.businessEmail || "";
-      
+
       // If one has a business email and the other doesn't, prioritize the one with an email
       if (emailA && !emailB) {
         return -1; // A has email, B doesn't - A comes first
@@ -1409,19 +1425,19 @@ function sortLeadsAndRender(leadsToSort) {
     } else if (sortField === "status") {
       // Custom status order: new, contacted, in-progress, closed-won, closed-lost
       const statusOrder = {
-        "new": 1,
-        "contacted": 2,
+        new: 1,
+        contacted: 2,
         "in-progress": 3,
         "closed-won": 4,
-        "closed-lost": 5
+        "closed-lost": 5,
       };
-      
+
       const statusA = a.status ? a.status.toLowerCase() : "new";
       const statusB = b.status ? b.status.toLowerCase() : "new";
-      
+
       const orderA = statusOrder[statusA] || 999;
       const orderB = statusOrder[statusB] || 999;
-      
+
       comparison = orderA - orderB;
     } else {
       // For other fields, do a basic comparison
@@ -1449,30 +1465,31 @@ function sortLeadsAndRender(leadsToSort) {
   renderLeads(sortedLeads);
 }
 
-    // Bridge for combined sort dropdown
-    const combinedSort = document.getElementById('combinedSort');
-    if (combinedSort) { // Check if the element exists
-      const sortField = document.getElementById('sortField');
-      const sortOrder = document.getElementById('sortOrder');
-      
-      // Add event listener to update hidden dropdowns when the combined dropdown changes
-      combinedSort.addEventListener('change', function() {
-        // Get the selected value which has format "field-order"
-        const [field, order] = this.value.split('-');
-        
-        // Update the hidden dropdowns
-        sortField.value = field;
-        sortOrder.value = order;
-        
-        // Trigger change events to make the main JS apply the sorting
-        sortField.dispatchEvent(new Event('change'));
-        sortOrder.dispatchEvent(new Event('change'));
-      });
-      
-      // Initialize with the default value
-      combinedSort.dispatchEvent(new Event('change'));
-    }
-  
+// Bridge for combined sort dropdown
+const combinedSort = document.getElementById("combinedSort");
+if (combinedSort) {
+  // Check if the element exists
+  const sortField = document.getElementById("sortField");
+  const sortOrder = document.getElementById("sortOrder");
+
+  // Add event listener to update hidden dropdowns when the combined dropdown changes
+  combinedSort.addEventListener("change", function () {
+    // Get the selected value which has format "field-order"
+    const [field, order] = this.value.split("-");
+
+    // Update the hidden dropdowns
+    sortField.value = field;
+    sortOrder.value = order;
+
+    // Trigger change events to make the main JS apply the sorting
+    sortField.dispatchEvent(new Event("change"));
+    sortOrder.dispatchEvent(new Event("change"));
+  });
+
+  // Initialize with the default value
+  combinedSort.dispatchEvent(new Event("change"));
+}
+
 // Open the add lead modal
 function openAddLeadModal() {
   const leadForm = document.getElementById("leadForm");
@@ -1832,20 +1849,18 @@ async function deleteLeadAction(leadId) {
   }
 }
 
-
-
-function showToast(message, type = 'default') {
+function showToast(message, type = "default") {
   const toast = document.getElementById("toast");
   const toastMessage = document.getElementById("toastMessage");
 
   toastMessage.textContent = message;
-  
+
   // Remove any existing type classes
-  toast.classList.remove('deletion');
-  
+  toast.classList.remove("deletion");
+
   // Add deletion class for delete-related messages
-  if (message.includes('deleted')) {
-    toast.classList.add('deletion');
+  if (message.includes("deleted")) {
+    toast.classList.add("deletion");
   }
 
   toast.style.display = "block";

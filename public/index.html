@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -122,7 +120,7 @@
                     
                     <div class="conditional-field" id="websiteAddressField">
                         <label for="websiteAddress">Website Address</label>
-                        <input type="url" id="websiteAddress" name="websiteAddress" placeholder="https://">
+                        <input type="text" id="websiteAddress" name="websiteAddress" placeholder="example.com">
                     </div>
                 </div>
             </fieldset>
@@ -189,11 +187,18 @@
                 return emailRegex.test(email);
             }
             
-            // Validate a URL
+            // Validate a URL - allow with or without protocol prefix
             function isValidUrl(url) {
                 if (!url) return true; // Allow empty URLs
+                
+                // For validation purposes only, add https:// if no protocol is present
+                let testUrl = url;
+                if (!/^https?:\/\//i.test(testUrl)) {
+                    testUrl = 'https://' + testUrl;
+                }
+                
                 try {
-                    new URL(url);
+                    new URL(testUrl);
                     return true;
                 } catch (e) {
                     return false;
@@ -235,18 +240,19 @@
                 });
             });
             
-            const urlInputs = form.querySelectorAll('input[type="url"]');
-            urlInputs.forEach(input => {
-                input.addEventListener('input', function() {
+            // Add input validation for website field
+            const websiteAddressInput = document.getElementById('websiteAddress');
+            if (websiteAddressInput) {
+                websiteAddressInput.addEventListener('input', function() {
                     if (this.value.trim() !== '') {
                         if (!isValidUrl(this.value)) {
-                            showError(this, 'Please enter a valid URL starting with http:// or https://');
+                            showError(this, 'Please enter a valid website address (e.g., example.com)');
                         } else {
                             removeError(this);
                         }
                     }
                 });
-            });
+            }
             
             // Function to validate individual field
             function validateField(field) {
@@ -269,9 +275,9 @@
                     }
                 }
                 
-                if (field.type === 'url' && field.value.trim() !== '') {
+                if (field.id === 'websiteAddress' && field.value.trim() !== '') {
                     if (!isValidUrl(field.value)) {
-                        showError(field, 'Please enter a valid URL starting with http:// or https://');
+                        showError(field, 'Please enter a valid website address (e.g., example.com)');
                         return false;
                     }
                 }
@@ -320,7 +326,7 @@
                 
                 if (hasWebsiteYes.checked && websiteAddress.value.trim() !== '') {
                     if (!isValidUrl(websiteAddress.value)) {
-                        showError(websiteAddress, 'Please enter a valid URL starting with http:// or https://');
+                        showError(websiteAddress, 'Please enter a valid website address (e.g., example.com)');
                         return false;
                     }
                 }
@@ -370,7 +376,12 @@
                 const formData = new FormData(this);
                 const formObject = {};
                 formData.forEach((value, key) => {
-                    formObject[key] = value;
+                    // Add https:// prefix to website address if entered without protocol
+                    if (key === 'websiteAddress' && value && !/^https?:\/\//i.test(value)) {
+                        formObject[key] = 'https://' + value;
+                    } else {
+                        formObject[key] = value;
+                    }
                 });
                 
                 try {
