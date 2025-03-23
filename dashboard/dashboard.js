@@ -1084,13 +1084,12 @@ function renderGridView(leads) {
   });
 }
 
-// Render List View
 function renderListView(leads) {
   const leadsTableBody = document.getElementById("leadsTableBody");
   leadsTableBody.innerHTML = "";
 
   if (leads.length === 0) {
-    leadsTableBody.innerHTML = '<tr><td colspan="12">No leads found</td></tr>';
+    leadsTableBody.innerHTML = '<tr><td colspan="9">No leads found</td></tr>';
     return;
   }
 
@@ -1120,11 +1119,6 @@ function renderListView(leads) {
     // Handle name display based on your schema
     const fullName = getLeadName(lead);
 
-    // Determine service type display
-    let serviceType = lead.serviceDesired || "N/A";
-    if (serviceType === "website") serviceType = "Website";
-    if (serviceType === "app") serviceType = "App Development";
-
     // Format budget with the correct currency symbol
     let budget = "N/A";
     if (lead.budget) {
@@ -1140,22 +1134,12 @@ function renderListView(leads) {
 
     // Determine business info and handle empty values
     const business = lead.businessName || "N/A";
-    const businessEmail = lead.businessEmail || "N/A";
-
-    // Determine website info
-    const website =
-      lead.hasWebsite === "yes" && lead.websiteAddress
-        ? lead.websiteAddress
-        : "N/A";
 
     row.innerHTML = `
             <td>${fullName}</td>
             <td>${lead.email || "N/A"}</td>
             <td>${lead.phone || "N/A"}</td>
             <td>${business}</td>
-            <td>${businessEmail}</td>
-            <td>${serviceType}</td>
-            <td>${website}</td>
             <td>${budget}</td>
             <td>${createdDate}</td>
             <td>${lastContactedDate}</td>

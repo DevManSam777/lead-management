@@ -464,7 +464,7 @@ select {
 
 .status-in-progress {
   background-color: rgba(249, 220, 92, 0.2);
-  color: #f9dc5c;
+  color: #b39133;
 }
 
 .status-closed-won {
