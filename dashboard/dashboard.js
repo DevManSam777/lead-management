@@ -82,7 +82,63 @@ document.addEventListener("DOMContentLoaded", function () {
   setupFormValidation();
 });
 
-// Theme Toggle Functionality
+// // Theme Toggle Functionality
+// function setupThemeToggle() {
+//   // Check for saved theme preference or use preferred color scheme
+//   const currentTheme = localStorage.getItem('theme') || 
+//     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  
+//   // Apply the theme
+//   setTheme(currentTheme);
+  
+//   // Add theme toggle button to the header
+//   const header = document.querySelector('.header');
+//   const toggleButton = document.createElement('button');
+//   toggleButton.className = 'theme-toggle';
+//   toggleButton.id = 'themeToggle';
+//   toggleButton.innerHTML = currentTheme === 'dark' 
+//     ? '<i class="fas fa-sun"></i>' 
+//     : '<i class="fas fa-moon"></i>';
+//   toggleButton.setAttribute('title', currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+  
+//   // Insert the toggle button after the header title
+//   const headerTitle = header.querySelector('h2');
+//   if (headerTitle) {
+//     headerTitle.parentNode.insertBefore(toggleButton, headerTitle.nextSibling);
+//   } else {
+//     header.prepend(toggleButton);
+//   }
+  
+//   // Add click event listener
+//   toggleButton.addEventListener('click', toggleTheme);
+// }
+
+// // Toggle between light and dark themes
+// // Toggle between light and dark themes
+// function toggleTheme() {
+//   const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+//   const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  
+//   setTheme(newTheme);
+//   localStorage.setItem('theme', newTheme);
+  
+//   // Update the toggle button icon in the header
+//   const toggleButton = document.getElementById('themeToggle');
+//   if (toggleButton) {
+//     toggleButton.innerHTML = newTheme === 'dark' 
+//       ? '<i class="fas fa-sun"></i>' 
+//       : '<i class="fas fa-moon"></i>';
+//     toggleButton.setAttribute('title', newTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+//   }
+  
+//   // Update the sidebar toggle icon as well
+//   const sidebarToggle = document.querySelector('.sidebar-menu li:last-child a i');
+//   if (sidebarToggle) {
+//     sidebarToggle.className = `fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}`;
+//   }
+// }
+
+// Update this function in your dashboard.js file
 function setupThemeToggle() {
   // Check for saved theme preference or use preferred color scheme
   const currentTheme = localStorage.getItem('theme') || 
@@ -93,28 +149,29 @@ function setupThemeToggle() {
   
   // Add theme toggle button to the header
   const header = document.querySelector('.header');
-  const toggleButton = document.createElement('button');
-  toggleButton.className = 'theme-toggle';
-  toggleButton.id = 'themeToggle';
-  toggleButton.innerHTML = currentTheme === 'dark' 
-    ? '<i class="fas fa-sun"></i>' 
-    : '<i class="fas fa-moon"></i>';
-  toggleButton.setAttribute('title', currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
   
-  // Insert the toggle button after the header title
-  const headerTitle = header.querySelector('h2');
-  if (headerTitle) {
-    headerTitle.parentNode.insertBefore(toggleButton, headerTitle.nextSibling);
-  } else {
-    header.prepend(toggleButton);
+  // Check if toggle already exists
+  if (!document.getElementById('themeToggle')) {
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'theme-toggle';
+    toggleButton.id = 'themeToggle';
+    
+    // Add only the icon (text will be added via CSS ::after)
+    toggleButton.innerHTML = currentTheme === 'dark' 
+      ? '<i class="fas fa-sun"></i>' 
+      : '<i class="fas fa-moon"></i>';
+    
+    toggleButton.setAttribute('title', currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+    
+    // Append to body instead of header for absolute positioning
+    document.body.appendChild(toggleButton);
+    
+    // Add click event listener
+    toggleButton.addEventListener('click', toggleTheme);
   }
-  
-  // Add click event listener
-  toggleButton.addEventListener('click', toggleTheme);
 }
 
-// Toggle between light and dark themes
-// Toggle between light and dark themes
+// Update this function in your dashboard.js file
 function toggleTheme() {
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
   const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -122,19 +179,13 @@ function toggleTheme() {
   setTheme(newTheme);
   localStorage.setItem('theme', newTheme);
   
-  // Update the toggle button icon in the header
+  // Update the toggle button icon only (text comes from CSS)
   const toggleButton = document.getElementById('themeToggle');
   if (toggleButton) {
     toggleButton.innerHTML = newTheme === 'dark' 
       ? '<i class="fas fa-sun"></i>' 
       : '<i class="fas fa-moon"></i>';
     toggleButton.setAttribute('title', newTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
-  }
-  
-  // Update the sidebar toggle icon as well
-  const sidebarToggle = document.querySelector('.sidebar-menu li:last-child a i');
-  if (sidebarToggle) {
-    sidebarToggle.className = `fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}`;
   }
 }
 

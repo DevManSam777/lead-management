@@ -174,6 +174,7 @@ body {
   width: calc(100% - var(--sidebar-width));
 }
 
+/* Header Styles - Keeping original desktop layout */
 .header {
   display: flex;
   flex-wrap: wrap;
@@ -183,6 +184,8 @@ body {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border-color);
   gap: 15px;
+  width: 100%;
+  position: relative;
 }
 
 .header h2 {
@@ -190,6 +193,7 @@ body {
   color: var(--text-color);
 }
 
+/* Search and filters container - Desktop original */
 .search-filter-sort {
   display: flex;
   flex-wrap: wrap;
@@ -232,6 +236,38 @@ select {
   color: var(--input-text);
   min-width: 120px;
   transition: border-color var(--transition-speed), background-color var(--transition-speed);
+}
+
+/* Theme Toggle Button Styling - Updated to match sidebar style */
+.theme-toggle {
+  display: none; /* Hide by default on desktop */
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: transparent;
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  z-index: 100;
+  border: none;
+}
+
+.theme-toggle i {
+  margin-right: 6px;
+}
+
+.theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle::after {
+  content: "Toggle Theme";
+  font-weight: 500;
 }
 
 /* Stats Cards with Dark Mode Support */
@@ -670,30 +706,6 @@ select {
   border-color: var(--primary);
 }
 
-/* Theme Toggle Button */
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 16px;
-  margin-left: auto;
-  border-radius: 50%;
-  transition: color var(--transition-speed), background-color var(--transition-speed);
-}
-
-.theme-toggle:hover {
-  background-color: var(--light);
-}
-
-.theme-toggle i {
-  font-size: 18px;
-}
-
 /* Responsive Styles */
 @media (max-width: 1200px) {
   .stats-cards {
@@ -706,54 +718,75 @@ select {
 }
 
 @media (max-width: 992px) {
-  .sidebar {
-    width: var(--sidebar-collapsed-width);
+  /* Show theme toggle in mobile view */
+  .theme-toggle {
+    display: flex;
+    top: 15px;
+    right: 15px;
   }
-
-  .sidebar-header h1,
-  .sidebar-header p {
-    display: none;
-  }
-
-  .sidebar-menu a span {
-    display: none;
-  }
-
-  .sidebar-menu i {
-    margin-right: 0;
-  }
-
-  .main-content {
-    margin-left: var(--sidebar-collapsed-width);
-    width: calc(100% - var(--sidebar-collapsed-width));
-  }
-
-  .search-filter-sort {
+  
+  /* Position header at top in mobile view - change layout only for mobile */
+  .header {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
   }
-
+  
+  .header h2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    /* padding: 15px; */
+  }
+  
+  /* Add space below header for other elements */
+  .search-filter-sort {
+    margin-top: 60px;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+  
+  /* Make selects and buttons full width in mobile */
   .search-box {
     width: 100%;
   }
-
+  
   select {
     width: 100%;
+  }
+  
+  #addLeadBtn {
+    width: 100%;
+  }
+  
+  /* Hide sidebar completely in mobile view */
+  .sidebar {
+    display: none;
+  }
+  
+  /* Make main content take up full width */
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+}
+
+/* At 600px and below, hide the text in the theme toggle */
+@media (max-width: 600px) {
+  .theme-toggle::after {
+    content: none;
+  }
+  
+  .theme-toggle i {
+    margin-right: 0;
   }
 }
 
 @media (max-width: 768px) {
   html {
     font-size: 14px;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .search-filter-sort {
-    width: 100%;
   }
 
   .stats-cards {
