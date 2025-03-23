@@ -1,5 +1,6 @@
-/* Variables */
+/* Dark Mode CSS Variables */
 :root {
+  /* Light Mode (default) */
   --primary: #4361ee;
   --secondary: #3f37c9;
   --success: #4cc9f0;
@@ -13,13 +14,66 @@
   --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   --hover-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   --background-color: #f5f7fb;
+  --card-background: #ffffff;
+  --text-color: #333333;
+  --text-muted: #6c757d;
   --card-border-radius: 8px;
   --transition-speed: 0.3s;
   --sidebar-width: 250px;
   --sidebar-collapsed-width: 70px;
+  --sidebar-bg: #212529;
+  --sidebar-text: #ffffff;
+  --sidebar-link: #adb5bd;
+  --sidebar-active: rgba(255, 255, 255, 0.1);
+  --table-stripe: rgba(0, 0, 0, 0.02);
+  --table-hover: rgba(0, 0, 0, 0.05);
+  --input-bg: #ffffff;
+  --input-text: #333333;
+  --input-border: #ced4da;
+  --input-focus: #3498db;
+  --toast-bg: #4caf50;
+  --toast-text: #ffffff;
+  --toast-border: #2e7d32;
+  --toast-deletion-bg: #ff5722;
+  --toast-deletion-border: #d84315;
 }
 
-/* Base Styles */
+/* Dark Mode Variables */
+[data-theme="dark"] {
+  --primary: #5c7cfa;
+  --secondary: #5c6bc0;
+  --success: #4fd1c5;
+  --danger: #f06595;
+  --warning: #f9a826;
+  --info: #74c0fc;
+  --light: #343a40;
+  --dark: #f8f9fa;
+  --gray: #adb5bd;
+  --border-color: #495057;
+  --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  --hover-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  --background-color: #1a1d21;
+  --card-background: #2d3238;
+  --text-color: #e9ecef;
+  --text-muted: #adb5bd;
+  --sidebar-bg: #111418;
+  --sidebar-text: #e9ecef;
+  --sidebar-link: #ced4da;
+  --sidebar-active: rgba(255, 255, 255, 0.15);
+  --table-stripe: rgba(255, 255, 255, 0.03);
+  --table-hover: rgba(255, 255, 255, 0.05);
+  --input-bg: #343a40;
+  --input-text: #e9ecef;
+  --input-border: #495057;
+  --input-focus: #5c7cfa;
+  --toast-bg: #2e7d32;
+  --toast-text: #ffffff;
+  --toast-border: #1b5e20;
+  --toast-deletion-bg: #d84315;
+  --toast-deletion-border: #bf360c;
+}
+
+/* Base Styles with Dark Mode Support */
 * {
   margin: 0;
   padding: 0;
@@ -33,8 +87,9 @@ html {
 
 body {
   background-color: var(--background-color);
-  color: #333;
+  color: var(--text-color);
   overflow-x: hidden;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 .container {
@@ -43,17 +98,17 @@ body {
   position: relative;
 }
 
-/* Sidebar */
+/* Sidebar with Dark Mode Support */
 .sidebar {
   width: var(--sidebar-width);
-  background-color: var(--dark);
-  color: white;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
   padding: 20px 0;
   position: fixed;
   height: 100vh;
   overflow-y: auto;
   z-index: 1000;
-  transition: width var(--transition-speed);
+  transition: width var(--transition-speed), background-color var(--transition-speed);
 }
 
 .sidebar-header {
@@ -83,7 +138,7 @@ body {
 }
 
 .sidebar-menu a {
-  color: #adb5bd;
+  color: var(--sidebar-link);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -94,8 +149,8 @@ body {
 
 .sidebar-menu a:hover,
 .sidebar-menu a.active {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: var(--sidebar-active);
+  color: var(--sidebar-text);
 }
 
 .sidebar-menu i {
@@ -110,12 +165,12 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Main Content */
+/* Main Content with Dark Mode Support */
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-width);
   padding: 20px;
-  transition: margin-left var(--transition-speed);
+  transition: margin-left var(--transition-speed), background-color var(--transition-speed);
   width: calc(100% - var(--sidebar-width));
 }
 
@@ -126,13 +181,13 @@ body {
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--light);
+  border-bottom: 1px solid var(--border-color);
   gap: 15px;
 }
 
 .header h2 {
   font-size: 24px;
-  color: var(--dark);
+  color: var(--text-color);
 }
 
 .search-filter-sort {
@@ -151,10 +206,13 @@ body {
 .search-box input {
   padding: 10px 15px;
   padding-left: 40px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--input-border);
   border-radius: 5px;
   width: 100%;
   font-size: 14px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  transition: border-color var(--transition-speed), background-color var(--transition-speed);
 }
 
 .search-box i {
@@ -162,19 +220,21 @@ body {
   left: 15px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--gray);
+  color: var(--text-muted);
 }
 
 select {
   padding: 10px 15px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--input-border);
   border-radius: 5px;
   font-size: 14px;
-  background-color: white;
+  background-color: var(--input-bg);
+  color: var(--input-text);
   min-width: 120px;
+  transition: border-color var(--transition-speed), background-color var(--transition-speed);
 }
 
-/* Stats Cards */
+/* Stats Cards with Dark Mode Support */
 .stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -183,29 +243,29 @@ select {
 }
 
 .stats-card {
-  background-color: white;
+  background-color: var(--card-background);
   padding: 20px;
   border-radius: var(--card-border-radius);
   box-shadow: var(--box-shadow);
   display: flex;
   flex-direction: column;
-  position: relative; /* Added for positioning */
+  position: relative;
+  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
 .stats-card h3 {
   font-size: 16px;
-  color: var(--gray);
+  color: var(--text-muted);
   margin-bottom: 10px;
 }
 
 .stats-card .value {
   font-size: clamp(24px, 4vw, 28px);
   font-weight: bold;
-  color: var(--dark);
-  margin-bottom: 8px; /* Add space below value */
+  color: var(--text-color);
+  margin-bottom: 8px;
 }
 
-/* Fix for the stats card change text alignment */
 .stats-card .change {
   display: flex;
   align-items: center;
@@ -215,7 +275,7 @@ select {
   line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--gray);
+  color: var(--text-muted);
 }
 
 .stats-card .change i {
@@ -224,28 +284,20 @@ select {
   text-align: center;
 }
 
-
-/* Fix for ensuring inline elements align properly */
 .stats-card .change span {
   display: inline-block;
   vertical-align: middle;
 }
 
-/* Ensure the change indicator doesn't overflow the card */
-@media (max-width: 350px) {
-  .stats-card .change {
-    font-size: 12px;
-  }
-}
-
-/* Leads Container */
+/* Leads Container with Dark Mode Support */
 .leads-container {
-  background-color: white;
+  background-color: var(--card-background);
   border-radius: var(--card-border-radius);
   box-shadow: var(--box-shadow);
   padding: 20px;
   margin-bottom: 30px;
   overflow-x: auto;
+  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
 .leads-header {
@@ -259,10 +311,10 @@ select {
 
 .leads-header h3 {
   font-size: 18px;
-  color: var(--dark);
+  color: var(--text-color);
 }
 
-/* Buttons */
+/* Buttons with Dark Mode Support */
 .btn {
   padding: 8px 15px;
   border: none;
@@ -285,14 +337,14 @@ select {
 .btn-outline {
   background-color: transparent;
   border: 1px solid var(--border-color);
-  color: var(--gray);
+  color: var(--text-muted);
 }
 
 .btn-outline:hover {
   background-color: var(--light);
 }
 
-/* Grid View */
+/* Grid View with Dark Mode Support */
 .lead-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -300,12 +352,12 @@ select {
 }
 
 .lead-card {
-  background-color: white;
+  background-color: var(--card-background);
   border-radius: var(--card-border-radius);
   padding: 20px;
   box-shadow: var(--box-shadow);
   border-top: 3px solid var(--primary);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background-color var(--transition-speed);
   display: flex;
   flex-direction: column;
 }
@@ -318,18 +370,18 @@ select {
 .lead-card h3 {
   font-size: 18px;
   margin-bottom: 10px;
-  color: var(--dark);
+  color: var(--text-color);
   word-break: break-word;
 }
 
 .lead-card p {
   margin-bottom: 8px;
-  color: var(--gray);
+  color: var(--text-muted);
   word-break: break-word;
 }
 
 .lead-card p strong {
-  color: var(--dark);
+  color: var(--text-color);
   margin-right: 5px;
 }
 
@@ -344,7 +396,7 @@ select {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--gray);
+  color: var(--text-muted);
   font-size: 16px;
   transition: color var(--transition-speed);
   padding: 5px;
@@ -354,7 +406,7 @@ select {
   color: var(--primary);
 }
 
-/* Table View */
+/* Table View with Dark Mode Support */
 .leads-table {
   width: 100%;
   border-collapse: collapse;
@@ -365,17 +417,19 @@ select {
 .leads-table td {
   padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid var(--light);
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color var(--transition-speed);
 }
 
 .leads-table th {
-  color: var(--gray);
+  color: var(--text-muted);
   font-weight: 600;
   font-size: 14px;
   white-space: nowrap;
 }
 
 .leads-table td {
+  color: var(--text-color);
   word-break: break-word;
 }
 
@@ -384,10 +438,10 @@ select {
 }
 
 .leads-table tbody tr:hover {
-  background-color: var(--light);
+  background-color: var(--table-hover);
 }
 
-/* Status Badges */
+/* Status Badges - Keeping colors vibrant in both modes */
 .lead-status {
   display: inline-block;
   padding: 5px 10px;
@@ -408,13 +462,11 @@ select {
   color: var(--warning);
 }
 
-.status-qualified,
 .status-in-progress {
   background-color: rgba(249, 220, 92, 0.2);
   color: #f9dc5c;
 }
 
-.status-converted,
 .status-closed-won {
   background-color: rgba(67, 170, 139, 0.2);
   color: #43aa8b;
@@ -425,7 +477,7 @@ select {
   color: var(--danger);
 }
 
-/* Modal */
+/* Modal with Dark Mode Support */
 .modal {
   display: none;
   position: fixed;
@@ -435,11 +487,11 @@ select {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--card-background);
   margin: 5% auto;
   padding: 30px;
   border-radius: var(--card-border-radius);
@@ -449,6 +501,7 @@ select {
   overflow-y: auto;
   box-shadow: var(--hover-shadow);
   position: relative;
+  transition: background-color var(--transition-speed);
 }
 
 .close-modal {
@@ -456,7 +509,7 @@ select {
   top: 15px;
   right: 15px;
   font-size: 24px;
-  color: var(--gray);
+  color: var(--text-muted);
   cursor: pointer;
 }
 
@@ -466,19 +519,20 @@ select {
 
 .modal-header h3 {
   font-size: 22px;
-  color: var(--dark);
+  color: var(--text-color);
 }
 
-/* Form Elements */
+/* Form Elements with Dark Mode Support */
 .form-section {
-  border-bottom: 1px solid var(--light);
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
   margin-bottom: 15px;
+  transition: border-color var(--transition-speed);
 }
 
 .form-section h4 {
   margin-bottom: 15px;
-  color: var(--dark);
+  color: var(--text-color);
   font-size: 18px;
 }
 
@@ -503,6 +557,7 @@ select {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
+  color: var(--text-color);
 }
 
 .form-group input,
@@ -510,14 +565,24 @@ select {
 .form-group textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--input-border);
   border-radius: 5px;
   font-size: 16px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  transition: border-color var(--transition-speed), background-color var(--transition-speed);
 }
 
 .form-group textarea {
   resize: vertical;
   min-height: 100px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--input-focus);
 }
 
 /* Budget field group */
@@ -548,33 +613,26 @@ select {
   background-color: rgba(247, 37, 133, 0.05);
 }
 
-/* Toast Notification */
-/* Updated Toast Notification Styles */
+/* Toast Notification with Dark Mode Support */
 .toast {
   display: none;
   position: fixed;
-  top: 20px;          /* Position at the top instead of bottom */
-  right: 20px;        /* Position at the right instead of left */
-  background-color: #4caf50;  /* Green background for success */
-  color: white;
+  top: 20px;
+  right: 20px;
+  background-color: var(--toast-bg);
+  color: var(--toast-text);
   padding: 15px 20px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 2000;
   max-width: 90%;
-  border-left: 4px solid #2e7d32; /* Darker green border */
+  border-left: 4px solid var(--toast-border);
+  transition: background-color var(--transition-speed);
 }
 
-/* Make "Lead deleted successfully" toast stand out */
-#toast:has(#toastMessage) {
-  background-color: #4caf50; /* Default green */
-  border-left: 4px solid #2e7d32;
-}
-
-/* Target deletion messages when they contain specific text */
 #toast.deletion {
-  background-color: #ff5722 !important; /* Orange for deletion */
-  border-left: 4px solid #d84315 !important;
+  background-color: var(--toast-deletion-bg) !important;
+  border-left: 4px solid var(--toast-deletion-border) !important;
 }
 
 #toastMessage {
@@ -582,7 +640,7 @@ select {
   font-weight: 500;
 }
 
-/* View Toggle */
+/* View Toggle with Dark Mode Support */
 .view-toggle {
   margin-bottom: 20px;
   display: flex;
@@ -594,7 +652,8 @@ select {
   border: 1px solid var(--border-color);
   padding: 8px 12px;
   cursor: pointer;
-  color: var(--gray);
+  color: var(--text-muted);
+  transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
 }
 
 .view-toggle button:first-child {
@@ -609,6 +668,30 @@ select {
   background-color: var(--primary);
   color: white;
   border-color: var(--primary);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 16px;
+  margin-left: auto;
+  border-radius: 50%;
+  transition: color var(--transition-speed), background-color var(--transition-speed);
+}
+
+.theme-toggle:hover {
+  background-color: var(--light);
+}
+
+.theme-toggle i {
+  font-size: 18px;
 }
 
 /* Responsive Styles */
@@ -718,7 +801,8 @@ select {
   .search-filter-sort,
   .view-toggle,
   .lead-card-actions,
-  .toast {
+  .toast,
+  .theme-toggle {
     display: none;
   }
 
@@ -737,15 +821,4 @@ select {
     border: 1px solid #ddd;
     box-shadow: none;
   }
-}
-
-/* Fix for the div.change.positive alignment issues */
-div.change.positive {
-  display: inline-block;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.5;
-  margin-top: 5px;
 }

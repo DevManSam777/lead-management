@@ -71,31 +71,6 @@ document.addEventListener("DOMContentLoaded", function () {
       // This is the Dashboard link (already active)
     });
 
-// Leads icon on sidebar
-  // document
-  //   .querySelector(".sidebar-menu li:nth-child(1) a")
-  //   .addEventListener("click", function (e) {
-  //     e.preventDefault();
-  //     // This is the Leads link, just stay on current page
-  //     showToast("Already on Leads page");
-  //   });
-
-  document
-    .querySelector(".sidebar-menu li:nth-child(2) a")
-    .addEventListener("click", function (e) {
-      e.preventDefault();
-      // Reports functionality
-      alert("Reports feature coming soon!");
-    });
-
-  document
-    .querySelector(".sidebar-menu li:nth-child(3) a")
-    .addEventListener("click", function (e) {
-      e.preventDefault();
-      // Settings functionality
-      alert("Settings feature coming soon!");
-    });
-
   // Close modal when clicking outside
   window.addEventListener("click", function (event) {
     if (event.target === document.getElementById("leadModal")) {
@@ -105,6 +80,128 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add input validation listeners
   setupFormValidation();
+});
+
+// Theme Toggle Functionality
+function setupThemeToggle() {
+  // Check for saved theme preference or use preferred color scheme
+  const currentTheme = localStorage.getItem('theme') || 
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  
+  // Apply the theme
+  setTheme(currentTheme);
+  
+  // Add theme toggle button to the header
+  const header = document.querySelector('.header');
+  const toggleButton = document.createElement('button');
+  toggleButton.className = 'theme-toggle';
+  toggleButton.id = 'themeToggle';
+  toggleButton.innerHTML = currentTheme === 'dark' 
+    ? '<i class="fas fa-sun"></i>' 
+    : '<i class="fas fa-moon"></i>';
+  toggleButton.setAttribute('title', currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+  
+  // Insert the toggle button after the header title
+  const headerTitle = header.querySelector('h2');
+  if (headerTitle) {
+    headerTitle.parentNode.insertBefore(toggleButton, headerTitle.nextSibling);
+  } else {
+    header.prepend(toggleButton);
+  }
+  
+  // Add click event listener
+  toggleButton.addEventListener('click', toggleTheme);
+}
+
+// Toggle between light and dark themes
+// Toggle between light and dark themes
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  
+  setTheme(newTheme);
+  localStorage.setItem('theme', newTheme);
+  
+  // Update the toggle button icon in the header
+  const toggleButton = document.getElementById('themeToggle');
+  if (toggleButton) {
+    toggleButton.innerHTML = newTheme === 'dark' 
+      ? '<i class="fas fa-sun"></i>' 
+      : '<i class="fas fa-moon"></i>';
+    toggleButton.setAttribute('title', newTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+  }
+  
+  // Update the sidebar toggle icon as well
+  const sidebarToggle = document.querySelector('.sidebar-menu li:last-child a i');
+  if (sidebarToggle) {
+    sidebarToggle.className = `fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}`;
+  }
+}
+
+// Set theme on HTML element
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+}
+
+// Setup theme toggle in the sidebar
+function setupSidebarThemeToggle() {
+  // Get all sidebar menu items
+  const sidebarMenuItems = document.querySelectorAll('.sidebar-menu li');
+  
+  // If we have at least one item, use the last one for theme toggle
+  if (sidebarMenuItems.length > 0) {
+    // Use the last item in the list (whatever it is)
+    const lastItem = sidebarMenuItems[sidebarMenuItems.length - 1];
+    
+    if (lastItem) {
+      const link = lastItem.querySelector('a');
+      if (link) {
+        // Get current theme
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        
+        // Create the HTML with the icon and text properly aligned
+        link.innerHTML = `
+          <i class="fas fa-${currentTheme === 'dark' ? 'sun' : 'moon'}"></i>
+          <span style="margin-left: 10px;">Theme Toggle</span>
+        `;
+        
+        // Update click handler
+        link.href = "#";
+        
+        // Remove any existing event listeners and create a fresh link
+        const newLink = link.cloneNode(true);
+        link.parentNode.replaceChild(newLink, link);
+        
+        // Add new click handler
+        newLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          toggleTheme();
+          
+          // Update the sidebar icon when toggling
+          const icon = this.querySelector('i');
+          if (icon) {
+            const newTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            icon.className = `fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}`;
+          }
+        });
+      }
+    }
+  }
+}
+
+// Initialize theme functionality
+document.addEventListener("DOMContentLoaded", function() {
+  // Setup initial theme
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    setTheme(savedTheme);
+  }
+  
+  // Add theme toggle to header
+  setupThemeToggle();
+  
+  // Setup sidebar theme toggle (renamed from replaceSidebarLinks)
+  setupSidebarThemeToggle();
 });
 
 // Setup form validation
