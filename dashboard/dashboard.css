@@ -706,6 +706,148 @@ select {
   border-color: var(--primary);
 }
 
+/* Payment status colors */
+.status-scheduled {
+  background-color: rgba(74, 144, 226, 0.2);
+  color: #4a90e2;
+}
+
+.status-paid {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.status-late {
+  background-color: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+}
+
+.status-missed {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.status-partial {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.status-overdue {
+  background-color: rgba(255, 87, 34, 0.2);
+  color: #ff5722;
+}
+
+/* Payments list styles */
+.payments-list {
+  margin-top: 15px;
+}
+
+.payments-container {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 0;
+}
+
+.payment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.payment-item:last-child {
+  border-bottom: none;
+}
+
+.payment-details {
+  flex: 1;
+}
+
+.payment-amount {
+  font-weight: bold;
+}
+
+.payment-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.payment-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.payment-status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+/* Payment summary card */
+.payment-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.payment-progress-bar {
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.payment-date-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.payment-progress-fill {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.upcoming-payment {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: var(--card-border-radius);
+  background-color: rgba(74, 144, 226, 0.1);
+}
+
+.upcoming-payment-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+.upcoming-payment-amount {
+  font-weight: bold;
+}
+
+.upcoming-payment-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.optional-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-weight: normal;
+}
+
 /* Responsive Styles */
 @media (max-width: 1200px) {
   .stats-cards {

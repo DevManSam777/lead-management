@@ -63,6 +63,22 @@ const leadSchema = new mongoose.Schema({
   budget: {
     type: String,
   },
+  totalBudget: {
+    type: Number,
+  },
+  paidAmount: {
+    type: Number,
+    default: 0,
+  },
+  remainingBalance: {
+    type: Number,
+    default: 0,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['none', 'partial', 'paid', 'overdue'],
+    default: 'none',
+  },
   currency: {
     type: String,
     default: 'USD',

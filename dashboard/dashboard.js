@@ -1,8 +1,10 @@
 // API URL Configuration
 const API_URL = "http://localhost:5000/api/leads";
+const API_PAYMENTS_URL = "http://localhost:5000/api/payments";
 
 // Global variables
 let allLeads = [];
+let payments = [];
 let currentView = "grid"; // 'grid' or 'list'
 let defaultCurrency = "USD"; // Store the default currency
 
@@ -54,6 +56,20 @@ document.addEventListener("DOMContentLoaded", function () {
     .getElementById("listViewBtn")
     .addEventListener("click", () => switchView("list"));
 
+    // Show/hide payment date field based on status
+const paymentStatusSelect = document.getElementById("paymentStatus");
+if (paymentStatusSelect) {
+  paymentStatusSelect.addEventListener("change", function() {
+    const paymentDateGroup = document.getElementById("paymentDateGroup");
+    if (this.value === "paid") {
+      paymentDateGroup.style.display = "block";
+    } else {
+      paymentDateGroup.style.display = "none";
+      document.getElementById("paymentDate").value = ""; // Clear payment date
+    }
+  });
+}
+
   // Show/hide website address field based on "hasWebsite" selection
   const hasWebsiteSelect = document.getElementById("hasWebsite");
   if (hasWebsiteSelect) {
@@ -69,14 +85,49 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Add currency formatting for budget input
-  const budgetInput = document.getElementById("budget");
-  if (budgetInput) {
-    budgetInput.addEventListener("blur", function (e) {
+  const totalBudgetInput = document.getElementById("totalBudget");
+  if (totalBudgetInput) {
+    totalBudgetInput.addEventListener("blur", function (e) {
       if (this.value) {
         // Format number with 2 decimal places
         const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
         if (!isNaN(value)) {
-          const currency = document.getElementById("currency").value;
+          const currency = document.getElementById("budgetCurrency").value;
+          this.value = formatCurrency(value, currency);
+        }
+      }
+    });
+  }
+
+  // Add payment-related event listeners
+  const closePaymentModalBtn = document.getElementById("closePaymentModal");
+  if (closePaymentModalBtn) {
+    closePaymentModalBtn.addEventListener("click", closePaymentModal);
+  }
+
+  const paymentForm = document.getElementById("paymentForm");
+  if (paymentForm) {
+    paymentForm.addEventListener("submit", validateAndSavePayment);
+  }
+
+  // Add event listener to "Add Payment" button in the lead modal
+  const addPaymentBtn = document.getElementById("addPaymentBtn");
+  if (addPaymentBtn) {
+    addPaymentBtn.addEventListener("click", function() {
+      const leadId = document.getElementById("leadId").value;
+      openPaymentModal(leadId);
+    });
+  }
+
+  // Add formatting for payment amount input
+  const paymentAmountInput = document.getElementById("paymentAmount");
+  if (paymentAmountInput) {
+    paymentAmountInput.addEventListener("blur", function() {
+      if (this.value) {
+        // Format number with 2 decimal places
+        const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
+        if (!isNaN(value)) {
+          const currency = document.getElementById("paymentCurrency").value;
           this.value = formatCurrency(value, currency);
         }
       }
@@ -96,10 +147,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target === document.getElementById("leadModal")) {
       closeLeadModal();
     }
+    if (event.target === document.getElementById("paymentModal")) {
+      closePaymentModal();
+    }
   });
 
   // Add input validation listeners
   setupFormValidation();
+
+  // Update payment statuses on page load
+  updatePaymentStatuses();
 });
 
 // Update this function in your dashboard.js file
@@ -298,10 +355,10 @@ function setupFormValidation() {
     });
   }
 
-  // Add validation for budget
-  const budgetInput = document.getElementById("budget");
-  if (budgetInput) {
-    budgetInput.addEventListener("blur", function () {
+  // Add validation for total budget
+  const totalBudgetInput = document.getElementById("totalBudget");
+  if (totalBudgetInput) {
+    totalBudgetInput.addEventListener("blur", function () {
       if (this.value) {
         validateBudget(this);
       } else {
@@ -406,6 +463,76 @@ function validateBudget(input) {
   }
 }
 
+// Validate form and save lead
+function validateAndSaveLead(event) {
+  event.preventDefault();
+
+  // Validate required fields
+  const isEmailValid = validateEmail(document.getElementById("email"));
+  const isPhoneValid = validatePhone(document.getElementById("phone"));
+  const isFirstNameValid = validateName(
+    document.getElementById("firstName"),
+    "First name"
+  );
+  const isLastNameValid = validateName(
+    document.getElementById("lastName"),
+    "Last name"
+  );
+
+  // Validate optional fields that have values
+  let isBusinessEmailValid = true;
+  const businessEmailInput = document.getElementById("businessEmail");
+  if (businessEmailInput && businessEmailInput.value) {
+    isBusinessEmailValid = validateEmail(businessEmailInput);
+  }
+
+  let isBusinessPhoneValid = true;
+  const businessPhoneInput = document.getElementById("businessPhone");
+  if (businessPhoneInput && businessPhoneInput.value) {
+    isBusinessPhoneValid = validatePhone(businessPhoneInput);
+  }
+
+  let isTextNumberValid = true;
+  const textNumberInput = document.getElementById("textNumber");
+  if (textNumberInput && textNumberInput.value) {
+    isTextNumberValid = validatePhone(textNumberInput);
+  }
+
+  let isWebsiteValid = true;
+  const hasWebsiteSelect = document.getElementById("hasWebsite");
+  const websiteAddressInput = document.getElementById("websiteAddress");
+  if (
+    hasWebsiteSelect &&
+    hasWebsiteSelect.value === "yes" &&
+    websiteAddressInput &&
+    websiteAddressInput.value
+  ) {
+    isWebsiteValid = validateUrl(websiteAddressInput);
+  }
+
+  let isBudgetValid = true;
+  const budgetInput = document.getElementById("budget");
+  if (budgetInput && budgetInput.value) {
+    isBudgetValid = validateBudget(budgetInput);
+  }
+
+  // If all validations pass, save the lead
+  if (
+    isEmailValid &&
+    isPhoneValid &&
+    isFirstNameValid &&
+    isLastNameValid &&
+    isBusinessEmailValid &&
+    isBusinessPhoneValid &&
+    isTextNumberValid &&
+    isWebsiteValid &&
+    isBudgetValid
+  ) {
+    saveLead();
+  }
+}
+
+
 // Show input error
 function showInputError(input, errorElement, message) {
   input.classList.add("invalid");
@@ -481,77 +608,367 @@ function formatCurrency(amount, currency = "USD") {
   }
 }
 
-// Validate form and save lead
-function validateAndSaveLead(event) {
+function validateAndSavePayment(event) {
   event.preventDefault();
-
-  // Validate required fields
-  const isEmailValid = validateEmail(document.getElementById("email"));
-  const isPhoneValid = validatePhone(document.getElementById("phone"));
-  const isFirstNameValid = validateName(
-    document.getElementById("firstName"),
-    "First name"
-  );
-  const isLastNameValid = validateName(
-    document.getElementById("lastName"),
-    "Last name"
-  );
-
-  // Validate optional fields that have values
-  let isBusinessEmailValid = true;
-  const businessEmailInput = document.getElementById("businessEmail");
-  if (businessEmailInput && businessEmailInput.value) {
-    isBusinessEmailValid = validateEmail(businessEmailInput);
+  
+  // Get form data
+  const paymentId = document.getElementById("paymentId").value;
+  const leadId = document.getElementById("paymentLeadId").value;
+  const amountStr = document.getElementById("paymentAmount").value;
+  const currency = document.getElementById("paymentCurrency").value;
+  const dueDate = document.getElementById("paymentDueDate").value;
+  const paymentDate = document.getElementById("paymentDate").value;
+  const status = document.getElementById("paymentStatus").value;
+  const notes = document.getElementById("paymentNotes").value;
+  
+  // Extract numeric value from formatted amount
+  const amount = parseFloat(amountStr.replace(/[^\d.-]/g, ""));
+  
+  if (isNaN(amount) || amount <= 0) {
+    showToast("Please enter a valid amount");
+    return;
   }
-
-  let isBusinessPhoneValid = true;
-  const businessPhoneInput = document.getElementById("businessPhone");
-  if (businessPhoneInput && businessPhoneInput.value) {
-    isBusinessPhoneValid = validatePhone(businessPhoneInput);
+  
+  if (!dueDate) {
+    showToast("Due date is required");
+    return;
   }
-
-  let isTextNumberValid = true;
-  const textNumberInput = document.getElementById("textNumber");
-  if (textNumberInput && textNumberInput.value) {
-    isTextNumberValid = validatePhone(textNumberInput);
+  
+  // Payment date handling:
+  // - For 'paid' status: payment date is required - use provided date or today
+  // - For all other statuses: payment date should be null
+  let finalPaymentDate = undefined;
+  
+  if (status === "paid") {
+    if (!paymentDate) {
+      // If no payment date provided for paid status, use today
+      finalPaymentDate = new Date().toISOString().split("T")[0];
+    } else {
+      finalPaymentDate = paymentDate;
+    }
+  } else {
+    // For scheduled/late/missed, payment date should be null
+    finalPaymentDate = null;
   }
-
-  let isWebsiteValid = true;
-  const hasWebsiteSelect = document.getElementById("hasWebsite");
-  const websiteAddressInput = document.getElementById("websiteAddress");
-  if (
-    hasWebsiteSelect &&
-    hasWebsiteSelect.value === "yes" &&
-    websiteAddressInput &&
-    websiteAddressInput.value
-  ) {
-    isWebsiteValid = validateUrl(websiteAddressInput);
+  
+  // Prepare payment data
+  const paymentData = {
+    leadId,
+    amount,
+    currency,
+    dueDate: new Date(dueDate),
+    paymentDate: finalPaymentDate ? new Date(finalPaymentDate) : null,
+    status,
+    notes
+  };
+  
+  // If editing existing payment, add the ID
+  if (paymentId) {
+    paymentData._id = paymentId;
   }
+  
+  // Save payment
+  savePayment(paymentData);
+}
 
-  let isBudgetValid = true;
-  const budgetInput = document.getElementById("budget");
-  if (budgetInput && budgetInput.value) {
-    isBudgetValid = validateBudget(budgetInput);
-  }
+// Fetch all payments
+async function fetchPayments() {
+  try {
+    const response = await fetch(API_PAYMENTS_URL);
+    if (!response.ok) {
+      throw new Error("Failed to fetch payments");
+    }
 
-  // If all validations pass, save the lead
-  if (
-    isEmailValid &&
-    isPhoneValid &&
-    isFirstNameValid &&
-    isLastNameValid &&
-    isBusinessEmailValid &&
-    isBusinessPhoneValid &&
-    isTextNumberValid &&
-    isWebsiteValid &&
-    isBudgetValid
-  ) {
-    saveLead();
+    payments = await response.json();
+    calculateStats(); // Recalculate stats with payment data
+  } catch (error) {
+    console.error("Error fetching payments:", error);
+    showToast("Error fetching payments: " + error.message);
   }
 }
 
+// Fetch payments for a specific lead
+async function fetchLeadPayments(leadId) {
+  try {
+    const response = await fetch(`${API_PAYMENTS_URL}/lead/${leadId}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch lead payments");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching lead payments:", error);
+    showToast("Error fetching payments: " + error.message);
+    return [];
+  }
+}
+
+// Add/update payments
+async function savePayment(paymentData) {
+  try {
+    let response;
+    if (paymentData._id) {
+      // Update existing payment
+      response = await fetch(`${API_PAYMENTS_URL}/${paymentData._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentData),
+      });
+    } else {
+      // Create new payment
+      response = await fetch(API_PAYMENTS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentData),
+      });
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to save payment");
+    }
+
+    // Refresh payments
+    await fetchPayments();
+    
+    // Refresh the lead data to update payment status
+    await fetchLeads();
+    
+    // If viewing a lead, refresh lead payments
+    const leadId = document.getElementById("leadId").value;
+    if (leadId) {
+      const leadPayments = await fetchLeadPayments(leadId);
+      renderLeadPayments(leadPayments, leadId);
+      
+      // Re-fetch the lead to update its payment status in the modal
+      const lead = allLeads.find((l) => l._id === leadId);
+      if (lead) {
+        const paidAmountField = document.getElementById("paidAmount");
+        if (paidAmountField) {
+          const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
+          paidAmountField.value = formatCurrency(paidAmount, lead.currency || "USD");
+        }
+      }
+    }
+    
+    closePaymentModal();
+    showToast(paymentData._id ? "Payment updated successfully" : "Payment added successfully");
+  } catch (error) {
+    console.error("Error saving payment:", error);
+    showToast("Error: " + error.message);
+  }
+}
+
+// Delete payment
+async function deletePayment(paymentId, leadId) {
+  try {
+    const response = await fetch(`${API_PAYMENTS_URL}/${paymentId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete payment");
+    }
+
+    // Refresh payments
+    await fetchPayments();
+    
+    // If viewing a lead, refresh lead payments
+    if (leadId) {
+      const leadPayments = await fetchLeadPayments(leadId);
+      renderLeadPayments(leadPayments, leadId);
+    }
+    
+    showToast("Payment deleted successfully");
+  } catch (error) {
+    console.error("Error deleting payment:", error);
+    showToast("Error: " + error.message);
+  }
+}
+
+// Update all payment statuses based on due dates
+async function updatePaymentStatuses() {
+  try {
+    const now = new Date();
+    
+    // Find scheduled payments that are past due locally
+    const overduePayments = payments.filter(payment => 
+      payment.status === 'scheduled' && 
+      new Date(payment.dueDate) < now
+    );
+    
+    // Update server-side statuses
+    if (overduePayments.length > 0) {
+      const response = await fetch(`${API_PAYMENTS_URL}/update-statuses`, {
+        method: "POST",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update payment statuses");
+      }
+  
+      // Refresh payments after update
+      await fetchPayments();
+    }
+    
+    // Also check if any lead needs status update based on current payment data
+    // This helps refresh UI immediately without waiting for server roundtrip
+    for (const lead of allLeads) {
+      const leadPayments = payments.filter(p => p.leadId === lead._id);
+      
+      // Check for overdue payments
+      const hasOverduePayments = leadPayments.some(payment => 
+        payment.status === 'scheduled' && 
+        new Date(payment.dueDate) < now
+      );
+      
+      if (hasOverduePayments && lead.paymentStatus !== 'overdue') {
+        // Locally mark as overdue to update UI
+        lead.paymentStatus = 'overdue';
+      }
+    }
+    
+    // Re-render current view to reflect status changes
+    renderLeads(allLeads);
+    
+  } catch (error) {
+    console.error("Error updating payment statuses:", error);
+  }
+}
+
+// Function to open payment modal
+function openPaymentModal(leadId, paymentId = null) {
+  const paymentForm = document.getElementById("paymentForm");
+  if (!paymentForm) return;
+  
+  paymentForm.reset();
+  
+  document.getElementById("paymentId").value = "";
+  document.getElementById("paymentLeadId").value = leadId;
+  
+  // Set initial visibility of payment date field
+  const paymentDateGroup = document.getElementById("paymentDateGroup");
+  if (paymentDateGroup) {
+    paymentDateGroup.style.display = "none"; // Hide by default
+  }
+  
+  if (paymentId) {
+    // Edit existing payment
+    const payment = payments.find(p => p._id === paymentId);
+    if (payment) {
+      document.getElementById("paymentId").value = payment._id;
+      document.getElementById("paymentAmount").value = payment.amount;
+      document.getElementById("paymentCurrency").value = payment.currency || "USD";
+      
+      // Format dates for the date input
+      if (payment.dueDate) {
+        document.getElementById("paymentDueDate").value = new Date(payment.dueDate).toISOString().split("T")[0];
+      }
+      
+      const paymentStatus = document.getElementById("paymentStatus");
+      paymentStatus.value = payment.status;
+      
+      // Show payment date field if status is "paid"
+      if (payment.status === "paid") {
+        if (paymentDateGroup) {
+          paymentDateGroup.style.display = "block";
+        }
+        
+        // If status is "paid" and we have a payment date, show it
+        if (payment.paymentDate) {
+          document.getElementById("paymentDate").value = new Date(payment.paymentDate).toISOString().split("T")[0];
+        } else {
+          // If status is "paid" but no payment date, set to today
+          document.getElementById("paymentDate").value = new Date().toISOString().split("T")[0];
+        }
+      } else {
+        // Clear payment date for non-paid statuses
+        document.getElementById("paymentDate").value = "";
+      }
+      
+      document.getElementById("paymentNotes").value = payment.notes || "";
+      
+      document.getElementById("paymentModalTitle").textContent = "Edit Payment";
+    }
+  } else {
+    // New payment
+    // Set default values
+    document.getElementById("paymentCurrency").value = defaultCurrency;
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("paymentDueDate").value = today;
+    document.getElementById("paymentDate").value = ""; // Clear payment date for new payments
+    
+    document.getElementById("paymentModalTitle").textContent = "Add Payment";
+  }
+  
+  document.getElementById("paymentModal").style.display = "block";
+}
+
+// Function to close payment modal
+function closePaymentModal() {
+  const paymentModal = document.getElementById("paymentModal");
+  if (paymentModal) {
+    paymentModal.style.display = "none";
+  }
+}
+
+function renderLeadPayments(leadPayments, leadId) {
+  const paymentsContainer = document.querySelector(".payments-container");
+  
+  if (!paymentsContainer) return;
+  
+  if (leadPayments.length === 0) {
+    paymentsContainer.innerHTML = '<p class="payment-item">No payments found</p>';
+    return;
+  }
+  
+  paymentsContainer.innerHTML = "";
+  
+  // Check for past due payments and mark them as late
+  const today = new Date();
+  const dueDateCheckedPayments = leadPayments.map(payment => {
+    // If payment is scheduled but past due date, show it as late in UI
+    if (payment.status === 'scheduled' && new Date(payment.dueDate) < today) {
+      return {
+        ...payment,
+        uiStatus: 'late'
+      };
+    }
+    return {
+      ...payment,
+      uiStatus: payment.status
+    };
+  });
+  
+  dueDateCheckedPayments.forEach(payment => {
+    const dueDate = new Date(payment.dueDate).toLocaleDateString();
+    const paymentDate = payment.paymentDate 
+      ? new Date(payment.paymentDate).toLocaleDateString() 
+      : "Not paid";
+    
+    const paymentItem = document.createElement("div");
+    paymentItem.className = "payment-item";
+    
+    // Use uiStatus for display but keep original status for functionality
+    paymentItem.innerHTML = `
+      <div class="payment-details">
+        <div class="payment-amount">
+          ${formatCurrency(payment.amount, payment.currency || "USD")}
+          <span class="payment-status status-${payment.uiStatus}">${capitalizeFirstLetter(payment.uiStatus)}</span>
+        </div>
+        <div class="payment-date">Due: ${dueDate} | ${payment.status === 'paid' ? 'Paid: ' + paymentDate : 'Not paid'}</div>
+      </div>
+      <div class="payment-actions">
+        <button onclick="openPaymentModal('${leadId}', '${payment._id}')"><i class="fas fa-edit"></i></button>
+        <button onclick="deletePayment('${payment._id}', '${leadId}')"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
+    
+    paymentsContainer.appendChild(paymentItem);
+  });
+}
+
 // Fetch leads from API
-// Updated fetch leads function with better error handling
 async function fetchLeads() {
   try {
     console.log("Fetching leads from:", API_URL);
@@ -585,24 +1002,8 @@ async function fetchLeads() {
       }
     }
 
-    // Safely calculate stats
-    try {
-      calculateStats();
-    } catch (statsError) {
-      console.error("Error calculating stats:", statsError);
-
-      // Set default values for statistics when calculation fails
-      safeSetTextContent("totalLeadsValue", data.length.toString());
-      safeSetTextContent("newLeadsValue", "0");
-      safeSetTextContent("conversionRateValue", "0%");
-      safeSetTextContent("avgBudgetValue", formatCurrency(0, "USD"));
-
-      // Set all change indicators to 0%
-      safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
-      safeUpdateChangeIndicator("newLeadsChange", 0, "week");
-      safeUpdateChangeIndicator("conversionChange", 0, "month");
-      safeUpdateChangeIndicator("budgetChange", 0, "month");
-    }
+    // Fetch payments after loading leads
+    await fetchPayments();
   } catch (error) {
     console.error("Error fetching leads:", error);
 
@@ -616,13 +1017,13 @@ async function fetchLeads() {
     safeSetTextContent("totalLeadsValue", "0");
     safeSetTextContent("newLeadsValue", "0");
     safeSetTextContent("conversionRateValue", "0%");
-    safeSetTextContent("avgBudgetValue", formatCurrency(0, "USD"));
+    safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
 
     // Set all change indicators to 0%
     safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
-    safeUpdateChangeIndicator("newLeadsChange", 0, "week");
+    safeUpdateChangeIndicator("newLeadsChange", 0, "");
     safeUpdateChangeIndicator("conversionChange", 0, "month");
-    safeUpdateChangeIndicator("budgetChange", 0, "month");
+    safeUpdateChangeIndicator("paymentsChange", 0, "month");
 
     showToast("Error fetching leads: " + error.message);
   }
@@ -702,13 +1103,13 @@ function calculateStats() {
       safeSetTextContent("totalLeadsValue", "0");
       safeSetTextContent("newLeadsValue", "0");
       safeSetTextContent("conversionRateValue", "0%");
-      safeSetTextContent("avgBudgetValue", formatCurrency(0, "USD"));
+      safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
 
       // Set all change indicators to 0%
       safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
       safeUpdateChangeIndicator("newLeadsChange", 0, ""); // No period text for new leads
       safeUpdateChangeIndicator("conversionChange", 0, "month");
-      safeUpdateChangeIndicator("budgetChange", 0, "month");
+      safeUpdateChangeIndicator("paymentsChange", 0, "month");
       return;
     }
 
@@ -790,192 +1191,148 @@ function calculateStats() {
     // Set a placeholder for conversion rate change (would need historical data)
     safeUpdateChangeIndicator("conversionChange", 0, "month");
 
-    // Calculate average budget with error handling
+    // Payment metrics
+    // Calculate total payments for current month - ONLY PAID payments
+    let currentMonthPayments = 0;
+    let previousMonthPayments = 0;
     let mostCommonCurrency = "USD";
-    let average = 0;
-    let currentMonthAvg = 0;
-    let previousMonthAvg = 0;
 
-    try {
-      // Filter leads with valid budgets
-      const leadsWithBudget = allLeads.filter((lead) => {
-        if (!lead || !lead.budget) return false;
-        try {
-          const budgetStr = String(lead.budget);
-          const numericValue = parseFloat(budgetStr.replace(/[^\d.-]+/g, ""));
-          return !isNaN(numericValue) && numericValue > 0;
-        } catch (e) {
-          return false;
-        }
+    if (payments && payments.length > 0) {
+      // Find most common currency
+      const currencies = {};
+      payments.forEach((payment) => {
+        const currency = payment.currency || "USD";
+        currencies[currency] = (currencies[currency] || 0) + 1;
       });
 
-      // Only process if we have leads with budgets
-      if (leadsWithBudget.length > 0) {
-        // Find most common currency
-        const currencies = {};
-        leadsWithBudget.forEach((lead) => {
-          const currency = lead.currency || "USD";
-          currencies[currency] = (currencies[currency] || 0) + 1;
-        });
-
-        let maxCount = 0;
-        for (const [currency, count] of Object.entries(currencies)) {
-          if (count > maxCount) {
-            mostCommonCurrency = currency;
-            maxCount = count;
-          }
-        }
-
-        // Calculate overall average
-        let totalBudget = 0;
-        let count = 0;
-
-        leadsWithBudget.forEach((lead) => {
-          if (
-            lead.currency === mostCommonCurrency ||
-            (!lead.currency && mostCommonCurrency === "USD")
-          ) {
-            try {
-              const budgetStr = String(lead.budget);
-              const numericValue = parseFloat(
-                budgetStr.replace(/[^\d.-]+/g, "")
-              );
-              if (!isNaN(numericValue)) {
-                totalBudget += numericValue;
-                count++;
-              }
-            } catch (e) {
-              // Skip this lead if error
-            }
-          }
-        });
-
-        if (count > 0) {
-          average = totalBudget / count;
-        }
-
-        // Calculate current month's average
-        const currentMonthLeads = leadsWithBudget.filter((lead) => {
-          if (!lead || !lead.createdAt) return false;
-          try {
-            const leadDate = new Date(lead.createdAt);
-            return (
-              !isNaN(leadDate.getTime()) &&
-              leadDate >= oneMonthAgo &&
-              leadDate <= currentDate
-            );
-          } catch (e) {
-            return false;
-          }
-        });
-
-        let currentMonthTotal = 0;
-        let currentMonthCount = 0;
-
-        currentMonthLeads.forEach((lead) => {
-          if (
-            lead.currency === mostCommonCurrency ||
-            (!lead.currency && mostCommonCurrency === "USD")
-          ) {
-            try {
-              const budgetStr = String(lead.budget);
-              const numericValue = parseFloat(
-                budgetStr.replace(/[^\d.-]+/g, "")
-              );
-              if (!isNaN(numericValue)) {
-                currentMonthTotal += numericValue;
-                currentMonthCount++;
-              }
-            } catch (e) {
-              // Skip this lead if error
-            }
-          }
-        });
-
-        if (currentMonthCount > 0) {
-          currentMonthAvg = currentMonthTotal / currentMonthCount;
-        }
-
-        // Calculate previous month's average
-        const previousMonthLeads = leadsWithBudget.filter((lead) => {
-          if (!lead || !lead.createdAt) return false;
-          try {
-            const leadDate = new Date(lead.createdAt);
-            return (
-              !isNaN(leadDate.getTime()) &&
-              leadDate >= twoMonthsAgo &&
-              leadDate <= oneMonthAgo
-            );
-          } catch (e) {
-            return false;
-          }
-        });
-
-        let previousMonthTotal = 0;
-        let previousMonthCount = 0;
-
-        previousMonthLeads.forEach((lead) => {
-          if (
-            lead.currency === mostCommonCurrency ||
-            (!lead.currency && mostCommonCurrency === "USD")
-          ) {
-            try {
-              const budgetStr = String(lead.budget);
-              const numericValue = parseFloat(
-                budgetStr.replace(/[^\d.-]+/g, "")
-              );
-              if (!isNaN(numericValue)) {
-                previousMonthTotal += numericValue;
-                previousMonthCount++;
-              }
-            } catch (e) {
-              // Skip this lead if error
-            }
-          }
-        });
-
-        if (previousMonthCount > 0) {
-          previousMonthAvg = previousMonthTotal / previousMonthCount;
+      let maxCount = 0;
+      for (const [currency, count] of Object.entries(currencies)) {
+        if (count > maxCount) {
+          mostCommonCurrency = currency;
+          maxCount = count;
         }
       }
-    } catch (error) {
-      console.error("Error calculating budget statistics:", error);
+
+      // Calculate current month's total PAID payments only
+      currentMonthPayments = payments
+        .filter(payment => 
+          payment.status === 'paid' && // Only include paid payments
+          payment.paymentDate && 
+          new Date(payment.paymentDate) >= oneMonthAgo && 
+          new Date(payment.paymentDate) <= currentDate
+        )
+        .reduce((total, payment) => {
+          if (payment.currency === mostCommonCurrency || (!payment.currency && mostCommonCurrency === "USD")) {
+            return total + (payment.amount || 0);
+          }
+          return total;
+        }, 0);
+
+      // Calculate previous month's total PAID payments only
+      previousMonthPayments = payments
+        .filter(payment => 
+          payment.status === 'paid' && // Only include paid payments
+          payment.paymentDate && 
+          new Date(payment.paymentDate) >= twoMonthsAgo && 
+          new Date(payment.paymentDate) <= oneMonthAgo
+        )
+        .reduce((total, payment) => {
+          if (payment.currency === mostCommonCurrency || (!payment.currency && mostCommonCurrency === "USD")) {
+            return total + (payment.amount || 0);
+          }
+          return total;
+        }, 0);
+
+      // No need to calculate upcoming payments anymore
     }
 
-    // Update budget display
-    try {
-      safeSetTextContent(
-        "avgBudgetValue",
-        formatCurrency(average, mostCommonCurrency)
-      );
-    } catch (error) {
-      console.error("Error formatting currency:", error);
-      safeSetTextContent("avgBudgetValue", `$${average.toFixed(2)}`);
+    // Update monthly payments display
+    safeSetTextContent(
+      "monthlyPaymentsValue",
+      formatCurrency(currentMonthPayments, mostCommonCurrency)
+    );
+
+    // Calculate percentage change for payments
+    let paymentsChange = 0;
+    if (previousMonthPayments > 0) {
+      paymentsChange = ((currentMonthPayments - previousMonthPayments) / previousMonthPayments) * 100;
     }
 
-    // Calculate percentage change for budget
-    let budgetChange = 0;
-    if (previousMonthAvg > 0) {
-      budgetChange =
-        ((currentMonthAvg - previousMonthAvg) / previousMonthAvg) * 100;
-    }
-
-    // Update budget change display
-    safeUpdateChangeIndicator("budgetChange", budgetChange, "month");
+    // Update payments change display
+    safeUpdateChangeIndicator("paymentsChange", paymentsChange, "month");
   } catch (error) {
     console.error("Error calculating statistics:", error);
     // Set default values in case of error
     safeSetTextContent("totalLeadsValue", "0");
     safeSetTextContent("newLeadsValue", "0");
     safeSetTextContent("conversionRateValue", "0%");
-    safeSetTextContent("avgBudgetValue", formatCurrency(0, "USD"));
+    safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
 
     // Set all change indicators to 0%
     safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
-    safeUpdateChangeIndicator("newLeadsChange", 0, ""); // No period text for new leads
+    safeUpdateChangeIndicator("newLeadsChange", 0, "");
     safeUpdateChangeIndicator("conversionChange", 0, "month");
-    safeUpdateChangeIndicator("budgetChange", 0, "month");
+    safeUpdateChangeIndicator("paymentsChange", 0, "month");
   }
+}
+
+
+function validateAndSavePayment(event) {
+  event.preventDefault();
+  
+  // Get form data
+  const paymentId = document.getElementById("paymentId").value;
+  const leadId = document.getElementById("paymentLeadId").value;
+  const amountStr = document.getElementById("paymentAmount").value;
+  const currency = document.getElementById("paymentCurrency").value;
+  const dueDate = document.getElementById("paymentDueDate").value;
+  const paymentDate = document.getElementById("paymentDate").value;
+  const status = document.getElementById("paymentStatus").value;
+  const notes = document.getElementById("paymentNotes").value;
+  
+  // Extract numeric value from formatted amount
+  const amount = parseFloat(amountStr.replace(/[^\d.-]/g, ""));
+  
+  if (isNaN(amount) || amount <= 0) {
+    showToast("Please enter a valid amount");
+    return;
+  }
+  
+  if (!dueDate) {
+    showToast("Due date is required");
+    return;
+  }
+  
+  // Prepare payment data
+  const paymentData = {
+    leadId,
+    amount,
+    currency,
+    dueDate: new Date(dueDate),
+    status,
+    notes
+  };
+  
+  // If status is "paid", ensure we have a payment date
+  if (status === "paid") {
+    if (paymentDate) {
+      paymentData.paymentDate = new Date(paymentDate);
+    } else {
+      // If no payment date provided for paid status, use today's date
+      paymentData.paymentDate = new Date();
+    }
+  }
+  
+  // If editing existing payment, add the ID
+  if (paymentId) {
+    paymentData._id = paymentId;
+  }
+  
+  // For debugging
+  console.log("Saving payment data:", paymentData);
+  
+  // Save payment
+  savePayment(paymentData);
 }
 
 // Render leads based on current view
@@ -1041,17 +1398,37 @@ function renderGridView(leads) {
     if (serviceType === "website") serviceType = "Website";
     if (serviceType === "app") serviceType = "App Development";
 
-    // Format budget with the correct currency symbol
+    // Format total budget with the correct currency symbol
     let budget = "N/A";
-    if (lead.budget) {
-      const numericValue = parseFloat(
-        String(lead.budget).replace(/[^\d.-]+/g, "")
-      );
+    if (lead.totalBudget) {
+      const numericValue = parseFloat(String(lead.totalBudget));
       if (!isNaN(numericValue)) {
         budget = formatCurrency(numericValue, lead.currency || "USD");
       } else {
-        budget = lead.budget;
+        budget = lead.totalBudget;
       }
+    }
+    
+    // Format paid amount if available
+    let paidAmount = "N/A";
+    if (lead.paidAmount) {
+      const numericValue = parseFloat(String(lead.paidAmount));
+      if (!isNaN(numericValue)) {
+        paidAmount = formatCurrency(numericValue, lead.currency || "USD");
+      } else {
+        paidAmount = lead.paidAmount;
+      }
+    }
+    
+    // Format remaining balance specifically for this lead
+    let remainingBalance = "N/A";
+    if (lead.remainingBalance !== undefined) {
+      // Use server-calculated value if available
+      remainingBalance = formatCurrency(lead.remainingBalance, lead.currency || "USD");
+    } else if (lead.totalBudget !== undefined && lead.paidAmount !== undefined) {
+      // Calculate if not directly provided
+      const remaining = Math.max(0, lead.totalBudget - lead.paidAmount);
+      remainingBalance = formatCurrency(remaining, lead.currency || "USD");
     }
 
     // Determine preferred contact method display
@@ -1085,6 +1462,12 @@ function renderGridView(leads) {
     // Display business information with N/A as default
     const businessName = lead.businessName || "N/A";
     const businessEmail = lead.businessEmail || "N/A";
+    
+    // Add payment status display if available
+    let paymentStatusHtml = '';
+    if (lead.paymentStatus && lead.paymentStatus !== 'none') {
+      paymentStatusHtml = `<p><strong>Payment Status:</strong> <span class="lead-status status-${lead.paymentStatus.toLowerCase()}">${capitalizeFirstLetter(lead.paymentStatus)}</span></p>`;
+    }
 
     card.innerHTML = `
     <h3>${fullName}</h3>
@@ -1118,7 +1501,10 @@ function renderGridView(leads) {
         ? `<p><strong>Website:</strong> ${lead.websiteAddress}</p>`
         : ""
     }
-    <p><strong>Budget:</strong> ${budget}</p>
+    <p><strong>Total Budget:</strong> ${budget}</p>
+    <p><strong>Paid Amount:</strong> ${paidAmount}</p>
+    <p><strong>Remaining Balance:</strong> ${remainingBalance}</p>
+    ${paymentStatusHtml}
     <p><strong>Created:</strong> ${createdDate}</p>
     <p><strong>Last Contacted:</strong> ${lastContactedDate}</p>
     <p><strong>Status:</strong> <span class="lead-status status-${(
@@ -1146,7 +1532,7 @@ function renderListView(leads) {
   leadsTableBody.innerHTML = "";
 
   if (leads.length === 0) {
-    leadsTableBody.innerHTML = '<tr><td colspan="9">No leads found</td></tr>';
+    leadsTableBody.innerHTML = '<tr><td colspan="11">No leads found</td></tr>';
     return;
   }
 
@@ -1178,19 +1564,47 @@ function renderListView(leads) {
 
     // Format budget with the correct currency symbol
     let budget = "N/A";
-    if (lead.budget) {
-      const numericValue = parseFloat(
-        String(lead.budget).replace(/[^\d.-]/g, "")
-      );
+    if (lead.totalBudget) {
+      const numericValue = parseFloat(String(lead.totalBudget));
       if (!isNaN(numericValue)) {
         budget = formatCurrency(numericValue, lead.currency || "USD");
       } else {
-        budget = lead.budget;
+        budget = lead.totalBudget;
       }
+    }
+    
+    // Format paid amount with the correct currency symbol
+    let paidAmount = "N/A";
+    if (lead.paidAmount) {
+      const numericValue = parseFloat(String(lead.paidAmount));
+      if (!isNaN(numericValue)) {
+        paidAmount = formatCurrency(numericValue, lead.currency || "USD");
+      } else {
+        paidAmount = lead.paidAmount;
+      }
+    }
+    
+    // Format remaining balance specifically for this lead
+    let remainingBalance = "N/A";
+    if (lead.remainingBalance !== undefined) {
+      // Use server-calculated value if available
+      remainingBalance = formatCurrency(lead.remainingBalance, lead.currency || "USD");
+    } else if (lead.totalBudget !== undefined && lead.paidAmount !== undefined) {
+      // Calculate if not directly provided
+      const remaining = Math.max(0, lead.totalBudget - lead.paidAmount);
+      remainingBalance = formatCurrency(remaining, lead.currency || "USD");
     }
 
     // Determine business info and handle empty values
     const business = lead.businessName || "N/A";
+    
+    // Add payment status display
+    let paymentStatus = '';
+    if (lead.paymentStatus && lead.paymentStatus !== 'none') {
+      paymentStatus = `<span class="lead-status status-${lead.paymentStatus.toLowerCase()}">${capitalizeFirstLetter(lead.paymentStatus)}</span>`;
+    } else {
+      paymentStatus = 'N/A';
+    }
 
     row.innerHTML = `
     <td>${fullName}</td>
@@ -1198,6 +1612,9 @@ function renderListView(leads) {
     <td>${formatPhoneNumber(lead.phone) || "N/A"}</td>
     <td>${business}</td>
     <td>${budget}</td>
+    <td>${paidAmount}</td>
+    <td>${remainingBalance}</td>
+    <td>${paymentStatus}</td>
     <td>${createdDate}</td>
     <td>${lastContactedDate}</td>
     <td><span class="lead-status status-${(
@@ -1415,12 +1832,8 @@ function sortLeadsAndRender(leadsToSort) {
       }
     } else if (sortField === "budget") {
       // Extract numeric values from budget strings
-      const budgetA = a.budget
-        ? parseFloat(String(a.budget).replace(/[^\d.-]+/g, ""))
-        : 0;
-      const budgetB = b.budget
-        ? parseFloat(String(b.budget).replace(/[^\d.-]+/g, ""))
-        : 0;
+      const budgetA = a.totalBudget || 0;
+      const budgetB = b.totalBudget || 0;
       comparison = budgetA - budgetB;
     } else if (sortField === "status") {
       // Custom status order: new, contacted, in-progress, closed-won, closed-lost
@@ -1498,8 +1911,8 @@ function openAddLeadModal() {
   document.getElementById("modalTitle").textContent = "Add New Lead";
 
   // Set default currency
-  if (document.getElementById("currency")) {
-    document.getElementById("currency").value = defaultCurrency;
+  if (document.getElementById("budgetCurrency")) {
+    document.getElementById("budgetCurrency").value = defaultCurrency;
   }
 
   // Hide website address field initially
@@ -1514,9 +1927,12 @@ function openAddLeadModal() {
   formElements.forEach((element) => {
     element.removeAttribute("readonly");
     if (element.tagName === "SELECT") {
+      element.removeAttribute("readonly");
+    if (element.tagName === "SELECT") {
       element.removeAttribute("disabled");
     }
-  });
+  }
+});
 
   // Clear any error messages
   document.querySelectorAll(".error-message").forEach((el) => {
@@ -1589,20 +2005,20 @@ async function saveLead() {
     leadData.lastContactedAt = new Date(lastContactedInput.value);
   }
 
-  // Add budget and currency if present
-  const budgetInput = document.getElementById("budget");
-  const currencyInput = document.getElementById("currency");
+  // Handle total budget
+  const totalBudgetInput = document.getElementById("totalBudget");
+  const budgetCurrencyInput = document.getElementById("budgetCurrency");
 
-  if (budgetInput && budgetInput.value) {
+  if (totalBudgetInput && totalBudgetInput.value) {
     // Extract numeric value
-    const numericValue = parseFloat(budgetInput.value.replace(/[^\d.-]/g, ""));
+    const numericValue = parseFloat(totalBudgetInput.value.replace(/[^\d.-]/g, ""));
 
     if (!isNaN(numericValue)) {
-      // Store the budget value and currency type
-      leadData.budget = String(numericValue);
+      // Store the budget value
+      leadData.totalBudget = numericValue;
 
-      if (currencyInput) {
-        leadData.currency = currencyInput.value;
+      if (budgetCurrencyInput) {
+        leadData.currency = budgetCurrencyInput.value;
       }
     }
   }
@@ -1677,6 +2093,69 @@ window.viewLead = function (leadId) {
   document.getElementById("status").value = lead.status || "new";
   document.getElementById("notes").value = lead.notes || "";
 
+  // Handle payment fields
+  if (document.getElementById("totalBudget")) {
+    const budgetValue = lead.totalBudget ? parseFloat(lead.totalBudget) : "";
+    document.getElementById("totalBudget").value = budgetValue 
+      ? formatCurrency(budgetValue, lead.currency || "USD") 
+      : "";
+  }
+
+  if (document.getElementById("budgetCurrency")) {
+    document.getElementById("budgetCurrency").value = lead.currency || "USD";
+  }
+
+  if (document.getElementById("paidAmount")) {
+    const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
+    document.getElementById("paidAmount").value = formatCurrency(paidAmount, lead.currency || "USD");
+  }
+  
+  // Calculate remaining balance specifically for this lead
+  let remainingBalance = 0;
+  
+  if (lead.remainingBalance !== undefined) {
+    // Use server-calculated value if available
+    remainingBalance = lead.remainingBalance;
+  } else if (lead.totalBudget !== undefined && lead.paidAmount !== undefined) {
+    // Calculate if not provided directly
+    remainingBalance = Math.max(0, lead.totalBudget - lead.paidAmount);
+  }
+  
+  // Display or create the remaining balance field
+  const remainingBalanceField = document.getElementById("remainingBalance");
+  if (remainingBalanceField) {
+    remainingBalanceField.value = formatCurrency(remainingBalance, lead.currency || "USD");
+  } else {
+    // If the element doesn't exist, check if we can add it
+    const paidAmountField = document.getElementById("paidAmount");
+    if (paidAmountField && paidAmountField.parentNode) {
+      // Create a new field after the paid amount
+      const parentDiv = paidAmountField.parentNode.parentNode;
+      const newGroup = document.createElement("div");
+      newGroup.className = "form-group";
+      
+      const label = document.createElement("label");
+      label.setAttribute("for", "remainingBalance");
+      label.textContent = "Remaining Balance";
+      
+      const input = document.createElement("input");
+      input.type = "text";
+      input.id = "remainingBalance";
+      input.setAttribute("readonly", true);
+      input.value = formatCurrency(remainingBalance, lead.currency || "USD");
+      
+      newGroup.appendChild(label);
+      newGroup.appendChild(input);
+      
+      // Insert after paid amount field
+      if (paidAmountField.parentNode.nextSibling) {
+        parentDiv.insertBefore(newGroup, paidAmountField.parentNode.nextSibling);
+      } else {
+        parentDiv.appendChild(newGroup);
+      }
+    }
+  }
+
   // Handle last contacted date
   if (document.getElementById("lastContactedAt") && lead.lastContactedAt) {
     const date = new Date(lead.lastContactedAt);
@@ -1687,15 +2166,10 @@ window.viewLead = function (leadId) {
     document.getElementById("lastContactedAt").value = "";
   }
 
-  // Handle budget and currency
-  if (document.getElementById("budget")) {
-    document.getElementById("budget").value = lead.budget || "";
-  }
-
-  if (document.getElementById("currency")) {
-    // Make sure to set the correct currency value from the lead
-    document.getElementById("currency").value = lead.currency || "USD";
-  }
+  // Fetch and display payments for this lead
+  fetchLeadPayments(lead._id).then(leadPayments => {
+    renderLeadPayments(leadPayments, lead._id);
+  });
 
   // Show/hide website address field based on hasWebsite value
   const websiteAddressField =
@@ -1779,6 +2253,28 @@ window.editLead = function (leadId) {
   document.getElementById("status").value = lead.status || "new";
   document.getElementById("notes").value = lead.notes || "";
 
+  // Handle payment fields
+  if (document.getElementById("totalBudget")) {
+    const budgetValue = lead.totalBudget ? parseFloat(lead.totalBudget) : "";
+    document.getElementById("totalBudget").value = budgetValue 
+      ? formatCurrency(budgetValue, lead.currency || "USD") 
+      : "";
+  }
+
+  if (document.getElementById("budgetCurrency")) {
+    document.getElementById("budgetCurrency").value = lead.currency || "USD";
+  }
+
+  if (document.getElementById("paidAmount")) {
+    const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
+    document.getElementById("paidAmount").value = formatCurrency(paidAmount, lead.currency || "USD");
+  }
+
+  // Fetch and display payments for this lead
+  fetchLeadPayments(lead._id).then(leadPayments => {
+    renderLeadPayments(leadPayments, lead._id);
+  });
+
   // Handle last contacted date
   if (document.getElementById("lastContactedAt") && lead.lastContactedAt) {
     const date = new Date(lead.lastContactedAt);
@@ -1789,21 +2285,9 @@ window.editLead = function (leadId) {
     document.getElementById("lastContactedAt").value = "";
   }
 
-  // Handle budget and currency
-  if (document.getElementById("budget")) {
-    document.getElementById("budget").value = lead.budget || "";
-  }
-
-  if (document.getElementById("currency")) {
-    // Make sure to set the correct currency value from the lead
-    document.getElementById("currency").value = lead.currency || "USD";
-  }
-
   // Show/hide website address field based on hasWebsite value
-  const websiteAddressField =
-    document.getElementById("websiteAddress").parentNode;
-  websiteAddressField.style.display =
-    lead.hasWebsite === "yes" ? "block" : "none";
+  const websiteAddressField = document.getElementById("websiteAddress").parentNode;
+  websiteAddressField.style.display = lead.hasWebsite === "yes" ? "block" : "none";
 
   // Make sure form elements are editable
   const formElements = document.querySelectorAll(
@@ -1815,6 +2299,12 @@ window.editLead = function (leadId) {
       element.removeAttribute("disabled");
     }
   });
+
+  // Make paid amount field readonly
+  const paidAmountField = document.getElementById("paidAmount");
+  if (paidAmountField) {
+    paidAmountField.setAttribute("readonly", true);
+  }
 
   // Show submit button
   document.querySelector('#leadForm button[type="submit"]').style.display =
