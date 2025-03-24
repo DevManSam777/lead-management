@@ -1382,15 +1382,26 @@ function renderGridView(leads) {
     }
     
     // Format remaining balance specifically for this lead
+    // let remainingBalance = "N/A";
+    // if (lead.remainingBalance !== undefined) {
+    //   // Use server-calculated value if available
+    //   remainingBalance = formatCurrency(lead.remainingBalance, lead.currency || "USD");
+    // } else if (lead.totalBudget !== undefined && lead.paidAmount !== undefined) {
+    //   // Calculate if not directly provided
+    //   const remaining = Math.max(0, lead.totalBudget - lead.paidAmount);
+    //   remainingBalance = formatCurrency(remaining, lead.currency || "USD");
+    // }
+
     let remainingBalance = "N/A";
-    if (lead.remainingBalance !== undefined) {
-      // Use server-calculated value if available
-      remainingBalance = formatCurrency(lead.remainingBalance, lead.currency || "USD");
-    } else if (lead.totalBudget !== undefined && lead.paidAmount !== undefined) {
-      // Calculate if not directly provided
-      const remaining = Math.max(0, lead.totalBudget - lead.paidAmount);
-      remainingBalance = formatCurrency(remaining, lead.currency || "USD");
-    }
+if (lead.remainingBalance !== undefined) {
+  // Use server-calculated value if available
+  remainingBalance = formatCurrency(lead.remainingBalance, lead.currency || "USD");
+} else if (lead.totalBudget !== undefined) {
+  // Calculate if not directly provided - assume paidAmount is 0 if undefined
+  const paidAmount = lead.paidAmount || 0;
+  const remaining = Math.max(0, lead.totalBudget - paidAmount);
+  remainingBalance = formatCurrency(remaining, lead.currency || "USD");
+}
 
     // Determine preferred contact method display
     let preferredContact = lead.preferredContact || "N/A";
@@ -1929,10 +1940,17 @@ function openAddLeadModal() {
   document.getElementById("leadModal").style.display = "block";
 }
 
+
 // Close the lead modal
 function closeLeadModal() {
   document.getElementById("leadModal").style.display = "none";
 
+  // Reset the form completely
+  document.getElementById("leadForm").reset();
+  
+  // Clear hidden fields too
+  document.getElementById("leadId").value = "";
+  
   // Reset readonly attributes
   const formElements = document.querySelectorAll(
     "#leadForm input, #leadForm select, #leadForm textarea"
@@ -1950,9 +1968,14 @@ function closeLeadModal() {
     el.style.display = "none";
   });
 
+  // Clear any payment fields that weren't part of the original form
+  const remainingBalanceField = document.getElementById("remainingBalance");
+  if (remainingBalanceField && remainingBalanceField.parentNode) {
+    remainingBalanceField.value = "";
+  }
+
   // Show the submit button again
-  document.querySelector('#leadForm button[type="submit"]').style.display =
-    "block";
+  document.querySelector('#leadForm button[type="submit"]').style.display = "block";
 }
 
 // Save a lead (create or update)
@@ -1985,30 +2008,18 @@ async function saveLead() {
     leadData.lastContactedAt = new Date(lastContactedInput.value);
   }
 
-  // Handle estimated budget (no connection to totalBudget)
-  const budgetInput = document.getElementById("budget");
-  const currencyInput = document.getElementById("currency");
-  if (budgetInput && budgetInput.value) {
-    // Extract numeric value
-    const numericValue = parseFloat(budgetInput.value.replace(/[^\d.-]/g, ""));
-    if (!isNaN(numericValue)) {
-      // Store as budget (NOT totalBudget)
-      leadData.budget = numericValue;
-      if (currencyInput) {
-        leadData.budgetCurrency = currencyInput.value;
-      }
-    }
-  }
-
-  // Handle billed amount (contract total)
+  // Handle total budget
   const totalBudgetInput = document.getElementById("totalBudget");
   const budgetCurrencyInput = document.getElementById("budgetCurrency");
+
   if (totalBudgetInput && totalBudgetInput.value) {
     // Extract numeric value
     const numericValue = parseFloat(totalBudgetInput.value.replace(/[^\d.-]/g, ""));
+
     if (!isNaN(numericValue)) {
-      // Store the billed amount as totalBudget
+      // Store the budget value
       leadData.totalBudget = numericValue;
+
       if (budgetCurrencyInput) {
         leadData.currency = budgetCurrencyInput.value;
       }
@@ -2042,8 +2053,24 @@ async function saveLead() {
       throw new Error(errorData.message || "Failed to save lead");
     }
 
-    // Refresh leads and close modal
-    await fetchLeads();
+    // Get the updated lead data from the response
+    const updatedLead = await response.json();
+    
+    // If we're updating an existing lead, update it in the allLeads array
+    if (leadId) {
+      const index = allLeads.findIndex(lead => lead._id === leadId);
+      if (index !== -1) {
+        allLeads[index] = updatedLead;
+      }
+    } else {
+      // If it's a new lead, add it to the allLeads array
+      allLeads.push(updatedLead);
+    }
+
+    // Re-render the leads with the updated data
+    renderLeads(allLeads);
+    
+    // Close modal
     closeLeadModal();
 
     // Show success message
@@ -2055,6 +2082,9 @@ async function saveLead() {
 }
 
 window.viewLead = function (leadId) {
+  // Reset form first
+  document.getElementById("leadForm").reset();
+  
   const lead = allLeads.find((l) => l._id === leadId);
   if (!lead) {
     showToast("Lead not found");
@@ -2067,18 +2097,13 @@ window.viewLead = function (leadId) {
   document.getElementById("lastName").value = lead.lastName || "";
   document.getElementById("email").value = lead.email || "";
   document.getElementById("phone").value = formatPhoneNumber(lead.phone) || "";
-  document.getElementById("textNumber").value =
-    formatPhoneNumber(lead.textNumber) || "";
-  document.getElementById("businessPhone").value =
-    formatPhoneNumber(lead.businessPhone) || "";
+  document.getElementById("textNumber").value = formatPhoneNumber(lead.textNumber) || "";
+  document.getElementById("businessPhone").value = formatPhoneNumber(lead.businessPhone) || "";
   document.getElementById("businessName").value = lead.businessName || "";
   document.getElementById("businessEmail").value = lead.businessEmail || "";
-  document.getElementById("businessServices").value =
-    lead.businessServices || "";
-  document.getElementById("preferredContact").value =
-    lead.preferredContact || "";
-  document.getElementById("serviceDesired").value =
-    lead.serviceDesired || "website";
+  document.getElementById("businessServices").value = lead.businessServices || "";
+  document.getElementById("preferredContact").value = lead.preferredContact || "";
+  document.getElementById("serviceDesired").value = lead.serviceDesired || "website";
   document.getElementById("hasWebsite").value = lead.hasWebsite || "";
   document.getElementById("websiteAddress").value = lead.websiteAddress || "";
   document.getElementById("message").value = lead.message || "";
@@ -2102,26 +2127,22 @@ window.viewLead = function (leadId) {
     document.getElementById("paidAmount").value = formatCurrency(paidAmount, lead.currency || "USD");
   }
   
-  // Calculate remaining balance specifically for this lead
+  // Calculate remaining balance from scratch
   let remainingBalance = 0;
-  
-  if (lead.remainingBalance !== undefined) {
-    // Use server-calculated value if available
-    remainingBalance = lead.remainingBalance;
-  } else if (lead.totalBudget !== undefined && lead.paidAmount !== undefined) {
-    // Calculate if not provided directly
-    remainingBalance = Math.max(0, lead.totalBudget - lead.paidAmount);
+  if (lead.totalBudget !== undefined) {
+    const totalBudget = parseFloat(lead.totalBudget) || 0;
+    const paidAmount = parseFloat(lead.paidAmount) || 0;
+    remainingBalance = Math.max(0, totalBudget - paidAmount);
   }
   
-  // Display or create the remaining balance field
+  // Find or create the remaining balance field
   const remainingBalanceField = document.getElementById("remainingBalance");
   if (remainingBalanceField) {
     remainingBalanceField.value = formatCurrency(remainingBalance, lead.currency || "USD");
   } else {
-    // If the element doesn't exist, check if we can add it
+    // Create the field if it doesn't exist
     const paidAmountField = document.getElementById("paidAmount");
     if (paidAmountField && paidAmountField.parentNode) {
-      // Create a new field after the paid amount
       const parentDiv = paidAmountField.parentNode.parentNode;
       const newGroup = document.createElement("div");
       newGroup.className = "form-group";
@@ -2164,10 +2185,8 @@ window.viewLead = function (leadId) {
   });
 
   // Show/hide website address field based on hasWebsite value
-  const websiteAddressField =
-    document.getElementById("websiteAddress").parentNode;
-  websiteAddressField.style.display =
-    lead.hasWebsite === "yes" ? "block" : "none";
+  const websiteAddressField = document.getElementById("websiteAddress").parentNode;
+  websiteAddressField.style.display = lead.hasWebsite === "yes" ? "block" : "none";
 
   // Make all fields readonly
   const formElements = document.querySelectorAll(
@@ -2181,8 +2200,7 @@ window.viewLead = function (leadId) {
   });
 
   // Hide the submit button
-  document.querySelector('#leadForm button[type="submit"]').style.display =
-    "none";
+  document.querySelector('#leadForm button[type="submit"]').style.display = "none";
 
   // Update modal title and open it
   document.getElementById("modalTitle").textContent = "View Lead";
@@ -2191,6 +2209,9 @@ window.viewLead = function (leadId) {
 
 // Edit a lead
 window.editLead = function (leadId) {
+  // Reset form first
+  document.getElementById("leadForm").reset();
+  
   const lead = allLeads.find((l) => l._id === leadId);
   if (!lead) {
     showToast("Lead not found");
@@ -2213,8 +2234,7 @@ window.editLead = function (leadId) {
     const nameParts = lead.name.split(" ");
     if (nameParts.length > 1) {
       document.getElementById("firstName").value = nameParts[0] || "";
-      document.getElementById("lastName").value =
-        nameParts.slice(1).join(" ") || "";
+      document.getElementById("lastName").value = nameParts.slice(1).join(" ") || "";
     } else {
       document.getElementById("firstName").value = lead.name || "";
     }
@@ -2227,18 +2247,13 @@ window.editLead = function (leadId) {
   // Fill in all other fields
   document.getElementById("email").value = lead.email || "";
   document.getElementById("phone").value = formatPhoneNumber(lead.phone) || "";
-  document.getElementById("textNumber").value =
-    formatPhoneNumber(lead.textNumber) || "";
-  document.getElementById("businessPhone").value =
-    formatPhoneNumber(lead.businessPhone) || "";
+  document.getElementById("textNumber").value = formatPhoneNumber(lead.textNumber) || "";
+  document.getElementById("businessPhone").value = formatPhoneNumber(lead.businessPhone) || "";
   document.getElementById("businessName").value = lead.businessName || "";
   document.getElementById("businessEmail").value = lead.businessEmail || "";
-  document.getElementById("businessServices").value =
-    lead.businessServices || "";
-  document.getElementById("preferredContact").value =
-    lead.preferredContact || "";
-  document.getElementById("serviceDesired").value =
-    lead.serviceDesired || "website";
+  document.getElementById("businessServices").value = lead.businessServices || "";
+  document.getElementById("preferredContact").value = lead.preferredContact || "";
+  document.getElementById("serviceDesired").value = lead.serviceDesired || "website";
   document.getElementById("hasWebsite").value = lead.hasWebsite || "";
   document.getElementById("websiteAddress").value = lead.websiteAddress || "";
   document.getElementById("message").value = lead.message || "";
@@ -2260,6 +2275,48 @@ window.editLead = function (leadId) {
   if (document.getElementById("paidAmount")) {
     const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
     document.getElementById("paidAmount").value = formatCurrency(paidAmount, lead.currency || "USD");
+  }
+
+  // Calculate remaining balance from scratch
+  let remainingBalance = 0;
+  if (lead.totalBudget !== undefined) {
+    const totalBudget = parseFloat(lead.totalBudget) || 0;
+    const paidAmount = parseFloat(lead.paidAmount) || 0;
+    remainingBalance = Math.max(0, totalBudget - paidAmount);
+  }
+
+  // Find or update the remaining balance field
+  const remainingBalanceField = document.getElementById("remainingBalance");
+  if (remainingBalanceField) {
+    remainingBalanceField.value = formatCurrency(remainingBalance, lead.currency || "USD");
+  } else {
+    // Create the field if it doesn't exist
+    const paidAmountField = document.getElementById("paidAmount");
+    if (paidAmountField && paidAmountField.parentNode) {
+      const parentDiv = paidAmountField.parentNode.parentNode;
+      const newGroup = document.createElement("div");
+      newGroup.className = "form-group";
+      
+      const label = document.createElement("label");
+      label.setAttribute("for", "remainingBalance");
+      label.textContent = "Remaining Balance";
+      
+      const input = document.createElement("input");
+      input.type = "text";
+      input.id = "remainingBalance";
+      input.setAttribute("readonly", true);
+      input.value = formatCurrency(remainingBalance, lead.currency || "USD");
+      
+      newGroup.appendChild(label);
+      newGroup.appendChild(input);
+      
+      // Insert after paid amount field
+      if (paidAmountField.parentNode.nextSibling) {
+        parentDiv.insertBefore(newGroup, paidAmountField.parentNode.nextSibling);
+      } else {
+        parentDiv.appendChild(newGroup);
+      }
+    }
   }
 
   // Fetch and display payments for this lead
@@ -2298,9 +2355,13 @@ window.editLead = function (leadId) {
     paidAmountField.setAttribute("readonly", true);
   }
 
+  // Make remaining balance field readonly
+  if (remainingBalanceField) {
+    remainingBalanceField.setAttribute("readonly", true);
+  }
+
   // Show submit button
-  document.querySelector('#leadForm button[type="submit"]').style.display =
-    "block";
+  document.querySelector('#leadForm button[type="submit"]').style.display = "block";
 
   // Update modal title and open it
   document.getElementById("modalTitle").textContent = "Edit Lead";

@@ -53,6 +53,18 @@ exports.updateLead = async (req, res) => {
       req.body.lastContactedAt = Date.now();
     }
     
+    // If total budget is being updated, calculate remaining balance
+    if (req.body.totalBudget !== undefined) {
+      const totalBudget = parseFloat(req.body.totalBudget);
+      const paidAmount = lead.paidAmount || 0;
+      req.body.remainingBalance = Math.max(0, totalBudget - paidAmount);
+      
+      // If no payment status yet, set it to 'none'
+      if (!lead.paymentStatus || lead.paymentStatus === 'none') {
+        req.body.paymentStatus = 'none';
+      }
+    }
+    
     const updatedLead = await Lead.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -65,6 +77,7 @@ exports.updateLead = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 // Delete lead
 exports.deleteLead = async (req, res) => {
