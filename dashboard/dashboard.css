@@ -89,7 +89,8 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   overflow-x: hidden;
-  transition: background-color var(--transition-speed), color var(--transition-speed);
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed);
 }
 
 .container {
@@ -108,7 +109,8 @@ body {
   height: 100vh;
   overflow-y: auto;
   z-index: 1000;
-  transition: width var(--transition-speed), background-color var(--transition-speed);
+  transition: width var(--transition-speed),
+    background-color var(--transition-speed);
 }
 
 .sidebar-header {
@@ -170,7 +172,8 @@ body {
   flex: 1;
   margin-left: var(--sidebar-width);
   padding: 20px;
-  transition: margin-left var(--transition-speed), background-color var(--transition-speed);
+  transition: margin-left var(--transition-speed),
+    background-color var(--transition-speed);
   width: calc(100% - var(--sidebar-width));
 }
 
@@ -216,7 +219,8 @@ body {
   font-size: 14px;
   background-color: var(--input-bg);
   color: var(--input-text);
-  transition: border-color var(--transition-speed), background-color var(--transition-speed);
+  transition: border-color var(--transition-speed),
+    background-color var(--transition-speed);
 }
 
 .search-box i {
@@ -235,7 +239,8 @@ select {
   background-color: var(--input-bg);
   color: var(--input-text);
   min-width: 120px;
-  transition: border-color var(--transition-speed), background-color var(--transition-speed);
+  transition: border-color var(--transition-speed),
+    background-color var(--transition-speed);
 }
 
 /* Theme Toggle Button Styling - Updated to match sidebar style */
@@ -286,7 +291,8 @@ select {
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition: background-color var(--transition-speed),
+    box-shadow var(--transition-speed);
 }
 
 .stats-card h3 {
@@ -333,7 +339,8 @@ select {
   padding: 20px;
   margin-bottom: 30px;
   overflow-x: auto;
-  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition: background-color var(--transition-speed),
+    box-shadow var(--transition-speed);
 }
 
 .leads-header {
@@ -393,7 +400,8 @@ select {
   padding: 20px;
   box-shadow: var(--box-shadow);
   border-top: 3px solid var(--primary);
-  transition: transform 0.2s, box-shadow 0.2s, background-color var(--transition-speed);
+  transition: transform 0.2s, box-shadow 0.2s,
+    background-color var(--transition-speed);
   display: flex;
   flex-direction: column;
 }
@@ -606,7 +614,8 @@ select {
   font-size: 16px;
   background-color: var(--input-bg);
   color: var(--input-text);
-  transition: border-color var(--transition-speed), background-color var(--transition-speed);
+  transition: border-color var(--transition-speed),
+    background-color var(--transition-speed);
 }
 
 .form-group textarea {
@@ -689,7 +698,8 @@ select {
   padding: 8px 12px;
   cursor: pointer;
   color: var(--text-muted);
-  transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed), border-color var(--transition-speed);
 }
 
 .view-toggle button:first-child {
@@ -704,37 +714,6 @@ select {
   background-color: var(--primary);
   color: white;
   border-color: var(--primary);
-}
-
-/* Payment status colors */
-.status-scheduled {
-  background-color: rgba(74, 144, 226, 0.2);
-  color: #4a90e2;
-}
-
-.status-paid {
-  background-color: rgba(76, 175, 80, 0.2);
-  color: #4caf50;
-}
-
-.status-late {
-  background-color: rgba(255, 152, 0, 0.2);
-  color: #ff9800;
-}
-
-.status-missed {
-  background-color: rgba(244, 67, 54, 0.2);
-  color: #f44336;
-}
-
-.status-partial {
-  background-color: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
-}
-
-.status-overdue {
-  background-color: rgba(255, 87, 34, 0.2);
-  color: #ff5722;
 }
 
 /* Payments list styles */
@@ -781,71 +760,13 @@ select {
   gap: 5px;
 }
 
-.payment-status {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  margin-left: 8px;
-}
-
-/* Payment summary card */
-.payment-summary {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.payment-progress-bar {
-  height: 8px;
-  background-color: #e0e0e0;
-  border-radius: 4px;
-  margin-top: 8px;
-  overflow: hidden;
-}
-
-.payment-date-note {
-  font-size: 0.8rem;
+.payment-notes {
+  font-size: 0.85rem;
   color: var(--text-muted);
   font-style: italic;
   margin-top: 4px;
-}
-
-.payment-progress-fill {
-  height: 100%;
-  background-color: var(--primary);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.upcoming-payment {
-  margin-top: 10px;
-  padding: 8px;
-  border-radius: var(--card-border-radius);
-  background-color: rgba(74, 144, 226, 0.1);
-}
-
-.upcoming-payment-label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 5px;
-}
-
-.upcoming-payment-amount {
-  font-weight: bold;
-}
-
-.upcoming-payment-date {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.optional-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-style: italic;
-  font-weight: normal;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 /* Responsive Styles */
@@ -866,13 +787,13 @@ select {
     top: 15px;
     right: 15px;
   }
-  
+
   /* Position header at top in mobile view - change layout only for mobile */
   .header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .header h2 {
     position: absolute;
     top: 0;
@@ -880,7 +801,7 @@ select {
     margin: 0;
     /* padding: 15px; */
   }
-  
+
   /* Add space below header for other elements */
   .search-filter-sort {
     margin-top: 60px;
@@ -888,25 +809,25 @@ select {
     gap: 15px;
     width: 100%;
   }
-  
+
   /* Make selects and buttons full width in mobile */
   .search-box {
     width: 100%;
   }
-  
+
   select {
     width: 100%;
   }
-  
+
   #addLeadBtn {
     width: 100%;
   }
-  
+
   /* Hide sidebar completely in mobile view */
   .sidebar {
     display: none;
   }
-  
+
   /* Make main content take up full width */
   .main-content {
     margin-left: 0;
@@ -920,7 +841,7 @@ select {
   .theme-toggle::after {
     content: none;
   }
-  
+
   .theme-toggle i {
     margin-right: 0;
   }

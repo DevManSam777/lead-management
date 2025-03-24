@@ -110,14 +110,18 @@ if (paymentStatusSelect) {
     paymentForm.addEventListener("submit", validateAndSavePayment);
   }
 
-  // Add event listener to "Add Payment" button in the lead modal
-  const addPaymentBtn = document.getElementById("addPaymentBtn");
-  if (addPaymentBtn) {
-    addPaymentBtn.addEventListener("click", function() {
-      const leadId = document.getElementById("leadId").value;
+// Add event listener to "Add Payment" button in the lead modal
+const addPaymentBtn = document.getElementById("addPaymentBtn");
+if (addPaymentBtn) {
+  addPaymentBtn.addEventListener("click", function() {
+    const leadId = document.getElementById("leadId").value;
+    if (leadId) {
       openPaymentModal(leadId);
-    });
-  }
+    } else {
+      showToast("Please save the lead first before adding payments");
+    }
+  });
+}
 
   // Add formatting for payment amount input
   const paymentAmountInput = document.getElementById("paymentAmount");
@@ -616,9 +620,7 @@ function validateAndSavePayment(event) {
   const leadId = document.getElementById("paymentLeadId").value;
   const amountStr = document.getElementById("paymentAmount").value;
   const currency = document.getElementById("paymentCurrency").value;
-  const dueDate = document.getElementById("paymentDueDate").value;
   const paymentDate = document.getElementById("paymentDate").value;
-  const status = document.getElementById("paymentStatus").value;
   const notes = document.getElementById("paymentNotes").value;
   
   // Extract numeric value from formatted amount
@@ -629,26 +631,9 @@ function validateAndSavePayment(event) {
     return;
   }
   
-  if (!dueDate) {
-    showToast("Due date is required");
+  if (!paymentDate) {
+    showToast("Payment date is required");
     return;
-  }
-  
-  // Payment date handling:
-  // - For 'paid' status: payment date is required - use provided date or today
-  // - For all other statuses: payment date should be null
-  let finalPaymentDate = undefined;
-  
-  if (status === "paid") {
-    if (!paymentDate) {
-      // If no payment date provided for paid status, use today
-      finalPaymentDate = new Date().toISOString().split("T")[0];
-    } else {
-      finalPaymentDate = paymentDate;
-    }
-  } else {
-    // For scheduled/late/missed, payment date should be null
-    finalPaymentDate = null;
   }
   
   // Prepare payment data
@@ -656,9 +641,11 @@ function validateAndSavePayment(event) {
     leadId,
     amount,
     currency,
-    dueDate: new Date(dueDate),
-    paymentDate: finalPaymentDate ? new Date(finalPaymentDate) : null,
-    status,
+    // Set both dates to the payment date
+    dueDate: new Date(paymentDate),
+    paymentDate: new Date(paymentDate),
+    // Always mark as paid since we're simplifying
+    status: "paid",
     notes
   };
   
@@ -670,6 +657,74 @@ function validateAndSavePayment(event) {
   // Save payment
   savePayment(paymentData);
 }
+
+async function savePayment(paymentData) {
+  try {
+    let response;
+    if (paymentData._id) {
+      // Update existing payment
+      response = await fetch(`${API_PAYMENTS_URL}/${paymentData._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentData),
+      });
+    } else {
+      // Create new payment
+      response = await fetch(API_PAYMENTS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentData),
+      });
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to save payment");
+    }
+
+    // Refresh payments
+    await fetchPayments();
+    
+    // Refresh the lead data to update calculations
+    await fetchLeads();
+    
+    // If viewing a lead, refresh lead payments
+    const leadId = document.getElementById("leadId").value;
+    if (leadId) {
+      const leadPayments = await fetchLeadPayments(leadId);
+      renderLeadPayments(leadPayments, leadId);
+      
+      // Re-fetch the lead to update its payment info in the modal
+      const lead = allLeads.find((l) => l._id === leadId);
+      if (lead) {
+        // Update remaining balance
+        const remainingBalanceField = document.getElementById("remainingBalance");
+        if (remainingBalanceField) {
+          const remainingBalance = lead.remainingBalance !== undefined ? 
+            lead.remainingBalance : 
+            (lead.totalBudget ? Math.max(0, lead.totalBudget - lead.paidAmount) : 0);
+          
+          remainingBalanceField.value = formatCurrency(remainingBalance, lead.currency || "USD");
+        }
+        
+        // Update paid amount
+        const paidAmountField = document.getElementById("paidAmount");
+        if (paidAmountField) {
+          const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
+          paidAmountField.value = formatCurrency(paidAmount, lead.currency || "USD");
+        }
+      }
+    }
+    
+    closePaymentModal();
+    showToast(paymentData._id ? "Payment updated successfully" : "Payment added successfully");
+  } catch (error) {
+    console.error("Error saving payment:", error);
+    showToast("Error: " + error.message);
+  }
+}
+
+
 
 // Fetch all payments
 async function fetchPayments() {
@@ -836,7 +891,6 @@ async function updatePaymentStatuses() {
   }
 }
 
-// Function to open payment modal
 function openPaymentModal(leadId, paymentId = null) {
   const paymentForm = document.getElementById("paymentForm");
   if (!paymentForm) return;
@@ -846,12 +900,6 @@ function openPaymentModal(leadId, paymentId = null) {
   document.getElementById("paymentId").value = "";
   document.getElementById("paymentLeadId").value = leadId;
   
-  // Set initial visibility of payment date field
-  const paymentDateGroup = document.getElementById("paymentDateGroup");
-  if (paymentDateGroup) {
-    paymentDateGroup.style.display = "none"; // Hide by default
-  }
-  
   if (paymentId) {
     // Edit existing payment
     const payment = payments.find(p => p._id === paymentId);
@@ -860,30 +908,9 @@ function openPaymentModal(leadId, paymentId = null) {
       document.getElementById("paymentAmount").value = payment.amount;
       document.getElementById("paymentCurrency").value = payment.currency || "USD";
       
-      // Format dates for the date input
-      if (payment.dueDate) {
-        document.getElementById("paymentDueDate").value = new Date(payment.dueDate).toISOString().split("T")[0];
-      }
-      
-      const paymentStatus = document.getElementById("paymentStatus");
-      paymentStatus.value = payment.status;
-      
-      // Show payment date field if status is "paid"
-      if (payment.status === "paid") {
-        if (paymentDateGroup) {
-          paymentDateGroup.style.display = "block";
-        }
-        
-        // If status is "paid" and we have a payment date, show it
-        if (payment.paymentDate) {
-          document.getElementById("paymentDate").value = new Date(payment.paymentDate).toISOString().split("T")[0];
-        } else {
-          // If status is "paid" but no payment date, set to today
-          document.getElementById("paymentDate").value = new Date().toISOString().split("T")[0];
-        }
-      } else {
-        // Clear payment date for non-paid statuses
-        document.getElementById("paymentDate").value = "";
+      // Format date for the date input
+      if (payment.paymentDate) {
+        document.getElementById("paymentDate").value = new Date(payment.paymentDate).toISOString().split("T")[0];
       }
       
       document.getElementById("paymentNotes").value = payment.notes || "";
@@ -895,8 +922,8 @@ function openPaymentModal(leadId, paymentId = null) {
     // Set default values
     document.getElementById("paymentCurrency").value = defaultCurrency;
     const today = new Date().toISOString().split("T")[0];
-    document.getElementById("paymentDueDate").value = today;
-    document.getElementById("paymentDate").value = ""; // Clear payment date for new payments
+    document.getElementById("paymentDate").value = today;
+    document.getElementById("paymentNotes").value = ""; 
     
     document.getElementById("paymentModalTitle").textContent = "Add Payment";
   }
@@ -924,39 +951,21 @@ function renderLeadPayments(leadPayments, leadId) {
   
   paymentsContainer.innerHTML = "";
   
-  // Check for past due payments and mark them as late
-  const today = new Date();
-  const dueDateCheckedPayments = leadPayments.map(payment => {
-    // If payment is scheduled but past due date, show it as late in UI
-    if (payment.status === 'scheduled' && new Date(payment.dueDate) < today) {
-      return {
-        ...payment,
-        uiStatus: 'late'
-      };
-    }
-    return {
-      ...payment,
-      uiStatus: payment.status
-    };
-  });
-  
-  dueDateCheckedPayments.forEach(payment => {
-    const dueDate = new Date(payment.dueDate).toLocaleDateString();
+  leadPayments.forEach(payment => {
     const paymentDate = payment.paymentDate 
       ? new Date(payment.paymentDate).toLocaleDateString() 
-      : "Not paid";
+      : "Not recorded";
     
     const paymentItem = document.createElement("div");
     paymentItem.className = "payment-item";
     
-    // Use uiStatus for display but keep original status for functionality
     paymentItem.innerHTML = `
       <div class="payment-details">
         <div class="payment-amount">
           ${formatCurrency(payment.amount, payment.currency || "USD")}
-          <span class="payment-status status-${payment.uiStatus}">${capitalizeFirstLetter(payment.uiStatus)}</span>
         </div>
-        <div class="payment-date">Due: ${dueDate} | ${payment.status === 'paid' ? 'Paid: ' + paymentDate : 'Not paid'}</div>
+        <div class="payment-date">Paid: ${paymentDate}</div>
+        ${payment.notes ? `<div class="payment-notes">${payment.notes}</div>` : ''}
       </div>
       <div class="payment-actions">
         <button onclick="openPaymentModal('${leadId}', '${payment._id}')"><i class="fas fa-edit"></i></button>
@@ -1277,64 +1286,6 @@ function calculateStats() {
 }
 
 
-function validateAndSavePayment(event) {
-  event.preventDefault();
-  
-  // Get form data
-  const paymentId = document.getElementById("paymentId").value;
-  const leadId = document.getElementById("paymentLeadId").value;
-  const amountStr = document.getElementById("paymentAmount").value;
-  const currency = document.getElementById("paymentCurrency").value;
-  const dueDate = document.getElementById("paymentDueDate").value;
-  const paymentDate = document.getElementById("paymentDate").value;
-  const status = document.getElementById("paymentStatus").value;
-  const notes = document.getElementById("paymentNotes").value;
-  
-  // Extract numeric value from formatted amount
-  const amount = parseFloat(amountStr.replace(/[^\d.-]/g, ""));
-  
-  if (isNaN(amount) || amount <= 0) {
-    showToast("Please enter a valid amount");
-    return;
-  }
-  
-  if (!dueDate) {
-    showToast("Due date is required");
-    return;
-  }
-  
-  // Prepare payment data
-  const paymentData = {
-    leadId,
-    amount,
-    currency,
-    dueDate: new Date(dueDate),
-    status,
-    notes
-  };
-  
-  // If status is "paid", ensure we have a payment date
-  if (status === "paid") {
-    if (paymentDate) {
-      paymentData.paymentDate = new Date(paymentDate);
-    } else {
-      // If no payment date provided for paid status, use today's date
-      paymentData.paymentDate = new Date();
-    }
-  }
-  
-  // If editing existing payment, add the ID
-  if (paymentId) {
-    paymentData._id = paymentId;
-  }
-  
-  // For debugging
-  console.log("Saving payment data:", paymentData);
-  
-  // Save payment
-  savePayment(paymentData);
-}
-
 // Render leads based on current view
 function renderLeads(leads) {
   // console.log("Rendering leads:", leads); // Debug
@@ -1356,7 +1307,6 @@ function getLeadName(lead) {
   }
 }
 
-// Render Grid View
 function renderGridView(leads) {
   const leadCards = document.getElementById("leadCards");
   leadCards.innerHTML = "";
@@ -1398,14 +1348,25 @@ function renderGridView(leads) {
     if (serviceType === "website") serviceType = "Website";
     if (serviceType === "app") serviceType = "App Development";
 
-    // Format total budget with the correct currency symbol
-    let budget = "N/A";
+    // Format estimated budget with the correct currency symbol
+    let estimatedBudget = "N/A";
+    if (lead.budget) {
+      const numericValue = parseFloat(String(lead.budget));
+      if (!isNaN(numericValue)) {
+        estimatedBudget = formatCurrency(numericValue, lead.budgetCurrency || "USD");
+      } else {
+        estimatedBudget = lead.budget;
+      }
+    }
+    
+    // Format billed amount (contract total) with the correct currency symbol
+    let billedAmount = "N/A";
     if (lead.totalBudget) {
       const numericValue = parseFloat(String(lead.totalBudget));
       if (!isNaN(numericValue)) {
-        budget = formatCurrency(numericValue, lead.currency || "USD");
+        billedAmount = formatCurrency(numericValue, lead.currency || "USD");
       } else {
-        budget = lead.totalBudget;
+        billedAmount = lead.totalBudget;
       }
     }
     
@@ -1462,12 +1423,6 @@ function renderGridView(leads) {
     // Display business information with N/A as default
     const businessName = lead.businessName || "N/A";
     const businessEmail = lead.businessEmail || "N/A";
-    
-    // Add payment status display if available
-    let paymentStatusHtml = '';
-    if (lead.paymentStatus && lead.paymentStatus !== 'none') {
-      paymentStatusHtml = `<p><strong>Payment Status:</strong> <span class="lead-status status-${lead.paymentStatus.toLowerCase()}">${capitalizeFirstLetter(lead.paymentStatus)}</span></p>`;
-    }
 
     card.innerHTML = `
     <h3>${fullName}</h3>
@@ -1501,10 +1456,10 @@ function renderGridView(leads) {
         ? `<p><strong>Website:</strong> ${lead.websiteAddress}</p>`
         : ""
     }
-    <p><strong>Total Budget:</strong> ${budget}</p>
+    <p><strong>Estimated Budget:</strong> ${estimatedBudget}</p>
+    <p><strong>Billed Amount:</strong> ${billedAmount}</p>
     <p><strong>Paid Amount:</strong> ${paidAmount}</p>
     <p><strong>Remaining Balance:</strong> ${remainingBalance}</p>
-    ${paymentStatusHtml}
     <p><strong>Created:</strong> ${createdDate}</p>
     <p><strong>Last Contacted:</strong> ${lastContactedDate}</p>
     <p><strong>Status:</strong> <span class="lead-status status-${(
@@ -1562,14 +1517,25 @@ function renderListView(leads) {
     // Handle name display based on your schema
     const fullName = getLeadName(lead);
 
-    // Format budget with the correct currency symbol
-    let budget = "N/A";
+    // Format estimated budget with the correct currency symbol
+    let estimatedBudget = "N/A";
+    if (lead.budget) {
+      const numericValue = parseFloat(String(lead.budget));
+      if (!isNaN(numericValue)) {
+        estimatedBudget = formatCurrency(numericValue, lead.budgetCurrency || "USD");
+      } else {
+        estimatedBudget = lead.budget;
+      }
+    }
+    
+    // Format billed amount with the correct currency symbol
+    let billedAmount = "N/A";
     if (lead.totalBudget) {
       const numericValue = parseFloat(String(lead.totalBudget));
       if (!isNaN(numericValue)) {
-        budget = formatCurrency(numericValue, lead.currency || "USD");
+        billedAmount = formatCurrency(numericValue, lead.currency || "USD");
       } else {
-        budget = lead.totalBudget;
+        billedAmount = lead.totalBudget;
       }
     }
     
@@ -1597,24 +1563,15 @@ function renderListView(leads) {
 
     // Determine business info and handle empty values
     const business = lead.businessName || "N/A";
-    
-    // Add payment status display
-    let paymentStatus = '';
-    if (lead.paymentStatus && lead.paymentStatus !== 'none') {
-      paymentStatus = `<span class="lead-status status-${lead.paymentStatus.toLowerCase()}">${capitalizeFirstLetter(lead.paymentStatus)}</span>`;
-    } else {
-      paymentStatus = 'N/A';
-    }
 
     row.innerHTML = `
     <td>${fullName}</td>
     <td>${lead.email || "N/A"}</td>
     <td>${formatPhoneNumber(lead.phone) || "N/A"}</td>
     <td>${business}</td>
-    <td>${budget}</td>
-    <td>${paidAmount}</td>
+    <td>${estimatedBudget}</td>
+    <td>${billedAmount}</td>
     <td>${remainingBalance}</td>
-    <td>${paymentStatus}</td>
     <td>${createdDate}</td>
     <td>${lastContactedDate}</td>
     <td><span class="lead-status status-${(
@@ -1734,7 +1691,6 @@ function sortLeads() {
   sortLeadsAndRender(allLeads);
 }
 
-// Corrected sortLeadsAndRender function with proper Last Contacted sorting
 function sortLeadsAndRender(leadsToSort) {
   const sortField = document.getElementById("sortField").value;
   const sortOrder = document.getElementById("sortOrder").value;
@@ -1830,11 +1786,38 @@ function sortLeadsAndRender(leadsToSort) {
         // Both have business emails or both don't, compare normally
         comparison = emailA.toLowerCase().localeCompare(emailB.toLowerCase());
       }
-    } else if (sortField === "budget") {
-      // Extract numeric values from budget strings
-      const budgetA = a.totalBudget || 0;
-      const budgetB = b.totalBudget || 0;
-      comparison = budgetA - budgetB;
+    } else if (sortField === "totalBudget") {
+      // Special handling for billed amount - N/A values go to the end
+      const valueA = a.totalBudget !== undefined && a.totalBudget !== null ? parseFloat(a.totalBudget) : null;
+      const valueB = b.totalBudget !== undefined && b.totalBudget !== null ? parseFloat(b.totalBudget) : null;
+      
+      // Handle N/A cases (null values)
+      if (valueA === null && valueB === null) {
+        comparison = 0; // Both N/A, consider equal
+      } else if (valueA === null) {
+        return 1; // A is N/A, B has value, A goes to end
+      } else if (valueB === null) {
+        return -1; // B is N/A, A has value, B goes to end
+      } else {
+        // Both have values, compare normally
+        comparison = valueA - valueB;
+      }
+    } else if (sortField === "remainingBalance") {
+      // Special handling for remaining balance - N/A values go to the end
+      const valueA = a.remainingBalance !== undefined && a.remainingBalance !== null ? parseFloat(a.remainingBalance) : null;
+      const valueB = b.remainingBalance !== undefined && b.remainingBalance !== null ? parseFloat(b.remainingBalance) : null;
+      
+      // Handle N/A cases (null values)
+      if (valueA === null && valueB === null) {
+        comparison = 0; // Both N/A, consider equal
+      } else if (valueA === null) {
+        return 1; // A is N/A, B has value, A goes to end
+      } else if (valueB === null) {
+        return -1; // B is N/A, A has value, B goes to end
+      } else {
+        // Both have values, compare normally
+        comparison = valueA - valueB;
+      }
     } else if (sortField === "status") {
       // Custom status order: new, contacted, in-progress, closed-won, closed-lost
       const statusOrder = {
@@ -1986,14 +1969,11 @@ async function saveLead() {
     businessName: document.getElementById("businessName").value || undefined,
     businessPhone: document.getElementById("businessPhone").value || undefined,
     businessEmail: document.getElementById("businessEmail").value || undefined,
-    businessServices:
-      document.getElementById("businessServices").value || undefined,
-    preferredContact:
-      document.getElementById("preferredContact").value || undefined,
+    businessServices: document.getElementById("businessServices").value || undefined,
+    preferredContact: document.getElementById("preferredContact").value || undefined,
     serviceDesired: document.getElementById("serviceDesired").value,
     hasWebsite: document.getElementById("hasWebsite").value || undefined,
-    websiteAddress:
-      document.getElementById("websiteAddress").value || undefined,
+    websiteAddress: document.getElementById("websiteAddress").value || undefined,
     message: document.getElementById("message").value || undefined,
     status: document.getElementById("status").value,
     notes: document.getElementById("notes").value || undefined,
@@ -2005,18 +1985,30 @@ async function saveLead() {
     leadData.lastContactedAt = new Date(lastContactedInput.value);
   }
 
-  // Handle total budget
+  // Handle estimated budget (no connection to totalBudget)
+  const budgetInput = document.getElementById("budget");
+  const currencyInput = document.getElementById("currency");
+  if (budgetInput && budgetInput.value) {
+    // Extract numeric value
+    const numericValue = parseFloat(budgetInput.value.replace(/[^\d.-]/g, ""));
+    if (!isNaN(numericValue)) {
+      // Store as budget (NOT totalBudget)
+      leadData.budget = numericValue;
+      if (currencyInput) {
+        leadData.budgetCurrency = currencyInput.value;
+      }
+    }
+  }
+
+  // Handle billed amount (contract total)
   const totalBudgetInput = document.getElementById("totalBudget");
   const budgetCurrencyInput = document.getElementById("budgetCurrency");
-
   if (totalBudgetInput && totalBudgetInput.value) {
     // Extract numeric value
     const numericValue = parseFloat(totalBudgetInput.value.replace(/[^\d.-]/g, ""));
-
     if (!isNaN(numericValue)) {
-      // Store the budget value
+      // Store the billed amount as totalBudget
       leadData.totalBudget = numericValue;
-
       if (budgetCurrencyInput) {
         leadData.currency = budgetCurrencyInput.value;
       }

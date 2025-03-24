@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const leadSchema = new mongoose.Schema({
   firstName: {
@@ -34,16 +34,16 @@ const leadSchema = new mongoose.Schema({
   },
   preferredContact: {
     type: String,
-    enum: ['phone', 'businessPhone', 'email', 'text', 'businessEmail'],
+    enum: ["phone", "businessPhone", "email", "text", "businessEmail"],
   },
   serviceDesired: {
     type: String,
-    enum: ['website', 'app'],
-    default: 'website'
+    enum: ["website", "app"],
+    default: "website",
   },
   hasWebsite: {
     type: String,
-    enum: ['yes', 'no'],
+    enum: ["yes", "no"],
   },
   websiteAddress: {
     type: String,
@@ -53,15 +53,18 @@ const leadSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: 'new',
-    enum: ['new', 'contacted', 'in-progress', 'closed-won', 'closed-lost'],
+    default: "new",
+    enum: ["new", "contacted", "in-progress", "closed-won", "closed-lost"],
   },
   notes: {
     type: String,
   },
-  // New fields for budget
   budget: {
+    type: Number,
+  },
+  budgetCurrency: {
     type: String,
+    default: "USD",
   },
   totalBudget: {
     type: Number,
@@ -74,15 +77,10 @@ const leadSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  paymentStatus: {
-    type: String,
-    enum: ['none', 'partial', 'paid', 'overdue'],
-    default: 'none',
-  },
   currency: {
     type: String,
-    default: 'USD',
-    enum: ['USD', 'CAD', 'EUR', 'GBP', 'AUD', '🍕']
+    default: "USD",
+    enum: ["USD", "CAD", "EUR", "GBP", "AUD", "🍕"],
   },
   createdAt: {
     type: Date,
@@ -93,4 +91,4 @@ const leadSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Lead', leadSchema);
+module.exports = mongoose.model("Lead", leadSchema);

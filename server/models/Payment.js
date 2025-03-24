@@ -20,15 +20,6 @@ const paymentSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  dueDate: {
-    type: Date,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ['scheduled', 'paid', 'late', 'missed'],
-    default: 'scheduled',
-  },
   notes: {
     type: String,
   },

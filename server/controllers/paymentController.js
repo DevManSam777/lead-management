@@ -90,120 +90,13 @@ exports.deletePayment = async (req, res) => {
   }
 };
 
-// Helper function to update lead payment information
-// async function updateLeadPaymentInfo(leadId) {
-//   try {
-//     // Get all payments for the lead
-//     const payments = await Payment.find({ leadId });
-    
-//     // Calculate total paid amount
-//     const paidAmount = payments
-//       .filter(payment => payment.status === 'paid')
-//       .reduce((total, payment) => total + payment.amount, 0);
-    
-//     // Get the lead
-//     const lead = await Lead.findById(leadId);
-    
-//     if (!lead) {
-//       throw new Error('Lead not found');
-//     }
-    
-//     // Calculate payment status
-//     let paymentStatus = 'none';
-    
-//     if (paidAmount > 0) {
-//       // Check if there are any late payments
-//       const hasLatePayments = payments.some(payment => 
-//         payment.status === 'late' || 
-//         (payment.status === 'scheduled' && new Date(payment.dueDate) < new Date())
-//       );
-      
-//       if (hasLatePayments) {
-//         paymentStatus = 'overdue';
-//       } else if (lead.totalBudget && paidAmount >= lead.totalBudget) {
-//         paymentStatus = 'paid';
-//       } else {
-//         paymentStatus = 'partial';
-//       }
-//     }
-    
-//     // Update lead
-//     await Lead.findByIdAndUpdate(leadId, { 
-//       paidAmount, 
-//       paymentStatus 
-//     });
-    
-//     return { paidAmount, paymentStatus };
-//   } catch (error) {
-//     console.error('Error updating lead payment info:', error);
-//     throw error;
-//   }
-// }
-
-// Helper function to update lead payment information
-// async function updateLeadPaymentInfo(leadId) {
-//   try {
-//     // Get all payments for the lead
-//     const payments = await Payment.find({ leadId });
-    
-//     // Calculate total paid amount
-//     const paidAmount = payments
-//       .filter(payment => payment.status === 'paid')
-//       .reduce((total, payment) => total + payment.amount, 0);
-    
-//     // Get the lead
-//     const lead = await Lead.findById(leadId);
-    
-//     if (!lead) {
-//       throw new Error('Lead not found');
-//     }
-    
-//     // Calculate payment status
-//     let paymentStatus = 'none';
-    
-//     if (paidAmount > 0) {
-//       // Check if there are any late payments
-//       const hasLatePayments = payments.some(payment => 
-//         payment.status === 'late' || 
-//         (payment.status === 'scheduled' && new Date(payment.dueDate) < new Date())
-//       );
-      
-//       if (hasLatePayments) {
-//         paymentStatus = 'overdue';
-//       } else if (lead.totalBudget && paidAmount >= lead.totalBudget) {
-//         paymentStatus = 'paid';
-//       } else {
-//         paymentStatus = 'partial';
-//       }
-//     }
-    
-//     // Calculate remaining balance
-//     const remainingBalance = lead.totalBudget ? lead.totalBudget - paidAmount : 0;
-    
-//     // Update lead
-//     await Lead.findByIdAndUpdate(leadId, { 
-//       paidAmount, 
-//       paymentStatus,
-//       remainingBalance
-//     });
-    
-//     return { paidAmount, paymentStatus, remainingBalance };
-//   } catch (error) {
-//     console.error('Error updating lead payment info:', error);
-//     throw error;
-//   }
-// }
-
-// In server/controllers/paymentController.js
 async function updateLeadPaymentInfo(leadId) {
   try {
     // Get all payments for the lead
     const payments = await Payment.find({ leadId });
     
     // Calculate total paid amount
-    const paidAmount = payments
-      .filter(payment => payment.status === 'paid')
-      .reduce((total, payment) => total + payment.amount, 0);
+    const paidAmount = payments.reduce((total, payment) => total + payment.amount, 0);
     
     // Get the lead
     const lead = await Lead.findById(leadId);
@@ -212,37 +105,17 @@ async function updateLeadPaymentInfo(leadId) {
       throw new Error('Lead not found');
     }
     
-    // Calculate payment status
-    let paymentStatus = 'none';
-    
-    if (paidAmount > 0) {
-      // Check if there are any late payments
-      const hasLatePayments = payments.some(payment => 
-        payment.status === 'late' || 
-        (payment.status === 'scheduled' && new Date(payment.dueDate) < new Date())
-      );
-      
-      if (hasLatePayments) {
-        paymentStatus = 'overdue';
-      } else if (lead.totalBudget && paidAmount >= lead.totalBudget) {
-        paymentStatus = 'paid';
-      } else {
-        paymentStatus = 'partial';
-      }
-    }
-    
     // Calculate remaining balance
     const totalBudget = lead.totalBudget || 0;
     const remainingBalance = Math.max(0, totalBudget - paidAmount);
     
-    // Update lead with all payment-related fields
+    // Update lead with payment-related fields
     await Lead.findByIdAndUpdate(leadId, { 
-      paidAmount, 
-      paymentStatus,
+      paidAmount,
       remainingBalance
     });
     
-    return { paidAmount, paymentStatus, remainingBalance };
+    return { paidAmount, remainingBalance };
   } catch (error) {
     console.error('Error updating lead payment info:', error);
     throw error;

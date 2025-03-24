@@ -21,8 +21,7 @@
         <div class="sidebar-menu">
           <ul>
             <li>
-              <a href="#"><i class="fas fa-sun"></i></a
-              >
+              <a href="#"><i class="fas fa-sun"></i></a>
             </li>
           </ul>
         </div>
@@ -49,45 +48,58 @@
               <option value="closed-won">Closed (Won)</option>
               <option value="closed-lost">Closed (Lost)</option>
             </select>
-            
-            <!-- Combined sort dropdown with Business Name options -->
-           <!-- Combined sort dropdown with Business Email options -->
-<select id="combinedSort">
-    <option value="createdAt-desc">Date (Newest First)</option>
-    <option value="createdAt-asc">Date (Oldest First)</option>
-    <option value="lastContactedAt-desc">Last Contacted (Newest First)</option>
-    <option value="lastContactedAt-asc">Last Contacted (Oldest First)</option>
-    <option value="firstName-asc">Name (A to Z)</option>
-    <option value="firstName-desc">Name (Z to A)</option>
-    <option value="email-asc">Email (A to Z)</option>
-    <option value="email-desc">Email (Z to A)</option>
-    <option value="businessName-asc">Business Name (A to Z)</option>
-    <option value="businessName-desc">Business Name (Z to A)</option>
-    <option value="businessEmail-asc">Business Email (A to Z)</option>
-    <option value="businessEmail-desc">Business Email (Z to A)</option>
-    
-    <option value="budget-desc">Budget (High to Low)</option>
-    <option value="budget-asc">Budget (Low to High)</option>
-    <option value="status-asc">Status (New to Closed)</option>
-    <option value="status-desc">Status (Closed to New)</option>
-  </select>
-  
-  <!-- Hidden original dropdowns that the JS code will still use -->
-  <select id="sortField" style="display: none">
-    <option value="createdAt">Date</option>
-    <option value="lastContactedAt">Last Contacted</option>
-    <option value="firstName">Name</option>
-    <option value="businessName">Business Name</option>
-    <option value="businessEmail">Business Email</option>
-    <option value="email">Email</option>
-    <option value="budget">Budget</option>
-    <option value="status">Status</option>
-  </select>
-  <select id="sortOrder" style="display: none">
-    <option value="desc">Newest First</option>
-    <option value="asc">Oldest First</option>
-  </select>
-            
+            <select id="combinedSort">
+              <option value="createdAt-desc">Date (Newest First)</option>
+              <option value="createdAt-asc">Date (Oldest First)</option>
+              <option value="lastContactedAt-desc">
+                Last Contacted (Newest First)
+              </option>
+              <option value="lastContactedAt-asc">
+                Last Contacted (Oldest First)
+              </option>
+              <option value="firstName-asc">Name (A to Z)</option>
+              <option value="firstName-desc">Name (Z to A)</option>
+              <option value="email-asc">Email (A to Z)</option>
+              <option value="email-desc">Email (Z to A)</option>
+              <option value="businessName-asc">Business Name (A to Z)</option>
+              <option value="businessName-desc">Business Name (Z to A)</option>
+              <option value="businessEmail-asc">Business Email (A to Z)</option>
+              <option value="businessEmail-desc">
+                Business Email (Z to A)
+              </option>
+              <option value="totalBudget-desc">
+                Billed Amount (High to Low)
+              </option>
+              <option value="totalBudget-asc">
+                Billed Amount (Low to High)
+              </option>
+              <option value="remainingBalance-desc">
+                Remaining Balance (High to Low)
+              </option>
+              <option value="remainingBalance-asc">
+                Remaining Balance (Low to High)
+              </option>
+              <option value="status-asc">Status (New to Closed)</option>
+              <option value="status-desc">Status (Closed to New)</option>
+            </select>
+
+            <!-- Hidden original dropdowns that the JS code will still use -->
+            <select id="sortField" style="display: none">
+              <option value="createdAt">Date</option>
+              <option value="lastContactedAt">Last Contacted</option>
+              <option value="firstName">Name</option>
+              <option value="businessName">Business Name</option>
+              <option value="businessEmail">Business Email</option>
+              <option value="email">Email</option>
+              <option value="totalBudget">Billed Amount</option>
+              <option value="remainingBalance">Remaining Balance</option>
+              <option value="status">Status</option>
+            </select>
+            <select id="sortOrder" style="display: none">
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+
             <button id="addLeadBtn" class="btn btn-primary">
               <i class="fas fa-plus"></i> Add Lead
             </button>
@@ -117,14 +129,14 @@
               <i class="fas fa-arrow-up"></i> <span>0%</span>
             </div>
           </div>
-         
-<div class="stats-card">
-  <h3>Monthly Payments</h3>
-  <div class="value" id="monthlyPaymentsValue">$0</div>
-  <div class="change" id="paymentsChange">
-    <i class="fas fa-arrow-up"></i> <span>0%</span>
-  </div>
-</div>
+
+          <div class="stats-card">
+            <h3>Monthly Payments</h3>
+            <div class="value" id="monthlyPaymentsValue">$0</div>
+            <div class="change" id="paymentsChange">
+              <i class="fas fa-arrow-up"></i> <span>0%</span>
+            </div>
+          </div>
         </div>
 
         <!-- View Toggle -->
@@ -145,49 +157,33 @@
           <div class="lead-cards" id="leadCards">
             <!-- Lead cards will be generated here -->
           </div>
-         <!-- Updated Table View with Last Contacted and Business Email columns -->
-<!-- <table class="leads-table" id="leadsTable" style="display: none">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Business</th>
-        <th>Business Email</th>
-        <th>Service</th>
-        <th>Website</th>
-        <th>Budget</th>
-        <th>Created</th>
-        <th>Last Contacted</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="leadsTableBody">
-      <!-- Table rows will be generated here -->
-      <table class="leads-table" id="leadsTable" style="display: none">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Business</th>
-            <th>Budget</th>
-            <th>Paid Amount</th>
-            <th>Payment Status</th>
-            <th>Created</th>
-            <th>Last Contacted</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="leadsTableBody">
-          <!-- Table rows will be generated here -->
-        </tbody>
-      </table>
+
+          <!-- Table View -->
+          <table class="leads-table" id="leadsTable" style="display: none">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Business</th>
+                <th>Estimated Budget</th>
+                <th>Billed Amount</th>
+                <th>Remaining Balance</th>
+                <th>Created</th>
+                <th>Last Contacted</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody">
+              <!-- Table rows will be generated here -->
+            </tbody>
+          </table>
         </div>
       </main>
     </div>
+
+    <!-- Lead Modal -->
     <div id="leadModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeModal">&times;</span>
@@ -288,9 +284,13 @@
             </div>
 
             <div class="form-group">
-              <label for="budget">Budget</label>
+              <label for="budget">Estimated Budget</label>
               <div class="budget-group">
-                <input type="text" id="budget" placeholder="Enter amount" />
+                <input
+                  type="text"
+                  id="budget"
+                  placeholder="Enter estimated amount"
+                />
                 <select id="currency">
                   <option value="USD">USD</option>
                   <option value="CAD">CAD</option>
@@ -324,43 +324,47 @@
           </div>
 
           <!-- Payment Information Section -->
-<div class="form-section">
-  <h4>Payment Information</h4>
-  <div class="form-group">
-    <label for="totalBudget">Total Budget</label>
-    <div class="budget-group">
-      <input type="text" id="totalBudget" placeholder="Enter total budget" />
-      <select id="budgetCurrency">
-        <option value="USD">USD</option>
-        <option value="CAD">CAD</option>
-        <option value="EUR">EUR</option>
-        <option value="GBP">GBP</option>
-        <option value="AUD">AUD</option>
-        <option value="🍕">🍕</option>
-      </select>
-    </div>
-  </div>
+          <div class="form-section">
+            <h4>Payment Information</h4>
+            <div class="form-group">
+              <label for="totalBudget">Billed Amount</label>
+              <div class="budget-group">
+                <input
+                  type="text"
+                  id="totalBudget"
+                  placeholder="Enter billed amount"
+                />
+                <select id="budgetCurrency">
+                  <option value="USD">USD</option>
+                  <option value="CAD">CAD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="AUD">AUD</option>
+                  <option value="🍕">🍕</option>
+                </select>
+              </div>
+            </div>
 
-  <div class="form-group">
-    <label for="paidAmount">Paid Amount</label>
-    <input type="text" id="paidAmount" readonly />
-  </div>
+            <div class="form-group">
+              <label for="paidAmount">Paid Amount</label>
+              <input type="text" id="paidAmount" readonly />
+            </div>
 
-  <div class="form-group">
-    <label for="remainingBalance">Remaining Balance</label>
-    <input type="text" id="remainingBalance" readonly />
-  </div>
+            <div class="form-group">
+              <label for="remainingBalance">Remaining Balance</label>
+              <input type="text" id="remainingBalance" readonly />
+            </div>
 
-  <div id="paymentsList" class="payments-list">
-    <h5>Payments</h5>
-    <div class="payments-container">
-      <!-- Payments will be loaded here -->
-    </div>
-    <button type="button" id="addPaymentBtn" class="btn btn-outline">
-      <i class="fas fa-plus"></i> Add Payment
-    </button>
-  </div>
-</div>
+            <div id="paymentsList" class="payments-list">
+              <h5>Payments</h5>
+              <div class="payments-container">
+                <!-- Payments will be loaded here -->
+              </div>
+              <button type="button" id="addPaymentBtn" class="btn btn-outline">
+                <i class="fas fa-plus"></i> Add Payment
+              </button>
+            </div>
+          </div>
 
           <!-- Message and Notes Section -->
           <div class="form-section">
@@ -386,62 +390,55 @@
       <p id="toastMessage"></p>
     </div>
 
-    <!-- Add this at the bottom of the page, after the toast notification div -->
-<div id="paymentModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" id="closePaymentModal">&times;</span>
-    <div class="modal-header">
-      <h3 id="paymentModalTitle">Add Payment</h3>
-    </div>
-    <form id="paymentForm">
-      <input type="hidden" id="paymentId" />
-      <input type="hidden" id="paymentLeadId" />
-      
-      <div class="form-group">
-        <label for="paymentAmount">Amount*</label>
-        <div class="budget-group">
-          <input type="text" id="paymentAmount" required placeholder="Enter amount" />
-          <select id="paymentCurrency">
-            <option value="USD">USD</option>
-            <option value="CAD">CAD</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-            <option value="AUD">AUD</option>
-            <option value="🍕">🍕</option>
-          </select>
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closePaymentModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="paymentModalTitle">Add Payment</h3>
         </div>
+        <form id="paymentForm">
+          <input type="hidden" id="paymentId" />
+          <input type="hidden" id="paymentLeadId" />
+
+          <div class="form-group">
+            <label for="paymentAmount">Amount*</label>
+            <div class="budget-group">
+              <input
+                type="text"
+                id="paymentAmount"
+                required
+                placeholder="Enter amount"
+              />
+              <select id="paymentCurrency">
+                <option value="USD">USD</option>
+                <option value="CAD">CAD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="AUD">AUD</option>
+                <option value="🍕">🍕</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="paymentDate">Payment Date*</label>
+            <input type="date" id="paymentDate" required />
+          </div>
+
+          <div class="form-group">
+            <label for="paymentNotes">Notes</label>
+            <textarea
+              id="paymentNotes"
+              rows="3"
+              placeholder="Add payment notes here"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Payment</button>
+        </form>
       </div>
-      
-      <div class="form-group">
-        <label for="paymentDueDate">Due Date*</label>
-        <input type="date" id="paymentDueDate" required />
-      </div>
-      
-      <div class="form-group" id="paymentDateGroup">
-        <label for="paymentDate">Payment Date</label>
-        <input type="date" id="paymentDate" />
-        <div class="payment-date-note">Required only for paid status</div>
-      </div>
-      
-      <div class="form-group">
-        <label for="paymentStatus">Status*</label>
-        <select id="paymentStatus" required>
-          <option value="scheduled">Scheduled</option>
-          <option value="paid">Paid</option>
-          <option value="late">Late</option>
-          <option value="missed">Missed</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="paymentNotes">Notes</label>
-        <textarea id="paymentNotes" rows="3"></textarea>
-      </div>
-      
-      <button type="submit" class="btn btn-primary">Save Payment</button>
-    </form>
-  </div>
-</div>
+    </div>
 
     <script src="./dashboard.js"></script>
   </body>
