@@ -689,7 +689,7 @@ async function fetchLeadPayments(leadId) {
   }
 }
 
-// Replace the existing savePayment function with this updated version
+// Update the savePayment function to fix monthly payments calculation
 async function savePayment(paymentData) {
   try {
     let response;
@@ -713,77 +713,70 @@ async function savePayment(paymentData) {
       const errorData = await response.json();
       throw new Error(errorData.message || "Failed to save payment");
     }
-
-    const responseData = await response.json();
-
+    
     // Get the current lead ID
     const leadId = document.getElementById("leadId").value;
-
+    
     if (leadId) {
       // Directly request the updated lead information
       const leadResponse = await fetch(`${API_URL}/${leadId}`);
-
+      
       if (!leadResponse.ok) {
         throw new Error("Failed to fetch updated lead information");
       }
-
+      
       const updatedLead = await leadResponse.json();
-
+      
       // Update the lead in allLeads array
-      const leadIndex = allLeads.findIndex((l) => l._id === leadId);
+      const leadIndex = allLeads.findIndex(l => l._id === leadId);
       if (leadIndex !== -1) {
         allLeads[leadIndex] = updatedLead;
       }
-
+      
       // Get updated payments
       const leadPayments = await fetchLeadPayments(leadId);
-
+      
       // Calculate the total paid
-      const totalPaid = leadPayments.reduce(
-        (sum, payment) => sum + payment.amount,
-        0
-      );
-
+      const totalPaid = leadPayments.reduce((sum, payment) => sum + payment.amount, 0);
+      
       // Update paid amount field
       const paidAmountField = document.getElementById("paidAmount");
       if (paidAmountField) {
-        paidAmountField.value = formatCurrency(
-          totalPaid,
-          updatedLead.currency || "USD"
-        );
+        paidAmountField.value = formatCurrency(totalPaid, updatedLead.currency || "USD");
       }
-
-      // Update remaining balance field
+      
+      // Update remaining balance field - Allow negative values
       const remainingBalanceField = document.getElementById("remainingBalance");
       if (remainingBalanceField) {
         const totalBudget = updatedLead.totalBudget || 0;
-        const remainingBalance = Math.max(0, totalBudget - totalPaid);
-        remainingBalanceField.value = formatCurrency(
-          remainingBalance,
-          updatedLead.currency || "USD"
-        );
+        const remainingBalance = totalBudget - totalPaid; // Remove Math.max to allow negative values
+        remainingBalanceField.value = formatCurrency(remainingBalance, updatedLead.currency || "USD");
       }
-
+      
       // Render payment list
       renderLeadPayments(leadPayments, leadId);
     }
-
+    
     // Refresh the full leads and payments data for other views
-    await Promise.all([fetchLeads(), fetchPayments()]);
-
+    await fetchPayments();
+    
+    // Explicitly recalculate stats after fetching payments
+    calculateStats();
+    
+    // Separately fetch leads in background if needed
+    fetchLeads();
+    
+    // Close only the payment modal, not the lead modal
     closePaymentModal();
-    showToast(
-      paymentData._id
-        ? "Payment updated successfully"
-        : "Payment added successfully"
-    );
+    
+    showToast(paymentData._id ? "Payment updated successfully" : "Payment added successfully");
   } catch (error) {
     console.error("Error saving payment:", error);
     showToast("Error: " + error.message);
   }
 }
 
-// Replace the existing deletePayment function with this updated version
+// Update the deletePayment function to fix monthly payments calculation
 async function deletePayment(paymentId, leadId) {
   try {
     const response = await fetch(`${API_PAYMENTS_URL}/${paymentId}`, {
@@ -793,65 +786,63 @@ async function deletePayment(paymentId, leadId) {
     if (!response.ok) {
       throw new Error("Failed to delete payment");
     }
-
+    
     if (leadId) {
       // Directly request the updated lead information
       const leadResponse = await fetch(`${API_URL}/${leadId}`);
-
+      
       if (!leadResponse.ok) {
         throw new Error("Failed to fetch updated lead information");
       }
-
+      
       const updatedLead = await leadResponse.json();
-
+      
       // Update the lead in allLeads array
-      const leadIndex = allLeads.findIndex((l) => l._id === leadId);
+      const leadIndex = allLeads.findIndex(l => l._id === leadId);
       if (leadIndex !== -1) {
         allLeads[leadIndex] = updatedLead;
       }
-
+      
       // Get updated payments
       const leadPayments = await fetchLeadPayments(leadId);
-
+      
       // Calculate the total paid
-      const totalPaid = leadPayments.reduce(
-        (sum, payment) => sum + payment.amount,
-        0
-      );
-
+      const totalPaid = leadPayments.reduce((sum, payment) => sum + payment.amount, 0);
+      
       // Update paid amount field
       const paidAmountField = document.getElementById("paidAmount");
       if (paidAmountField) {
-        paidAmountField.value = formatCurrency(
-          totalPaid,
-          updatedLead.currency || "USD"
-        );
+        paidAmountField.value = formatCurrency(totalPaid, updatedLead.currency || "USD");
       }
-
-      // Update remaining balance field
+      
+      // Update remaining balance field - Allow negative values
       const remainingBalanceField = document.getElementById("remainingBalance");
       if (remainingBalanceField) {
         const totalBudget = updatedLead.totalBudget || 0;
-        const remainingBalance = Math.max(0, totalBudget - totalPaid);
-        remainingBalanceField.value = formatCurrency(
-          remainingBalance,
-          updatedLead.currency || "USD"
-        );
+        const remainingBalance = totalBudget - totalPaid; // Remove Math.max to allow negative values
+        remainingBalanceField.value = formatCurrency(remainingBalance, updatedLead.currency || "USD");
       }
-
+      
       // Render payment list
       renderLeadPayments(leadPayments, leadId);
     }
-
-    // Refresh the full leads and payments data for other views
-    await Promise.all([fetchLeads(), fetchPayments()]);
-
+    
+    // Refresh the full payments data first
+    await fetchPayments();
+    
+    // Explicitly recalculate stats after fetching payments
+    calculateStats();
+    
+    // Separately fetch leads in background if needed
+    fetchLeads();
+    
     showToast("Payment deleted successfully");
   } catch (error) {
     console.error("Error deleting payment:", error);
     showToast("Error: " + error.message);
   }
 }
+
 
 // Update all payment statuses based on due dates
 async function updatePaymentStatuses() {

@@ -90,6 +90,8 @@ exports.deletePayment = async (req, res) => {
   }
 };
 
+// Update this function in server/controllers/paymentController.js
+
 async function updateLeadPaymentInfo(leadId) {
   try {
     // Get all payments for the lead
@@ -105,9 +107,9 @@ async function updateLeadPaymentInfo(leadId) {
       throw new Error('Lead not found');
     }
     
-    // Calculate remaining balance
+    // Calculate remaining balance - Allow negative values
     const totalBudget = lead.totalBudget || 0;
-    const remainingBalance = Math.max(0, totalBudget - paidAmount);
+    const remainingBalance = totalBudget - paidAmount; // Remove Math.max to allow negative values
     
     // Update lead with payment-related fields
     await Lead.findByIdAndUpdate(leadId, { 
