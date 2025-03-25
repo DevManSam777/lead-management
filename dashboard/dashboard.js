@@ -110,10 +110,15 @@ document.addEventListener("DOMContentLoaded", function () {
     paymentForm.addEventListener("submit", validateAndSavePayment);
   }
 
-  // Add event listener to "Add Payment" button in the lead modal
+  // Make sure the addPaymentBtn is properly initialized
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
-    addPaymentBtn.addEventListener("click", function () {
+    // Remove any existing event listeners (if any)
+    const newBtn = addPaymentBtn.cloneNode(true);
+    addPaymentBtn.parentNode.replaceChild(newBtn, addPaymentBtn);
+
+    // Add fresh event listener
+    newBtn.addEventListener("click", function () {
       const leadId = document.getElementById("leadId").value;
       if (leadId) {
         openPaymentModal(leadId);
@@ -155,6 +160,30 @@ document.addEventListener("DOMContentLoaded", function () {
       closePaymentModal();
     }
   });
+
+  const leadForm = document.getElementById("leadForm");
+  if (leadForm) {
+    leadForm.addEventListener("keydown", function (e) {
+      // Check if the key pressed is Enter
+      if (e.key === "Enter" || e.keyCode === 13) {
+        // Check if the active element is an input (not a textarea or button)
+        if (
+          document.activeElement.tagName === "INPUT" &&
+          document.activeElement.type !== "submit"
+        ) {
+          // Prevent the default action
+          e.preventDefault();
+
+          // If we're in a payment modal, don't do anything else
+          if (
+            document.getElementById("paymentModal").style.display === "block"
+          ) {
+            return;
+          }
+        }
+      }
+    });
+  }
 
   // Add input validation listeners
   setupFormValidation();
