@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Add currency formatting for budget input
+  // Currency formatting for budget input
   const totalBudgetInput = document.getElementById("totalBudget");
   if (totalBudgetInput) {
     totalBudgetInput.addEventListener("blur", function (e) {
@@ -99,15 +99,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Add payment-related event listeners
-  const closePaymentModalBtn = document.getElementById("closePaymentModal");
-  if (closePaymentModalBtn) {
-    closePaymentModalBtn.addEventListener("click", closePaymentModal);
-  }
-
+  // Event handler for payment form submission
   const paymentForm = document.getElementById("paymentForm");
   if (paymentForm) {
-    paymentForm.addEventListener("submit", validateAndSavePayment);
+    // Remove existing event listeners (if any) by cloning and replacing
+    const newPaymentForm = paymentForm.cloneNode(true);
+    paymentForm.parentNode.replaceChild(newPaymentForm, paymentForm);
+    
+    // Add fresh event listener
+    newPaymentForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      validateAndSavePayment(event);
+      return false;
+    });
+  }
+  
+  // Event listener for close payment modal button
+  const closePaymentModalBtn = document.getElementById("closePaymentModal");
+  if (closePaymentModalBtn) {
+    const newCloseBtn = closePaymentModalBtn.cloneNode(true);
+    closePaymentModalBtn.parentNode.replaceChild(newCloseBtn, closePaymentModalBtn);
+    
+    newCloseBtn.addEventListener("click", function(event) {
+      event.preventDefault();
+      closePaymentModal();
+      return false;
+    });
   }
 
   // Make sure the addPaymentBtn is properly initialized
@@ -128,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Add formatting for payment amount input
+  // Formatting for payment amount input
   const paymentAmountInput = document.getElementById("paymentAmount");
   if (paymentAmountInput) {
     paymentAmountInput.addEventListener("blur", function () {
@@ -185,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Add input validation listeners
+  // Input validation listeners
   setupFormValidation();
 });
 
@@ -201,7 +218,7 @@ function setupThemeToggle() {
   // Apply the theme
   setTheme(currentTheme);
 
-  // Add theme toggle button to the header
+  // Theme toggle button to the header
   const header = document.querySelector(".header");
 
   // Check if toggle already exists
@@ -224,7 +241,6 @@ function setupThemeToggle() {
     // Append to body instead of header for absolute positioning
     document.body.appendChild(toggleButton);
 
-    // Add click event listener
     toggleButton.addEventListener("click", toggleTheme);
   }
 }
@@ -313,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setTheme(savedTheme);
   }
 
-  // Add theme toggle to header
+  // Theme toggle to header
   setupThemeToggle();
 
   // Setup sidebar theme toggle (renamed from replaceSidebarLinks)
@@ -322,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Setup form validation
 function setupFormValidation() {
-  // Add validation for email fields
+  // Validation for email fields
   const emailFields = ["email", "businessEmail"];
   emailFields.forEach((fieldId) => {
     const input = document.getElementById(fieldId);
@@ -338,7 +354,7 @@ function setupFormValidation() {
     }
   });
 
-  // Add validation for phone fields
+  // Validation for phone fields
   const phoneFields = ["phone", "businessPhone", "textNumber"];
   phoneFields.forEach((fieldId) => {
     const input = document.getElementById(fieldId);
@@ -357,7 +373,7 @@ function setupFormValidation() {
     }
   });
 
-  // Add validation for names
+  // Validation for names
   const nameFields = ["firstName", "lastName"];
   nameFields.forEach((fieldId) => {
     const input = document.getElementById(fieldId);
@@ -371,7 +387,7 @@ function setupFormValidation() {
     }
   });
 
-  // Add validation for website address
+  // Validation for website address
   const websiteInput = document.getElementById("websiteAddress");
   if (websiteInput) {
     websiteInput.addEventListener("blur", function () {
@@ -385,7 +401,7 @@ function setupFormValidation() {
     });
   }
 
-  // Add validation for total budget
+  // Validation for total budget
   const totalBudgetInput = document.getElementById("totalBudget");
   if (totalBudgetInput) {
     totalBudgetInput.addEventListener("blur", function () {
@@ -700,7 +716,7 @@ function validateAndSavePayment(event) {
   console.log("Original payment date input:", paymentDate);
   console.log("Date object created:", dateObj.toISOString());
 
-  // Add timezone offset to ensure the date doesn't shift
+  // Timezone offset to ensure the date doesn't shift
   // This is crucial to prevent the date from shifting due to UTC conversion
   const timezoneOffset = dateObj.getTimezoneOffset() * 60000; // Convert to milliseconds
   const adjustedDate = new Date(dateObj.getTime() + timezoneOffset);
@@ -727,7 +743,7 @@ function validateAndSavePayment(event) {
   savePayment(paymentData);
 }
 
-// 2. Fix date display in renderLeadPayments function
+//  Fix date display in renderLeadPayments function
 function renderLeadPayments(leadPayments, leadId) {
   const paymentsContainer = document.querySelector(".payments-container");
 
@@ -809,10 +825,12 @@ function renderLeadPayments(leadPayments, leadId) {
   });
 }
 
-// 3. Fix openPaymentModal function to handle dates correctly
 function openPaymentModal(leadId, paymentId = null) {
   const paymentForm = document.getElementById("paymentForm");
   if (!paymentForm) return;
+
+  // Store current state of the lead modal - THIS IS THE KEY ADDITION
+  const leadModalDisplayStyle = document.getElementById("leadModal").style.display;
 
   paymentForm.reset();
 
@@ -845,7 +863,7 @@ function openPaymentModal(leadId, paymentId = null) {
     document.getElementById("paymentCurrency").value =
       payment.currency || "USD";
 
-    // IMPROVED DATE HANDLING: Format date for the date input
+    // Format date for the date input
     if (payment.paymentDate) {
       // Create date object from the payment date
       const dateObj = new Date(payment.paymentDate);
@@ -873,7 +891,7 @@ function openPaymentModal(leadId, paymentId = null) {
     // Set default values
     document.getElementById("paymentCurrency").value = defaultCurrency;
 
-    // IMPROVED DATE HANDLING: Set today's date correctly
+    // Set today's date correctly
     const today = new Date();
 
     // Format as YYYY-MM-DD without timezone conversion issues
@@ -888,7 +906,11 @@ function openPaymentModal(leadId, paymentId = null) {
     document.getElementById("paymentModalTitle").textContent = "Add Payment";
   }
 
+  // Show the payment modal
   document.getElementById("paymentModal").style.display = "block";
+  
+  // Store the lead modal display state for later use
+  document.getElementById("paymentModal").dataset.leadModalState = leadModalDisplayStyle;
 }
 
 // Fetch all payments
@@ -1042,9 +1064,11 @@ async function savePayment(paymentData) {
   }
 }
 
-// Delete payment with improved error handling
 async function deletePayment(paymentId, leadId) {
   try {
+    // Store the lead modal state before any operations
+    const leadModalDisplayStyle = document.getElementById("leadModal").style.display;
+    
     if (!paymentId || !leadId) {
       throw new Error("Missing payment ID or lead ID");
     }
@@ -1095,7 +1119,7 @@ async function deletePayment(paymentId, leadId) {
       const remainingBalanceField = document.getElementById("remainingBalance");
       if (remainingBalanceField) {
         const totalBudget = updatedLead.totalBudget || 0;
-        const remainingBalance = totalBudget - totalPaid;
+        const remainingBalance = Math.max(0, totalBudget - totalPaid);
         remainingBalanceField.value = formatCurrency(
           remainingBalance,
           updatedLead.currency || "USD"
@@ -1106,10 +1130,17 @@ async function deletePayment(paymentId, leadId) {
       renderLeadPayments(leadPayments, leadId);
     }
 
-    // Refresh the full payments data first
+    // Refresh the full payments data
     await fetchPayments();
-    calculateStats(); // Explicitly recalculate stats after fetching payments
-    fetchLeads(); // Separately fetch leads in background
+    
+    // Update stats
+    calculateStats();
+    
+    // Update the renders but ensure modals maintain correct state
+    renderLeads(allLeads);
+    
+    // Ensure lead modal stays in its original state
+    document.getElementById("leadModal").style.display = leadModalDisplayStyle;
 
     showToast("Payment deleted successfully");
   } catch (error) {
@@ -1185,15 +1216,23 @@ function openPaymentModal(leadId, paymentId = null) {
   document.getElementById("paymentModal").style.display = "block";
 }
 
-// Function to close payment modal
+
 function closePaymentModal() {
   const paymentModal = document.getElementById("paymentModal");
-  if (paymentModal) {
-    paymentModal.style.display = "none";
+  if (!paymentModal) return;
+  
+  // Hide the payment modal
+  paymentModal.style.display = "none";
+
+  // Get the stored lead modal state
+  const leadModalState = paymentModal.dataset.leadModalState;
+  
+  // If we have a stored state and it was "block", ensure lead modal stays open
+  if (leadModalState === "block") {
+    document.getElementById("leadModal").style.display = "block";
   }
 }
 
-// Render payments with strict validation by lead ID
 function renderLeadPayments(leadPayments, leadId) {
   const paymentsContainer = document.querySelector(".payments-container");
 
@@ -1231,32 +1270,68 @@ function renderLeadPayments(leadPayments, leadId) {
 
     const paymentItem = document.createElement("div");
     paymentItem.className = "payment-item";
-    paymentItem.dataset.leadId = payment.leadId; // Add data attribute for leadId
+    paymentItem.dataset.leadId = payment.leadId;
+    paymentItem.dataset.paymentId = payment._id;
 
-    // Only show action buttons if not in read-only mode
-    const actionsHtml = isReadOnly
-      ? ""
-      : `
-      <div class="payment-actions">
-        <button onclick="openPaymentModal('${leadId}', '${payment._id}')"><i class="fas fa-edit"></i></button>
-        <button onclick="deletePayment('${payment._id}', '${leadId}')"><i class="fas fa-trash"></i></button>
-      </div>
-    `;
+    // Create the payment details element
+    const paymentDetails = document.createElement("div");
+    paymentDetails.className = "payment-details";
+    
+    const amountDiv = document.createElement("div");
+    amountDiv.className = "payment-amount";
+    amountDiv.textContent = formatCurrency(payment.amount, payment.currency || "USD");
+    
+    const dateDiv = document.createElement("div");
+    dateDiv.className = "payment-date";
+    dateDiv.textContent = `Paid: ${paymentDate}`;
+    
+    paymentDetails.appendChild(amountDiv);
+    paymentDetails.appendChild(dateDiv);
+    
+    if (payment.notes) {
+      const notesDiv = document.createElement("div");
+      notesDiv.className = "payment-notes";
+      notesDiv.textContent = payment.notes;
+      paymentDetails.appendChild(notesDiv);
+    }
+    
+    paymentItem.appendChild(paymentDetails);
 
-    paymentItem.innerHTML = `
-      <div class="payment-details">
-        <div class="payment-amount">
-          ${formatCurrency(payment.amount, payment.currency || "USD")}
-        </div>
-        <div class="payment-date">Paid: ${paymentDate}</div>
-        ${
-          payment.notes
-            ? `<div class="payment-notes">${payment.notes}</div>`
-            : ""
+    // Only add action buttons if not in read-only mode
+    if (!isReadOnly) {
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "payment-actions";
+      
+      // Create edit button
+      const editButton = document.createElement("button");
+      editButton.innerHTML = '<i class="fas fa-edit"></i>';
+      editButton.dataset.leadId = leadId;
+      editButton.dataset.paymentId = payment._id;
+      editButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openPaymentModal(this.dataset.leadId, this.dataset.paymentId);
+        return false;
+      });
+      
+      // Create delete button
+      const deleteButton = document.createElement("button");
+      deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+      deleteButton.dataset.leadId = leadId;
+      deleteButton.dataset.paymentId = payment._id;
+      deleteButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (confirm("Are you sure you want to delete this payment?")) {
+          deletePayment(this.dataset.paymentId, this.dataset.leadId);
         }
-      </div>
-      ${actionsHtml}
-    `;
+        return false;
+      });
+      
+      actionsDiv.appendChild(editButton);
+      actionsDiv.appendChild(deleteButton);
+      paymentItem.appendChild(actionsDiv);
+    }
 
     paymentsContainer.appendChild(paymentItem);
   });
@@ -2226,7 +2301,7 @@ if (combinedSort) {
   const sortField = document.getElementById("sortField");
   const sortOrder = document.getElementById("sortOrder");
 
-  // Add event listener to update hidden dropdowns when the combined dropdown changes
+  // Event listener to update hidden dropdowns when the combined dropdown changes
   combinedSort.addEventListener("change", function () {
     // Get the selected value which has format "field-order"
     const [field, order] = this.value.split("-");
