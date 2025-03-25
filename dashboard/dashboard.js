@@ -2388,7 +2388,6 @@ function openAddLeadModal() {
   document.getElementById("leadModal").style.display = "block";
 }
 
-// Updated saveLead function with proper handling for new leads
 async function saveLead() {
   const leadId = document.getElementById("leadId").value;
   // Track if this is a new lead or an edit of existing lead
@@ -2543,6 +2542,10 @@ async function saveLead() {
 
     // Re-render the leads with the updated data
     renderLeads(allLeads);
+    
+    // Calculate stats immediately after updating a lead
+    // This is the key addition to update the conversion rate immediately
+    calculateStats();
 
     // Close modal
     closeLeadModal();
