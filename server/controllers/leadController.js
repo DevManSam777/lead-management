@@ -1,4 +1,4 @@
-const Lead = require('../models/Lead');
+const Lead = require("../models/Lead");
 
 // Get all leads
 exports.getLeads = async (req, res) => {
@@ -7,7 +7,7 @@ exports.getLeads = async (req, res) => {
     res.json(leads);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -15,15 +15,15 @@ exports.getLeads = async (req, res) => {
 exports.getLeadById = async (req, res) => {
   try {
     const lead = await Lead.findById(req.params.id);
-    
+
     if (!lead) {
-      return res.status(404).json({ message: 'Lead not found' });
+      return res.status(404).json({ message: "Lead not found" });
     }
-    
+
     res.json(lead);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -43,34 +43,27 @@ exports.createLead = async (req, res) => {
 exports.updateLead = async (req, res) => {
   try {
     const lead = await Lead.findById(req.params.id);
-    
+
     if (!lead) {
-      return res.status(404).json({ message: 'Lead not found' });
+      return res.status(404).json({ message: "Lead not found" });
     }
-    
+
     // If updating status to 'contacted', update lastContactedAt
-    if (req.body.status === 'contacted' && lead.status !== 'contacted') {
+    if (req.body.status === "contacted" && lead.status !== "contacted") {
       req.body.lastContactedAt = Date.now();
     }
-    
+
     // If total budget is being updated, calculate remaining balance
     if (req.body.totalBudget !== undefined) {
       const totalBudget = parseFloat(req.body.totalBudget);
       const paidAmount = lead.paidAmount || 0;
       req.body.remainingBalance = Math.max(0, totalBudget - paidAmount);
-      
-      // If no payment status yet, set it to 'none'
-      if (!lead.paymentStatus || lead.paymentStatus === 'none') {
-        req.body.paymentStatus = 'none';
-      }
     }
-    
-    const updatedLead = await Lead.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    
+
+    const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
     res.json(updatedLead);
   } catch (error) {
     console.error(error);
@@ -78,23 +71,22 @@ exports.updateLead = async (req, res) => {
   }
 };
 
-
 // Delete lead
 exports.deleteLead = async (req, res) => {
   try {
     const lead = await Lead.findById(req.params.id);
-    
+
     if (!lead) {
-      return res.status(404).json({ message: 'Lead not found' });
+      return res.status(404).json({ message: "Lead not found" });
     }
-    
+
     // Changed from lead.remove() to deleteOne()
     await Lead.deleteOne({ _id: req.params.id });
-    
-    res.json({ message: 'Lead removed' });
+
+    res.json({ message: "Lead removed" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -102,23 +94,23 @@ exports.deleteLead = async (req, res) => {
 exports.searchLeads = async (req, res) => {
   try {
     const { query } = req.query;
-    
+
     if (!query) {
-      return res.status(400).json({ message: 'Search query is required' });
+      return res.status(400).json({ message: "Search query is required" });
     }
-    
+
     const leads = await Lead.find({
       $or: [
-        { firstName: { $regex: query, $options: 'i' } },
-        { lastName: { $regex: query, $options: 'i' } },
-        { email: { $regex: query, $options: 'i' } },
-        { businessName: { $regex: query, $options: 'i' } },
+        { firstName: { $regex: query, $options: "i" } },
+        { lastName: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+        { businessName: { $regex: query, $options: "i" } },
       ],
     }).sort({ createdAt: -1 });
-    
+
     res.json(leads);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };

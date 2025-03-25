@@ -158,9 +158,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add input validation listeners
   setupFormValidation();
-
-  // Update payment statuses on page load
-  updatePaymentStatuses();
 });
 
 // Update this function in your dashboard.js file
@@ -865,55 +862,6 @@ async function deletePayment(paymentId, leadId) {
   }
 }
 
-// Update all payment statuses based on due dates
-async function updatePaymentStatuses() {
-  try {
-    const now = new Date();
-
-    // Find scheduled payments that are past due locally
-    const overduePayments = payments.filter(
-      (payment) =>
-        payment.status === "scheduled" && new Date(payment.dueDate) < now
-    );
-
-    // Update server-side statuses
-    if (overduePayments.length > 0) {
-      const response = await fetch(`${API_PAYMENTS_URL}/update-statuses`, {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update payment statuses");
-      }
-
-      // Refresh payments after update
-      await fetchPayments();
-    }
-
-    // Also check if any lead needs status update based on current payment data
-    // This helps refresh UI immediately without waiting for server roundtrip
-    for (const lead of allLeads) {
-      const leadPayments = payments.filter((p) => p.leadId === lead._id);
-
-      // Check for overdue payments
-      const hasOverduePayments = leadPayments.some(
-        (payment) =>
-          payment.status === "scheduled" && new Date(payment.dueDate) < now
-      );
-
-      if (hasOverduePayments && lead.paymentStatus !== "overdue") {
-        // Locally mark as overdue to update UI
-        lead.paymentStatus = "overdue";
-      }
-    }
-
-    // Re-render current view to reflect status changes
-    renderLeads(allLeads);
-  } catch (error) {
-    console.error("Error updating payment statuses:", error);
-  }
-}
-
 function openPaymentModal(leadId, paymentId = null) {
   const paymentForm = document.getElementById("paymentForm");
   if (!paymentForm) return;
@@ -949,13 +897,15 @@ function openPaymentModal(leadId, paymentId = null) {
     // New payment
     // Set default values
     document.getElementById("paymentCurrency").value = defaultCurrency;
-    
+
     // Fix: Set today's date correctly with timezone adjustment
     const today = new Date();
-    const localDate = new Date(today.getTime() - (today.getTimezoneOffset() * 60000))
+    const localDate = new Date(
+      today.getTime() - today.getTimezoneOffset() * 60000
+    )
       .toISOString()
       .split("T")[0];
-    
+
     document.getElementById("paymentDate").value = localDate;
     document.getElementById("paymentNotes").value = "";
 
@@ -1266,18 +1216,18 @@ function calculateStats() {
       }
 
       // Create a set of valid lead IDs for faster lookup
-      const validLeadIds = new Set(allLeads.map(lead => lead._id));
+      const validLeadIds = new Set(allLeads.map((lead) => lead._id));
 
       // Calculate current month's total payments - ONLY for existing leads
       currentMonthPayments = payments
         .filter((payment) => {
           if (!payment.paymentDate) return false;
-          
+
           // Check if this payment belongs to a lead that still exists
           if (!validLeadIds.has(payment.leadId)) {
             return false;
           }
-          
+
           const paymentDate = new Date(payment.paymentDate);
           return paymentDate >= oneMonthAgo && paymentDate <= currentDate;
         })
@@ -1295,12 +1245,12 @@ function calculateStats() {
       previousMonthPayments = payments
         .filter((payment) => {
           if (!payment.paymentDate) return false;
-          
+
           // Check if this payment belongs to a lead that still exists
           if (!validLeadIds.has(payment.leadId)) {
             return false;
           }
-          
+
           const paymentDate = new Date(payment.paymentDate);
           return paymentDate >= twoMonthsAgo && paymentDate <= oneMonthAgo;
         })
@@ -2089,27 +2039,40 @@ async function saveLead() {
     leadData.lastContactedAt = new Date(lastContactedInput.value);
   }
 
-  // Handle total budget
+  // Handle estimated budget (what customer expects to spend)
+  const budgetInput = document.getElementById("budget");
+  const currencyInput = document.getElementById("currency");
+
+  if (budgetInput && budgetInput.value) {
+    // Extract numeric value from formatted budget
+    const cleanBudgetValue = budgetInput.value.replace(/[^\d.-]/g, "");
+    const numericBudgetValue = parseFloat(cleanBudgetValue);
+
+    if (!isNaN(numericBudgetValue)) {
+      // Store the budget value as a number
+      leadData.budget = numericBudgetValue;
+
+      if (currencyInput) {
+        leadData.budgetCurrency = currencyInput.value;
+      }
+    }
+  }
+
+  // Handle billed amount/total budget (what you're charging)
   const totalBudgetInput = document.getElementById("totalBudget");
   const budgetCurrencyInput = document.getElementById("budgetCurrency");
 
   if (totalBudgetInput && totalBudgetInput.value) {
-    console.log("Original budget value:", totalBudgetInput.value);
+    // Extract numeric value from formatted total budget
+    const cleanTotalValue = totalBudgetInput.value.replace(/[^\d.-]/g, "");
+    const numericTotalValue = parseFloat(cleanTotalValue);
 
-    // Extract numeric value
-    const numericValue = parseFloat(
-      totalBudgetInput.value.replace(/[^\d.-]/g, "")
-    );
-
-    console.log("Extracted numeric value:", numericValue);
-
-    if (!isNaN(numericValue)) {
-      // Store the budget value
-      leadData.totalBudget = numericValue;
+    if (!isNaN(numericTotalValue)) {
+      // Store the total budget value as a number
+      leadData.totalBudget = numericTotalValue;
 
       if (budgetCurrencyInput) {
         leadData.currency = budgetCurrencyInput.value;
-        console.log("Currency value:", budgetCurrencyInput.value);
       }
     }
   }
@@ -2158,9 +2121,6 @@ async function saveLead() {
       allLeads.push(updatedLead);
     }
 
-    // Re-fetch all payments to ensure we have the latest data
-    await fetchPayments();
-
     // Re-render the leads with the updated data
     renderLeads(allLeads);
 
@@ -2175,6 +2135,7 @@ async function saveLead() {
   }
 }
 
+// View a lead
 window.viewLead = function (leadId) {
   // Reset form first
   document.getElementById("leadForm").reset();
@@ -2209,11 +2170,23 @@ window.viewLead = function (leadId) {
   document.getElementById("status").value = lead.status || "new";
   document.getElementById("notes").value = lead.notes || "";
 
+  // Handle estimated budget field
+  if (document.getElementById("budget")) {
+    const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
+    document.getElementById("budget").value = budgetValue
+      ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
+      : "";
+  }
+
+  if (document.getElementById("currency")) {
+    document.getElementById("currency").value = lead.budgetCurrency || "USD";
+  }
+
   // Handle payment fields
   if (document.getElementById("totalBudget")) {
-    const budgetValue = lead.totalBudget ? parseFloat(lead.totalBudget) : "";
-    document.getElementById("totalBudget").value = budgetValue
-      ? formatCurrency(budgetValue, lead.currency || "USD")
+    const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+    document.getElementById("totalBudget").value = totalBudgetValue
+      ? formatCurrency(totalBudgetValue, lead.currency || "USD")
       : "";
   }
 
@@ -2277,6 +2250,11 @@ window.viewLead = function (leadId) {
     }
   }
 
+  // Fetch and display payments for this lead
+  fetchLeadPayments(lead._id).then((leadPayments) => {
+    renderLeadPayments(leadPayments, lead._id);
+  });
+
   // Handle last contacted date
   if (document.getElementById("lastContactedAt") && lead.lastContactedAt) {
     const date = new Date(lead.lastContactedAt);
@@ -2286,11 +2264,6 @@ window.viewLead = function (leadId) {
   } else if (document.getElementById("lastContactedAt")) {
     document.getElementById("lastContactedAt").value = "";
   }
-
-  // Fetch and display payments for this lead
-  fetchLeadPayments(lead._id).then((leadPayments) => {
-    renderLeadPayments(leadPayments, lead._id);
-  });
 
   // Show/hide website address field based on hasWebsite value
   const websiteAddressField =
@@ -2377,11 +2350,23 @@ window.editLead = function (leadId) {
   document.getElementById("status").value = lead.status || "new";
   document.getElementById("notes").value = lead.notes || "";
 
-  // Handle payment fields
+  // Handle estimated budget field
+  if (document.getElementById("budget")) {
+    const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
+    document.getElementById("budget").value = budgetValue
+      ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
+      : "";
+  }
+
+  if (document.getElementById("currency")) {
+    document.getElementById("currency").value = lead.budgetCurrency || "USD";
+  }
+
+  // Handle total budget/billed amount field
   if (document.getElementById("totalBudget")) {
-    const budgetValue = lead.totalBudget ? parseFloat(lead.totalBudget) : "";
-    document.getElementById("totalBudget").value = budgetValue
-      ? formatCurrency(budgetValue, lead.currency || "USD")
+    const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+    document.getElementById("totalBudget").value = totalBudgetValue
+      ? formatCurrency(totalBudgetValue, lead.currency || "USD")
       : "";
   }
 

@@ -123,32 +123,3 @@ async function updateLeadPaymentInfo(leadId) {
     throw error;
   }
 }
-
-// Update all payment statuses based on due dates
-exports.updatePaymentStatuses = async (req, res) => {
-  try {
-    const now = new Date();
-    
-    // Find scheduled payments that are past due
-    const latePayments = await Payment.find({
-      status: 'scheduled',
-      dueDate: { $lt: now }
-    });
-    
-    // Update them to 'late'
-    for (const payment of latePayments) {
-      payment.status = 'late';
-      await payment.save();
-      
-      // Update corresponding lead
-      await updateLeadPaymentInfo(payment.leadId);
-    }
-    
-    res.json({ 
-      message: `${latePayments.length} payments updated to 'late' status` 
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
