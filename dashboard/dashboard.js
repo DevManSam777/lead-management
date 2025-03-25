@@ -713,63 +713,76 @@ async function savePayment(paymentData) {
       const errorData = await response.json();
       throw new Error(errorData.message || "Failed to save payment");
     }
-    
+
     // Get the current lead ID
     const leadId = document.getElementById("leadId").value;
-    
+
     if (leadId) {
       // Directly request the updated lead information
       const leadResponse = await fetch(`${API_URL}/${leadId}`);
-      
+
       if (!leadResponse.ok) {
         throw new Error("Failed to fetch updated lead information");
       }
-      
+
       const updatedLead = await leadResponse.json();
-      
+
       // Update the lead in allLeads array
-      const leadIndex = allLeads.findIndex(l => l._id === leadId);
+      const leadIndex = allLeads.findIndex((l) => l._id === leadId);
       if (leadIndex !== -1) {
         allLeads[leadIndex] = updatedLead;
       }
-      
+
       // Get updated payments
       const leadPayments = await fetchLeadPayments(leadId);
-      
+
       // Calculate the total paid
-      const totalPaid = leadPayments.reduce((sum, payment) => sum + payment.amount, 0);
-      
+      const totalPaid = leadPayments.reduce(
+        (sum, payment) => sum + payment.amount,
+        0
+      );
+
       // Update paid amount field
       const paidAmountField = document.getElementById("paidAmount");
       if (paidAmountField) {
-        paidAmountField.value = formatCurrency(totalPaid, updatedLead.currency || "USD");
+        paidAmountField.value = formatCurrency(
+          totalPaid,
+          updatedLead.currency || "USD"
+        );
       }
-      
+
       // Update remaining balance field - Allow negative values
       const remainingBalanceField = document.getElementById("remainingBalance");
       if (remainingBalanceField) {
         const totalBudget = updatedLead.totalBudget || 0;
         const remainingBalance = totalBudget - totalPaid; // Remove Math.max to allow negative values
-        remainingBalanceField.value = formatCurrency(remainingBalance, updatedLead.currency || "USD");
+        remainingBalanceField.value = formatCurrency(
+          remainingBalance,
+          updatedLead.currency || "USD"
+        );
       }
-      
+
       // Render payment list
       renderLeadPayments(leadPayments, leadId);
     }
-    
+
     // Refresh the full leads and payments data for other views
     await fetchPayments();
-    
+
     // Explicitly recalculate stats after fetching payments
     calculateStats();
-    
+
     // Separately fetch leads in background if needed
     fetchLeads();
-    
+
     // Close only the payment modal, not the lead modal
     closePaymentModal();
-    
-    showToast(paymentData._id ? "Payment updated successfully" : "Payment added successfully");
+
+    showToast(
+      paymentData._id
+        ? "Payment updated successfully"
+        : "Payment added successfully"
+    );
   } catch (error) {
     console.error("Error saving payment:", error);
     showToast("Error: " + error.message);
@@ -786,63 +799,71 @@ async function deletePayment(paymentId, leadId) {
     if (!response.ok) {
       throw new Error("Failed to delete payment");
     }
-    
+
     if (leadId) {
       // Directly request the updated lead information
       const leadResponse = await fetch(`${API_URL}/${leadId}`);
-      
+
       if (!leadResponse.ok) {
         throw new Error("Failed to fetch updated lead information");
       }
-      
+
       const updatedLead = await leadResponse.json();
-      
+
       // Update the lead in allLeads array
-      const leadIndex = allLeads.findIndex(l => l._id === leadId);
+      const leadIndex = allLeads.findIndex((l) => l._id === leadId);
       if (leadIndex !== -1) {
         allLeads[leadIndex] = updatedLead;
       }
-      
+
       // Get updated payments
       const leadPayments = await fetchLeadPayments(leadId);
-      
+
       // Calculate the total paid
-      const totalPaid = leadPayments.reduce((sum, payment) => sum + payment.amount, 0);
-      
+      const totalPaid = leadPayments.reduce(
+        (sum, payment) => sum + payment.amount,
+        0
+      );
+
       // Update paid amount field
       const paidAmountField = document.getElementById("paidAmount");
       if (paidAmountField) {
-        paidAmountField.value = formatCurrency(totalPaid, updatedLead.currency || "USD");
+        paidAmountField.value = formatCurrency(
+          totalPaid,
+          updatedLead.currency || "USD"
+        );
       }
-      
+
       // Update remaining balance field - Allow negative values
       const remainingBalanceField = document.getElementById("remainingBalance");
       if (remainingBalanceField) {
         const totalBudget = updatedLead.totalBudget || 0;
         const remainingBalance = totalBudget - totalPaid; // Remove Math.max to allow negative values
-        remainingBalanceField.value = formatCurrency(remainingBalance, updatedLead.currency || "USD");
+        remainingBalanceField.value = formatCurrency(
+          remainingBalance,
+          updatedLead.currency || "USD"
+        );
       }
-      
+
       // Render payment list
       renderLeadPayments(leadPayments, leadId);
     }
-    
+
     // Refresh the full payments data first
     await fetchPayments();
-    
+
     // Explicitly recalculate stats after fetching payments
     calculateStats();
-    
+
     // Separately fetch leads in background if needed
     fetchLeads();
-    
+
     showToast("Payment deleted successfully");
   } catch (error) {
     console.error("Error deleting payment:", error);
     showToast("Error: " + error.message);
   }
 }
-
 
 // Update all payment statuses based on due dates
 async function updatePaymentStatuses() {
@@ -928,8 +949,14 @@ function openPaymentModal(leadId, paymentId = null) {
     // New payment
     // Set default values
     document.getElementById("paymentCurrency").value = defaultCurrency;
-    const today = new Date().toISOString().split("T")[0];
-    document.getElementById("paymentDate").value = today;
+    
+    // Fix: Set today's date correctly with timezone adjustment
+    const today = new Date();
+    const localDate = new Date(today.getTime() - (today.getTimezoneOffset() * 60000))
+      .toISOString()
+      .split("T")[0];
+    
+    document.getElementById("paymentDate").value = localDate;
     document.getElementById("paymentNotes").value = "";
 
     document.getElementById("paymentModalTitle").textContent = "Add Payment";
@@ -1132,7 +1159,7 @@ function calculateStats() {
 
       // Set all change indicators to 0%
       safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
-      safeUpdateChangeIndicator("newLeadsChange", 0, ""); // No period text for new leads
+      safeUpdateChangeIndicator("newLeadsChange", 0, "");
       safeUpdateChangeIndicator("conversionChange", 0, "month");
       safeUpdateChangeIndicator("paymentsChange", 0, "month");
       return;
@@ -1217,7 +1244,7 @@ function calculateStats() {
     safeUpdateChangeIndicator("conversionChange", 0, "month");
 
     // Payment metrics
-    // Calculate total payments for current month - ONLY PAID payments
+    // Calculate total payments for current month
     let currentMonthPayments = 0;
     let previousMonthPayments = 0;
     let mostCommonCurrency = "USD";
@@ -1238,15 +1265,22 @@ function calculateStats() {
         }
       }
 
-      // Calculate current month's total PAID payments only
+      // Create a set of valid lead IDs for faster lookup
+      const validLeadIds = new Set(allLeads.map(lead => lead._id));
+
+      // Calculate current month's total payments - ONLY for existing leads
       currentMonthPayments = payments
-        .filter(
-          (payment) =>
-            payment.status === "paid" && // Only include paid payments
-            payment.paymentDate &&
-            new Date(payment.paymentDate) >= oneMonthAgo &&
-            new Date(payment.paymentDate) <= currentDate
-        )
+        .filter((payment) => {
+          if (!payment.paymentDate) return false;
+          
+          // Check if this payment belongs to a lead that still exists
+          if (!validLeadIds.has(payment.leadId)) {
+            return false;
+          }
+          
+          const paymentDate = new Date(payment.paymentDate);
+          return paymentDate >= oneMonthAgo && paymentDate <= currentDate;
+        })
         .reduce((total, payment) => {
           if (
             payment.currency === mostCommonCurrency ||
@@ -1257,15 +1291,19 @@ function calculateStats() {
           return total;
         }, 0);
 
-      // Calculate previous month's total PAID payments only
+      // Calculate previous month's total payments - ONLY for existing leads
       previousMonthPayments = payments
-        .filter(
-          (payment) =>
-            payment.status === "paid" && // Only include paid payments
-            payment.paymentDate &&
-            new Date(payment.paymentDate) >= twoMonthsAgo &&
-            new Date(payment.paymentDate) <= oneMonthAgo
-        )
+        .filter((payment) => {
+          if (!payment.paymentDate) return false;
+          
+          // Check if this payment belongs to a lead that still exists
+          if (!validLeadIds.has(payment.leadId)) {
+            return false;
+          }
+          
+          const paymentDate = new Date(payment.paymentDate);
+          return paymentDate >= twoMonthsAgo && paymentDate <= oneMonthAgo;
+        })
         .reduce((total, payment) => {
           if (
             payment.currency === mostCommonCurrency ||
@@ -1275,8 +1313,6 @@ function calculateStats() {
           }
           return total;
         }, 0);
-
-      // No need to calculate upcoming payments anymore
     }
 
     // Update monthly payments display
@@ -2058,10 +2094,14 @@ async function saveLead() {
   const budgetCurrencyInput = document.getElementById("budgetCurrency");
 
   if (totalBudgetInput && totalBudgetInput.value) {
+    console.log("Original budget value:", totalBudgetInput.value);
+
     // Extract numeric value
     const numericValue = parseFloat(
       totalBudgetInput.value.replace(/[^\d.-]/g, "")
     );
+
+    console.log("Extracted numeric value:", numericValue);
 
     if (!isNaN(numericValue)) {
       // Store the budget value
@@ -2069,6 +2109,7 @@ async function saveLead() {
 
       if (budgetCurrencyInput) {
         leadData.currency = budgetCurrencyInput.value;
+        console.log("Currency value:", budgetCurrencyInput.value);
       }
     }
   }
@@ -2081,6 +2122,7 @@ async function saveLead() {
 
     if (leadId) {
       // Update existing lead
+      console.log(`Updating lead with ID: ${leadId}`);
       response = await fetch(`${API_URL}/${leadId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -2088,6 +2130,7 @@ async function saveLead() {
       });
     } else {
       // Create new lead
+      console.log("Creating new lead");
       response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2102,6 +2145,7 @@ async function saveLead() {
 
     // Get the updated lead data from the response
     const updatedLead = await response.json();
+    console.log("Received updated lead:", updatedLead);
 
     // If we're updating an existing lead, update it in the allLeads array
     if (leadId) {
@@ -2113,6 +2157,9 @@ async function saveLead() {
       // If it's a new lead, add it to the allLeads array
       allLeads.push(updatedLead);
     }
+
+    // Re-fetch all payments to ensure we have the latest data
+    await fetchPayments();
 
     // Re-render the leads with the updated data
     renderLeads(allLeads);
