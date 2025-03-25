@@ -91,4 +91,20 @@ const leadSchema = new mongoose.Schema({
   },
 });
 
+leadSchema.pre('deleteOne', { document: false, query: true }, async function() {
+  // Get the document that's about to be deleted
+  const leadId = this.getFilter()._id;
+  
+  // Delete all payments for this lead
+  await mongoose.model('Payment').deleteMany({ leadId: leadId });
+  console.log(`Automatically deleted payments for lead ${leadId}`);
+});
+
+// Make sure we also handle remove() method if it's used anywhere
+leadSchema.pre('remove', async function() {
+  // Delete all payments for this lead
+  await mongoose.model('Payment').deleteMany({ leadId: this._id });
+  console.log(`Automatically deleted payments for lead ${this._id}`);
+});
+
 module.exports = mongoose.model("Lead", leadSchema);

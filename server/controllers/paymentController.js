@@ -5,10 +5,11 @@ const Lead = require('../models/Lead');
 // Get all payments
 exports.getPayments = async (req, res) => {
   try {
-    const payments = await Payment.find({}).sort({ dueDate: 1 });
+    // Sort by paymentDate in descending order (newest first)
+    const payments = await Payment.find({}).sort({ paymentDate: -1 });
     res.json(payments);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching all payments:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -16,10 +17,19 @@ exports.getPayments = async (req, res) => {
 // Get payments for a specific lead
 exports.getPaymentsByLead = async (req, res) => {
   try {
-    const payments = await Payment.find({ leadId: req.params.leadId }).sort({ dueDate: 1 });
+    const { leadId } = req.params;
+    
+    if (!leadId) {
+      return res.status(400).json({ message: 'Lead ID is required' });
+    }
+    
+    // Strict query by leadId, sort newest first
+    const payments = await Payment.find({ leadId: leadId.toString() }).sort({ paymentDate: -1 });
+    console.log(`Found ${payments.length} payments for lead ${leadId}`);
+    
     res.json(payments);
   } catch (error) {
-    console.error(error);
+    console.error(`Error fetching payments for lead ${req.params.leadId}:`, error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -27,7 +37,17 @@ exports.getPaymentsByLead = async (req, res) => {
 // Create a new payment
 exports.createPayment = async (req, res) => {
   try {
-    const payment = new Payment(req.body);
+    // Make sure we have a payment date that's at noon to avoid timezone issues
+    let paymentData = req.body;
+    
+    // Convert paymentDate string to a Date object if it's not already
+    if (typeof paymentData.paymentDate === 'string') {
+      const dateObj = new Date(paymentData.paymentDate);
+      dateObj.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
+      paymentData.paymentDate = dateObj;
+    }
+    
+    const payment = new Payment(paymentData);
     const createdPayment = await payment.save();
     
     // Update lead's paid amount and payment status
@@ -35,7 +55,7 @@ exports.createPayment = async (req, res) => {
     
     res.status(201).json(createdPayment);
   } catch (error) {
-    console.error(error);
+    console.error('Error creating payment:', error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -49,10 +69,20 @@ exports.updatePayment = async (req, res) => {
       return res.status(404).json({ message: 'Payment not found' });
     }
     
+    // Make sure we have a payment date that's at noon to avoid timezone issues
+    let paymentData = req.body;
+    
+    // Convert paymentDate string to a Date object if it's not already
+    if (typeof paymentData.paymentDate === 'string') {
+      const dateObj = new Date(paymentData.paymentDate);
+      dateObj.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
+      paymentData.paymentDate = dateObj;
+    }
+    
     // Update payment
     const updatedPayment = await Payment.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      paymentData,
       { new: true }
     );
     
@@ -61,7 +91,7 @@ exports.updatePayment = async (req, res) => {
     
     res.json(updatedPayment);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating payment:', error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -85,13 +115,12 @@ exports.deletePayment = async (req, res) => {
     
     res.json({ message: 'Payment removed' });
   } catch (error) {
-    console.error(error);
+    console.error('Error deleting payment:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
 
-// Update this function in server/controllers/paymentController.js
-
+// Helper function to update lead payment info
 async function updateLeadPaymentInfo(leadId) {
   try {
     // Get all payments for the lead
@@ -107,9 +136,9 @@ async function updateLeadPaymentInfo(leadId) {
       throw new Error('Lead not found');
     }
     
-    // Calculate remaining balance - Allow negative values
+    // Calculate remaining balance
     const totalBudget = lead.totalBudget || 0;
-    const remainingBalance = totalBudget - paidAmount; // Remove Math.max to allow negative values
+    const remainingBalance = totalBudget - paidAmount;
     
     // Update lead with payment-related fields
     await Lead.findByIdAndUpdate(leadId, { 

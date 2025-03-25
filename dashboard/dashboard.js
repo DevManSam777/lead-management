@@ -670,6 +670,7 @@ function formatCurrency(amount, currency = "USD") {
   }
 }
 
+// Validate payment form and prepare payment data
 function validateAndSavePayment(event) {
   event.preventDefault();
 
@@ -694,16 +695,26 @@ function validateAndSavePayment(event) {
     return;
   }
 
-  // Prepare payment data
+  // IMPROVED DATE HANDLING: Create a date at noon local time, then adjust for timezone
+  const dateObj = new Date(paymentDate + "T12:00:00");
+  console.log("Original payment date input:", paymentDate);
+  console.log("Date object created:", dateObj.toISOString());
+
+  // Add timezone offset to ensure the date doesn't shift
+  // This is crucial to prevent the date from shifting due to UTC conversion
+  const timezoneOffset = dateObj.getTimezoneOffset() * 60000; // Convert to milliseconds
+  const adjustedDate = new Date(dateObj.getTime() + timezoneOffset);
+  console.log(
+    "Adjusted date with timezone offset:",
+    adjustedDate.toISOString()
+  );
+
+  // Prepare payment data with adjusted date
   const paymentData = {
     leadId,
     amount,
     currency,
-    // Set both dates to the payment date
-    dueDate: new Date(paymentDate),
-    paymentDate: new Date(paymentDate),
-    // Always mark as paid since we're simplifying
-    status: "paid",
+    paymentDate: adjustedDate,
     notes,
   };
 
@@ -714,6 +725,170 @@ function validateAndSavePayment(event) {
 
   // Save payment
   savePayment(paymentData);
+}
+
+// 2. Fix date display in renderLeadPayments function
+function renderLeadPayments(leadPayments, leadId) {
+  const paymentsContainer = document.querySelector(".payments-container");
+
+  if (!paymentsContainer) return;
+
+  // Check if we're in read-only mode
+  const isReadOnly = document
+    .getElementById("firstName")
+    .hasAttribute("readonly");
+
+  // Clear container before rendering
+  paymentsContainer.innerHTML = "";
+
+  if (!leadPayments || leadPayments.length === 0) {
+    paymentsContainer.innerHTML =
+      '<p class="payment-item">No payments found</p>';
+    return;
+  }
+
+  // Only render payments that match the current lead ID
+  const filteredPayments = leadPayments.filter(
+    (payment) => payment.leadId === leadId
+  );
+
+  if (filteredPayments.length === 0) {
+    paymentsContainer.innerHTML =
+      '<p class="payment-item">No payments found</p>';
+    return;
+  }
+
+  filteredPayments.forEach((payment) => {
+    // IMPROVED DATE HANDLING: Create a date object and format it locally
+    let paymentDateStr = "Not recorded";
+
+    if (payment.paymentDate) {
+      // Create a date object with the ISO string, which will be interpreted in local time
+      const dateObj = new Date(payment.paymentDate);
+
+      // Format using toLocaleDateString which respects the user's locale
+      // Add a day to counteract any timezone shift
+      dateObj.setDate(dateObj.getDate());
+      paymentDateStr = dateObj.toLocaleDateString();
+
+      // Add debug log for troubleshooting
+      console.log(`Payment ${payment._id} date:`, payment.paymentDate);
+      console.log(`Formatted as local date:`, paymentDateStr);
+    }
+
+    const paymentItem = document.createElement("div");
+    paymentItem.className = "payment-item";
+    paymentItem.dataset.leadId = payment.leadId;
+
+    // Only show action buttons if not in read-only mode
+    const actionsHtml = isReadOnly
+      ? ""
+      : `
+      <div class="payment-actions">
+        <button onclick="openPaymentModal('${leadId}', '${payment._id}')"><i class="fas fa-edit"></i></button>
+        <button onclick="deletePayment('${payment._id}', '${leadId}')"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
+
+    paymentItem.innerHTML = `
+      <div class="payment-details">
+        <div class="payment-amount">
+          ${formatCurrency(payment.amount, payment.currency || "USD")}
+        </div>
+        <div class="payment-date">Paid: ${paymentDateStr}</div>
+        ${
+          payment.notes
+            ? `<div class="payment-notes">${payment.notes}</div>`
+            : ""
+        }
+      </div>
+      ${actionsHtml}
+    `;
+
+    paymentsContainer.appendChild(paymentItem);
+  });
+}
+
+// 3. Fix openPaymentModal function to handle dates correctly
+function openPaymentModal(leadId, paymentId = null) {
+  const paymentForm = document.getElementById("paymentForm");
+  if (!paymentForm) return;
+
+  paymentForm.reset();
+
+  // Clear previous values
+  document.getElementById("paymentId").value = "";
+  document.getElementById("paymentLeadId").value = "";
+
+  // Set the lead ID - verify it exists
+  if (!leadId) {
+    showToast("Error: No lead ID provided");
+    return;
+  }
+
+  console.log(`Opening payment modal for lead ID: ${leadId}`);
+  document.getElementById("paymentLeadId").value = leadId;
+
+  if (paymentId) {
+    // Edit existing payment - verify payment belongs to this lead
+    const payment = payments.find(
+      (p) => p._id === paymentId && p.leadId === leadId
+    );
+
+    if (!payment) {
+      showToast("Payment not found or doesn't belong to this lead");
+      return;
+    }
+
+    document.getElementById("paymentId").value = payment._id;
+    document.getElementById("paymentAmount").value = payment.amount;
+    document.getElementById("paymentCurrency").value =
+      payment.currency || "USD";
+
+    // IMPROVED DATE HANDLING: Format date for the date input
+    if (payment.paymentDate) {
+      // Create date object from the payment date
+      const dateObj = new Date(payment.paymentDate);
+
+      // Log the date for debugging
+      console.log("Payment date from database:", payment.paymentDate);
+      console.log("Date object created:", dateObj.toISOString());
+
+      // Format as YYYY-MM-DD for input[type="date"]
+      // No need to adjust for timezone since we're using the local parts directly
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // +1 because months are 0-indexed
+      const day = String(dateObj.getDate()).padStart(2, "0");
+
+      const formattedDate = `${year}-${month}-${day}`;
+      console.log("Formatted date for input:", formattedDate);
+
+      document.getElementById("paymentDate").value = formattedDate;
+    }
+
+    document.getElementById("paymentNotes").value = payment.notes || "";
+    document.getElementById("paymentModalTitle").textContent = "Edit Payment";
+  } else {
+    // New payment
+    // Set default values
+    document.getElementById("paymentCurrency").value = defaultCurrency;
+
+    // IMPROVED DATE HANDLING: Set today's date correctly
+    const today = new Date();
+
+    // Format as YYYY-MM-DD without timezone conversion issues
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    const formattedToday = `${year}-${month}-${day}`;
+    document.getElementById("paymentDate").value = formattedToday;
+
+    document.getElementById("paymentNotes").value = "";
+    document.getElementById("paymentModalTitle").textContent = "Add Payment";
+  }
+
+  document.getElementById("paymentModal").style.display = "block";
 }
 
 // Fetch all payments
@@ -732,15 +907,38 @@ async function fetchPayments() {
   }
 }
 
-// Fetch payments for a specific lead
+// Fetch payments for a specific lead with improved error handling
 async function fetchLeadPayments(leadId) {
   try {
+    console.log(`Fetching payments for lead ID: ${leadId}`);
+
+    if (!leadId) {
+      console.error("fetchLeadPayments called with no leadId");
+      return [];
+    }
+
     const response = await fetch(`${API_PAYMENTS_URL}/lead/${leadId}`);
     if (!response.ok) {
       throw new Error("Failed to fetch lead payments");
     }
 
-    return await response.json();
+    const payments = await response.json();
+    console.log(`Received ${payments.length} payments for lead ID: ${leadId}`);
+
+    // Verify each payment belongs to this lead
+    const validPayments = payments.filter(
+      (payment) => payment.leadId === leadId
+    );
+
+    if (validPayments.length !== payments.length) {
+      console.warn(
+        `Found ${
+          payments.length - validPayments.length
+        } payments with mismatched lead IDs`
+      );
+    }
+
+    return validPayments;
   } catch (error) {
     console.error("Error fetching lead payments:", error);
     showToast("Error fetching payments: " + error.message);
@@ -748,7 +946,7 @@ async function fetchLeadPayments(leadId) {
   }
 }
 
-// Update the savePayment function to fix monthly payments calculation
+// Save or update a payment
 async function savePayment(paymentData) {
   try {
     let response;
@@ -792,7 +990,7 @@ async function savePayment(paymentData) {
         allLeads[leadIndex] = updatedLead;
       }
 
-      // Get updated payments
+      // Get updated payments specifically for this lead
       const leadPayments = await fetchLeadPayments(leadId);
 
       // Calculate the total paid
@@ -810,11 +1008,11 @@ async function savePayment(paymentData) {
         );
       }
 
-      // Update remaining balance field - Allow negative values
+      // Update remaining balance field
       const remainingBalanceField = document.getElementById("remainingBalance");
       if (remainingBalanceField) {
         const totalBudget = updatedLead.totalBudget || 0;
-        const remainingBalance = totalBudget - totalPaid; // Remove Math.max to allow negative values
+        const remainingBalance = totalBudget - totalPaid;
         remainingBalanceField.value = formatCurrency(
           remainingBalance,
           updatedLead.currency || "USD"
@@ -825,14 +1023,10 @@ async function savePayment(paymentData) {
       renderLeadPayments(leadPayments, leadId);
     }
 
-    // Refresh the full leads and payments data for other views
+    // Refresh the full payments and leads data
     await fetchPayments();
-
-    // Explicitly recalculate stats after fetching payments
-    calculateStats();
-
-    // Separately fetch leads in background if needed
-    fetchLeads();
+    calculateStats(); // Recalculate stats after fetching payments
+    fetchLeads(); // Refresh leads in background
 
     // Close only the payment modal, not the lead modal
     closePaymentModal();
@@ -848,9 +1042,13 @@ async function savePayment(paymentData) {
   }
 }
 
-// Update the deletePayment function to fix monthly payments calculation
+// Delete payment with improved error handling
 async function deletePayment(paymentId, leadId) {
   try {
+    if (!paymentId || !leadId) {
+      throw new Error("Missing payment ID or lead ID");
+    }
+
     const response = await fetch(`${API_PAYMENTS_URL}/${paymentId}`, {
       method: "DELETE",
     });
@@ -875,7 +1073,7 @@ async function deletePayment(paymentId, leadId) {
         allLeads[leadIndex] = updatedLead;
       }
 
-      // Get updated payments
+      // Get updated payments for this specific lead
       const leadPayments = await fetchLeadPayments(leadId);
 
       // Calculate the total paid
@@ -893,11 +1091,11 @@ async function deletePayment(paymentId, leadId) {
         );
       }
 
-      // Update remaining balance field - Allow negative values
+      // Update remaining balance field
       const remainingBalanceField = document.getElementById("remainingBalance");
       if (remainingBalanceField) {
         const totalBudget = updatedLead.totalBudget || 0;
-        const remainingBalance = totalBudget - totalPaid; // Remove Math.max to allow negative values
+        const remainingBalance = totalBudget - totalPaid;
         remainingBalanceField.value = formatCurrency(
           remainingBalance,
           updatedLead.currency || "USD"
@@ -910,12 +1108,8 @@ async function deletePayment(paymentId, leadId) {
 
     // Refresh the full payments data first
     await fetchPayments();
-
-    // Explicitly recalculate stats after fetching payments
-    calculateStats();
-
-    // Separately fetch leads in background if needed
-    fetchLeads();
+    calculateStats(); // Explicitly recalculate stats after fetching payments
+    fetchLeads(); // Separately fetch leads in background
 
     showToast("Payment deleted successfully");
   } catch (error) {
@@ -924,49 +1118,63 @@ async function deletePayment(paymentId, leadId) {
   }
 }
 
+// Open payment modal with better validation
 function openPaymentModal(leadId, paymentId = null) {
   const paymentForm = document.getElementById("paymentForm");
   if (!paymentForm) return;
 
   paymentForm.reset();
 
+  // Clear previous values
   document.getElementById("paymentId").value = "";
+  document.getElementById("paymentLeadId").value = "";
+
+  // Set the lead ID - verify it exists
+  if (!leadId) {
+    showToast("Error: No lead ID provided");
+    return;
+  }
+
+  console.log(`Opening payment modal for lead ID: ${leadId}`);
   document.getElementById("paymentLeadId").value = leadId;
 
   if (paymentId) {
-    // Edit existing payment
-    const payment = payments.find((p) => p._id === paymentId);
-    if (payment) {
-      document.getElementById("paymentId").value = payment._id;
-      document.getElementById("paymentAmount").value = payment.amount;
-      document.getElementById("paymentCurrency").value =
-        payment.currency || "USD";
+    // Edit existing payment - verify payment belongs to this lead
+    const payment = payments.find(
+      (p) => p._id === paymentId && p.leadId === leadId
+    );
 
-      // Format date for the date input
-      if (payment.paymentDate) {
-        document.getElementById("paymentDate").value = new Date(
-          payment.paymentDate
-        )
-          .toISOString()
-          .split("T")[0];
-      }
-
-      document.getElementById("paymentNotes").value = payment.notes || "";
-
-      document.getElementById("paymentModalTitle").textContent = "Edit Payment";
+    if (!payment) {
+      showToast("Payment not found or doesn't belong to this lead");
+      return;
     }
+
+    document.getElementById("paymentId").value = payment._id;
+    document.getElementById("paymentAmount").value = payment.amount;
+    document.getElementById("paymentCurrency").value =
+      payment.currency || "USD";
+
+    // Format date for the date input
+    if (payment.paymentDate) {
+      // Create a date object in the local timezone
+      const dateObj = new Date(payment.paymentDate);
+      // Format as YYYY-MM-DD for input[type="date"]
+      const formattedDate = dateObj.toISOString().split("T")[0];
+      document.getElementById("paymentDate").value = formattedDate;
+    }
+
+    document.getElementById("paymentNotes").value = payment.notes || "";
+
+    document.getElementById("paymentModalTitle").textContent = "Edit Payment";
   } else {
     // New payment
     // Set default values
     document.getElementById("paymentCurrency").value = defaultCurrency;
 
-    // Fix: Set today's date correctly with timezone adjustment
+    // Set today's date correctly with timezone adjustment
     const today = new Date();
-    const localDate = new Date(
-      today.getTime() - today.getTimezoneOffset() * 60000
-    )
-      .toISOString()
-      .split("T")[0];
+    today.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
+    const localDate = today.toISOString().split("T")[0];
 
     document.getElementById("paymentDate").value = localDate;
     document.getElementById("paymentNotes").value = "";
@@ -985,6 +1193,7 @@ function closePaymentModal() {
   }
 }
 
+// Render payments with strict validation by lead ID
 function renderLeadPayments(leadPayments, leadId) {
   const paymentsContainer = document.querySelector(".payments-container");
 
@@ -995,21 +1204,34 @@ function renderLeadPayments(leadPayments, leadId) {
     .getElementById("firstName")
     .hasAttribute("readonly");
 
-  if (leadPayments.length === 0) {
+  // Clear container before rendering
+  paymentsContainer.innerHTML = "";
+
+  if (!leadPayments || leadPayments.length === 0) {
     paymentsContainer.innerHTML =
       '<p class="payment-item">No payments found</p>';
     return;
   }
 
-  paymentsContainer.innerHTML = "";
+  // Only render payments that match the current lead ID
+  const filteredPayments = leadPayments.filter(
+    (payment) => payment.leadId === leadId
+  );
 
-  leadPayments.forEach((payment) => {
+  if (filteredPayments.length === 0) {
+    paymentsContainer.innerHTML =
+      '<p class="payment-item">No payments found</p>';
+    return;
+  }
+
+  filteredPayments.forEach((payment) => {
     const paymentDate = payment.paymentDate
       ? new Date(payment.paymentDate).toLocaleDateString()
       : "Not recorded";
 
     const paymentItem = document.createElement("div");
     paymentItem.className = "payment-item";
+    paymentItem.dataset.leadId = payment.leadId; // Add data attribute for leadId
 
     // Only show action buttons if not in read-only mode
     const actionsHtml = isReadOnly
@@ -1059,7 +1281,7 @@ async function fetchLeads() {
       throw new Error("Invalid data format received");
     }
 
-    console.log("Number of leads:", data.length);
+    
 
     allLeads = data;
 
@@ -1195,6 +1417,13 @@ function calculateStats() {
     const twoMonthsAgo = new Date(currentDate);
     twoMonthsAgo.setMonth(currentDate.getMonth() - 2);
 
+    // For consistent comparison, set all dates to the same time (noon)
+    currentDate.setHours(12, 0, 0, 0);
+    oneMonthAgo.setHours(12, 0, 0, 0);
+    twoMonthsAgo.setHours(12, 0, 0, 0);
+
+
+
     // Calculate total leads
     const totalLeads = allLeads.length;
     safeSetTextContent("totalLeadsValue", totalLeads);
@@ -1204,12 +1433,14 @@ function calculateStats() {
       if (!lead || !lead.createdAt) return false;
       try {
         const leadDate = new Date(lead.createdAt);
+        leadDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
         return (
           !isNaN(leadDate.getTime()) &&
           leadDate >= oneMonthAgo &&
           leadDate <= currentDate
         );
       } catch (e) {
+        console.error("Error parsing lead date:", e);
         return false;
       }
     }).length;
@@ -1219,12 +1450,14 @@ function calculateStats() {
       if (!lead || !lead.createdAt) return false;
       try {
         const leadDate = new Date(lead.createdAt);
+        leadDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
         return (
           !isNaN(leadDate.getTime()) &&
           leadDate >= twoMonthsAgo &&
           leadDate <= oneMonthAgo
         );
       } catch (e) {
+        console.error("Error parsing lead date:", e);
         return false;
       }
     }).length;
@@ -1270,6 +1503,7 @@ function calculateStats() {
     let mostCommonCurrency = "USD";
 
     if (payments && payments.length > 0) {
+
       // Find most common currency
       const currencies = {};
       payments.forEach((payment) => {
@@ -1291,15 +1525,25 @@ function calculateStats() {
       // Calculate current month's total payments - ONLY for existing leads
       currentMonthPayments = payments
         .filter((payment) => {
-          if (!payment.paymentDate) return false;
+          if (!payment.paymentDate) {
+            console.log("Payment has no date:", payment._id);
+            return false;
+          }
 
           // Check if this payment belongs to a lead that still exists
           if (!validLeadIds.has(payment.leadId)) {
             return false;
           }
 
+          // Create a date object
           const paymentDate = new Date(payment.paymentDate);
-          return paymentDate >= oneMonthAgo && paymentDate <= currentDate;
+          paymentDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
+
+          // Check if payment is in current month range
+          const isInCurrentMonth =
+            paymentDate >= oneMonthAgo && paymentDate <= currentDate;
+
+          return isInCurrentMonth;
         })
         .reduce((total, payment) => {
           if (
@@ -1321,8 +1565,12 @@ function calculateStats() {
             return false;
           }
 
+          // Create a date object
           const paymentDate = new Date(payment.paymentDate);
-          return paymentDate >= twoMonthsAgo && paymentDate <= oneMonthAgo;
+          paymentDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
+
+          // Check if payment is in previous month range
+          return paymentDate >= twoMonthsAgo && paymentDate < oneMonthAgo;
         })
         .reduce((total, payment) => {
           if (
@@ -1334,6 +1582,7 @@ function calculateStats() {
           return total;
         }, 0);
     }
+
 
     // Update monthly payments display
     safeSetTextContent(
@@ -1995,10 +2244,12 @@ if (combinedSort) {
   combinedSort.dispatchEvent(new Event("change"));
 }
 
-// Open the add lead modal
+// Modified openAddLeadModal function for dashboard.js
 function openAddLeadModal() {
   const leadForm = document.getElementById("leadForm");
   leadForm.reset();
+
+  // Clear the lead ID to ensure we're creating a new lead
   document.getElementById("leadId").value = "";
   document.getElementById("modalTitle").textContent = "Add New Lead";
 
@@ -2035,49 +2286,38 @@ function openAddLeadModal() {
   document.querySelector('#leadForm button[type="submit"]').style.display =
     "block";
 
+  // IMPORTANT NEW ADDITION: Clear the payments container
+  const paymentsContainer = document.querySelector(".payments-container");
+  if (paymentsContainer) {
+    paymentsContainer.innerHTML = '<p class="payment-item">No payments yet</p>';
+  }
+
+  // IMPORTANT NEW ADDITION: Hide the Add Payment button for new leads
+  const addPaymentBtn = document.getElementById("addPaymentBtn");
+  if (addPaymentBtn) {
+    // Hide add payment button until the lead is saved
+    addPaymentBtn.style.display = "none";
+  }
+
+  // IMPORTANT NEW ADDITION: Clear payment-related fields
+  const paidAmountField = document.getElementById("paidAmount");
+  if (paidAmountField) {
+    paidAmountField.value = formatCurrency(0, defaultCurrency);
+  }
+
+  const remainingBalanceField = document.getElementById("remainingBalance");
+  if (remainingBalanceField) {
+    remainingBalanceField.value = formatCurrency(0, defaultCurrency);
+  }
+
   document.getElementById("leadModal").style.display = "block";
 }
 
-// Close the lead modal
-function closeLeadModal() {
-  document.getElementById("leadModal").style.display = "none";
-
-  // Reset the form completely
-  document.getElementById("leadForm").reset();
-
-  // Clear hidden fields too
-  document.getElementById("leadId").value = "";
-
-  // Reset readonly attributes
-  const formElements = document.querySelectorAll(
-    "#leadForm input, #leadForm select, #leadForm textarea"
-  );
-  formElements.forEach((element) => {
-    element.removeAttribute("readonly");
-    if (element.tagName === "SELECT") {
-      element.removeAttribute("disabled");
-    }
-    element.classList.remove("invalid");
-  });
-
-  // Clear error messages
-  document.querySelectorAll(".error-message").forEach((el) => {
-    el.style.display = "none";
-  });
-
-  // Clear any payment fields that weren't part of the original form
-  const remainingBalanceField = document.getElementById("remainingBalance");
-  if (remainingBalanceField && remainingBalanceField.parentNode) {
-    remainingBalanceField.value = "";
-  }
-
-  // Show the submit button again
-  document.querySelector('#leadForm button[type="submit"]').style.display =
-    "block";
-}
-
+// Updated saveLead function with proper handling for new leads
 async function saveLead() {
   const leadId = document.getElementById("leadId").value;
+  // Track if this is a new lead or an edit of existing lead
+  let isNewLead = !leadId;
 
   // Get form data based on your schema
   const leadData = {
@@ -2147,7 +2387,7 @@ async function saveLead() {
   }
 
   // Debug: Log what we're sending
-  console.log("Saving lead data:", leadData);
+  console.log("Saving lead data:", leadData, "Is new lead:", isNewLead);
 
   try {
     let response;
@@ -2190,6 +2430,42 @@ async function saveLead() {
       allLeads.push(updatedLead);
     }
 
+    // For new leads, initialize payment fields with zero values
+    if (isNewLead && updatedLead._id) {
+      console.log("Initializing payment fields for new lead");
+
+      // Set paid amount to zero
+      const paidAmountField = document.getElementById("paidAmount");
+      if (paidAmountField) {
+        paidAmountField.value = formatCurrency(
+          0,
+          updatedLead.currency || "USD"
+        );
+      }
+
+      // Set remaining balance to total budget (since paid amount is zero)
+      const remainingBalanceField = document.getElementById("remainingBalance");
+      if (remainingBalanceField) {
+        remainingBalanceField.value = formatCurrency(
+          updatedLead.totalBudget || 0,
+          updatedLead.currency || "USD"
+        );
+      }
+
+      // Clear the payments container - make sure no payments from other leads appear
+      const paymentsContainer = document.querySelector(".payments-container");
+      if (paymentsContainer) {
+        paymentsContainer.innerHTML =
+          '<p class="payment-item">No payments found</p>';
+      }
+
+      // Now show the Add Payment button since we have a valid lead ID
+      const addPaymentBtn = document.getElementById("addPaymentBtn");
+      if (addPaymentBtn) {
+        addPaymentBtn.style.display = "block";
+      }
+    }
+
     // Re-render the leads with the updated data
     renderLeads(allLeads);
 
@@ -2202,6 +2478,44 @@ async function saveLead() {
     console.error("Error saving lead:", error);
     showToast("Error: " + error.message);
   }
+}
+
+// Close the lead modal
+function closeLeadModal() {
+  document.getElementById("leadModal").style.display = "none";
+
+  // Reset the form completely
+  document.getElementById("leadForm").reset();
+
+  // Clear hidden fields too
+  document.getElementById("leadId").value = "";
+
+  // Reset readonly attributes
+  const formElements = document.querySelectorAll(
+    "#leadForm input, #leadForm select, #leadForm textarea"
+  );
+  formElements.forEach((element) => {
+    element.removeAttribute("readonly");
+    if (element.tagName === "SELECT") {
+      element.removeAttribute("disabled");
+    }
+    element.classList.remove("invalid");
+  });
+
+  // Clear error messages
+  document.querySelectorAll(".error-message").forEach((el) => {
+    el.style.display = "none";
+  });
+
+  // Clear any payment fields that weren't part of the original form
+  const remainingBalanceField = document.getElementById("remainingBalance");
+  if (remainingBalanceField && remainingBalanceField.parentNode) {
+    remainingBalanceField.value = "";
+  }
+
+  // Show the submit button again
+  document.querySelector('#leadForm button[type="submit"]').style.display =
+    "block";
 }
 
 window.viewLead = function (leadId) {
@@ -2367,11 +2681,12 @@ window.viewLead = function (leadId) {
   document.getElementById("leadModal").style.display = "block";
 };
 
-// Edit a lead
+// Updated editLead function
 window.editLead = function (leadId) {
   // Reset form first
   document.getElementById("leadForm").reset();
 
+  // Find the lead by ID - not by name
   const lead = allLeads.find((l) => l._id === leadId);
   if (!lead) {
     showToast("Lead not found");
@@ -2465,7 +2780,7 @@ window.editLead = function (leadId) {
   if (lead.totalBudget !== undefined) {
     const totalBudget = parseFloat(lead.totalBudget) || 0;
     const paidAmount = parseFloat(lead.paidAmount) || 0;
-    remainingBalance = Math.max(0, totalBudget - paidAmount);
+    remainingBalance = totalBudget - paidAmount;
   }
 
   // Find or update the remaining balance field
@@ -2508,9 +2823,16 @@ window.editLead = function (leadId) {
     }
   }
 
-  // Fetch and display payments for this lead
+  // Fetch and display payments ONLY for this specific lead
+  // IMPORTANT: Use the exact lead ID, not the name
+  console.log(`Fetching payments specifically for lead ID: ${lead._id}`);
   fetchLeadPayments(lead._id).then((leadPayments) => {
-    renderLeadPayments(leadPayments, lead._id);
+    // Filter payments to ensure they belong ONLY to this lead
+    const filteredPayments = leadPayments.filter(
+      (payment) => payment.leadId === lead._id
+    );
+    console.log(`Found ${filteredPayments.length} payments for this lead ID`);
+    renderLeadPayments(filteredPayments, lead._id);
   });
 
   // Handle last contacted date
@@ -2549,6 +2871,12 @@ window.editLead = function (leadId) {
   // Make remaining balance field readonly
   if (remainingBalanceField) {
     remainingBalanceField.setAttribute("readonly", true);
+  }
+
+  // Show the Add Payment button since we're editing an existing lead
+  const addPaymentBtn = document.getElementById("addPaymentBtn");
+  if (addPaymentBtn) {
+    addPaymentBtn.style.display = "block";
   }
 
   // Show submit button
