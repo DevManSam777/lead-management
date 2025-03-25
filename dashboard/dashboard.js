@@ -435,15 +435,48 @@ function validateName(input, fieldName) {
 
 // URL validation
 function validateUrl(input) {
-  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
   const errorElement = getErrorElement(input);
 
-  if (input.value && !urlRegex.test(input.value)) {
-    showInputError(input, errorElement, "Please enter a valid website address");
-    return false;
-  } else {
+  // Allow empty values if not required
+  if (!input.value) {
     clearInputError(input, errorElement);
     return true;
+  }
+
+  // Check if the URL has a domain suffix (period followed by at least 2 characters)
+  let urlToCheck = input.value;
+
+  // If URL has protocol prefix, remove it for checking domain suffix
+  if (urlToCheck.startsWith("http://")) {
+    urlToCheck = urlToCheck.substring(7);
+  } else if (urlToCheck.startsWith("https://")) {
+    urlToCheck = urlToCheck.substring(8);
+  }
+
+  // Check for domain suffix (.com, .net, etc.)
+  const domainSuffixRegex = /\.[a-z]{2,}(\S*)/i;
+  if (!domainSuffixRegex.test(urlToCheck)) {
+    showInputError(
+      input,
+      errorElement,
+      "Website must include a domain suffix (e.g., .com, .org)"
+    );
+    return false;
+  }
+
+  // Validate full URL structure
+  let testUrl = input.value;
+  if (!/^https?:\/\//i.test(testUrl)) {
+    testUrl = "http://" + testUrl;
+  }
+
+  try {
+    new URL(testUrl);
+    clearInputError(input, errorElement);
+    return true;
+  } catch (e) {
+    showInputError(input, errorElement, "Please enter a valid website address");
+    return false;
   }
 }
 
@@ -928,6 +961,11 @@ function renderLeadPayments(leadPayments, leadId) {
 
   if (!paymentsContainer) return;
 
+  // Check if we're in read-only mode
+  const isReadOnly = document
+    .getElementById("firstName")
+    .hasAttribute("readonly");
+
   if (leadPayments.length === 0) {
     paymentsContainer.innerHTML =
       '<p class="payment-item">No payments found</p>';
@@ -944,6 +982,16 @@ function renderLeadPayments(leadPayments, leadId) {
     const paymentItem = document.createElement("div");
     paymentItem.className = "payment-item";
 
+    // Only show action buttons if not in read-only mode
+    const actionsHtml = isReadOnly
+      ? ""
+      : `
+      <div class="payment-actions">
+        <button onclick="openPaymentModal('${leadId}', '${payment._id}')"><i class="fas fa-edit"></i></button>
+        <button onclick="deletePayment('${payment._id}', '${leadId}')"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
+
     paymentItem.innerHTML = `
       <div class="payment-details">
         <div class="payment-amount">
@@ -956,14 +1004,7 @@ function renderLeadPayments(leadPayments, leadId) {
             : ""
         }
       </div>
-      <div class="payment-actions">
-        <button onclick="openPaymentModal('${leadId}', '${
-      payment._id
-    }')"><i class="fas fa-edit"></i></button>
-        <button onclick="deletePayment('${
-          payment._id
-        }', '${leadId}')"><i class="fas fa-trash"></i></button>
-      </div>
+      ${actionsHtml}
     `;
 
     paymentsContainer.appendChild(paymentItem);
@@ -2006,7 +2047,6 @@ function closeLeadModal() {
     "block";
 }
 
-// Save a lead (create or update)
 async function saveLead() {
   const leadId = document.getElementById("leadId").value;
 
@@ -2135,7 +2175,6 @@ async function saveLead() {
   }
 }
 
-// View a lead
 window.viewLead = function (leadId) {
   // Reset form first
   document.getElementById("leadForm").reset();
@@ -2172,7 +2211,8 @@ window.viewLead = function (leadId) {
 
   // Handle estimated budget field
   if (document.getElementById("budget")) {
-    const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
+    const budgetValue =
+      lead.budget !== undefined ? parseFloat(lead.budget) : "";
     document.getElementById("budget").value = budgetValue
       ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
       : "";
@@ -2184,7 +2224,8 @@ window.viewLead = function (leadId) {
 
   // Handle payment fields
   if (document.getElementById("totalBudget")) {
-    const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+    const totalBudgetValue =
+      lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
     document.getElementById("totalBudget").value = totalBudgetValue
       ? formatCurrency(totalBudgetValue, lead.currency || "USD")
       : "";
@@ -2286,6 +2327,12 @@ window.viewLead = function (leadId) {
   document.querySelector('#leadForm button[type="submit"]').style.display =
     "none";
 
+  // Hide the "Add Payment" button in read-only mode
+  const addPaymentBtn = document.getElementById("addPaymentBtn");
+  if (addPaymentBtn) {
+    addPaymentBtn.style.display = "none";
+  }
+
   // Update modal title and open it
   document.getElementById("modalTitle").textContent = "View Lead";
   document.getElementById("leadModal").style.display = "block";
@@ -2352,7 +2399,8 @@ window.editLead = function (leadId) {
 
   // Handle estimated budget field
   if (document.getElementById("budget")) {
-    const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
+    const budgetValue =
+      lead.budget !== undefined ? parseFloat(lead.budget) : "";
     document.getElementById("budget").value = budgetValue
       ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
       : "";
@@ -2364,7 +2412,8 @@ window.editLead = function (leadId) {
 
   // Handle total budget/billed amount field
   if (document.getElementById("totalBudget")) {
-    const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+    const totalBudgetValue =
+      lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
     document.getElementById("totalBudget").value = totalBudgetValue
       ? formatCurrency(totalBudgetValue, lead.currency || "USD")
       : "";
