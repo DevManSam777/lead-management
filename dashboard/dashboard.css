@@ -302,7 +302,7 @@ select {
 }
 
 .stats-card .value {
-  font-size: clamp(2.4rem, 4vw, 2.8rem);
+  font-size: clamp(1.8rem, 2vw, 2.8rem);
   font-weight: bold;
   color: var(--text-color);
   margin-bottom: 0.8rem;
@@ -312,7 +312,7 @@ select {
   display: flex;
   align-items: center;
   margin-top: 0.5rem;
-  font-size: 1.4rem;
+  font-size: 1rem;
   white-space: nowrap;
   line-height: 1.5;
   overflow: hidden;
@@ -769,6 +769,34 @@ select {
   overflow-wrap: break-word;
 }
 
+/* Mobile Settings Button */
+.mobile-settings-btn {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
+  z-index: 1050;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.mobile-settings-btn i {
+  font-size: 2rem;
+}
+
+.mobile-settings-btn:hover {
+  transform: scale(1.05);
+  background-color: var(--secondary);
+}
+
 /* Responsive Styles */
 @media (max-width: 1200px) {
   .stats-cards {
@@ -788,25 +816,33 @@ select {
     right: 1.5rem;
   }
 
-  /* Position header at top in mobile view - change layout only for mobile */
+  /* Position header at top in mobile view */
   .header {
     flex-direction: column;
     align-items: flex-start;
+    padding-top: 0;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
   }
 
   .header h2 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin: 0;
-    /* padding: 1.5rem; */
+    position: relative;
+    width: 100%;
+    text-align: center;
+    margin: 0 0 1rem 0;
+    padding-top: 5rem; /* Space for the buttons */
   }
 
-  /* Add space below header for other elements */
+  /* Only show mobile navigation buttons when sidebar is hidden */
+  .mobile-settings-btn {
+    display: flex;
+  }
+
+  /* Add space below header for other elements - but less space */
   .search-filter-sort {
-    margin-top: 6rem;
+    margin-top: 0.5rem;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
     width: 100%;
   }
 
@@ -826,6 +862,7 @@ select {
   /* Hide sidebar completely in mobile view */
   .sidebar {
     display: none;
+    z-index: 1040;
   }
 
   /* Main content take up full width */
@@ -833,6 +870,7 @@ select {
     margin-left: 0;
     width: 100%;
     padding: 1.5rem;
+    padding-top: 1rem;
   }
 }
 
@@ -898,7 +936,8 @@ select {
   .view-toggle,
   .lead-card-actions,
   .toast,
-  .theme-toggle {
+  .theme-toggle,
+  .mobile-settings-btn {
     display: none;
   }
 
