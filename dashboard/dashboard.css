@@ -113,6 +113,33 @@ body {
     background-color var(--transition-speed);
 }
 
+/* Add class for collapsed state */
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* Add this for the toggle button */
+.sidebar-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--sidebar-text);
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s;
+  z-index: 1001;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  transform: rotate(180deg);
+}
+
 .sidebar-header {
   padding: 0 2rem 2rem;
   border-bottom: 0.1rem solid rgba(255, 255, 255, 0.1);
@@ -125,6 +152,12 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Update for sidebar header in collapsed state */
+.sidebar.collapsed .sidebar-header h1,
+.sidebar.collapsed .sidebar-header p {
+  display: none;
 }
 
 .sidebar-menu {
@@ -167,6 +200,20 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Update for sidebar links in collapsed state */
+.sidebar.collapsed .sidebar-menu span {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-menu a {
+  justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-menu i {
+  margin-right: 0;
+  font-size: 2rem;
+}
+
 /* Main Content with Dark Mode Support */
 .main-content {
   flex: 1;
@@ -175,6 +222,12 @@ body {
   transition: margin-left var(--transition-speed),
     background-color var(--transition-speed);
   width: calc(100% - var(--sidebar-width));
+}
+
+/* Add class for expanded main content */
+.main-content.expanded {
+  margin-left: var(--sidebar-collapsed-width);
+  width: calc(100% - var(--sidebar-collapsed-width));
 }
 
 /* Header Styles - Keeping original desktop layout */
@@ -654,7 +707,7 @@ select {
 }
 
 .invalid {
-  border-color: var(--danger) !important;
+  border-color: var(--danger);
   background-color: rgba(247, 37, 133, 0.05);
 }
 
@@ -676,8 +729,8 @@ select {
 }
 
 #toast.deletion {
-  background-color: var(--toast-deletion-bg) !important;
-  border-left: 0.4rem solid var(--toast-deletion-border) !important;
+  background-color: var(--toast-deletion-bg);
+  border-left: 0.4rem solid var(--toast-deletion-border);
 }
 
 #toastMessage {
@@ -769,32 +822,9 @@ select {
   overflow-wrap: break-word;
 }
 
-/* Mobile Settings Button */
-.mobile-settings-btn {
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 50%;
-  background-color: var(--primary);
-  color: white;
+/* Mobile buttons - hidden */
+.mobile-settings-btn, .mobile-back-btn {
   display: none;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
-  z-index: 1050;
-  transition: transform 0.2s, background-color 0.2s;
-}
-
-.mobile-settings-btn i {
-  font-size: 2rem;
-}
-
-.mobile-settings-btn:hover {
-  transform: scale(1.05);
-  background-color: var(--secondary);
 }
 
 /* Responsive Styles */
@@ -830,15 +860,10 @@ select {
     width: 100%;
     text-align: center;
     margin: 0 0 1rem 0;
-    padding-top: 5rem; /* Space for the buttons */
+    padding-top: 1rem; /* Reduced from 5rem to avoid excessive space */
   }
 
-  /* Only show mobile navigation buttons when sidebar is hidden */
-  .mobile-settings-btn {
-    display: flex;
-  }
-
-  /* Add space below header for other elements - but less space */
+  /* Add space below header for other elements */
   .search-filter-sort {
     margin-top: 0.5rem;
     flex-direction: column;
@@ -858,19 +883,124 @@ select {
   #addLeadBtn {
     width: 100%;
   }
-
-  /* Hide sidebar completely in mobile view */
+  
+  /* Make sidebar collapsed by default on mobile */
   .sidebar {
-    display: none;
-    z-index: 1040;
+    width: var(--sidebar-collapsed-width);
   }
-
-  /* Main content take up full width */
+  
+  .sidebar.collapsed {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  .sidebar-header h1,
+  .sidebar-header p {
+    display: none;
+  }
+  
+  .sidebar-menu span {
+    display: none;
+  }
+  
+  .sidebar-menu a {
+    justify-content: center;
+  }
+  
+  .sidebar-menu i {
+    margin-right: 0;
+    font-size: 2rem;
+  }
+  
+  /* Adjust main content */
   .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+    width: calc(100% - var(--sidebar-collapsed-width));
+  }
+  
+  .main-content.expanded {
     margin-left: 0;
     width: 100%;
-    padding: 1.5rem;
+  }
+  
+  /* Hide sidebar completely when collapsed on mobile */
+  .sidebar.collapsed + .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  /* Fix the toggle button positioning */
+  .sidebar-toggle {
+    position: fixed;
+    z-index: 1100;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
+    background-color: var(--primary);
+    color: white;
+    top: 1rem;
+    transition: left 0.3s, transform 0.3s;
+  }
+  
+  /* Position when sidebar is visible */
+  .sidebar:not(.collapsed) .sidebar-toggle {
+    left: calc(var(--sidebar-collapsed-width) - 1.6rem);
+  }
+  
+  /* Position when sidebar is collapsed */
+  .sidebar.collapsed .sidebar-toggle {
+    left: 1rem;
+    transform: rotate(180deg);
+  }
+  
+  /* Reset any potential highlighting or odd styling using more specific selectors */
+  .container .main-content .header h2 {
+    background: none;
+    box-shadow: none;
+    border: none;
+    text-decoration: none;
+    border-radius: 0;
+  }
+  
+  /* Remove any blue highlight or oval shapes */
+  .container .main-content .header::before,
+  .container .main-content .header::after {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  /* Adjust header positioning and spacing */
+  .container .main-content .header {
+    margin-top: 3rem; /* Add some space at the top */
     padding-top: 1rem;
+    border-top: none;
+    position: relative;
+    background: var(--background-color); /* Match the page background */
+  }
+  
+  /* Fix any potential issues with the header title */
+  .container .main-content .header h2 {
+    position: relative;
+    padding-top: 0;
+    margin-top: 0;
+    width: 100%;
+    text-align: center;
+    background-color: transparent;
+  }
+  
+  /* Hide any potential pseudo-elements causing issues using increased specificity */
+  .container .main-content .header *::before, 
+  .container .main-content .header *::after {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    opacity: 0;
   }
 }
 
@@ -937,7 +1067,7 @@ select {
   .lead-card-actions,
   .toast,
   .theme-toggle,
-  .mobile-settings-btn {
+  .sidebar-toggle {
     display: none;
   }
 

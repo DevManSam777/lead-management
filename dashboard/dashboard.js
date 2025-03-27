@@ -29,254 +29,16 @@ function formatPhoneNumber(phoneNumber) {
 }
 
 // // DOM Elements
-// document.addEventListener("DOMContentLoaded", function () {
-//   // Fetch leads on page load
-//   fetchLeads();
-
-//   // Set up event listeners
-//   document
-//     .getElementById("addLeadBtn")
-//     .addEventListener("click", openAddLeadModal);
-//   document
-//     .getElementById("closeModal")
-//     .addEventListener("click", closeLeadModal);
-//   document
-//     .getElementById("leadForm")
-//     .addEventListener("submit", validateAndSaveLead);
-//   document.getElementById("searchInput").addEventListener("input", searchLeads);
-//   document
-//     .getElementById("filterStatus")
-//     .addEventListener("change", filterLeads);
-//   document.getElementById("sortField").addEventListener("change", sortLeads);
-//   document.getElementById("sortOrder").addEventListener("change", sortLeads);
-//   document
-//     .getElementById("gridViewBtn")
-//     .addEventListener("click", () => switchView("grid"));
-//   document
-//     .getElementById("listViewBtn")
-//     .addEventListener("click", () => switchView("list"));
-
-//   // Show/hide payment date field based on status
-//   const paymentStatusSelect = document.getElementById("paymentStatus");
-//   if (paymentStatusSelect) {
-//     paymentStatusSelect.addEventListener("change", function () {
-//       const paymentDateGroup = document.getElementById("paymentDateGroup");
-//       if (this.value === "paid") {
-//         paymentDateGroup.style.display = "block";
-//       } else {
-//         paymentDateGroup.style.display = "none";
-//         document.getElementById("paymentDate").value = ""; // Clear payment date
-//       }
-//     });
-//   }
-
-//   // Show/hide website address field based on "hasWebsite" selection
-//   const hasWebsiteSelect = document.getElementById("hasWebsite");
-//   if (hasWebsiteSelect) {
-//     hasWebsiteSelect.addEventListener("change", function () {
-//       const websiteAddressField =
-//         document.getElementById("websiteAddress").parentNode;
-//       if (this.value === "yes") {
-//         websiteAddressField.style.display = "block";
-//       } else {
-//         websiteAddressField.style.display = "none";
-//       }
-//     });
-//   }
-
-//   // Currency formatting for budget input
-//   const totalBudgetInput = document.getElementById("totalBudget");
-//   if (totalBudgetInput) {
-//     totalBudgetInput.addEventListener("blur", function (e) {
-//       if (this.value) {
-//         // Format number with 2 decimal places
-//         const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
-//         if (!isNaN(value)) {
-//           const currency = document.getElementById("budgetCurrency").value;
-//           this.value = formatCurrency(value, currency);
-//         }
-//       }
-//     });
-//   }
-
-//   // Event handler for payment form submission
-//   const paymentForm = document.getElementById("paymentForm");
-//   if (paymentForm) {
-//     // Remove existing event listeners (if any) by cloning and replacing
-//     const newPaymentForm = paymentForm.cloneNode(true);
-//     paymentForm.parentNode.replaceChild(newPaymentForm, paymentForm);
-    
-//     // Add fresh event listener
-//     newPaymentForm.addEventListener("submit", function(event) {
-//       event.preventDefault();
-//       validateAndSavePayment(event);
-//       return false;
-//     });
-//   }
-  
-//   // Event listener for close payment modal button
-//   const closePaymentModalBtn = document.getElementById("closePaymentModal");
-//   if (closePaymentModalBtn) {
-//     const newCloseBtn = closePaymentModalBtn.cloneNode(true);
-//     closePaymentModalBtn.parentNode.replaceChild(newCloseBtn, closePaymentModalBtn);
-    
-//     newCloseBtn.addEventListener("click", function(event) {
-//       event.preventDefault();
-//       closePaymentModal();
-//       return false;
-//     });
-//   }
-
-//   // Make sure the addPaymentBtn is properly initialized
-//   const addPaymentBtn = document.getElementById("addPaymentBtn");
-//   if (addPaymentBtn) {
-//     // Remove any existing event listeners (if any)
-//     const newBtn = addPaymentBtn.cloneNode(true);
-//     addPaymentBtn.parentNode.replaceChild(newBtn, addPaymentBtn);
-
-//     // Add fresh event listener
-//     newBtn.addEventListener("click", function () {
-//       const leadId = document.getElementById("leadId").value;
-//       if (leadId) {
-//         openPaymentModal(leadId);
-//       } else {
-//         showToast("Please save the lead first before adding payments");
-//       }
-//     });
-//   }
-
-//   // Formatting for payment amount input
-//   const paymentAmountInput = document.getElementById("paymentAmount");
-//   if (paymentAmountInput) {
-//     paymentAmountInput.addEventListener("blur", function () {
-//       if (this.value) {
-//         // Format number with 2 decimal places
-//         const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
-//         if (!isNaN(value)) {
-//           const currency = document.getElementById("paymentCurrency").value;
-//           this.value = formatCurrency(value, currency);
-//         }
-//       }
-//     });
-//   }
-
-//   // Setup sidebar navigation
-//   document
-//     .querySelector('.sidebar-menu a[href="#"]')
-//     .addEventListener("click", function (e) {
-//       e.preventDefault();
-//       // This is the Dashboard link (already active)
-//     });
-
-//   // Close modal when clicking outside
-//   window.addEventListener("click", function (event) {
-//     if (event.target === document.getElementById("leadModal")) {
-//       closeLeadModal();
-//     }
-//     if (event.target === document.getElementById("paymentModal")) {
-//       closePaymentModal();
-//     }
-//   });
-
-//   const leadForm = document.getElementById("leadForm");
-//   if (leadForm) {
-//     leadForm.addEventListener("keydown", function (e) {
-//       // Check if the key pressed is Enter
-//       if (e.key === "Enter" || e.keyCode === 13) {
-//         // Check if the active element is an input (not a textarea or button)
-//         if (
-//           document.activeElement.tagName === "INPUT" &&
-//           document.activeElement.type !== "submit"
-//         ) {
-//           // Prevent the default action
-//           e.preventDefault();
-
-//           // If we're in a payment modal, don't do anything else
-//           if (
-//             document.getElementById("paymentModal").style.display === "block"
-//           ) {
-//             return;
-//           }
-//         }
-//       }
-//     });
-//   }
-
-//   // Input validation listeners
-//   setupFormValidation();
-// });
-
-// // Update this function in your dashboard.js file
-// function setupThemeToggle() {
-//   // Check for saved theme preference or use preferred color scheme
-//   const currentTheme =
-//     localStorage.getItem("theme") ||
-//     (window.matchMedia("(prefers-color-scheme: dark)").matches
-//       ? "dark"
-//       : "light");
-
-//   // Apply the theme
-//   setTheme(currentTheme);
-
-//   // Theme toggle button to the header
-//   const header = document.querySelector(".header");
-
-//   // Check if toggle already exists
-//   if (!document.getElementById("themeToggle")) {
-//     const toggleButton = document.createElement("button");
-//     toggleButton.className = "theme-toggle";
-//     toggleButton.id = "themeToggle";
-
-//     // Add only the icon (text will be added via CSS ::after)
-//     toggleButton.innerHTML =
-//       currentTheme === "dark"
-//         ? '<i class="fas fa-sun"></i>'
-//         : '<i class="fas fa-moon"></i>';
-
-//     toggleButton.setAttribute(
-//       "title",
-//       currentTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"
-//     );
-
-//     // Append to body instead of header for absolute positioning
-//     document.body.appendChild(toggleButton);
-
-//     toggleButton.addEventListener("click", toggleTheme);
-//   }
-// }
-
-// // Update this function in your dashboard.js file
-// function toggleTheme() {
-//   const currentTheme =
-//     document.documentElement.getAttribute("data-theme") || "light";
-//   const newTheme = currentTheme === "light" ? "dark" : "light";
-
-//   setTheme(newTheme);
-//   localStorage.setItem("theme", newTheme);
-
-//   // Update the toggle button icon only (text comes from CSS)
-//   const toggleButton = document.getElementById("themeToggle");
-//   if (toggleButton) {
-//     toggleButton.innerHTML =
-//       newTheme === "dark"
-//         ? '<i class="fas fa-sun"></i>'
-//         : '<i class="fas fa-moon"></i>';
-//     toggleButton.setAttribute(
-//       "title",
-//       newTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"
-//     );
-//   }
-// }
-
-
-// Single consolidated DOMContentLoaded event listener
 document.addEventListener("DOMContentLoaded", function () {
-  // Theme initialization - keep only this part from theme code
+  // Theme initialization with proper function definition
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
     setTheme(savedTheme);
   }
 
+  // Setup the sidebar toggle
+  setupSidebarToggle();
+  
   // Fetch leads on page load
   fetchLeads();
 
@@ -359,129 +121,117 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Payment amount formatting
-  const paymentAmountInput = document.getElementById("paymentAmount");
-  if (paymentAmountInput) {
-    paymentAmountInput.addEventListener("blur", function () {
-      if (this.value) {
-        const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
-        if (!isNaN(value)) {
-          const currency = document.getElementById("paymentCurrency").value;
-          this.value = formatCurrency(value, currency);
-        }
-      }
-    });
-  }
-
-  // Dashboard navigation
-  document
-    .querySelector('.sidebar-menu a[href="#"]')
-    .addEventListener("click", function (e) {
-      e.preventDefault();
-    });
-
-  // Modal handling
-  window.addEventListener("click", function (event) {
-    if (event.target === document.getElementById("leadModal")) {
-      closeLeadModal();
-    }
-    if (event.target === document.getElementById("paymentModal")) {
-      closePaymentModal();
-    }
-  });
-
-  // Form key handling
-  const leadForm = document.getElementById("leadForm");
-  if (leadForm) {
-    leadForm.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.keyCode === 13) {
-        if (
-          document.activeElement.tagName === "INPUT" &&
-          document.activeElement.type !== "submit"
-        ) {
-          e.preventDefault();
-          if (
-            document.getElementById("paymentModal").style.display === "block"
-          ) {
-            return;
-          }
-        }
-      }
-    });
-  }
-
   // Setup form validation
   setupFormValidation();
 });
-
 
 // Set theme on HTML element
 function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
 }
 
-// // Setup theme toggle in the sidebar
-// function setupSidebarThemeToggle() {
-//   // Get all sidebar menu items
-//   const sidebarMenuItems = document.querySelectorAll(".sidebar-menu li");
+// Simple sidebar toggle functionality
+function setupSidebarToggle() {
+  const sidebar = document.querySelector('.sidebar');
+  const mainContent = document.querySelector('.main-content');
+  
+  // Create toggle button if it doesn't exist
+  if (!document.querySelector('.sidebar-toggle')) {
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'sidebar-toggle';
+    toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
+    
+    sidebar.appendChild(toggleButton);
+    
+    // Add click event
+    toggleButton.addEventListener('click', function() {
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+      
+      // Rotate arrow icon when collapsed
+      if (sidebar.classList.contains('collapsed')) {
+        this.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      } else {
+        this.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      }
+      
+      // Store user preference
+      localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+    });
+  }
+  
+  // Set initial state based on saved preference
+  const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  if (isSidebarCollapsed) {
+    sidebar.classList.add('collapsed');
+    mainContent.classList.add('expanded');
+    document.querySelector('.sidebar-toggle').innerHTML = '<i class="fas fa-chevron-right"></i>';
+  }
+}
 
-//   // If we have at least one item, use the last one for theme toggle
-//   if (sidebarMenuItems.length > 0) {
-//     // Use the last item in the list (whatever it is)
-//     const lastItem = sidebarMenuItems[sidebarMenuItems.length - 1];
+// Add this function to both dashboard.js and settings.js
+function setupSidebarToggle() {
+  const sidebar = document.querySelector('.sidebar');
+  const mainContent = document.querySelector('.main-content');
+  
+  // Check if sidebar was previously collapsed
+  const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  
+  // Set initial state based on saved preference and screen size
+  const isMobile = window.innerWidth <= 992;
+  
+  // On mobile: collapsed by default unless user expanded it
+  // On desktop: expanded by default unless user collapsed it
+  if ((isMobile && !localStorage.getItem('sidebarCollapsed') === 'false') || 
+      (!isMobile && isSidebarCollapsed)) {
+    sidebar.classList.add('collapsed');
+    mainContent.classList.add('expanded');
+  }
+  
+  // Create toggle button if it doesn't exist
+  if (!document.querySelector('.sidebar-toggle')) {
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'sidebar-toggle';
+    toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
+    toggleButton.setAttribute('title', 'Toggle Sidebar');
+    
+    sidebar.appendChild(toggleButton);
+    
+    // Add click event to toggle button
+    toggleButton.addEventListener('click', toggleSidebar);
+  }
+  
+  // Function to toggle sidebar
+  function toggleSidebar() {
+    sidebar.classList.toggle('collapsed');
+    mainContent.classList.toggle('expanded');
+    
+    // Save state to localStorage
+    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+  }
+  
+  // Listen for window resize to adjust sidebar on mobile/desktop transition
+  window.addEventListener('resize', function() {
+    const currentIsMobile = window.innerWidth <= 992;
+    
+    // Only act if we're crossing the breakpoint
+    if (currentIsMobile !== isMobile) {
+      // If transitioning to mobile and no user preference is saved, collapse the sidebar
+      if (currentIsMobile && !localStorage.getItem('sidebarCollapsed')) {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('expanded');
+      }
+    }
+  });
+}
 
-//     if (lastItem) {
-//       const link = lastItem.querySelector("a");
-//       if (link) {
-//         // Get current theme
-//         const currentTheme =
-//           document.documentElement.getAttribute("data-theme") || "light";
 
-//         // Create the HTML with the icon and text properly aligned
-//         link.innerHTML = `
-//           <i class="fas fa-${currentTheme === "dark" ? "sun" : "moon"}"></i>
-//           <span style="margin-left: 10px;">Theme Toggle</span>
-//         `;
-
-//         // Update click handler
-//         link.href = "#";
-
-//         // Remove any existing event listeners and create a fresh link
-//         const newLink = link.cloneNode(true);
-//         link.parentNode.replaceChild(newLink, link);
-
-//         // Add new click handler
-//         newLink.addEventListener("click", function (e) {
-//           e.preventDefault();
-//           toggleTheme();
-
-//           // Update the sidebar icon when toggling
-//           const icon = this.querySelector("i");
-//           if (icon) {
-//             const newTheme =
-//               document.documentElement.getAttribute("data-theme") || "light";
-//             icon.className = `fas fa-${newTheme === "dark" ? "sun" : "moon"}`;
-//           }
-//         });
-//       }
-//     }
-//   }
-// }
-
-// // Initialize theme functionality
-// document.addEventListener("DOMContentLoaded", function () {
-//   // Setup initial theme
-//   const savedTheme = localStorage.getItem("theme");
-//   if (savedTheme) {
-//     setTheme(savedTheme);
-//   }
-
-//   // Theme toggle to header
-//   setupThemeToggle();
-
-//   // Setup sidebar theme toggle (renamed from replaceSidebarLinks)
-//   setupSidebarThemeToggle();
-// });
+// Set theme on HTML element
+function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+}
 
 // Setup form validation
 function setupFormValidation() {
