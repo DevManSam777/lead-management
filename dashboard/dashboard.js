@@ -2569,6 +2569,9 @@ async function deleteLeadAction(leadId) {
       throw new Error("Failed to delete lead");
     }
 
+    // Close the modal immediately after successful deletion
+    closeLeadModal();
+    
     // Refresh leads
     await fetchLeads();
     showToast("Lead deleted successfully");
