@@ -35,8 +35,6 @@
         <header class="header">
           <h2>Project Management</h2>
           
-          <!-- Mobile settings button -->
-         
           <div class="search-filter-sort">
             <div class="search-box">
               <i class="fas fa-search"></i>
@@ -65,26 +63,8 @@
               </option>
               <option value="firstName-asc">Name (A to Z)</option>
               <option value="firstName-desc">Name (Z to A)</option>
-              <option value="email-asc">Email (A to Z)</option>
-              <option value="email-desc">Email (Z to A)</option>
               <option value="businessName-asc">Business Name (A to Z)</option>
               <option value="businessName-desc">Business Name (Z to A)</option>
-              <option value="businessEmail-asc">Business Email (A to Z)</option>
-              <option value="businessEmail-desc">
-                Business Email (Z to A)
-              </option>
-              <option value="totalBudget-desc">
-                Billed Amount (High to Low)
-              </option>
-              <option value="totalBudget-asc">
-                Billed Amount (Low to High)
-              </option>
-              <option value="remainingBalance-desc">
-                Remaining Balance (High to Low)
-              </option>
-              <option value="remainingBalance-asc">
-                Remaining Balance (Low to High)
-              </option>
               <option value="status-asc">Status (New to Closed)</option>
               <option value="status-desc">Status (Closed to New)</option>
             </select>
@@ -95,10 +75,6 @@
               <option value="lastContactedAt">Last Contacted</option>
               <option value="firstName">Name</option>
               <option value="businessName">Business Name</option>
-              <option value="businessEmail">Business Email</option>
-              <option value="email">Email</option>
-              <option value="totalBudget">Billed Amount</option>
-              <option value="remainingBalance">Remaining Balance</option>
               <option value="status">Status</option>
             </select>
             <select id="sortOrder" style="display: none">
@@ -113,40 +89,39 @@
         </header>
 
         <!-- Stats Cards -->
-        
-<details open>
-  <summary><h3>Stats</h3></summary>
-  <div class="stats-cards">
-    <div class="stats-card">
-      <h3>Total Projects</h3>
-      <div class="value" id="totalLeadsValue">0</div>
-      <div class="change positive">
-        <span id="totalLeadsChange">0%</span>
-      </div>
-    </div>
-    <div class="stats-card">
-      <h3>New Projects</h3>
-      <div class="value" id="newLeadsValue">0</div>
-      <div class="change positive">
-        <span id="newLeadsChange">0%</span>
-      </div>
-    </div>
-    <div class="stats-card">
-      <h3>Conversion Rate</h3>
-      <div class="value" id="conversionRateValue">0%</div>
-      <div class="change" id="conversionChange">
-        <i class="fas fa-arrow-up"></i> <span>0%</span>
-      </div>
-    </div>
-    <div class="stats-card">
-      <h3>Monthly Earnings</h3>
-      <div class="value" id="monthlyPaymentsValue">$0</div>
-      <div class="change" id="paymentsChange">
-        <i class="fas fa-arrow-up"></i> <span>0%</span>
-      </div>
-    </div>
-  </div>
-</details>
+        <details open>
+          <summary><h3>Stats</h3></summary>
+          <div class="stats-cards">
+            <div class="stats-card">
+              <h3>Total Projects</h3>
+              <div class="value" id="totalLeadsValue">0</div>
+              <div class="change positive">
+                <span id="totalLeadsChange">0%</span>
+              </div>
+            </div>
+            <div class="stats-card">
+              <h3>New Projects</h3>
+              <div class="value" id="newLeadsValue">0</div>
+              <div class="change positive">
+                <span id="newLeadsChange">0%</span>
+              </div>
+            </div>
+            <div class="stats-card">
+              <h3>Conversion Rate</h3>
+              <div class="value" id="conversionRateValue">0%</div>
+              <div class="change" id="conversionChange">
+                <i class="fas fa-arrow-up"></i> <span>0%</span>
+              </div>
+            </div>
+            <div class="stats-card">
+              <h3>Monthly Earnings</h3>
+              <div class="value" id="monthlyPaymentsValue">$0</div>
+              <div class="change" id="paymentsChange">
+                <i class="fas fa-arrow-up"></i> <span>0%</span>
+              </div>
+            </div>
+          </div>
+        </details>
 
         <!-- View Toggle -->
         <div class="view-toggle">
@@ -172,14 +147,7 @@
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
                 <th>Business</th>
-                <th>Estimated Budget</th>
-                <th>Billed Amount</th>
-                <th>Remaining Balance</th>
-                <th>Created</th>
-                <th>Last Contacted</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>

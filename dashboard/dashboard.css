@@ -99,6 +99,49 @@ body {
   position: relative;
 }
 
+/* Style the details and summary elements */
+details {
+  margin-bottom: 2rem;
+}
+
+details summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  list-style: none; /* Remove default arrow */
+}
+
+/* Add custom arrow that positions correctly with the h3 */
+details summary::before {
+  content: '▶';
+  display: inline-block;
+  margin-right: 0.8rem;
+  transition: transform 0.3s;
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+/* Rotate arrow when open */
+details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+/* Remove default outline when summary is focused */
+details summary:focus {
+  outline: none;
+}
+
+/* Add space between heading and stats cards when open */
+details[open] .stats-cards {
+  margin-top: 1.5rem;
+}
+
+/* Make h3 inside summary keep its normal styling */
+details summary h3 {
+  margin: 0;
+  display: inline;
+}
+
 /* Sidebar with Dark Mode Support */
 .sidebar {
   width: var(--sidebar-width);
@@ -503,39 +546,64 @@ select {
   color: var(--primary);
 }
 
-/* Table View with Dark Mode Support */
+/* Table View with Dark Mode Support - UPDATED FOR RESPONSIVENESS */
 .leads-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
-  min-width: 65rem;
 }
 
-.leads-table th,
-.leads-table td {
+/* Table header styling */
+.leads-table th {
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  white-space: nowrap;
   padding: 1.2rem 1.5rem;
-  text-align: left;
+  text-align: center;
   border-bottom: 0.1rem solid var(--border-color);
   transition: border-color var(--transition-speed);
 }
 
-.leads-table th {
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 1.4rem;
-  white-space: nowrap;
-}
-
+/* Table cells styling */
 .leads-table td {
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+  border-bottom: 0.1rem solid var(--border-color);
   color: var(--text-color);
-  word-break: break-word;
+  transition: border-color var(--transition-speed);
 }
 
+/* Last row has no border */
 .leads-table tr:last-child td {
   border-bottom: none;
 }
 
+/* Row hover effect */
 .leads-table tbody tr:hover {
   background-color: var(--table-hover);
+}
+
+/* Set percentage-based widths for each column */
+.leads-table th:nth-child(1),
+.leads-table td:nth-child(1) {
+  width: 30%; /* Name column */
+}
+
+.leads-table th:nth-child(2),
+.leads-table td:nth-child(2) {
+  width: 30%; /* Business column */
+}
+
+.leads-table th:nth-child(3),
+.leads-table td:nth-child(3) {
+  width: 30%; /* Status column */
+}
+
+.leads-table th:nth-child(4),
+.leads-table td:nth-child(4) {
+  width: 10%; /* Actions column */
+  text-align: center;
 }
 
 /* Status Badges */
@@ -1002,6 +1070,30 @@ select {
     box-shadow: none;
     opacity: 0;
   }
+  
+  /* Responsive table adjustments */
+  .leads-table th,
+  .leads-table td {
+    font-size: 1.4rem;
+    padding: 0.8rem 0.5rem;
+  }
+  
+  /* Reduce column names font size */
+  .leads-table th {
+    font-size: 1.3rem;
+  }
+  
+  /* Make status badges more compact */
+  .lead-status {
+    padding: 0.4rem 0.8rem;
+    font-size: 1.1rem;
+  }
+  
+  /* Adjust action buttons to be more compact */
+  .leads-table td:last-child button {
+    padding: 0.4rem;
+    margin: 0 0.1rem;
+  }
 }
 
 /* At 600px and below, hide the text in the theme toggle */
@@ -1038,7 +1130,25 @@ select {
     padding: 2rem 1.5rem;
     margin: 10% auto;
   }
+
+  .leads-table th,
+  .leads-table td {
+    font-size: 1.2rem;
+    padding: 0.6rem 0.4rem;
+  }
+  
+  .lead-status {
+    padding: 0.3rem 0.6rem;
+    font-size: 1rem;
+  }
+  
+  .leads-table td:last-child button {
+    padding: 0.3rem;
+    margin: 0;
+    font-size: 1.3rem;
+  }
 }
+
 
 @media (max-width: 576px) {
   .main-content {
@@ -1057,6 +1167,29 @@ select {
   .form-group {
     flex: 1 1 100%;
   }
+  
+  /* Tightest spacing for small screens */
+ 
+  .leads-table th,
+  .leads-table td {
+    font-size: 1rem;
+    padding: 0.5rem 0.1rem;
+  }
+  
+  /* Shortest possible status badges */
+  .lead-status {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Compact action buttons */
+  .leads-table td:last-child button {
+    padding: 0.3rem;
+    margin: 0;
+    font-size: 1.4rem;
+  }
+  
+ 
 }
 
 /* Print Styles */

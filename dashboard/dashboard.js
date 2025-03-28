@@ -28,6 +28,13 @@ function formatPhoneNumber(phoneNumber) {
   return phoneNumber;
 }
 
+// Function to truncate text to a specific length
+function truncateText(text, maxLength = 20) {
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
+}
+
 // // DOM Elements
 document.addEventListener("DOMContentLoaded", function () {
   // Theme initialization with proper function definition
@@ -1590,8 +1597,330 @@ function calculateStats() {
 }
 
 // Render leads based on current view
+// function renderLeads(leads) {
+//   // console.log("Rendering leads:", leads); // Debug
+//   if (currentView === "grid") {
+//     renderGridView(leads);
+//   } else {
+//     renderListView(leads);
+//   }
+// }
+
+// // Get lead name based on schema
+// function getLeadName(lead) {
+//   if (lead.firstName && lead.lastName) {
+//     return `${lead.firstName} ${lead.lastName}`;
+//   } else if (lead.name) {
+//     return lead.name;
+//   } else {
+//     return "Unknown";
+//   }
+// }
+
+// function renderGridView(leads) {
+//   const leadCards = document.getElementById("leadCards");
+//   leadCards.innerHTML = "";
+
+//   if (leads.length === 0) {
+//     leadCards.innerHTML = '<div class="lead-card"><p>No leads found</p></div>';
+//     return;
+//   }
+
+//   leads.forEach((lead) => {
+//     const card = document.createElement("div");
+//     card.className = "lead-card";
+
+//     // Format dates
+//     const createdDate = lead.createdAt
+//       ? new Date(lead.createdAt).toLocaleDateString()
+//       : "N/A";
+
+//     // Always display Last Contacted date field
+//     let lastContactedDate = "N/A";
+//     if (lead.lastContactedAt) {
+//       // Parse the stored date
+//       const dateObj = new Date(lead.lastContactedAt);
+
+//       // Fix timezone offset issue by adding one day if time is at midnight
+//       if (dateObj.getUTCHours() === 0 && dateObj.getUTCMinutes() === 0) {
+//         dateObj.setDate(dateObj.getDate() + 1);
+//       }
+
+//       // Format as local date string
+//       lastContactedDate = dateObj.toLocaleDateString();
+//     }
+
+//     // Handle name display based on your schema
+//     const fullName = getLeadName(lead);
+
+//     // Determine service type display
+//     let serviceType = lead.serviceDesired || "N/A";
+//     if (serviceType === "website") serviceType = "Website";
+//     if (serviceType === "app") serviceType = "App Development";
+
+//     // Format estimated budget with the correct currency symbol
+//     let estimatedBudget = "N/A";
+//     if (lead.budget) {
+//       const numericValue = parseFloat(String(lead.budget));
+//       if (!isNaN(numericValue)) {
+//         estimatedBudget = formatCurrency(
+//           numericValue,
+//           lead.budgetCurrency || "USD"
+//         );
+//       } else {
+//         estimatedBudget = lead.budget;
+//       }
+//     }
+
+//     // Format billed amount (contract total) with the correct currency symbol
+//     let billedAmount = "N/A";
+//     if (lead.totalBudget) {
+//       const numericValue = parseFloat(String(lead.totalBudget));
+//       if (!isNaN(numericValue)) {
+//         billedAmount = formatCurrency(numericValue, lead.currency || "USD");
+//       } else {
+//         billedAmount = lead.totalBudget;
+//       }
+//     }
+
+//     // Format paid amount if available
+//     let paidAmount = "N/A";
+//     if (lead.paidAmount) {
+//       const numericValue = parseFloat(String(lead.paidAmount));
+//       if (!isNaN(numericValue)) {
+//         paidAmount = formatCurrency(numericValue, lead.currency || "USD");
+//       } else {
+//         paidAmount = lead.paidAmount;
+//       }
+//     }
+
+//     let remainingBalance = "N/A";
+//     if (lead.remainingBalance !== undefined) {
+//       // Use server-calculated value if available
+//       remainingBalance = formatCurrency(
+//         lead.remainingBalance,
+//         lead.currency || "USD"
+//       );
+//     } else if (lead.totalBudget !== undefined) {
+//       // Calculate if not directly provided - assume paidAmount is 0 if undefined
+//       const paidAmount = lead.paidAmount || 0;
+//       const remaining = Math.max(0, lead.totalBudget - paidAmount);
+//       remainingBalance = formatCurrency(remaining, lead.currency || "USD");
+//     }
+
+//     // Determine preferred contact method display
+//     let preferredContact = lead.preferredContact || "N/A";
+//     switch (preferredContact) {
+//       case "phone":
+//         preferredContact = "Phone";
+//         break;
+//       case "email":
+//         preferredContact = "Email";
+//         break;
+//       case "text":
+//         preferredContact = "Text";
+//         break;
+//       case "businessPhone":
+//         preferredContact = "Business Phone";
+//         break;
+//       case "businessEmail":
+//         preferredContact = "Business Email";
+//         break;
+//     }
+
+//     // Check if has website
+//     const hasWebsite =
+//       lead.hasWebsite === "yes"
+//         ? "Yes"
+//         : lead.hasWebsite === "no"
+//         ? "No"
+//         : "N/A";
+
+//     // Display business information with N/A as default
+//     const businessName = lead.businessName || "N/A";
+//     const businessEmail = lead.businessEmail || "N/A";
+
+//     card.innerHTML = `
+//     <h3>${fullName}</h3>
+//     <p><strong>Email:</strong> ${lead.email || "N/A"}</p>
+//     <p><strong>Phone:</strong> ${formatPhoneNumber(lead.phone) || "N/A"}</p>
+//     ${
+//       lead.textNumber
+//         ? `<p><strong>Text Number:</strong> ${formatPhoneNumber(
+//             lead.textNumber
+//           )}</p>`
+//         : ""
+//     }
+//     <p><strong>Business:</strong> ${businessName}</p>
+//     ${
+//       lead.businessPhone
+//         ? `<p><strong>Business Phone:</strong> ${formatPhoneNumber(
+//             lead.businessPhone
+//           )}</p>`
+//         : ""
+//     }
+//     <p><strong>Business Email:</strong> ${businessEmail}</p>
+//     ${
+//       lead.preferredContact
+//         ? `<p><strong>Preferred Contact:</strong> ${preferredContact}</p>`
+//         : ""
+//     }
+//     <p><strong>Service:</strong> ${serviceType}</p>
+//     <p><strong>Has Website:</strong> ${hasWebsite}</p>
+//     ${
+//       lead.websiteAddress
+//         ? `<p><strong>Website:</strong> ${lead.websiteAddress}</p>`
+//         : ""
+//     }
+//     <p><strong>Estimated Budget:</strong> ${estimatedBudget}</p>
+//     <p><strong>Billed Amount:</strong> ${billedAmount}</p>
+//     <p><strong>Paid Amount:</strong> ${paidAmount}</p>
+//     <p><strong>Remaining Balance:</strong> ${remainingBalance}</p>
+//     <p><strong>Created:</strong> ${createdDate}</p>
+//     <p><strong>Last Contacted:</strong> ${lastContactedDate}</p>
+//     <p><strong>Status:</strong> <span class="lead-status status-${(
+//       lead.status || "new"
+//     ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></p>
+//     <div class="lead-card-actions">
+//         <button onclick="viewLead('${
+//           lead._id
+//         }')"><i class="fas fa-eye"></i></button>
+//         <button onclick="editLead('${
+//           lead._id
+//         }')"><i class="fas fa-edit"></i></button>
+//         <button onclick="deleteLead('${
+//           lead._id
+//         }')"><i class="fas fa-trash"></i></button>
+//     </div>
+// `;
+
+//     leadCards.appendChild(card);
+//   });
+// }
+
+// function renderListView(leads) {
+//   const leadsTableBody = document.getElementById("leadsTableBody");
+//   leadsTableBody.innerHTML = "";
+
+//   if (leads.length === 0) {
+//     leadsTableBody.innerHTML = '<tr><td colspan="11">No leads found</td></tr>';
+//     return;
+//   }
+
+//   leads.forEach((lead) => {
+//     const row = document.createElement("tr");
+
+//     // Format dates
+//     const createdDate = lead.createdAt
+//       ? new Date(lead.createdAt).toLocaleDateString()
+//       : "N/A";
+
+//     // Always display Last Contacted date
+//     let lastContactedDate = "N/A";
+//     if (lead.lastContactedAt) {
+//       // Parse the stored date
+//       const dateObj = new Date(lead.lastContactedAt);
+
+//       // Fix timezone offset issue
+//       if (dateObj.getUTCHours() === 0 && dateObj.getUTCMinutes() === 0) {
+//         dateObj.setDate(dateObj.getDate() + 1);
+//       }
+
+//       // Format as local date string
+//       lastContactedDate = dateObj.toLocaleDateString();
+//     }
+
+//     // Handle name display based on your schema
+//     const fullName = getLeadName(lead);
+
+//     // Format estimated budget with the correct currency symbol
+//     let estimatedBudget = "N/A";
+//     if (lead.budget) {
+//       const numericValue = parseFloat(String(lead.budget));
+//       if (!isNaN(numericValue)) {
+//         estimatedBudget = formatCurrency(
+//           numericValue,
+//           lead.budgetCurrency || "USD"
+//         );
+//       } else {
+//         estimatedBudget = lead.budget;
+//       }
+//     }
+
+//     // Format billed amount with the correct currency symbol
+//     let billedAmount = "N/A";
+//     if (lead.totalBudget) {
+//       const numericValue = parseFloat(String(lead.totalBudget));
+//       if (!isNaN(numericValue)) {
+//         billedAmount = formatCurrency(numericValue, lead.currency || "USD");
+//       } else {
+//         billedAmount = lead.totalBudget;
+//       }
+//     }
+
+//     // Format paid amount with the correct currency symbol
+//     let paidAmount = "N/A";
+//     if (lead.paidAmount) {
+//       const numericValue = parseFloat(String(lead.paidAmount));
+//       if (!isNaN(numericValue)) {
+//         paidAmount = formatCurrency(numericValue, lead.currency || "USD");
+//       } else {
+//         paidAmount = lead.paidAmount;
+//       }
+//     }
+
+//     // Format remaining balance specifically for this lead
+//     let remainingBalance = "N/A";
+//     if (lead.remainingBalance !== undefined) {
+//       // Use server-calculated value if available
+//       remainingBalance = formatCurrency(
+//         lead.remainingBalance,
+//         lead.currency || "USD"
+//       );
+//     } else if (
+//       lead.totalBudget !== undefined &&
+//       lead.paidAmount !== undefined
+//     ) {
+//       // Calculate if not directly provided
+//       const remaining = Math.max(0, lead.totalBudget - lead.paidAmount);
+//       remainingBalance = formatCurrency(remaining, lead.currency || "USD");
+//     }
+
+//     // Determine business info and handle empty values
+//     const business = lead.businessName || "N/A";
+
+//     row.innerHTML = `
+//     <td>${fullName}</td>
+//     <td>${lead.email || "N/A"}</td>
+//     <td>${formatPhoneNumber(lead.phone) || "N/A"}</td>
+//     <td>${business}</td>
+//     <td>${estimatedBudget}</td>
+//     <td>${billedAmount}</td>
+//     <td>${remainingBalance}</td>
+//     <td>${createdDate}</td>
+//     <td>${lastContactedDate}</td>
+//     <td><span class="lead-status status-${(
+//       lead.status || "new"
+//     ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
+//     <td>
+//         <button onclick="viewLead('${
+//           lead._id
+//         }')"><i class="fas fa-eye"></i></button>
+//         <button onclick="editLead('${
+//           lead._id
+//         }')"><i class="fas fa-edit"></i></button>
+//         <button onclick="deleteLead('${
+//           lead._id
+//         }')"><i class="fas fa-trash"></i></button>
+//     </td>
+// `;
+
+//     leadsTableBody.appendChild(row);
+//   });
+// }
+
+// Render leads based on current view
 function renderLeads(leads) {
-  // console.log("Rendering leads:", leads); // Debug
   if (currentView === "grid") {
     renderGridView(leads);
   } else {
@@ -1623,167 +1952,22 @@ function renderGridView(leads) {
     const card = document.createElement("div");
     card.className = "lead-card";
 
-    // Format dates
-    const createdDate = lead.createdAt
-      ? new Date(lead.createdAt).toLocaleDateString()
-      : "N/A";
-
-    // Always display Last Contacted date field
-    let lastContactedDate = "N/A";
-    if (lead.lastContactedAt) {
-      // Parse the stored date
-      const dateObj = new Date(lead.lastContactedAt);
-
-      // Fix timezone offset issue by adding one day if time is at midnight
-      if (dateObj.getUTCHours() === 0 && dateObj.getUTCMinutes() === 0) {
-        dateObj.setDate(dateObj.getDate() + 1);
-      }
-
-      // Format as local date string
-      lastContactedDate = dateObj.toLocaleDateString();
-    }
-
     // Handle name display based on your schema
     const fullName = getLeadName(lead);
-
-    // Determine service type display
-    let serviceType = lead.serviceDesired || "N/A";
-    if (serviceType === "website") serviceType = "Website";
-    if (serviceType === "app") serviceType = "App Development";
-
-    // Format estimated budget with the correct currency symbol
-    let estimatedBudget = "N/A";
-    if (lead.budget) {
-      const numericValue = parseFloat(String(lead.budget));
-      if (!isNaN(numericValue)) {
-        estimatedBudget = formatCurrency(
-          numericValue,
-          lead.budgetCurrency || "USD"
-        );
-      } else {
-        estimatedBudget = lead.budget;
-      }
-    }
-
-    // Format billed amount (contract total) with the correct currency symbol
-    let billedAmount = "N/A";
-    if (lead.totalBudget) {
-      const numericValue = parseFloat(String(lead.totalBudget));
-      if (!isNaN(numericValue)) {
-        billedAmount = formatCurrency(numericValue, lead.currency || "USD");
-      } else {
-        billedAmount = lead.totalBudget;
-      }
-    }
-
-    // Format paid amount if available
-    let paidAmount = "N/A";
-    if (lead.paidAmount) {
-      const numericValue = parseFloat(String(lead.paidAmount));
-      if (!isNaN(numericValue)) {
-        paidAmount = formatCurrency(numericValue, lead.currency || "USD");
-      } else {
-        paidAmount = lead.paidAmount;
-      }
-    }
-
-    let remainingBalance = "N/A";
-    if (lead.remainingBalance !== undefined) {
-      // Use server-calculated value if available
-      remainingBalance = formatCurrency(
-        lead.remainingBalance,
-        lead.currency || "USD"
-      );
-    } else if (lead.totalBudget !== undefined) {
-      // Calculate if not directly provided - assume paidAmount is 0 if undefined
-      const paidAmount = lead.paidAmount || 0;
-      const remaining = Math.max(0, lead.totalBudget - paidAmount);
-      remainingBalance = formatCurrency(remaining, lead.currency || "USD");
-    }
-
-    // Determine preferred contact method display
-    let preferredContact = lead.preferredContact || "N/A";
-    switch (preferredContact) {
-      case "phone":
-        preferredContact = "Phone";
-        break;
-      case "email":
-        preferredContact = "Email";
-        break;
-      case "text":
-        preferredContact = "Text";
-        break;
-      case "businessPhone":
-        preferredContact = "Business Phone";
-        break;
-      case "businessEmail":
-        preferredContact = "Business Email";
-        break;
-    }
-
-    // Check if has website
-    const hasWebsite =
-      lead.hasWebsite === "yes"
-        ? "Yes"
-        : lead.hasWebsite === "no"
-        ? "No"
-        : "N/A";
-
+    
     // Display business information with N/A as default
     const businessName = lead.businessName || "N/A";
-    const businessEmail = lead.businessEmail || "N/A";
 
     card.innerHTML = `
     <h3>${fullName}</h3>
-    <p><strong>Email:</strong> ${lead.email || "N/A"}</p>
-    <p><strong>Phone:</strong> ${formatPhoneNumber(lead.phone) || "N/A"}</p>
-    ${
-      lead.textNumber
-        ? `<p><strong>Text Number:</strong> ${formatPhoneNumber(
-            lead.textNumber
-          )}</p>`
-        : ""
-    }
     <p><strong>Business:</strong> ${businessName}</p>
-    ${
-      lead.businessPhone
-        ? `<p><strong>Business Phone:</strong> ${formatPhoneNumber(
-            lead.businessPhone
-          )}</p>`
-        : ""
-    }
-    <p><strong>Business Email:</strong> ${businessEmail}</p>
-    ${
-      lead.preferredContact
-        ? `<p><strong>Preferred Contact:</strong> ${preferredContact}</p>`
-        : ""
-    }
-    <p><strong>Service:</strong> ${serviceType}</p>
-    <p><strong>Has Website:</strong> ${hasWebsite}</p>
-    ${
-      lead.websiteAddress
-        ? `<p><strong>Website:</strong> ${lead.websiteAddress}</p>`
-        : ""
-    }
-    <p><strong>Estimated Budget:</strong> ${estimatedBudget}</p>
-    <p><strong>Billed Amount:</strong> ${billedAmount}</p>
-    <p><strong>Paid Amount:</strong> ${paidAmount}</p>
-    <p><strong>Remaining Balance:</strong> ${remainingBalance}</p>
-    <p><strong>Created:</strong> ${createdDate}</p>
-    <p><strong>Last Contacted:</strong> ${lastContactedDate}</p>
     <p><strong>Status:</strong> <span class="lead-status status-${(
       lead.status || "new"
     ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></p>
     <div class="lead-card-actions">
-        <button onclick="viewLead('${
-          lead._id
-        }')"><i class="fas fa-eye"></i></button>
-        <button onclick="editLead('${
-          lead._id
-        }')"><i class="fas fa-edit"></i></button>
-        <button onclick="deleteLead('${
-          lead._id
-        }')"><i class="fas fa-trash"></i></button>
+        <button onclick="viewLead('${lead._id}')" title="View Details"><i class="fas fa-eye"></i></button>
+        <button onclick="editLead('${lead._id}')" title="Edit Lead"><i class="fas fa-edit"></i></button>
+        <button onclick="deleteLead('${lead._id}')" title="Delete Lead"><i class="fas fa-trash"></i></button>
     </div>
 `;
 
@@ -1791,122 +1975,78 @@ function renderGridView(leads) {
   });
 }
 
+// function renderListView(leads) {
+//   const leadsTableBody = document.getElementById("leadsTableBody");
+//   leadsTableBody.innerHTML = "";
+
+//   if (leads.length === 0) {
+//     leadsTableBody.innerHTML = '<tr><td colspan="4">No leads found</td></tr>';
+//     return;
+//   }
+
+//   leads.forEach((lead) => {
+//     const row = document.createElement("tr");
+
+//     // Handle name display based on your schema
+//     const fullName = getLeadName(lead);
+
+//     // Determine business info and handle empty values
+//     const business = lead.businessName || "N/A";
+
+//     row.innerHTML = `
+//     <td>${fullName}</td>
+//     <td>${business}</td>
+//     <td><span class="lead-status status-${(
+//       lead.status || "new"
+//     ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
+//     <td class="lead-actions">
+//         <button onclick="viewLead('${lead._id}')" title="View Details"><i class="fas fa-eye"></i></button>
+//         <button onclick="editLead('${lead._id}')" title="Edit Lead"><i class="fas fa-edit"></i></button>
+//         <button onclick="deleteLead('${lead._id}')" title="Delete Lead"><i class="fas fa-trash"></i></button>
+//     </td>
+// `;
+
+//     leadsTableBody.appendChild(row);
+//   });
+// }
 function renderListView(leads) {
   const leadsTableBody = document.getElementById("leadsTableBody");
   leadsTableBody.innerHTML = "";
 
   if (leads.length === 0) {
-    leadsTableBody.innerHTML = '<tr><td colspan="11">No leads found</td></tr>';
+    leadsTableBody.innerHTML = '<tr><td colspan="4">No leads found</td></tr>';
     return;
   }
 
   leads.forEach((lead) => {
     const row = document.createElement("tr");
 
-    // Format dates
-    const createdDate = lead.createdAt
-      ? new Date(lead.createdAt).toLocaleDateString()
-      : "N/A";
-
-    // Always display Last Contacted date
-    let lastContactedDate = "N/A";
-    if (lead.lastContactedAt) {
-      // Parse the stored date
-      const dateObj = new Date(lead.lastContactedAt);
-
-      // Fix timezone offset issue
-      if (dateObj.getUTCHours() === 0 && dateObj.getUTCMinutes() === 0) {
-        dateObj.setDate(dateObj.getDate() + 1);
-      }
-
-      // Format as local date string
-      lastContactedDate = dateObj.toLocaleDateString();
-    }
-
     // Handle name display based on your schema
     const fullName = getLeadName(lead);
-
-    // Format estimated budget with the correct currency symbol
-    let estimatedBudget = "N/A";
-    if (lead.budget) {
-      const numericValue = parseFloat(String(lead.budget));
-      if (!isNaN(numericValue)) {
-        estimatedBudget = formatCurrency(
-          numericValue,
-          lead.budgetCurrency || "USD"
-        );
-      } else {
-        estimatedBudget = lead.budget;
-      }
-    }
-
-    // Format billed amount with the correct currency symbol
-    let billedAmount = "N/A";
-    if (lead.totalBudget) {
-      const numericValue = parseFloat(String(lead.totalBudget));
-      if (!isNaN(numericValue)) {
-        billedAmount = formatCurrency(numericValue, lead.currency || "USD");
-      } else {
-        billedAmount = lead.totalBudget;
-      }
-    }
-
-    // Format paid amount with the correct currency symbol
-    let paidAmount = "N/A";
-    if (lead.paidAmount) {
-      const numericValue = parseFloat(String(lead.paidAmount));
-      if (!isNaN(numericValue)) {
-        paidAmount = formatCurrency(numericValue, lead.currency || "USD");
-      } else {
-        paidAmount = lead.paidAmount;
-      }
-    }
-
-    // Format remaining balance specifically for this lead
-    let remainingBalance = "N/A";
-    if (lead.remainingBalance !== undefined) {
-      // Use server-calculated value if available
-      remainingBalance = formatCurrency(
-        lead.remainingBalance,
-        lead.currency || "USD"
-      );
-    } else if (
-      lead.totalBudget !== undefined &&
-      lead.paidAmount !== undefined
-    ) {
-      // Calculate if not directly provided
-      const remaining = Math.max(0, lead.totalBudget - lead.paidAmount);
-      remainingBalance = formatCurrency(remaining, lead.currency || "USD");
-    }
+    const truncatedName = truncateText(fullName, 20); // Truncate after 20 characters
 
     // Determine business info and handle empty values
     const business = lead.businessName || "N/A";
+    const truncatedBusiness = truncateText(business, 20); // Truncate business name too
 
     row.innerHTML = `
-    <td>${fullName}</td>
-    <td>${lead.email || "N/A"}</td>
-    <td>${formatPhoneNumber(lead.phone) || "N/A"}</td>
-    <td>${business}</td>
-    <td>${estimatedBudget}</td>
-    <td>${billedAmount}</td>
-    <td>${remainingBalance}</td>
-    <td>${createdDate}</td>
-    <td>${lastContactedDate}</td>
-    <td><span class="lead-status status-${(
-      lead.status || "new"
-    ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
-    <td>
-        <button onclick="viewLead('${
-          lead._id
-        }')"><i class="fas fa-eye"></i></button>
-        <button onclick="editLead('${
-          lead._id
-        }')"><i class="fas fa-edit"></i></button>
-        <button onclick="deleteLead('${
-          lead._id
-        }')"><i class="fas fa-trash"></i></button>
-    </td>
-`;
+      <td><span title="${fullName}">${truncatedName}</span></td>
+      <td><span title="${business}">${truncatedBusiness}</span></td>
+      <td><span class="lead-status status-${(
+        lead.status || "new"
+      ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
+      <td>
+          <button onclick="viewLead('${
+            lead._id
+          }')"><i class="fas fa-eye"></i></button>
+          <button onclick="editLead('${
+            lead._id
+          }')"><i class="fas fa-edit"></i></button>
+          <button onclick="deleteLead('${
+            lead._id
+          }')"><i class="fas fa-trash"></i></button>
+      </td>
+    `;
 
     leadsTableBody.appendChild(row);
   });
@@ -2652,7 +2792,7 @@ window.viewLead = function (leadId) {
   }
 
   // Update modal title and open it
-  document.getElementById("modalTitle").textContent = "View Lead";
+  document.getElementById("modalTitle").textContent = "Client Info";
   document.getElementById("leadModal").style.display = "block";
 };
 
