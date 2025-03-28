@@ -35,7 +35,7 @@ function truncateText(text, maxLength = 25) {
   return text.substring(0, maxLength) + "...";
 }
 
-// // DOM Elements
+
 document.addEventListener("DOMContentLoaded", function () {
   // Theme initialization with proper function definition
   const savedTheme = localStorage.getItem("theme");
@@ -154,6 +154,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Setup form validation
   setupFormValidation();
+  
+  // Add mutation observer to handle modal state changes
+  const modalObserver = new MutationObserver(function(mutations) {
+    const leadId = document.getElementById("leadId").value;
+    if (!leadId) return;
+    
+    // Check if we're in edit mode
+    const submitButton = document.querySelector('#leadForm button[type="submit"]');
+    const isEditMode = submitButton && submitButton.style.display !== "none";
+    
+    if (isEditMode) {
+      // We're in edit mode, make sure payments show action buttons
+      const paymentItems = document.querySelectorAll('.payment-item');
+      let needsRefresh = false;
+      
+      // Check if any payment items are missing action buttons
+      paymentItems.forEach(item => {
+        if (item.textContent !== "No payments found" && !item.querySelector('.payment-actions')) {
+          needsRefresh = true;
+        }
+      });
+      
+      // If we need to refresh the payments display
+      if (needsRefresh) {
+        fetchLeadPayments(leadId).then(payments => {
+          renderLeadPayments(payments, leadId);
+        });
+      }
+    }
+  });
+  
+  // Observe the lead modal for changes
+  const leadModal = document.getElementById("leadModal");
+  if (leadModal) {
+    modalObserver.observe(leadModal, { 
+      attributes: true,
+      childList: true,
+      subtree: true 
+    });
+  }
 });
 
 // Set theme on HTML element
@@ -671,16 +711,11 @@ function validateAndSavePayment(event) {
   savePayment(paymentData);
 }
 
-//  Fix date display in renderLeadPayments function
+
 function renderLeadPayments(leadPayments, leadId) {
   const paymentsContainer = document.querySelector(".payments-container");
 
   if (!paymentsContainer) return;
-
-  // Check if we're in read-only mode
-  const isReadOnly = document
-    .getElementById("firstName")
-    .hasAttribute("readonly");
 
   // Clear container before rendering
   paymentsContainer.innerHTML = "";
@@ -702,55 +737,135 @@ function renderLeadPayments(leadPayments, leadId) {
     return;
   }
 
+  // Check if we're in edit mode by looking for the submit button visibility
+  const submitButton = document.querySelector('#leadForm button[type="submit"]');
+  const isEditMode = submitButton && submitButton.style.display !== "none";
+
   filteredPayments.forEach((payment) => {
-    // IMPROVED DATE HANDLING: Create a date object and format it locally
-    let paymentDateStr = "Not recorded";
-
-    if (payment.paymentDate) {
-      // Create a date object with the ISO string, which will be interpreted in local time
-      const dateObj = new Date(payment.paymentDate);
-
-      // Format using toLocaleDateString which respects the user's locale
-      // Add a day to counteract any timezone shift
-      dateObj.setDate(dateObj.getDate());
-      paymentDateStr = dateObj.toLocaleDateString();
-
-      // Add debug log for troubleshooting
-      console.log(`Payment ${payment._id} date:`, payment.paymentDate);
-      console.log(`Formatted as local date:`, paymentDateStr);
-    }
+    const paymentDate = payment.paymentDate
+      ? new Date(payment.paymentDate).toLocaleDateString()
+      : "Not recorded";
 
     const paymentItem = document.createElement("div");
     paymentItem.className = "payment-item";
     paymentItem.dataset.leadId = payment.leadId;
+    paymentItem.dataset.paymentId = payment._id;
 
-    // Only show action buttons if not in read-only mode
-    const actionsHtml = isReadOnly
-      ? ""
-      : `
-      <div class="payment-actions">
-        <button onclick="openPaymentModal('${leadId}', '${payment._id}')"><i class="fas fa-edit"></i></button>
-        <button onclick="deletePayment('${payment._id}', '${leadId}')"><i class="fas fa-trash"></i></button>
-      </div>
-    `;
+    // Create the payment details element
+    const paymentDetails = document.createElement("div");
+    paymentDetails.className = "payment-details";
+    
+    const amountDiv = document.createElement("div");
+    amountDiv.className = "payment-amount";
+    amountDiv.textContent = formatCurrency(payment.amount, payment.currency || "USD");
+    
+    const dateDiv = document.createElement("div");
+    dateDiv.className = "payment-date";
+    dateDiv.textContent = `Paid: ${paymentDate}`;
+    
+    paymentDetails.appendChild(amountDiv);
+    paymentDetails.appendChild(dateDiv);
+    
+    if (payment.notes) {
+      const notesDiv = document.createElement("div");
+      notesDiv.className = "payment-notes";
+      notesDiv.textContent = payment.notes;
+      paymentDetails.appendChild(notesDiv);
+    }
+    
+    paymentItem.appendChild(paymentDetails);
 
-    paymentItem.innerHTML = `
-      <div class="payment-details">
-        <div class="payment-amount">
-          ${formatCurrency(payment.amount, payment.currency || "USD")}
-        </div>
-        <div class="payment-date">Paid: ${paymentDateStr}</div>
-        ${
-          payment.notes
-            ? `<div class="payment-notes">${payment.notes}</div>`
-            : ""
+    // Only add action buttons if we're in edit mode
+    if (isEditMode) {
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "payment-actions";
+      
+      // Create edit button with direct click handler
+      const editButton = document.createElement("button");
+      editButton.innerHTML = '<i class="fas fa-edit"></i>';
+      editButton.onclick = function(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
         }
-      </div>
-      ${actionsHtml}
-    `;
+        openPaymentModal(leadId, payment._id);
+      };
+      
+      // Create delete button with direct click handler
+      const deleteButton = document.createElement("button");
+      deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+      deleteButton.onclick = function(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        if (confirm("Are you sure you want to delete this payment?")) {
+          deletePayment(payment._id, leadId);
+        }
+      };
+      
+      actionsDiv.appendChild(editButton);
+      actionsDiv.appendChild(deleteButton);
+      paymentItem.appendChild(actionsDiv);
+    }
 
     paymentsContainer.appendChild(paymentItem);
   });
+}
+
+// Now, modify the updateModalActionButtons function to refresh payments when entering edit mode
+function updateModalActionButtons(leadId) {
+  // Check if modal actions container exists, create if not
+  let actionsContainer = document.getElementById("modalActions");
+  if (!actionsContainer) {
+    actionsContainer = document.createElement("div");
+    actionsContainer.id = "modalActions";
+    actionsContainer.className = "modal-actions";
+    
+    // Find a good place to insert it (after the modal header)
+    const modalHeader = document.querySelector(".modal-header");
+    if (modalHeader) {
+      modalHeader.insertAdjacentElement('afterend', actionsContainer);
+    }
+  }
+  
+  // Clear existing buttons
+  actionsContainer.innerHTML = "";
+  
+  // Create Edit button
+  const editButton = document.createElement("button");
+  editButton.type = "button";
+  editButton.className = "btn btn-primary";
+  editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
+  editButton.addEventListener('click', function() {
+    setModalReadOnly(false);
+    document.getElementById("modalTitle").textContent = "Edit Lead";
+    // Hide the action buttons when in edit mode
+    actionsContainer.style.display = "none";
+    
+    // KEY FIX: Re-render the payment items to show their action buttons
+    const leadId = document.getElementById("leadId").value;
+    if (leadId) {
+      fetchLeadPayments(leadId).then((leadPayments) => {
+        renderLeadPayments(leadPayments, leadId);
+      });
+    }
+  });
+  
+  // Create Delete button
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "btn btn-danger";
+  deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
+  deleteButton.addEventListener('click', function() {
+    if (confirm("Are you sure you want to delete this lead?")) {
+      deleteLeadAction(leadId);
+    }
+  });
+  
+  // Add buttons to container
+  actionsContainer.appendChild(editButton);
+  actionsContainer.appendChild(deleteButton);
 }
 
 function openPaymentModal(leadId, paymentId = null) {
@@ -1161,109 +1276,6 @@ function closePaymentModal() {
   }
 }
 
-function renderLeadPayments(leadPayments, leadId) {
-  const paymentsContainer = document.querySelector(".payments-container");
-
-  if (!paymentsContainer) return;
-
-  // Check if we're in read-only mode
-  const isReadOnly = document
-    .getElementById("firstName")
-    .hasAttribute("readonly");
-
-  // Clear container before rendering
-  paymentsContainer.innerHTML = "";
-
-  if (!leadPayments || leadPayments.length === 0) {
-    paymentsContainer.innerHTML =
-      '<p class="payment-item">No payments found</p>';
-    return;
-  }
-
-  // Only render payments that match the current lead ID
-  const filteredPayments = leadPayments.filter(
-    (payment) => payment.leadId === leadId
-  );
-
-  if (filteredPayments.length === 0) {
-    paymentsContainer.innerHTML =
-      '<p class="payment-item">No payments found</p>';
-    return;
-  }
-
-  filteredPayments.forEach((payment) => {
-    const paymentDate = payment.paymentDate
-      ? new Date(payment.paymentDate).toLocaleDateString()
-      : "Not recorded";
-
-    const paymentItem = document.createElement("div");
-    paymentItem.className = "payment-item";
-    paymentItem.dataset.leadId = payment.leadId;
-    paymentItem.dataset.paymentId = payment._id;
-
-    // Create the payment details element
-    const paymentDetails = document.createElement("div");
-    paymentDetails.className = "payment-details";
-    
-    const amountDiv = document.createElement("div");
-    amountDiv.className = "payment-amount";
-    amountDiv.textContent = formatCurrency(payment.amount, payment.currency || "USD");
-    
-    const dateDiv = document.createElement("div");
-    dateDiv.className = "payment-date";
-    dateDiv.textContent = `Paid: ${paymentDate}`;
-    
-    paymentDetails.appendChild(amountDiv);
-    paymentDetails.appendChild(dateDiv);
-    
-    if (payment.notes) {
-      const notesDiv = document.createElement("div");
-      notesDiv.className = "payment-notes";
-      notesDiv.textContent = payment.notes;
-      paymentDetails.appendChild(notesDiv);
-    }
-    
-    paymentItem.appendChild(paymentDetails);
-
-    // Only add action buttons if not in read-only mode
-    if (!isReadOnly) {
-      const actionsDiv = document.createElement("div");
-      actionsDiv.className = "payment-actions";
-      
-      // Create edit button
-      const editButton = document.createElement("button");
-      editButton.innerHTML = '<i class="fas fa-edit"></i>';
-      editButton.dataset.leadId = leadId;
-      editButton.dataset.paymentId = payment._id;
-      editButton.addEventListener("click", function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openPaymentModal(this.dataset.leadId, this.dataset.paymentId);
-        return false;
-      });
-      
-      // Create delete button
-      const deleteButton = document.createElement("button");
-      deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-      deleteButton.dataset.leadId = leadId;
-      deleteButton.dataset.paymentId = payment._id;
-      deleteButton.addEventListener("click", function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (confirm("Are you sure you want to delete this payment?")) {
-          deletePayment(this.dataset.paymentId, this.dataset.leadId);
-        }
-        return false;
-      });
-      
-      actionsDiv.appendChild(editButton);
-      actionsDiv.appendChild(deleteButton);
-      paymentItem.appendChild(actionsDiv);
-    }
-
-    paymentsContainer.appendChild(paymentItem);
-  });
-}
 
 // Fetch leads from API
 async function fetchLeads() {
