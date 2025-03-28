@@ -29,7 +29,7 @@ function formatPhoneNumber(phoneNumber) {
 }
 
 // Function to truncate text to a specific length
-function truncateText(text, maxLength = 20) {
+function truncateText(text, maxLength = 25) {
   if (!text) return "";
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + "...";
@@ -2193,7 +2193,7 @@ async function saveLead() {
     email: document.getElementById("email").value,
     phone: document.getElementById("phone").value,
     textNumber: document.getElementById("textNumber").value || undefined,
-    businessName: document.getElementById("businessName").value || undefined,
+    businessName: document.getElementById("businessName").value || "N/A",
     businessPhone: document.getElementById("businessPhone").value || undefined,
     businessEmail: document.getElementById("businessEmail").value || undefined,
     businessServices:
