@@ -52,7 +52,31 @@ document.addEventListener("DOMContentLoaded", function () {
   // Dashboard UI event listeners
   document.getElementById("addLeadBtn").addEventListener("click", openAddLeadModal);
   document.getElementById("closeModal").addEventListener("click", closeLeadModal);
-  document.getElementById("leadForm").addEventListener("submit", validateAndSaveLead);
+  
+  // Updated lead form submission handler
+  document.getElementById("leadForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    
+    // Validate and save the lead
+    validateAndSaveLead(event);
+    
+    // After save, update the action buttons and set back to read-only
+    const leadId = document.getElementById("leadId").value;
+    if (leadId) {
+      // Show the action buttons again
+      const actionsContainer = document.getElementById("modalActions");
+      if (actionsContainer) {
+        actionsContainer.style.display = "block";
+      }
+      
+      // Set modal back to read-only mode
+      setModalReadOnly(true);
+      
+      // Update modal title
+      document.getElementById("modalTitle").textContent = "Client Info";
+    }
+  });
+  
   document.getElementById("searchInput").addEventListener("input", searchLeads);
   document.getElementById("filterStatus").addEventListener("change", filterLeads);
   document.getElementById("sortField").addEventListener("change", sortLeads);
@@ -1627,8 +1651,9 @@ function renderGridView(leads) {
 
   leads.forEach((lead) => {
     const card = document.createElement("div");
-    card.className = "lead-card";
-
+    card.className = "lead-card clickable";
+    card.dataset.leadId = lead._id;
+    
     // Handle name display based on your schema
     const fullName = getLeadName(lead);
     
@@ -1636,33 +1661,36 @@ function renderGridView(leads) {
     const businessName = lead.businessName || "N/A";
 
     card.innerHTML = `
-    <h3>${fullName}</h3>
-    <p><strong>Business:</strong> ${businessName}</p>
-    <p><strong>Status:</strong> <span class="lead-status status-${(
-      lead.status || "new"
-    ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></p>
-    <div class="lead-card-actions">
-        <button onclick="viewLead('${lead._id}')" title="View Details"><i class="fas fa-eye"></i></button>
-        <button onclick="editLead('${lead._id}')" title="Edit Lead"><i class="fas fa-edit"></i></button>
-        <button onclick="deleteLead('${lead._id}')" title="Delete Lead"><i class="fas fa-trash"></i></button>
-    </div>
-`;
+      <h3>${fullName}</h3>
+      <p><strong>Business:</strong> ${businessName}</p>
+      <p><strong>Status:</strong> <span class="lead-status status-${(
+        lead.status || "new"
+      ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></p>
+    `;
+
+    // Add click event to the entire card
+    card.addEventListener('click', function() {
+      openLeadModal(lead._id);
+    });
 
     leadCards.appendChild(card);
   });
 }
 
+// Modified renderListView function to make rows clickable and remove action column
 function renderListView(leads) {
   const leadsTableBody = document.getElementById("leadsTableBody");
   leadsTableBody.innerHTML = "";
 
   if (leads.length === 0) {
-    leadsTableBody.innerHTML = '<tr><td colspan="4">No leads found</td></tr>';
+    leadsTableBody.innerHTML = '<tr><td colspan="3">No leads found</td></tr>';
     return;
   }
 
   leads.forEach((lead) => {
     const row = document.createElement("tr");
+    row.className = "clickable";
+    row.dataset.leadId = lead._id;
 
     // Handle name display based on your schema
     const fullName = getLeadName(lead);
@@ -1678,21 +1706,106 @@ function renderListView(leads) {
       <td><span class="lead-status status-${(
         lead.status || "new"
       ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
-      <td>
-          <button onclick="viewLead('${
-            lead._id
-          }')"><i class="fas fa-eye"></i></button>
-          <button onclick="editLead('${
-            lead._id
-          }')"><i class="fas fa-edit"></i></button>
-          <button onclick="deleteLead('${
-            lead._id
-          }')"><i class="fas fa-trash"></i></button>
-      </td>
     `;
+
+    // Add click event to the row
+    row.addEventListener('click', function() {
+      openLeadModal(lead._id);
+    });
 
     leadsTableBody.appendChild(row);
   });
+}
+
+// Function to set modal to read-only or editable mode
+function setModalReadOnly(isReadOnly) {
+  const formElements = document.querySelectorAll(
+    "#leadForm input, #leadForm select, #leadForm textarea"
+  );
+  
+  formElements.forEach((element) => {
+    if (isReadOnly) {
+      element.setAttribute("readonly", true);
+      if (element.tagName === "SELECT") {
+        element.setAttribute("disabled", true);
+      }
+    } else {
+      element.removeAttribute("readonly");
+      if (element.tagName === "SELECT") {
+        element.removeAttribute("disabled");
+      }
+    }
+  });
+  
+  // Always keep these fields read-only
+  const paidAmountField = document.getElementById("paidAmount");
+  if (paidAmountField) {
+    paidAmountField.setAttribute("readonly", true);
+  }
+  
+  const remainingBalanceField = document.getElementById("remainingBalance");
+  if (remainingBalanceField) {
+    remainingBalanceField.setAttribute("readonly", true);
+  }
+  
+  // Show/hide the form submission button based on mode
+  const submitButton = document.querySelector('#leadForm button[type="submit"]');
+  if (submitButton) {
+    submitButton.style.display = isReadOnly ? "none" : "block";
+  }
+  
+  // Show/hide Add Payment button based on mode
+  const addPaymentBtn = document.getElementById("addPaymentBtn");
+  if (addPaymentBtn) {
+    addPaymentBtn.style.display = isReadOnly ? "none" : "block";
+  }
+}
+
+// Function to update modal action buttons
+function updateModalActionButtons(leadId) {
+  // Check if modal actions container exists, create if not
+  let actionsContainer = document.getElementById("modalActions");
+  if (!actionsContainer) {
+    actionsContainer = document.createElement("div");
+    actionsContainer.id = "modalActions";
+    actionsContainer.className = "modal-actions";
+    
+    // Find a good place to insert it (after the modal header)
+    const modalHeader = document.querySelector(".modal-header");
+    if (modalHeader) {
+      modalHeader.insertAdjacentElement('afterend', actionsContainer);
+    }
+  }
+  
+  // Clear existing buttons
+  actionsContainer.innerHTML = "";
+  
+  // Create Edit button
+  const editButton = document.createElement("button");
+  editButton.type = "button";
+  editButton.className = "btn btn-primary";
+  editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
+  editButton.addEventListener('click', function() {
+    setModalReadOnly(false);
+    document.getElementById("modalTitle").textContent = "Edit Lead";
+    // Hide the action buttons when in edit mode
+    actionsContainer.style.display = "none";
+  });
+  
+  // Create Delete button
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "btn btn-danger";
+  deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
+  deleteButton.addEventListener('click', function() {
+    if (confirm("Are you sure you want to delete this lead?")) {
+      deleteLeadAction(leadId);
+    }
+  });
+  
+  // Add buttons to container
+  actionsContainer.appendChild(editButton);
+  actionsContainer.appendChild(deleteButton);
 }
 
 // Switch between grid and list views
@@ -2238,8 +2351,8 @@ async function saveLead() {
   }
 }
 
-// Close the lead modal
-function closeLeadModal() {
+// Make closeLeadModal globally available
+window.closeLeadModal = function() {
   document.getElementById("leadModal").style.display = "none";
 
   // Reset the form completely
@@ -2274,9 +2387,16 @@ function closeLeadModal() {
   // Show the submit button again
   document.querySelector('#leadForm button[type="submit"]').style.display =
     "block";
-}
+    
+  // Remove the modal actions container
+  const modalActions = document.getElementById("modalActions");
+  if (modalActions) {
+    modalActions.remove();
+  }
+};
 
-window.viewLead = function (leadId) {
+// Make openLeadModal globally available
+window.openLeadModal = function(leadId) {
   // Reset form first
   document.getElementById("leadForm").reset();
 
@@ -2286,24 +2406,24 @@ window.viewLead = function (leadId) {
     return;
   }
 
-  // Fill the form with lead data but make all fields readonly
+  // Set modal to read-only mode initially
+  setModalReadOnly(true);
+  
+  // Store the current lead ID in the modal
   document.getElementById("leadId").value = lead._id;
+
+  // Fill the form with lead data
   document.getElementById("firstName").value = lead.firstName || "";
   document.getElementById("lastName").value = lead.lastName || "";
   document.getElementById("email").value = lead.email || "";
   document.getElementById("phone").value = formatPhoneNumber(lead.phone) || "";
-  document.getElementById("textNumber").value =
-    formatPhoneNumber(lead.textNumber) || "";
-  document.getElementById("businessPhone").value =
-    formatPhoneNumber(lead.businessPhone) || "";
+  document.getElementById("textNumber").value = formatPhoneNumber(lead.textNumber) || "";
+  document.getElementById("businessPhone").value = formatPhoneNumber(lead.businessPhone) || "";
   document.getElementById("businessName").value = lead.businessName || "";
   document.getElementById("businessEmail").value = lead.businessEmail || "";
-  document.getElementById("businessServices").value =
-    lead.businessServices || "";
-  document.getElementById("preferredContact").value =
-    lead.preferredContact || "";
-  document.getElementById("serviceDesired").value =
-    lead.serviceDesired || "website";
+  document.getElementById("businessServices").value = lead.businessServices || "";
+  document.getElementById("preferredContact").value = lead.preferredContact || "";
+  document.getElementById("serviceDesired").value = lead.serviceDesired || "website";
   document.getElementById("hasWebsite").value = lead.hasWebsite || "";
   document.getElementById("websiteAddress").value = lead.websiteAddress || "";
   document.getElementById("message").value = lead.message || "";
@@ -2312,8 +2432,7 @@ window.viewLead = function (leadId) {
 
   // Handle estimated budget field
   if (document.getElementById("budget")) {
-    const budgetValue =
-      lead.budget !== undefined ? parseFloat(lead.budget) : "";
+    const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
     document.getElementById("budget").value = budgetValue
       ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
       : "";
@@ -2325,8 +2444,7 @@ window.viewLead = function (leadId) {
 
   // Handle payment fields
   if (document.getElementById("totalBudget")) {
-    const totalBudgetValue =
-      lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+    const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
     document.getElementById("totalBudget").value = totalBudgetValue
       ? formatCurrency(totalBudgetValue, lead.currency || "USD")
       : "";
@@ -2408,242 +2526,29 @@ window.viewLead = function (leadId) {
   }
 
   // Show/hide website address field based on hasWebsite value
-  const websiteAddressField =
-    document.getElementById("websiteAddress").parentNode;
-  websiteAddressField.style.display =
-    lead.hasWebsite === "yes" ? "block" : "none";
+  const websiteAddressField = document.getElementById("websiteAddress").parentNode;
+  websiteAddressField.style.display = lead.hasWebsite === "yes" ? "block" : "none";
 
-  // Make all fields readonly
-  const formElements = document.querySelectorAll(
-    "#leadForm input, #leadForm select, #leadForm textarea"
-  );
-  formElements.forEach((element) => {
-    element.setAttribute("readonly", true);
-    if (element.tagName === "SELECT") {
-      element.setAttribute("disabled", true);
-    }
-  });
-
-  // Hide the submit button
-  document.querySelector('#leadForm button[type="submit"]').style.display =
-    "none";
-
-  // Hide the "Add Payment" button in read-only mode
+  // Update modal title 
+  document.getElementById("modalTitle").textContent = "Client Info";
+  
+  // Make Add Payment button visible only when in edit mode
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
     addPaymentBtn.style.display = "none";
   }
 
-  // Update modal title and open it
-  document.getElementById("modalTitle").textContent = "Client Info";
+  // First, check if the action buttons container exists and remove it
+  const existingActions = document.getElementById("modalActions");
+  if (existingActions) {
+    existingActions.remove();
+  }
+
+  // Display the modal
   document.getElementById("leadModal").style.display = "block";
-};
-
-// Updated editLead function
-window.editLead = function (leadId) {
-  // Reset form first
-  document.getElementById("leadForm").reset();
-
-  // Find the lead by ID - not by name
-  const lead = allLeads.find((l) => l._id === leadId);
-  if (!lead) {
-    showToast("Lead not found");
-    return;
-  }
-
-  // Clear any error messages
-  document.querySelectorAll(".error-message").forEach((el) => {
-    el.style.display = "none";
-  });
-
-  // Fill the form with lead data
-  document.getElementById("leadId").value = lead._id;
-
-  // Handle different name fields
-  if (lead.firstName !== undefined) {
-    document.getElementById("firstName").value = lead.firstName || "";
-  } else if (lead.name) {
-    // Try to split the name if it's a full name
-    const nameParts = lead.name.split(" ");
-    if (nameParts.length > 1) {
-      document.getElementById("firstName").value = nameParts[0] || "";
-      document.getElementById("lastName").value =
-        nameParts.slice(1).join(" ") || "";
-    } else {
-      document.getElementById("firstName").value = lead.name || "";
-    }
-  }
-
-  if (lead.lastName !== undefined) {
-    document.getElementById("lastName").value = lead.lastName || "";
-  }
-
-  // Fill in all other fields
-  document.getElementById("email").value = lead.email || "";
-  document.getElementById("phone").value = formatPhoneNumber(lead.phone) || "";
-  document.getElementById("textNumber").value =
-    formatPhoneNumber(lead.textNumber) || "";
-  document.getElementById("businessPhone").value =
-    formatPhoneNumber(lead.businessPhone) || "";
-  document.getElementById("businessName").value = lead.businessName || "";
-  document.getElementById("businessEmail").value = lead.businessEmail || "";
-  document.getElementById("businessServices").value =
-    lead.businessServices || "";
-  document.getElementById("preferredContact").value =
-    lead.preferredContact || "";
-  document.getElementById("serviceDesired").value =
-    lead.serviceDesired || "website";
-  document.getElementById("hasWebsite").value = lead.hasWebsite || "";
-  document.getElementById("websiteAddress").value = lead.websiteAddress || "";
-  document.getElementById("message").value = lead.message || "";
-  document.getElementById("status").value = lead.status || "new";
-  document.getElementById("notes").value = lead.notes || "";
-
-  // Handle estimated budget field
-  if (document.getElementById("budget")) {
-    const budgetValue =
-      lead.budget !== undefined ? parseFloat(lead.budget) : "";
-    document.getElementById("budget").value = budgetValue
-      ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
-      : "";
-  }
-
-  if (document.getElementById("currency")) {
-    document.getElementById("currency").value = lead.budgetCurrency || "USD";
-  }
-
-  // Handle total budget/billed amount field
-  if (document.getElementById("totalBudget")) {
-    const totalBudgetValue =
-      lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
-    document.getElementById("totalBudget").value = totalBudgetValue
-      ? formatCurrency(totalBudgetValue, lead.currency || "USD")
-      : "";
-  }
-
-  if (document.getElementById("budgetCurrency")) {
-    document.getElementById("budgetCurrency").value = lead.currency || "USD";
-  }
-
-  if (document.getElementById("paidAmount")) {
-    const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
-    document.getElementById("paidAmount").value = formatCurrency(
-      paidAmount,
-      lead.currency || "USD"
-    );
-  }
-
-  // Calculate remaining balance from scratch
-  let remainingBalance = 0;
-  if (lead.totalBudget !== undefined) {
-    const totalBudget = parseFloat(lead.totalBudget) || 0;
-    const paidAmount = parseFloat(lead.paidAmount) || 0;
-    remainingBalance = totalBudget - paidAmount;
-  }
-
-  // Find or update the remaining balance field
-  const remainingBalanceField = document.getElementById("remainingBalance");
-  if (remainingBalanceField) {
-    remainingBalanceField.value = formatCurrency(
-      remainingBalance,
-      lead.currency || "USD"
-    );
-  } else {
-    // Create the field if it doesn't exist
-    const paidAmountField = document.getElementById("paidAmount");
-    if (paidAmountField && paidAmountField.parentNode) {
-      const parentDiv = paidAmountField.parentNode.parentNode;
-      const newGroup = document.createElement("div");
-      newGroup.className = "form-group";
-
-      const label = document.createElement("label");
-      label.setAttribute("for", "remainingBalance");
-      label.textContent = "Remaining Balance";
-
-      const input = document.createElement("input");
-      input.type = "text";
-      input.id = "remainingBalance";
-      input.setAttribute("readonly", true);
-      input.value = formatCurrency(remainingBalance, lead.currency || "USD");
-
-      newGroup.appendChild(label);
-      newGroup.appendChild(input);
-
-      // Insert after paid amount field
-      if (paidAmountField.parentNode.nextSibling) {
-        parentDiv.insertBefore(
-          newGroup,
-          paidAmountField.parentNode.nextSibling
-        );
-      } else {
-        parentDiv.appendChild(newGroup);
-      }
-    }
-  }
-
-  // Fetch and display payments ONLY for this specific lead
-  // IMPORTANT: Use the exact lead ID, not the name
-  console.log(`Fetching payments specifically for lead ID: ${lead._id}`);
-  fetchLeadPayments(lead._id).then((leadPayments) => {
-    // Filter payments to ensure they belong ONLY to this lead
-    const filteredPayments = leadPayments.filter(
-      (payment) => payment.leadId === lead._id
-    );
-    console.log(`Found ${filteredPayments.length} payments for this lead ID`);
-    renderLeadPayments(filteredPayments, lead._id);
-  });
-
-  // Handle last contacted date
-  if (document.getElementById("lastContactedAt") && lead.lastContactedAt) {
-    const date = new Date(lead.lastContactedAt);
-    // Format date as YYYY-MM-DD for input[type="date"]
-    const formattedDate = date.toISOString().split("T")[0];
-    document.getElementById("lastContactedAt").value = formattedDate;
-  } else if (document.getElementById("lastContactedAt")) {
-    document.getElementById("lastContactedAt").value = "";
-  }
-
-  // Show/hide website address field based on hasWebsite value
-  const websiteAddressField =
-    document.getElementById("websiteAddress").parentNode;
-  websiteAddressField.style.display =
-    lead.hasWebsite === "yes" ? "block" : "none";
-
-  // Make sure form elements are editable
-  const formElements = document.querySelectorAll(
-    "#leadForm input, #leadForm select, #leadForm textarea"
-  );
-  formElements.forEach((element) => {
-    element.removeAttribute("readonly");
-    if (element.tagName === "SELECT") {
-      element.removeAttribute("disabled");
-    }
-  });
-
-  // Make paid amount field readonly
-  const paidAmountField = document.getElementById("paidAmount");
-  if (paidAmountField) {
-    paidAmountField.setAttribute("readonly", true);
-  }
-
-  // Make remaining balance field readonly
-  if (remainingBalanceField) {
-    remainingBalanceField.setAttribute("readonly", true);
-  }
-
-  // Show the Add Payment button since we're editing an existing lead
-  const addPaymentBtn = document.getElementById("addPaymentBtn");
-  if (addPaymentBtn) {
-    addPaymentBtn.style.display = "block";
-  }
-
-  // Show submit button
-  document.querySelector('#leadForm button[type="submit"]').style.display =
-    "block";
-
-  // Update modal title and open it
-  document.getElementById("modalTitle").textContent = "Edit Lead";
-  document.getElementById("leadModal").style.display = "block";
+  
+  // Then add modal action buttons (Edit, Delete)
+  updateModalActionButtons(lead._id);
 };
 
 // Delete a lead

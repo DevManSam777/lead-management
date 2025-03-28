@@ -142,14 +142,13 @@
             <!-- Lead cards will be generated here -->
           </div>
 
-          <!-- Table View -->
+          <!-- Table View - Modified to remove Actions column -->
           <table class="leads-table" id="leadsTable" style="display: none">
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Business</th>
                 <th>Status</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="leadsTableBody">
@@ -160,13 +159,14 @@
       </main>
     </div>
 
-    <!-- Lead Modal -->
+    <!-- Lead Modal - Consolidated version -->
     <div id="leadModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeModal">&times;</span>
         <div class="modal-header">
-          <h3 id="modalTitle">Add New Lead</h3>
+          <h3 id="modalTitle">Client Info</h3>
         </div>
+        <!-- Modal action buttons will be inserted here by JS -->
         <form id="leadForm">
           <input type="hidden" id="leadId" />
 
@@ -357,7 +357,7 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary">Save Lead</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
         </form>
       </div>
     </div>
