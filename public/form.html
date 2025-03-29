@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="form.css" />
+    <title>Web Development Service Inquiry</title>
+    <!-- Include Cleave.js for phone formatting -->
+    <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+  </head>
+  <body>
+    <div class="form-container">
+      <h1>Web Development Inquiry</h1>
+      <form id="inquiry-form">
+        <fieldset>
+          <legend>Personal Information</legend>
+          <div class="form-group">
+            <label for="firstName" class="required">First Name</label>
+            <input type="text" id="firstName" name="firstName" required />
+          </div>
+
+          <div class="form-group">
+            <label for="lastName" class="required">Last Name</label>
+            <input type="text" id="lastName" name="lastName" required />
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="required">Email Address</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="required">Phone Number</label>
+            <input type="tel" id="phone" name="phone" required />
+            <div class="extension-option">
+              <input type="checkbox" id="phoneExtCheck" name="phoneExtCheck">
+              <label for="phoneExtCheck">Add Extension</label>
+              <div class="extension-field" id="phoneExtField" style="display: none;">
+                <input type="text" id="phoneExt" name="phoneExt" placeholder="Extension">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="textNumber">Text Number (if different)</label>
+            <input type="tel" id="textNumber" name="textNumber" />
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Business Information</legend>
+          <div class="form-group">
+            <label for="businessName">Business Name</label>
+            <input type="text" id="businessName" name="businessName" />
+          </div>
+
+          <div class="form-group">
+            <label for="businessPhone">Business Phone Number</label>
+            <input type="tel" id="businessPhone" name="businessPhone" />
+            <div class="extension-option">
+              <input type="checkbox" id="businessPhoneExtCheck" name="businessPhoneExtCheck">
+              <label for="businessPhoneExtCheck">Add Extension</label>
+              <div class="extension-field" id="businessPhoneExtField" style="display: none;">
+                <input type="text" id="businessPhoneExt" name="businessPhoneExt" placeholder="Extension">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="businessEmail">Business Email</label>
+            <input type="email" id="businessEmail" name="businessEmail" />
+          </div>
+
+          <div class="form-group">
+            <label for="businessServices">Business Services</label>
+            <textarea
+              id="businessServices"
+              name="businessServices"
+              rows="3"
+              placeholder="What type of goods and/or services does your business provide?"
+            ></textarea>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Service Details</legend>
+          <div class="form-group">
+            <label class="required">Preferred Contact Method</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="contactPhone"
+                  name="preferredContact"
+                  value="phone"
+                  required
+                />
+                <label for="contactPhone">Phone</label>
+              </div>
+
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="contactEmail"
+                  name="preferredContact"
+                  value="email"
+                />
+                <label for="contactEmail">Email</label>
+              </div>
+
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="contactText"
+                  name="preferredContact"
+                  value="text"
+                />
+                <label for="contactText">Text</label>
+              </div>
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="contactBusinessPhone"
+                  name="preferredContact"
+                  value="businessPhone"
+                />
+                <label for="contactBusinessPhone">Business Phone</label>
+              </div>
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="contactBusinessEmail"
+                  name="preferredContact"
+                  value="businessEmail"
+                />
+                <label for="contactBusinessEmail">Business Email</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Service Desired</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="serviceWebsite"
+                  name="serviceDesired"
+                  value="website"
+                  required
+                />
+                <label for="serviceWebsite">Website</label>
+              </div>
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="serviceApp"
+                  name="serviceDesired"
+                  value="app"
+                />
+                <label for="serviceApp">App Development</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Do you currently have a website?</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="websiteYes"
+                  name="hasWebsite"
+                  value="yes"
+                />
+                <label for="websiteYes">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input
+                  type="radio"
+                  id="websiteNo"
+                  name="hasWebsite"
+                  value="no"
+                />
+                <label for="websiteNo">No</label>
+              </div>
+            </div>
+
+            <div class="conditional-field" id="websiteAddressField">
+              <label for="websiteAddress">Website Address</label>
+              <input
+                type="text"
+                id="websiteAddress"
+                name="websiteAddress"
+                placeholder="example.com"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Additional Information</legend>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="3"
+              placeholder="Additional comments"
+            ></textarea>
+          </div>
+        </fieldset>
+        <small><span class="asterisk">*</span> = required field</small>
+        <button type="submit" class="btn-submit">Submit Inquiry</button>
+      </form>
+    </div>
+
+    <!-- Link to external JavaScript file -->
+    <script src="form.js"></script>
+  </body>
+</html>
