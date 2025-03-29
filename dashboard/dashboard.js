@@ -1,12 +1,14 @@
 // API URL Configuration
 const API_URL = "http://localhost:5000/api/leads";
 const API_PAYMENTS_URL = "http://localhost:5000/api/payments";
+const SETTINGS_API_URL = "http://localhost:5000/api/settings";
 
 // Global variables
 let allLeads = [];
 let payments = [];
 let currentView = "grid"; // 'grid' or 'list'
 let defaultCurrency = "USD"; // Store the default currency
+let globalSettings = {}; // New global settings cache
 
 // Phone number formatting function
 function formatPhoneNumber(phoneNumber) {
@@ -35,11 +37,212 @@ function truncateText(text, maxLength = 25) {
   return text.substring(0, maxLength) + "...";
 }
 
+// Function to fetch all settings from the server
+async function fetchAllSettings() {
+  try {
+    const response = await fetch(SETTINGS_API_URL);
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch settings");
+    }
+    
+    const settings = await response.json();
+    globalSettings = settings;
+    
+    // Return the settings
+    return settings;
+  } catch (error) {
+    console.error("Error fetching settings:", error);
+    
+    // Fallback to localStorage if API fails
+    return {
+      theme: localStorage.getItem("theme") || 
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    };
+  }
+}
 
-document.addEventListener("DOMContentLoaded", function () {
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   // Theme initialization with proper function definition
+//   const savedTheme = localStorage.getItem("theme");
+//   if (savedTheme) {
+//     setTheme(savedTheme);
+//   }
+
+//   // Setup the sidebar toggle
+//   setupSidebarToggle();
+  
+//   // Fetch leads on page load
+//   fetchLeads();
+
+//   // Dashboard UI event listeners
+//   document.getElementById("addLeadBtn").addEventListener("click", openAddLeadModal);
+//   document.getElementById("closeModal").addEventListener("click", closeLeadModal);
+  
+//   // Updated lead form submission handler
+//   document.getElementById("leadForm").addEventListener("submit", function(event) {
+//     event.preventDefault();
+    
+//     // Validate and save the lead
+//     validateAndSaveLead(event);
+    
+//     // After save, update the action buttons and set back to read-only
+//     const leadId = document.getElementById("leadId").value;
+//     if (leadId) {
+//       // Show the action buttons again
+//       const actionsContainer = document.getElementById("modalActions");
+//       if (actionsContainer) {
+//         actionsContainer.style.display = "block";
+//       }
+      
+//       // Set modal back to read-only mode
+//       setModalReadOnly(true);
+      
+//       // Update modal title
+//       document.getElementById("modalTitle").textContent = "Client Info";
+//     }
+//   });
+  
+//   document.getElementById("searchInput").addEventListener("input", searchLeads);
+//   document.getElementById("filterStatus").addEventListener("change", filterLeads);
+//   document.getElementById("sortField").addEventListener("change", sortLeads);
+//   document.getElementById("sortOrder").addEventListener("change", sortLeads);
+//   document.getElementById("gridViewBtn").addEventListener("click", () => switchView("grid"));
+//   document.getElementById("listViewBtn").addEventListener("click", () => switchView("list"));
+
+//   // Form conditionals
+//   const hasWebsiteSelect = document.getElementById("hasWebsite");
+//   if (hasWebsiteSelect) {
+//     hasWebsiteSelect.addEventListener("change", function () {
+//       const websiteAddressField = document.getElementById("websiteAddress").parentNode;
+//       websiteAddressField.style.display = this.value === "yes" ? "block" : "none";
+//     });
+//   }
+
+//   // Currency formatting for budget input
+//   const totalBudgetInput = document.getElementById("totalBudget");
+//   if (totalBudgetInput) {
+//     totalBudgetInput.addEventListener("blur", function (e) {
+//       if (this.value) {
+//         // Format number with 2 decimal places
+//         const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
+//         if (!isNaN(value)) {
+//           const currency = document.getElementById("budgetCurrency").value;
+//           this.value = formatCurrency(value, currency);
+//         }
+//       }
+//     });
+//   }
+
+//   // Payment related listeners
+//   const paymentForm = document.getElementById("paymentForm");
+//   if (paymentForm) {
+//     // Remove existing event listeners (if any) by cloning and replacing
+//     const newPaymentForm = paymentForm.cloneNode(true);
+//     paymentForm.parentNode.replaceChild(newPaymentForm, paymentForm);
+    
+//     // Add fresh event listener
+//     newPaymentForm.addEventListener("submit", function(event) {
+//       event.preventDefault();
+//       validateAndSavePayment(event);
+//       return false;
+//     });
+//   }
+  
+//   // Close payment modal button
+//   const closePaymentModalBtn = document.getElementById("closePaymentModal");
+//   if (closePaymentModalBtn) {
+//     const newCloseBtn = closePaymentModalBtn.cloneNode(true);
+//     closePaymentModalBtn.parentNode.replaceChild(newCloseBtn, closePaymentModalBtn);
+    
+//     newCloseBtn.addEventListener("click", function(event) {
+//       event.preventDefault();
+//       closePaymentModal();
+//       return false;
+//     });
+//   }
+
+//   // Add payment button
+//   const addPaymentBtn = document.getElementById("addPaymentBtn");
+//   if (addPaymentBtn) {
+//     const newBtn = addPaymentBtn.cloneNode(true);
+//     addPaymentBtn.parentNode.replaceChild(newBtn, addPaymentBtn);
+
+//     newBtn.addEventListener("click", function () {
+//       const leadId = document.getElementById("leadId").value;
+//       if (leadId) {
+//         openPaymentModal(leadId);
+//       } else {
+//         showToast("Please save the lead first before adding payments");
+//       }
+//     });
+//   }
+
+//   // Setup form validation
+//   setupFormValidation();
+  
+//   // Add mutation observer to handle modal state changes
+//   const modalObserver = new MutationObserver(function(mutations) {
+//     const leadId = document.getElementById("leadId").value;
+//     if (!leadId) return;
+    
+//     // Check if we're in edit mode
+//     const submitButton = document.querySelector('#leadForm button[type="submit"]');
+//     const isEditMode = submitButton && submitButton.style.display !== "none";
+    
+//     if (isEditMode) {
+//       // We're in edit mode, make sure payments show action buttons
+//       const paymentItems = document.querySelectorAll('.payment-item');
+//       let needsRefresh = false;
+      
+//       // Check if any payment items are missing action buttons
+//       paymentItems.forEach(item => {
+//         if (item.textContent !== "No payments found" && !item.querySelector('.payment-actions')) {
+//           needsRefresh = true;
+//         }
+//       });
+      
+//       // If we need to refresh the payments display
+//       if (needsRefresh) {
+//         fetchLeadPayments(leadId).then(payments => {
+//           renderLeadPayments(payments, leadId);
+//         });
+//       }
+//     }
+//   });
+  
+//   // Observe the lead modal for changes
+//   const leadModal = document.getElementById("leadModal");
+//   if (leadModal) {
+//     modalObserver.observe(leadModal, { 
+//       attributes: true,
+//       childList: true,
+//       subtree: true 
+//     });
+//   }
+// });
+
+document.addEventListener("DOMContentLoaded", async function () {
   // Theme initialization with proper function definition
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme) {
+  try {
+    // Fetch all settings including theme
+    const settings = await fetchAllSettings();
+    
+    // Always use theme from server settings (should always exist now)
+    if (settings.theme) {
+      setTheme(settings.theme);
+    } else {
+      // If somehow server doesn't have theme, use system preference and save it
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      setTheme(systemTheme);
+      await updateSetting('theme', systemTheme);
+    }
+  } catch (error) {
+    console.error("Error initializing theme:", error);
+    // Fallback to localStorage or system preference
+    const savedTheme = localStorage.getItem("theme") || 
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     setTheme(savedTheme);
   }
 
@@ -210,7 +413,7 @@ function setupSidebarToggle() {
   if (!document.querySelector('.sidebar-toggle')) {
     const toggleButton = document.createElement('button');
     toggleButton.className = 'sidebar-toggle';
-    toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    toggleButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
     toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
     
     sidebar.appendChild(toggleButton);
@@ -222,7 +425,7 @@ function setupSidebarToggle() {
       
       // Rotate arrow icon when collapsed
       if (sidebar.classList.contains('collapsed')) {
-        this.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        this.innerHTML = '<i class="fas fa-chevron-left"></i>';
       } else {
         this.innerHTML = '<i class="fas fa-chevron-left"></i>';
       }

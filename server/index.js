@@ -4,6 +4,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const leadRoutes = require("./routes/leadRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const settingRoutes = require("./routes/settingRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -41,6 +42,11 @@ app.get("/", (req, res) => {
       createPayment: `http://localhost:${PORT}/api/payments`,
       updatePayment: `http://localhost:${PORT}/api/payments/:id`,
       deletePayment: `http://localhost:${PORT}/api/payments/:id`,
+    },
+    settingsEndpoints: {
+      allSettings: `http://localhost:${PORT}/api/settings`,
+      settingByKey: `http://localhost:${PORT}/api/settings/:key`,
+      updateSetting: `http://localhost:${PORT}/api/settings/:key`,
     },
     documentation: {
       description: "LEADS REST API",
@@ -100,6 +106,21 @@ app.get("/", (req, res) => {
           path: "/api/payments/:id",
           description: "Delete a payment",
         },
+        {
+          method: "GET",
+          path: "/api/settings",
+          description: "Get all settings",
+        },
+        {
+          method: "GET",
+          path: "/api/settings/:key",
+          description: "Get a setting by key",
+        },
+        {
+          method: "PUT",
+          path: "/api/settings/:key",
+          description: "Update a setting",
+        },
       ],
     },
   });
@@ -108,6 +129,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/leads", leadRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/settings", settingRoutes);
 
 // Start the server
 app.listen(PORT, () => {

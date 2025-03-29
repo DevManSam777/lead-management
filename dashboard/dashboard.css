@@ -1235,7 +1235,7 @@ fieldset {
 .leads-table th,
 .leads-table td {
   font-size: 1rem;
-  padding: 0.5rem 0.1rem;
+  padding: 0.5rem;
 }
 
 /* Shortest possible status badges */
