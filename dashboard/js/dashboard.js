@@ -8,7 +8,7 @@ let allLeads = [];
 let payments = [];
 let currentView = "grid"; // 'grid' or 'list'
 let defaultCurrency = "USD"; // Store the default currency
-let globalSettings = {}; // New global settings cache
+let globalSettings = {}; // global settings cache
 
 // Phone number formatting function
 function formatPhoneNumber(phoneNumber) {
@@ -30,269 +30,124 @@ function formatPhoneNumber(phoneNumber) {
   return phoneNumber;
 }
 
-// Function to truncate text to a specific length
-function truncateText(text, maxLength = 25) {
-  if (!text) return "";
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + "...";
-}
-
 // Function to fetch all settings from the server
 async function fetchAllSettings() {
   try {
     const response = await fetch(SETTINGS_API_URL);
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch settings");
     }
-    
+
     const settings = await response.json();
     globalSettings = settings;
-    
+
     // Return the settings
     return settings;
   } catch (error) {
     console.error("Error fetching settings:", error);
-    
+
     // Fallback to localStorage if API fails
     return {
-      theme: localStorage.getItem("theme") || 
-        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+      theme:
+        localStorage.getItem("theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"),
     };
   }
 }
-
-
-// document.addEventListener("DOMContentLoaded", function () {
-//   // Theme initialization with proper function definition
-//   const savedTheme = localStorage.getItem("theme");
-//   if (savedTheme) {
-//     setTheme(savedTheme);
-//   }
-
-//   // Setup the sidebar toggle
-//   setupSidebarToggle();
-  
-//   // Fetch leads on page load
-//   fetchLeads();
-
-//   // Dashboard UI event listeners
-//   document.getElementById("addLeadBtn").addEventListener("click", openAddLeadModal);
-//   document.getElementById("closeModal").addEventListener("click", closeLeadModal);
-  
-//   // Updated lead form submission handler
-//   document.getElementById("leadForm").addEventListener("submit", function(event) {
-//     event.preventDefault();
-    
-//     // Validate and save the lead
-//     validateAndSaveLead(event);
-    
-//     // After save, update the action buttons and set back to read-only
-//     const leadId = document.getElementById("leadId").value;
-//     if (leadId) {
-//       // Show the action buttons again
-//       const actionsContainer = document.getElementById("modalActions");
-//       if (actionsContainer) {
-//         actionsContainer.style.display = "block";
-//       }
-      
-//       // Set modal back to read-only mode
-//       setModalReadOnly(true);
-      
-//       // Update modal title
-//       document.getElementById("modalTitle").textContent = "Client Info";
-//     }
-//   });
-  
-//   document.getElementById("searchInput").addEventListener("input", searchLeads);
-//   document.getElementById("filterStatus").addEventListener("change", filterLeads);
-//   document.getElementById("sortField").addEventListener("change", sortLeads);
-//   document.getElementById("sortOrder").addEventListener("change", sortLeads);
-//   document.getElementById("gridViewBtn").addEventListener("click", () => switchView("grid"));
-//   document.getElementById("listViewBtn").addEventListener("click", () => switchView("list"));
-
-//   // Form conditionals
-//   const hasWebsiteSelect = document.getElementById("hasWebsite");
-//   if (hasWebsiteSelect) {
-//     hasWebsiteSelect.addEventListener("change", function () {
-//       const websiteAddressField = document.getElementById("websiteAddress").parentNode;
-//       websiteAddressField.style.display = this.value === "yes" ? "block" : "none";
-//     });
-//   }
-
-//   // Currency formatting for budget input
-//   const totalBudgetInput = document.getElementById("totalBudget");
-//   if (totalBudgetInput) {
-//     totalBudgetInput.addEventListener("blur", function (e) {
-//       if (this.value) {
-//         // Format number with 2 decimal places
-//         const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
-//         if (!isNaN(value)) {
-//           const currency = document.getElementById("budgetCurrency").value;
-//           this.value = formatCurrency(value, currency);
-//         }
-//       }
-//     });
-//   }
-
-//   // Payment related listeners
-//   const paymentForm = document.getElementById("paymentForm");
-//   if (paymentForm) {
-//     // Remove existing event listeners (if any) by cloning and replacing
-//     const newPaymentForm = paymentForm.cloneNode(true);
-//     paymentForm.parentNode.replaceChild(newPaymentForm, paymentForm);
-    
-//     // Add fresh event listener
-//     newPaymentForm.addEventListener("submit", function(event) {
-//       event.preventDefault();
-//       validateAndSavePayment(event);
-//       return false;
-//     });
-//   }
-  
-//   // Close payment modal button
-//   const closePaymentModalBtn = document.getElementById("closePaymentModal");
-//   if (closePaymentModalBtn) {
-//     const newCloseBtn = closePaymentModalBtn.cloneNode(true);
-//     closePaymentModalBtn.parentNode.replaceChild(newCloseBtn, closePaymentModalBtn);
-    
-//     newCloseBtn.addEventListener("click", function(event) {
-//       event.preventDefault();
-//       closePaymentModal();
-//       return false;
-//     });
-//   }
-
-//   // Add payment button
-//   const addPaymentBtn = document.getElementById("addPaymentBtn");
-//   if (addPaymentBtn) {
-//     const newBtn = addPaymentBtn.cloneNode(true);
-//     addPaymentBtn.parentNode.replaceChild(newBtn, addPaymentBtn);
-
-//     newBtn.addEventListener("click", function () {
-//       const leadId = document.getElementById("leadId").value;
-//       if (leadId) {
-//         openPaymentModal(leadId);
-//       } else {
-//         showToast("Please save the lead first before adding payments");
-//       }
-//     });
-//   }
-
-//   // Setup form validation
-//   setupFormValidation();
-  
-//   // Add mutation observer to handle modal state changes
-//   const modalObserver = new MutationObserver(function(mutations) {
-//     const leadId = document.getElementById("leadId").value;
-//     if (!leadId) return;
-    
-//     // Check if we're in edit mode
-//     const submitButton = document.querySelector('#leadForm button[type="submit"]');
-//     const isEditMode = submitButton && submitButton.style.display !== "none";
-    
-//     if (isEditMode) {
-//       // We're in edit mode, make sure payments show action buttons
-//       const paymentItems = document.querySelectorAll('.payment-item');
-//       let needsRefresh = false;
-      
-//       // Check if any payment items are missing action buttons
-//       paymentItems.forEach(item => {
-//         if (item.textContent !== "No payments found" && !item.querySelector('.payment-actions')) {
-//           needsRefresh = true;
-//         }
-//       });
-      
-//       // If we need to refresh the payments display
-//       if (needsRefresh) {
-//         fetchLeadPayments(leadId).then(payments => {
-//           renderLeadPayments(payments, leadId);
-//         });
-//       }
-//     }
-//   });
-  
-//   // Observe the lead modal for changes
-//   const leadModal = document.getElementById("leadModal");
-//   if (leadModal) {
-//     modalObserver.observe(leadModal, { 
-//       attributes: true,
-//       childList: true,
-//       subtree: true 
-//     });
-//   }
-// });
 
 document.addEventListener("DOMContentLoaded", async function () {
   // Theme initialization with proper function definition
   try {
     // Fetch all settings including theme
     const settings = await fetchAllSettings();
-    
+
     // Always use theme from server settings (should always exist now)
     if (settings.theme) {
       setTheme(settings.theme);
     } else {
       // If somehow server doesn't have theme, use system preference and save it
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
       setTheme(systemTheme);
-      await updateSetting('theme', systemTheme);
+      await updateSetting("theme", systemTheme);
     }
   } catch (error) {
     console.error("Error initializing theme:", error);
     // Fallback to localStorage or system preference
-    const savedTheme = localStorage.getItem("theme") || 
-      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const savedTheme =
+      localStorage.getItem("theme") ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
     setTheme(savedTheme);
   }
 
   // Setup the sidebar toggle
   setupSidebarToggle();
-  
+
   // Fetch leads on page load
   fetchLeads();
 
   // Dashboard UI event listeners
-  document.getElementById("addLeadBtn").addEventListener("click", openAddLeadModal);
-  document.getElementById("closeModal").addEventListener("click", closeLeadModal);
-  
+  document
+    .getElementById("addLeadBtn")
+    .addEventListener("click", openAddLeadModal);
+  document
+    .getElementById("closeModal")
+    .addEventListener("click", closeLeadModal);
+
   // Updated lead form submission handler
-  document.getElementById("leadForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    
-    // Validate and save the lead
-    validateAndSaveLead(event);
-    
-    // After save, update the action buttons and set back to read-only
-    const leadId = document.getElementById("leadId").value;
-    if (leadId) {
-      // Show the action buttons again
-      const actionsContainer = document.getElementById("modalActions");
-      if (actionsContainer) {
-        actionsContainer.style.display = "block";
+  document
+    .getElementById("leadForm")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      // Validate and save the lead
+      validateAndSaveLead(event);
+
+      // After save, update the action buttons and set back to read-only
+      const leadId = document.getElementById("leadId").value;
+      if (leadId) {
+        // Show the action buttons again
+        const actionsContainer = document.getElementById("modalActions");
+        if (actionsContainer) {
+          actionsContainer.style.display = "block";
+        }
+
+        // Set modal back to read-only mode
+        setModalReadOnly(true);
+
+        // Update modal title
+        document.getElementById("modalTitle").textContent = "Client Info";
       }
-      
-      // Set modal back to read-only mode
-      setModalReadOnly(true);
-      
-      // Update modal title
-      document.getElementById("modalTitle").textContent = "Client Info";
-    }
-  });
-  
+    });
+
   document.getElementById("searchInput").addEventListener("input", searchLeads);
-  document.getElementById("filterStatus").addEventListener("change", filterLeads);
+  document
+    .getElementById("filterStatus")
+    .addEventListener("change", filterLeads);
   document.getElementById("sortField").addEventListener("change", sortLeads);
   document.getElementById("sortOrder").addEventListener("change", sortLeads);
-  document.getElementById("gridViewBtn").addEventListener("click", () => switchView("grid"));
-  document.getElementById("listViewBtn").addEventListener("click", () => switchView("list"));
+  document
+    .getElementById("gridViewBtn")
+    .addEventListener("click", () => switchView("grid"));
+  document
+    .getElementById("listViewBtn")
+    .addEventListener("click", () => switchView("list"));
 
   // Form conditionals
   const hasWebsiteSelect = document.getElementById("hasWebsite");
   if (hasWebsiteSelect) {
     hasWebsiteSelect.addEventListener("change", function () {
-      const websiteAddressField = document.getElementById("websiteAddress").parentNode;
-      websiteAddressField.style.display = this.value === "yes" ? "block" : "none";
+      const websiteAddressField =
+        document.getElementById("websiteAddress").parentNode;
+      websiteAddressField.style.display =
+        this.value === "yes" ? "block" : "none";
     });
   }
 
@@ -317,22 +172,25 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Remove existing event listeners (if any) by cloning and replacing
     const newPaymentForm = paymentForm.cloneNode(true);
     paymentForm.parentNode.replaceChild(newPaymentForm, paymentForm);
-    
+
     // Add fresh event listener
-    newPaymentForm.addEventListener("submit", function(event) {
+    newPaymentForm.addEventListener("submit", function (event) {
       event.preventDefault();
       validateAndSavePayment(event);
       return false;
     });
   }
-  
+
   // Close payment modal button
   const closePaymentModalBtn = document.getElementById("closePaymentModal");
   if (closePaymentModalBtn) {
     const newCloseBtn = closePaymentModalBtn.cloneNode(true);
-    closePaymentModalBtn.parentNode.replaceChild(newCloseBtn, closePaymentModalBtn);
-    
-    newCloseBtn.addEventListener("click", function(event) {
+    closePaymentModalBtn.parentNode.replaceChild(
+      newCloseBtn,
+      closePaymentModalBtn
+    );
+
+    newCloseBtn.addEventListener("click", function (event) {
       event.preventDefault();
       closePaymentModal();
       return false;
@@ -357,44 +215,49 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Setup form validation
   setupFormValidation();
-  
+
   // Add mutation observer to handle modal state changes
-  const modalObserver = new MutationObserver(function(mutations) {
+  const modalObserver = new MutationObserver(function (mutations) {
     const leadId = document.getElementById("leadId").value;
     if (!leadId) return;
-    
+
     // Check if we're in edit mode
-    const submitButton = document.querySelector('#leadForm button[type="submit"]');
+    const submitButton = document.querySelector(
+      '#leadForm button[type="submit"]'
+    );
     const isEditMode = submitButton && submitButton.style.display !== "none";
-    
+
     if (isEditMode) {
       // We're in edit mode, make sure payments show action buttons
-      const paymentItems = document.querySelectorAll('.payment-item');
+      const paymentItems = document.querySelectorAll(".payment-item");
       let needsRefresh = false;
-      
+
       // Check if any payment items are missing action buttons
-      paymentItems.forEach(item => {
-        if (item.textContent !== "No payments found" && !item.querySelector('.payment-actions')) {
+      paymentItems.forEach((item) => {
+        if (
+          item.textContent !== "No payments found" &&
+          !item.querySelector(".payment-actions")
+        ) {
           needsRefresh = true;
         }
       });
-      
+
       // If we need to refresh the payments display
       if (needsRefresh) {
-        fetchLeadPayments(leadId).then(payments => {
+        fetchLeadPayments(leadId).then((payments) => {
           renderLeadPayments(payments, leadId);
         });
       }
     }
   });
-  
+
   // Observe the lead modal for changes
   const leadModal = document.getElementById("leadModal");
   if (leadModal) {
-    modalObserver.observe(leadModal, { 
+    modalObserver.observe(leadModal, {
       attributes: true,
       childList: true,
-      subtree: true 
+      subtree: true,
     });
   }
 });
@@ -404,131 +267,52 @@ function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
 }
 
-// Simple sidebar toggle functionality
-// function setupSidebarToggle() {
-//   const sidebar = document.querySelector('.sidebar');
-//   const mainContent = document.querySelector('.main-content');
-  
-//   // Create toggle button if it doesn't exist
-//   if (!document.querySelector('.sidebar-toggle')) {
-//     const toggleButton = document.createElement('button');
-//     toggleButton.className = 'sidebar-toggle';
-//     toggleButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-//     toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
-    
-//     sidebar.appendChild(toggleButton);
-    
-//     // Add click event
-//     toggleButton.addEventListener('click', function() {
-//       sidebar.classList.toggle('collapsed');
-//       mainContent.classList.toggle('expanded');
-      
-//       // Rotate arrow icon when collapsed
-//       if (sidebar.classList.contains('collapsed')) {
-//         this.innerHTML = '<i class="fas fa-chevron-left"></i>';
-//       } else {
-//         this.innerHTML = '<i class="fas fa-chevron-left"></i>';
-//       }
-      
-//       // Store user preference
-//       localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-//     });
-//   }
-  
-//   // Set initial state based on saved preference
-//   const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-//   if (isSidebarCollapsed) {
-//     sidebar.classList.add('collapsed');
-//     mainContent.classList.add('expanded');
-//     document.querySelector('.sidebar-toggle').innerHTML = '<i class="fas fa-chevron-right"></i>';
-//   }
-// }
-
-// function setupSidebarToggle() {
-//   const sidebar = document.querySelector('.sidebar');
-//   const mainContent = document.querySelector('.main-content');
-  
-//   // Set initial state based on saved preference
-//   const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-  
-//   // Apply initial classes
-//   if (isSidebarCollapsed) {
-//     sidebar.classList.add('collapsed');
-//     mainContent.classList.add('expanded');
-//   } else {
-//     sidebar.classList.remove('collapsed');
-//     mainContent.classList.remove('expanded');
-//   }
-  
-//   // Remove any existing toggle button to avoid duplicates
-//   const existingButton = document.querySelector('.sidebar-toggle');
-//   if (existingButton) {
-//     existingButton.remove();
-//   }
-  
-//   // Create new toggle button
-//   const toggleButton = document.createElement('button');
-//   toggleButton.className = 'sidebar-toggle';
-//   toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
-  
-//   // Always use the same icon - CSS will handle the rotation
-//   toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-  
-//   // Add the button to the sidebar
-//   sidebar.appendChild(toggleButton);
-  
-//   // Add click event to toggle button
-//   toggleButton.addEventListener('click', function() {
-//     // Toggle sidebar classes
-//     sidebar.classList.toggle('collapsed');
-//     mainContent.classList.toggle('expanded');
-    
-//     // Store user preference
-//     localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-//   });
-// }
-
 function setupSidebarToggle() {
-  const sidebar = document.querySelector('.sidebar');
-  const mainContent = document.querySelector('.main-content');
-  
+  const sidebar = document.querySelector(".sidebar");
+  const mainContent = document.querySelector(".main-content");
+
   // Set initial state based on saved preference
-  const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-  
+  const isSidebarCollapsed =
+    localStorage.getItem("sidebarCollapsed") === "true";
+
   // Apply initial classes
   if (isSidebarCollapsed) {
-    sidebar.classList.add('collapsed');
-    mainContent.classList.add('expanded');
+    sidebar.classList.add("collapsed");
+    mainContent.classList.add("expanded");
   } else {
-    sidebar.classList.remove('collapsed');
-    mainContent.classList.remove('expanded');
+    sidebar.classList.remove("collapsed");
+    mainContent.classList.remove("expanded");
   }
-  
+
   // Remove any existing toggle button to avoid duplicates
-  const existingButton = document.querySelector('.sidebar-toggle');
+  const existingButton = document.querySelector(".sidebar-toggle");
   if (existingButton) {
     existingButton.remove();
   }
-  
+
   // Create new toggle button with both icons
-  const toggleButton = document.createElement('button');
-  toggleButton.className = 'sidebar-toggle';
-  toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
-  
+  const toggleButton = document.createElement("button");
+  toggleButton.className = "sidebar-toggle";
+  toggleButton.setAttribute("aria-label", "Toggle Sidebar");
+
   // Include both icons - CSS will handle which one is visible
-  toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i><i class="fas fa-chevron-right"></i>';
-  
+  toggleButton.innerHTML =
+    '<i class="fas fa-chevron-left"></i><i class="fas fa-chevron-right"></i>';
+
   // Add the button to the sidebar
   sidebar.appendChild(toggleButton);
-  
+
   // Add click event to toggle button
-  toggleButton.addEventListener('click', function() {
+  toggleButton.addEventListener("click", function () {
     // Toggle sidebar classes
-    sidebar.classList.toggle('collapsed');
-    mainContent.classList.toggle('expanded');
-    
+    sidebar.classList.toggle("collapsed");
+    mainContent.classList.toggle("expanded");
+
     // Store user preference
-    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+    localStorage.setItem(
+      "sidebarCollapsed",
+      sidebar.classList.contains("collapsed")
+    );
   });
 }
 
@@ -939,7 +723,6 @@ function validateAndSavePayment(event) {
   savePayment(paymentData);
 }
 
-
 function renderLeadPayments(leadPayments, leadId) {
   const paymentsContainer = document.querySelector(".payments-container");
 
@@ -966,7 +749,9 @@ function renderLeadPayments(leadPayments, leadId) {
   }
 
   // Check if we're in edit mode by looking for the submit button visibility
-  const submitButton = document.querySelector('#leadForm button[type="submit"]');
+  const submitButton = document.querySelector(
+    '#leadForm button[type="submit"]'
+  );
   const isEditMode = submitButton && submitButton.style.display !== "none";
 
   filteredPayments.forEach((payment) => {
@@ -982,47 +767,50 @@ function renderLeadPayments(leadPayments, leadId) {
     // Create the payment details element
     const paymentDetails = document.createElement("div");
     paymentDetails.className = "payment-details";
-    
+
     const amountDiv = document.createElement("div");
     amountDiv.className = "payment-amount";
-    amountDiv.textContent = formatCurrency(payment.amount, payment.currency || "USD");
-    
+    amountDiv.textContent = formatCurrency(
+      payment.amount,
+      payment.currency || "USD"
+    );
+
     const dateDiv = document.createElement("div");
     dateDiv.className = "payment-date";
     dateDiv.textContent = `Paid: ${paymentDate}`;
-    
+
     paymentDetails.appendChild(amountDiv);
     paymentDetails.appendChild(dateDiv);
-    
+
     if (payment.notes) {
       const notesDiv = document.createElement("div");
       notesDiv.className = "payment-notes";
       notesDiv.textContent = payment.notes;
       paymentDetails.appendChild(notesDiv);
     }
-    
+
     paymentItem.appendChild(paymentDetails);
 
     // Only add action buttons if we're in edit mode
     if (isEditMode) {
       const actionsDiv = document.createElement("div");
       actionsDiv.className = "payment-actions";
-      
+
       // Create edit button with direct click handler
       const editButton = document.createElement("button");
       editButton.innerHTML = '<i class="fas fa-edit"></i>';
-      editButton.onclick = function(e) {
+      editButton.onclick = function (e) {
         if (e) {
           e.preventDefault();
           e.stopPropagation();
         }
         openPaymentModal(leadId, payment._id);
       };
-      
+
       // Create delete button with direct click handler
       const deleteButton = document.createElement("button");
       deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-      deleteButton.onclick = function(e) {
+      deleteButton.onclick = function (e) {
         if (e) {
           e.preventDefault();
           e.stopPropagation();
@@ -1031,7 +819,7 @@ function renderLeadPayments(leadPayments, leadId) {
           deletePayment(payment._id, leadId);
         }
       };
-      
+
       actionsDiv.appendChild(editButton);
       actionsDiv.appendChild(deleteButton);
       paymentItem.appendChild(actionsDiv);
@@ -1049,28 +837,28 @@ function updateModalActionButtons(leadId) {
     actionsContainer = document.createElement("div");
     actionsContainer.id = "modalActions";
     actionsContainer.className = "modal-actions";
-    
+
     // Find a good place to insert it (after the modal header)
     const modalHeader = document.querySelector(".modal-header");
     if (modalHeader) {
-      modalHeader.insertAdjacentElement('afterend', actionsContainer);
+      modalHeader.insertAdjacentElement("afterend", actionsContainer);
     }
   }
-  
+
   // Clear existing buttons
   actionsContainer.innerHTML = "";
-  
+
   // Create Edit button
   const editButton = document.createElement("button");
   editButton.type = "button";
   editButton.className = "btn btn-primary";
   editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
-  editButton.addEventListener('click', function() {
+  editButton.addEventListener("click", function () {
     setModalReadOnly(false);
     document.getElementById("modalTitle").textContent = "Edit Lead";
     // Hide the action buttons when in edit mode
     actionsContainer.style.display = "none";
-    
+
     // KEY FIX: Re-render the payment items to show their action buttons
     const leadId = document.getElementById("leadId").value;
     if (leadId) {
@@ -1079,23 +867,22 @@ function updateModalActionButtons(leadId) {
       });
     }
   });
-  
+
   // Create Delete button
   const deleteButton = document.createElement("button");
   deleteButton.type = "button";
   deleteButton.className = "btn btn-danger";
   deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
-  deleteButton.addEventListener('click', function() {
+  deleteButton.addEventListener("click", function () {
     if (confirm("Are you sure you want to delete this lead?")) {
       deleteLeadAction(leadId);
     }
   });
-  
+
   // Add buttons to container
   actionsContainer.appendChild(editButton);
   actionsContainer.appendChild(deleteButton);
 }
-
 
 // Fetch all payments
 async function fetchPayments() {
@@ -1251,8 +1038,9 @@ async function savePayment(paymentData) {
 async function deletePayment(paymentId, leadId) {
   try {
     // Store the lead modal state before any operations
-    const leadModalDisplayStyle = document.getElementById("leadModal").style.display;
-    
+    const leadModalDisplayStyle =
+      document.getElementById("leadModal").style.display;
+
     if (!paymentId || !leadId) {
       throw new Error("Missing payment ID or lead ID");
     }
@@ -1316,13 +1104,13 @@ async function deletePayment(paymentId, leadId) {
 
     // Refresh the full payments data
     await fetchPayments();
-    
+
     // Update stats
     calculateStats();
-    
+
     // Update the renders but ensure modals maintain correct state
     renderLeads(allLeads);
-    
+
     // Ensure lead modal stays in its original state
     document.getElementById("leadModal").style.display = leadModalDisplayStyle;
 
@@ -1400,23 +1188,21 @@ function openPaymentModal(leadId, paymentId = null) {
   document.getElementById("paymentModal").style.display = "block";
 }
 
-
 function closePaymentModal() {
   const paymentModal = document.getElementById("paymentModal");
   if (!paymentModal) return;
-  
+
   // Hide the payment modal
   paymentModal.style.display = "none";
 
   // Get the stored lead modal state
   const leadModalState = paymentModal.dataset.leadModalState;
-  
+
   // If we have a stored state and it was "block", ensure lead modal stays open
   if (leadModalState === "block") {
     document.getElementById("leadModal").style.display = "block";
   }
 }
-
 
 // Fetch leads from API
 async function fetchLeads() {
@@ -1436,8 +1222,6 @@ async function fetchLeads() {
     if (!Array.isArray(data)) {
       throw new Error("Invalid data format received");
     }
-
-    
 
     allLeads = data;
 
@@ -1578,8 +1362,6 @@ function calculateStats() {
     oneMonthAgo.setHours(12, 0, 0, 0);
     twoMonthsAgo.setHours(12, 0, 0, 0);
 
-
-
     // Calculate total leads
     const totalLeads = allLeads.length;
     safeSetTextContent("totalLeadsValue", totalLeads);
@@ -1659,7 +1441,6 @@ function calculateStats() {
     let mostCommonCurrency = "USD";
 
     if (payments && payments.length > 0) {
-
       // Find most common currency
       const currencies = {};
       payments.forEach((payment) => {
@@ -1739,7 +1520,6 @@ function calculateStats() {
         }, 0);
     }
 
-
     // Update monthly payments display
     safeSetTextContent(
       "monthlyPaymentsValue",
@@ -1806,10 +1586,10 @@ function renderGridView(leads) {
     const card = document.createElement("div");
     card.className = "lead-card clickable";
     card.dataset.leadId = lead._id;
-    
+
     // Handle name display based on your schema
     const fullName = getLeadName(lead);
-    
+
     // Display business information with N/A as default
     const businessName = lead.businessName || "N/A";
 
@@ -1818,11 +1598,13 @@ function renderGridView(leads) {
       <p><strong>Business:</strong> ${businessName}</p>
       <p><strong>Status:</strong> <span class="lead-status status-${(
         lead.status || "new"
-      ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></p>
+      ).toLowerCase()}">${capitalizeFirstLetter(
+      lead.status || "new"
+    )}</span></p>
     `;
 
     // Add click event to the entire card
-    card.addEventListener('click', function() {
+    card.addEventListener("click", function () {
       openLeadModal(lead._id);
     });
 
@@ -1845,24 +1627,24 @@ function renderListView(leads) {
     row.className = "clickable";
     row.dataset.leadId = lead._id;
 
-    // Handle name display based on your schema
+    // Handle name display based on  schema
     const fullName = getLeadName(lead);
-    const truncatedName = truncateText(fullName, 20); // Truncate after 20 characters
 
     // Determine business info and handle empty values
     const business = lead.businessName || "N/A";
-    const truncatedBusiness = truncateText(business, 20); // Truncate business name too
 
     row.innerHTML = `
-      <td><span title="${fullName}">${truncatedName}</span></td>
-      <td><span title="${business}">${truncatedBusiness}</span></td>
+      <td><span title="${fullName}">${fullName}</span></td>
+      <td><span title="${business}">${business}</span></td>
       <td><span class="lead-status status-${(
         lead.status || "new"
-      ).toLowerCase()}">${capitalizeFirstLetter(lead.status || "new")}</span></td>
+      ).toLowerCase()}">${capitalizeFirstLetter(
+      lead.status || "new"
+    )}</span></td>
     `;
 
     // Add click event to the row
-    row.addEventListener('click', function() {
+    row.addEventListener("click", function () {
       openLeadModal(lead._id);
     });
 
@@ -1875,7 +1657,7 @@ function setModalReadOnly(isReadOnly) {
   const formElements = document.querySelectorAll(
     "#leadForm input, #leadForm select, #leadForm textarea"
   );
-  
+
   formElements.forEach((element) => {
     if (isReadOnly) {
       element.setAttribute("readonly", true);
@@ -1889,24 +1671,26 @@ function setModalReadOnly(isReadOnly) {
       }
     }
   });
-  
+
   // Always keep these fields read-only
   const paidAmountField = document.getElementById("paidAmount");
   if (paidAmountField) {
     paidAmountField.setAttribute("readonly", true);
   }
-  
+
   const remainingBalanceField = document.getElementById("remainingBalance");
   if (remainingBalanceField) {
     remainingBalanceField.setAttribute("readonly", true);
   }
-  
+
   // Show/hide the form submission button based on mode
-  const submitButton = document.querySelector('#leadForm button[type="submit"]');
+  const submitButton = document.querySelector(
+    '#leadForm button[type="submit"]'
+  );
   if (submitButton) {
     submitButton.style.display = isReadOnly ? "none" : "block";
   }
-  
+
   // Show/hide Add Payment button based on mode
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
@@ -1963,6 +1747,8 @@ function searchLeads() {
       const websiteMatch =
         lead.websiteAddress &&
         lead.websiteAddress.toLowerCase().includes(searchTerm);
+      const notesMatch =
+        lead.notes && lead.notes.toLowerCase().includes(searchTerm);
 
       return (
         nameMatch ||
@@ -1973,6 +1759,7 @@ function searchLeads() {
         businessPhoneMatch ||
         textNumberMatch ||
         messageMatch ||
+        notesMatch ||
         websiteMatch
       );
     });
@@ -2441,7 +2228,7 @@ async function saveLead() {
 
     // Re-render the leads with the updated data
     renderLeads(allLeads);
-    
+
     // Calculate stats immediately after updating a lead
     // This is the key addition to update the conversion rate immediately
     calculateStats();
@@ -2458,7 +2245,7 @@ async function saveLead() {
 }
 
 // Make closeLeadModal globally available
-window.closeLeadModal = function() {
+window.closeLeadModal = function () {
   document.getElementById("leadModal").style.display = "none";
 
   // Reset the form completely
@@ -2493,7 +2280,7 @@ window.closeLeadModal = function() {
   // Show the submit button again
   document.querySelector('#leadForm button[type="submit"]').style.display =
     "block";
-    
+
   // Remove the modal actions container
   const modalActions = document.getElementById("modalActions");
   if (modalActions) {
@@ -2502,7 +2289,7 @@ window.closeLeadModal = function() {
 };
 
 // Make openLeadModal globally available
-window.openLeadModal = function(leadId) {
+window.openLeadModal = function (leadId) {
   // Reset form first
   document.getElementById("leadForm").reset();
 
@@ -2514,7 +2301,7 @@ window.openLeadModal = function(leadId) {
 
   // Set modal to read-only mode initially
   setModalReadOnly(true);
-  
+
   // Store the current lead ID in the modal
   document.getElementById("leadId").value = lead._id;
 
@@ -2523,13 +2310,18 @@ window.openLeadModal = function(leadId) {
   document.getElementById("lastName").value = lead.lastName || "";
   document.getElementById("email").value = lead.email || "";
   document.getElementById("phone").value = formatPhoneNumber(lead.phone) || "";
-  document.getElementById("textNumber").value = formatPhoneNumber(lead.textNumber) || "";
-  document.getElementById("businessPhone").value = formatPhoneNumber(lead.businessPhone) || "";
+  document.getElementById("textNumber").value =
+    formatPhoneNumber(lead.textNumber) || "";
+  document.getElementById("businessPhone").value =
+    formatPhoneNumber(lead.businessPhone) || "";
   document.getElementById("businessName").value = lead.businessName || "";
   document.getElementById("businessEmail").value = lead.businessEmail || "";
-  document.getElementById("businessServices").value = lead.businessServices || "";
-  document.getElementById("preferredContact").value = lead.preferredContact || "";
-  document.getElementById("serviceDesired").value = lead.serviceDesired || "website";
+  document.getElementById("businessServices").value =
+    lead.businessServices || "";
+  document.getElementById("preferredContact").value =
+    lead.preferredContact || "";
+  document.getElementById("serviceDesired").value =
+    lead.serviceDesired || "website";
   document.getElementById("hasWebsite").value = lead.hasWebsite || "";
   document.getElementById("websiteAddress").value = lead.websiteAddress || "";
   document.getElementById("message").value = lead.message || "";
@@ -2538,7 +2330,8 @@ window.openLeadModal = function(leadId) {
 
   // Handle estimated budget field
   if (document.getElementById("budget")) {
-    const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
+    const budgetValue =
+      lead.budget !== undefined ? parseFloat(lead.budget) : "";
     document.getElementById("budget").value = budgetValue
       ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
       : "";
@@ -2550,7 +2343,8 @@ window.openLeadModal = function(leadId) {
 
   // Handle payment fields
   if (document.getElementById("totalBudget")) {
-    const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+    const totalBudgetValue =
+      lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
     document.getElementById("totalBudget").value = totalBudgetValue
       ? formatCurrency(totalBudgetValue, lead.currency || "USD")
       : "";
@@ -2632,12 +2426,14 @@ window.openLeadModal = function(leadId) {
   }
 
   // Show/hide website address field based on hasWebsite value
-  const websiteAddressField = document.getElementById("websiteAddress").parentNode;
-  websiteAddressField.style.display = lead.hasWebsite === "yes" ? "block" : "none";
+  const websiteAddressField =
+    document.getElementById("websiteAddress").parentNode;
+  websiteAddressField.style.display =
+    lead.hasWebsite === "yes" ? "block" : "none";
 
-  // Update modal title 
+  // Update modal title
   document.getElementById("modalTitle").textContent = "Client Info";
-  
+
   // Make Add Payment button visible only when in edit mode
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
@@ -2652,7 +2448,7 @@ window.openLeadModal = function(leadId) {
 
   // Display the modal
   document.getElementById("leadModal").style.display = "block";
-  
+
   // Then add modal action buttons (Edit, Delete)
   updateModalActionButtons(lead._id);
 };
@@ -2677,7 +2473,7 @@ async function deleteLeadAction(leadId) {
 
     // Close the modal immediately after successful deletion
     closeLeadModal();
-    
+
     // Refresh leads
     await fetchLeads();
     showToast("Lead deleted successfully");
