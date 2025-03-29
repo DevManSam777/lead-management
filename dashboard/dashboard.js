@@ -405,46 +405,132 @@ function setTheme(theme) {
 }
 
 // Simple sidebar toggle functionality
+// function setupSidebarToggle() {
+//   const sidebar = document.querySelector('.sidebar');
+//   const mainContent = document.querySelector('.main-content');
+  
+//   // Create toggle button if it doesn't exist
+//   if (!document.querySelector('.sidebar-toggle')) {
+//     const toggleButton = document.createElement('button');
+//     toggleButton.className = 'sidebar-toggle';
+//     toggleButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+//     toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
+    
+//     sidebar.appendChild(toggleButton);
+    
+//     // Add click event
+//     toggleButton.addEventListener('click', function() {
+//       sidebar.classList.toggle('collapsed');
+//       mainContent.classList.toggle('expanded');
+      
+//       // Rotate arrow icon when collapsed
+//       if (sidebar.classList.contains('collapsed')) {
+//         this.innerHTML = '<i class="fas fa-chevron-left"></i>';
+//       } else {
+//         this.innerHTML = '<i class="fas fa-chevron-left"></i>';
+//       }
+      
+//       // Store user preference
+//       localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+//     });
+//   }
+  
+//   // Set initial state based on saved preference
+//   const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+//   if (isSidebarCollapsed) {
+//     sidebar.classList.add('collapsed');
+//     mainContent.classList.add('expanded');
+//     document.querySelector('.sidebar-toggle').innerHTML = '<i class="fas fa-chevron-right"></i>';
+//   }
+// }
+
+// function setupSidebarToggle() {
+//   const sidebar = document.querySelector('.sidebar');
+//   const mainContent = document.querySelector('.main-content');
+  
+//   // Set initial state based on saved preference
+//   const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  
+//   // Apply initial classes
+//   if (isSidebarCollapsed) {
+//     sidebar.classList.add('collapsed');
+//     mainContent.classList.add('expanded');
+//   } else {
+//     sidebar.classList.remove('collapsed');
+//     mainContent.classList.remove('expanded');
+//   }
+  
+//   // Remove any existing toggle button to avoid duplicates
+//   const existingButton = document.querySelector('.sidebar-toggle');
+//   if (existingButton) {
+//     existingButton.remove();
+//   }
+  
+//   // Create new toggle button
+//   const toggleButton = document.createElement('button');
+//   toggleButton.className = 'sidebar-toggle';
+//   toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
+  
+//   // Always use the same icon - CSS will handle the rotation
+//   toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+  
+//   // Add the button to the sidebar
+//   sidebar.appendChild(toggleButton);
+  
+//   // Add click event to toggle button
+//   toggleButton.addEventListener('click', function() {
+//     // Toggle sidebar classes
+//     sidebar.classList.toggle('collapsed');
+//     mainContent.classList.toggle('expanded');
+    
+//     // Store user preference
+//     localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+//   });
+// }
+
 function setupSidebarToggle() {
   const sidebar = document.querySelector('.sidebar');
   const mainContent = document.querySelector('.main-content');
   
-  // Create toggle button if it doesn't exist
-  if (!document.querySelector('.sidebar-toggle')) {
-    const toggleButton = document.createElement('button');
-    toggleButton.className = 'sidebar-toggle';
-    toggleButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-    toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
-    
-    sidebar.appendChild(toggleButton);
-    
-    // Add click event
-    toggleButton.addEventListener('click', function() {
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('expanded');
-      
-      // Rotate arrow icon when collapsed
-      if (sidebar.classList.contains('collapsed')) {
-        this.innerHTML = '<i class="fas fa-chevron-left"></i>';
-      } else {
-        this.innerHTML = '<i class="fas fa-chevron-left"></i>';
-      }
-      
-      // Store user preference
-      localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-    });
-  }
-  
   // Set initial state based on saved preference
   const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  
+  // Apply initial classes
   if (isSidebarCollapsed) {
     sidebar.classList.add('collapsed');
     mainContent.classList.add('expanded');
-    document.querySelector('.sidebar-toggle').innerHTML = '<i class="fas fa-chevron-right"></i>';
+  } else {
+    sidebar.classList.remove('collapsed');
+    mainContent.classList.remove('expanded');
   }
+  
+  // Remove any existing toggle button to avoid duplicates
+  const existingButton = document.querySelector('.sidebar-toggle');
+  if (existingButton) {
+    existingButton.remove();
+  }
+  
+  // Create new toggle button with both icons
+  const toggleButton = document.createElement('button');
+  toggleButton.className = 'sidebar-toggle';
+  toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
+  
+  // Include both icons - CSS will handle which one is visible
+  toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i><i class="fas fa-chevron-right"></i>';
+  
+  // Add the button to the sidebar
+  sidebar.appendChild(toggleButton);
+  
+  // Add click event to toggle button
+  toggleButton.addEventListener('click', function() {
+    // Toggle sidebar classes
+    sidebar.classList.toggle('collapsed');
+    mainContent.classList.toggle('expanded');
+    
+    // Store user preference
+    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+  });
 }
-
-
 
 // Setup form validation
 function setupFormValidation() {

@@ -72,7 +72,7 @@
   --toast-deletion-border: #bf360c;
 }
 
-/* Base Styles with Dark Mode Support */
+/* Base Styles */
 html {
   font-size: 62.5%; /* This makes 1rem = 10px */
 }
@@ -85,12 +85,11 @@ html {
 }
 
 body {
-  font-size: 1.6rem; /* Equal to 16px */
+  font-size: 1.6rem;
   background-color: var(--background-color);
   color: var(--text-color);
   overflow-x: hidden;
-  transition: background-color var(--transition-speed),
-    color var(--transition-speed);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 .container {
@@ -99,7 +98,12 @@ body {
   position: relative;
 }
 
-/* Style the details and summary elements */
+/* Common Utility Classes */
+.clickable {
+  cursor: pointer;
+}
+
+/* Details and Summary Elements */
 details {
   margin-bottom: 2rem;
 }
@@ -108,10 +112,9 @@ details summary {
   cursor: pointer;
   display: flex;
   align-items: center;
-  list-style: none; /* Remove default arrow */
+  list-style: none;
 }
 
-/* Add custom arrow that positions correctly with the h3 */
 details summary::before {
   content: '▶';
   display: inline-block;
@@ -121,36 +124,29 @@ details summary::before {
   color: var(--primary);
 }
 
-details summary::marker {
-  display: none;
-}
-
+details summary::marker,
 details summary::-webkit-details-marker {
   display: none;
 }
 
-/* Rotate arrow when open */
 details[open] summary::before {
   transform: rotate(90deg);
 }
 
-/* Remove default outline when summary is focused */
 details summary:focus {
   outline: none;
 }
 
-/* Add space between heading and stats cards when open */
 details[open] .stats-cards {
   margin-top: 1.5rem;
 }
 
-/* Make h3 inside summary keep its normal styling */
 details summary h3 {
   margin: 0;
   display: inline;
 }
 
-/* Sidebar with Dark Mode Support */
+/* Sidebar */
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--sidebar-bg);
@@ -160,35 +156,11 @@ details summary h3 {
   height: 100vh;
   overflow-y: auto;
   z-index: 1000;
-  transition: width var(--transition-speed),
-    background-color var(--transition-speed);
+  transition: width var(--transition-speed), background-color var(--transition-speed);
 }
 
-/* Add class for collapsed state */
 .sidebar.collapsed {
   width: var(--sidebar-collapsed-width);
-}
-
-/* Add this for the toggle button */
-.sidebar-toggle {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  color: var(--sidebar-text);
-  font-size: 1.6rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s;
-  z-index: 1001;
-}
-
-.sidebar.collapsed .sidebar-toggle {
-  transform: rotate(180deg);
 }
 
 .sidebar-header {
@@ -205,12 +177,45 @@ details summary h3 {
   text-overflow: ellipsis;
 }
 
-/* Update for sidebar header in collapsed state */
 .sidebar.collapsed .sidebar-header h1,
 .sidebar.collapsed .sidebar-header p {
   display: none;
 }
 
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--sidebar-text);
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.sidebar .sidebar-toggle .fa-chevron-right {
+  display: none; /* Hide right arrow by default */
+}
+
+.sidebar .sidebar-toggle .fa-chevron-left {
+  display: block; /* Show left arrow by default */
+}
+
+.sidebar.collapsed .sidebar-toggle .fa-chevron-right {
+  display: block; /* Show right arrow when collapsed */
+}
+
+.sidebar.collapsed .sidebar-toggle .fa-chevron-left {
+  display: none; /* Hide left arrow when collapsed */
+}
+
+/* Sidebar Menu */
 .sidebar-menu {
   padding: 2rem;
 }
@@ -251,7 +256,7 @@ details summary h3 {
   text-overflow: ellipsis;
 }
 
-/* Update for sidebar links in collapsed state */
+/* Sidebar Collapsed State */
 .sidebar.collapsed .sidebar-menu span {
   display: none;
 }
@@ -265,23 +270,21 @@ details summary h3 {
   font-size: 2rem;
 }
 
-/* Main Content with Dark Mode Support */
+/* Main Content */
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-width);
   padding: 2rem;
-  transition: margin-left var(--transition-speed),
-    background-color var(--transition-speed);
+  transition: margin-left var(--transition-speed), background-color var(--transition-speed);
   width: calc(100% - var(--sidebar-width));
 }
 
-/* Add class for expanded main content */
 .main-content.expanded {
   margin-left: var(--sidebar-collapsed-width);
   width: calc(100% - var(--sidebar-collapsed-width));
 }
 
-/* Header Styles - Keeping original desktop layout */
+/* Header */
 .header {
   display: flex;
   flex-wrap: wrap;
@@ -300,7 +303,7 @@ details summary h3 {
   color: var(--text-color);
 }
 
-/* Search and filters container - Desktop original */
+/* Search and Filter Container */
 .search-filter-sort {
   display: flex;
   flex-wrap: wrap;
@@ -315,16 +318,14 @@ details summary h3 {
 }
 
 .search-box input {
-  padding: 1rem 1.5rem;
-  padding-left: 4rem;
-  border: 0.1rem solid var(--input-border);
-  border-radius: 0.5rem;
+  padding: 1rem 1.5rem 1rem 4rem;
   width: 100%;
   font-size: 1.4rem;
+  border: 0.1rem solid var(--input-border);
+  border-radius: 0.5rem;
   background-color: var(--input-bg);
   color: var(--input-text);
-  transition: border-color var(--transition-speed),
-    background-color var(--transition-speed);
+  transition: border-color var(--transition-speed), background-color var(--transition-speed);
 }
 
 .search-box i {
@@ -335,21 +336,47 @@ details summary h3 {
   color: var(--text-muted);
 }
 
-select {
-  padding: 1rem 1.5rem;
+/* Form Elements */
+select,
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 1rem;
   border: 0.1rem solid var(--input-border);
   border-radius: 0.5rem;
   font-size: 1.4rem;
   background-color: var(--input-bg);
   color: var(--input-text);
-  min-width: 12rem;
-  transition: border-color var(--transition-speed),
-    background-color var(--transition-speed);
+  transition: border-color var(--transition-speed), background-color var(--transition-speed);
 }
 
-/* Theme Toggle Button Styling - Updated to match sidebar style */
+select {
+  min-width: 12rem;
+  font-size: 1.4rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  font-size: 1.6rem;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 10rem;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--input-focus);
+}
+
+/* Theme Toggle Button */
 .theme-toggle {
-  display: none; /* Hide by default on desktop */
+  display: none;
   position: absolute;
   top: 0;
   right: 0;
@@ -379,7 +406,7 @@ select {
   font-weight: 500;
 }
 
-/* Stats Cards with Dark Mode Support */
+/* Stats Cards */
 .stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
@@ -395,8 +422,7 @@ select {
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: background-color var(--transition-speed),
-    box-shadow var(--transition-speed);
+  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
 .stats-card h3 {
@@ -435,7 +461,7 @@ select {
   vertical-align: middle;
 }
 
-/* Leads Container with Dark Mode Support */
+/* Leads Container */
 .leads-container {
   background-color: var(--card-background);
   border-radius: var(--card-border-radius);
@@ -443,8 +469,7 @@ select {
   padding: 2rem;
   margin-bottom: 3rem;
   overflow-x: auto;
-  transition: background-color var(--transition-speed),
-    box-shadow var(--transition-speed);
+  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
 .leads-header {
@@ -461,7 +486,7 @@ select {
   color: var(--text-color);
 }
 
-/* Buttons with Dark Mode Support */
+/* Buttons */
 .btn {
   padding: 0.8rem 1.5rem;
   border: none;
@@ -491,7 +516,6 @@ select {
   background-color: var(--light);
 }
 
-/* Danger button for delete actions */
 .btn-danger {
   background-color: var(--danger);
   color: white;
@@ -501,7 +525,7 @@ select {
   background-color: #d11149;
 }
 
-/* Grid View with Dark Mode Support */
+/* Grid View */
 .lead-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
@@ -514,8 +538,7 @@ select {
   padding: 2rem;
   box-shadow: var(--box-shadow);
   border-top: 0.3rem solid var(--primary);
-  transition: transform 0.2s, box-shadow 0.2s,
-    background-color var(--transition-speed);
+  transition: transform 0.2s, box-shadow 0.2s, background-color var(--transition-speed);
   display: flex;
   flex-direction: column;
 }
@@ -538,46 +561,38 @@ select {
   margin-right: 0.5rem;
 }
 
-/* Clickable elements styling */
-.clickable {
-  cursor: pointer;
-}
-
 .lead-card.clickable:hover {
   transform: translateY(-0.5rem);
   box-shadow: var(--hover-shadow);
 }
 
-.leads-table tr.clickable:hover {
-  background-color: var(--table-hover);
-}
-
-/* Table View with Dark Mode Support */
+/* Table View */
 .leads-table {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
 }
 
-/* Table header styling */
-.leads-table th {
-  font-weight: 600;
-  font-size: 1.4rem;
-  color: var(--text-muted);
-  white-space: nowrap;
+/* Table headers and cells shared styles */
+.leads-table th,
+.leads-table td {
   padding: 1.2rem 1.5rem;
   text-align: left;
   border-bottom: 0.1rem solid var(--border-color);
   transition: border-color var(--transition-speed);
 }
 
-/* Table cells styling */
+/* Table header specific styles */
+.leads-table th {
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Table cell specific styles */
 .leads-table td {
-  padding: 1.2rem 1.5rem;
-  text-align: left;
-  border-bottom: 0.1rem solid var(--border-color);
   color: var(--text-color);
-  transition: border-color var(--transition-speed);
 }
 
 /* Last row has no border */
@@ -585,12 +600,13 @@ select {
   border-bottom: none;
 }
 
-/* Row hover effect */
-.leads-table tbody tr:hover {
+/* Row hover effects */
+.leads-table tbody tr:hover,
+.leads-table tr.clickable:hover {
   background-color: var(--table-hover);
 }
 
-/* Adjust table-cell widths for 3-column layout */
+/* Column width distribution */
 .leads-table th:nth-child(1),
 .leads-table td:nth-child(1) {
   width: 35%; /* Name column */
@@ -642,7 +658,7 @@ select {
   color: var(--danger);
 }
 
-/* Modal with Dark Mode Support */
+/* Modal */
 .modal {
   display: none;
   position: fixed;
@@ -687,8 +703,7 @@ select {
   color: var(--text-color);
 }
 
-
-/* Modal action buttons - New styling */
+/* Modal action buttons */
 .modal-actions {
   display: flex;
   width: 100%;
@@ -713,12 +728,12 @@ select {
 }
 
 .modal-actions button:first-child {
-  background-color: #4361ee;
+  background-color: var(--primary);
   color: white;
 }
 
 .modal-actions button:last-child {
-  background-color: #f72585;
+  background-color: var(--danger);
   color: white;
 }
 
@@ -726,7 +741,7 @@ select {
   opacity: 0.9;
 }
 
-/* Form Elements with Dark Mode Support */
+/* Form Elements */
 .form-section {
   border-bottom: 0.1rem solid var(--border-color);
   padding-bottom: 1.5rem;
@@ -734,14 +749,14 @@ select {
   transition: border-color var(--transition-speed);
 }
 
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
 .form-section h4 {
   margin-bottom: 1.5rem;
   color: var(--text-color);
   font-size: 1.8rem;
-}
-
-.form-section:last-of-type {
-  border-bottom: none;
 }
 
 .form-row {
@@ -762,32 +777,6 @@ select {
   margin-bottom: 0.8rem;
   font-weight: 500;
   color: var(--text-color);
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 1rem;
-  border: 0.1rem solid var(--input-border);
-  border-radius: 0.5rem;
-  font-size: 1.6rem;
-  background-color: var(--input-bg);
-  color: var(--input-text);
-  transition: border-color var(--transition-speed),
-    background-color var(--transition-speed);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 10rem;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--input-focus);
 }
 
 /* Budget field group */
@@ -818,7 +807,7 @@ select {
   background-color: rgba(247, 37, 133, 0.05);
 }
 
-/* Toast Notification with Dark Mode Support */
+/* Toast Notification */
 .toast {
   display: none;
   position: fixed;
@@ -845,7 +834,7 @@ select {
   font-weight: 500;
 }
 
-/* View Toggle with Dark Mode Support */
+/* View Toggle */
 .view-toggle {
   margin-bottom: 2rem;
   display: flex;
@@ -858,8 +847,7 @@ select {
   padding: 0.8rem 1.2rem;
   cursor: pointer;
   color: var(--text-muted);
-  transition: background-color var(--transition-speed),
-    color var(--transition-speed), border-color var(--transition-speed);
+  transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
 }
 
 .view-toggle button:first-child {
@@ -910,9 +898,21 @@ select {
   font-weight: bold;
 }
 
-.payment-date {
+.payment-date,
+.payment-notes {
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.payment-date {
+  font-size: 0.85rem;
+}
+
+.payment-notes {
+  font-style: italic;
+  margin-top: 0.4rem;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .payment-actions {
@@ -920,17 +920,9 @@ select {
   gap: 0.5rem;
 }
 
-.payment-notes {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-style: italic;
-  margin-top: 0.4rem;
-  white-space: normal;
-  overflow-wrap: break-word;
-}
-
-/* Mobile buttons - hidden */
-.mobile-settings-btn, .mobile-back-btn {
+/* Mobile buttons - hidden by default */
+.mobile-settings-btn, 
+.mobile-back-btn {
   display: none;
 }
 
@@ -968,11 +960,10 @@ select {
   }
 
   .header h2 {
-    position: relative;
     width: 100%;
     text-align: center;
     margin: 0 0 1rem 0;
-    padding-top: 1rem; /* Reduced from 5rem to avoid excessive space */
+    padding-top: 1rem;
   }
 
   /* Add space below header for other elements */
@@ -983,15 +974,9 @@ select {
     width: 100%;
   }
 
-  /* Selects and buttons full width in mobile */
-  .search-box {
-    width: 100%;
-  }
-
-  select {
-    width: 100%;
-  }
-
+  /* Full width elements on mobile */
+  .search-box,
+  select,
   #addLeadBtn {
     width: 100%;
   }
@@ -1007,11 +992,9 @@ select {
     overflow: hidden;
   }
   
+  /* Hide text elements in mobile sidebar */
   .sidebar-header h1,
-  .sidebar-header p {
-    display: none;
-  }
-  
+  .sidebar-header p,
   .sidebar-menu span {
     display: none;
   }
@@ -1056,7 +1039,7 @@ select {
     background-color: var(--primary);
     color: white;
     top: 1rem;
-    transition: left 0.3s, transform 0.3s;
+    transition: left 0.3s;
   }
   
   /* Position when sidebar is visible */
@@ -1067,38 +1050,28 @@ select {
   /* Position when sidebar is collapsed */
   .sidebar.collapsed .sidebar-toggle {
     left: 1rem;
-    transform: rotate(180deg);
   }
   
-  /* Reset any potential highlighting or odd styling using more specific selectors */
+  /* Reset any potential highlighting or odd styling */
   .container .main-content .header h2 {
     background: none;
     box-shadow: none;
     border: none;
     text-decoration: none;
     border-radius: 0;
+    background-color: transparent;
   }
   
  /* Adjust header positioning and spacing */
  .container .main-content .header {
-  margin-top: 3rem; /* Add some space at the top */
+  margin-top: 3rem;
   padding-top: 1rem;
   border-top: none;
   position: relative;
-  background: var(--background-color); /* Match the page background */
+  background: var(--background-color);
 }
 
-/* Fix any potential issues with the header title */
-.container .main-content .header h2 {
-  position: relative;
-  padding-top: 0;
-  margin-top: 0;
-  width: 100%;
-  text-align: center;
-  background-color: transparent;
-}
-
-/* Hide any potential pseudo-elements causing issues using increased specificity */
+/* Hide any potential pseudo-elements causing issues */
 .container .main-content .header *::before, 
 .container .main-content .header *::after {
   background: transparent;
@@ -1114,7 +1087,6 @@ select {
   padding: 0.8rem 0.5rem;
 }
 
-/* Reduce column names font size */
 .leads-table th {
   font-size: 1.3rem;
 }
@@ -1159,6 +1131,7 @@ fieldset {
   padding: 1.5rem;
 }
 
+/* Grid adjustments */
 .stats-cards {
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
 }
@@ -1167,50 +1140,24 @@ fieldset {
   grid-template-columns: 1fr;
 }
 
+/* Table adjustments */
 .leads-table th,
 .leads-table td {
   padding: 0.8rem 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 }
 
+/* Modal adjustments */
 .modal-content {
   padding: 2rem 1.5rem;
   margin: 10% auto;
 }
 
-.leads-table th,
-.leads-table td {
-  font-size: 1.2rem;
-  padding: 0.6rem 0.4rem;
-}
-
+/* Status badge adjustments */
 .lead-status {
   padding: 0.3rem 0.6rem;
   font-size: 1rem;
 }
-
-/* Modal action buttons - adjust for mobile */
-/* .modal-actions {
-  flex-direction: column;
-  padding: 0 1rem;
-} */
-
-/* .modal-actions button {
-  width: 100%;
-} */
-
-/* .modal-actions {
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.modal-actions button {
-  margin: 0;
-} */
-
-
-
-
 }
 
 @media (max-width: 576px) {
@@ -1231,14 +1178,15 @@ fieldset {
   flex: 1 1 100%;
 }
 
-/* Tightest spacing for small screens */
+/* Smallest screen table adjustments */
 .leads-table th,
 .leads-table td {
-  font-size: 1rem;
+  font-size: 1.2rem;
   padding: 0.5rem;
+  overflow-x: hidden;
 }
 
-/* Shortest possible status badges */
+/* Smallest screen status badges */
 .lead-status {
   padding: 0.2rem 0.5rem;
   font-size: 0.9rem;
@@ -1272,37 +1220,4 @@ fieldset {
   border: 0.1rem solid #ddd;
   box-shadow: none;
 }
-}
-
-/* Clickable elements styling */
-.clickable {
-cursor: pointer;
-}
-
-.lead-card.clickable:hover {
-transform: translateY(-0.5rem);
-box-shadow: var(--hover-shadow);
-}
-
-.leads-table tr.clickable:hover {
-background-color: var(--table-hover);
-}
-
-/* Modal action buttons */
-/* .modal-actions {
-display: flex;
-justify-content: flex-end;
-gap: 1rem;
-margin-bottom: 1.5rem;
-padding: 0 2rem;
-} */
-
-/* Danger button for delete actions */
-.btn-danger {
-background-color: var(--danger);
-color: white;
-}
-
-.btn-danger:hover {
-background-color: #d11149;
 }
