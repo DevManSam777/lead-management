@@ -1625,53 +1625,6 @@ function setModalReadOnly(isReadOnly) {
   }
 }
 
-// Function to update modal action buttons
-function updateModalActionButtons(leadId) {
-  // Check if modal actions container exists, create if not
-  let actionsContainer = document.getElementById("modalActions");
-  if (!actionsContainer) {
-    actionsContainer = document.createElement("div");
-    actionsContainer.id = "modalActions";
-    actionsContainer.className = "modal-actions";
-    
-    // Find a good place to insert it (after the modal header)
-    const modalHeader = document.querySelector(".modal-header");
-    if (modalHeader) {
-      modalHeader.insertAdjacentElement('afterend', actionsContainer);
-    }
-  }
-  
-  // Clear existing buttons
-  actionsContainer.innerHTML = "";
-  
-  // Create Edit button
-  const editButton = document.createElement("button");
-  editButton.type = "button";
-  editButton.className = "btn btn-primary";
-  editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
-  editButton.addEventListener('click', function() {
-    setModalReadOnly(false);
-    document.getElementById("modalTitle").textContent = "Edit Lead";
-    // Hide the action buttons when in edit mode
-    actionsContainer.style.display = "none";
-  });
-  
-  // Create Delete button
-  const deleteButton = document.createElement("button");
-  deleteButton.type = "button";
-  deleteButton.className = "btn btn-danger";
-  deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
-  deleteButton.addEventListener('click', function() {
-    if (confirm("Are you sure you want to delete this lead?")) {
-      deleteLeadAction(leadId);
-    }
-  });
-  
-  // Add buttons to container
-  actionsContainer.appendChild(editButton);
-  actionsContainer.appendChild(deleteButton);
-}
-
 // Switch between grid and list views
 function switchView(view) {
   currentView = view;
