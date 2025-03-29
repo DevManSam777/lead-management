@@ -4,7 +4,7 @@
 
 /* Base Styles */
 html {
-  font-size: 62.5%; /* This makes 1rem = 10px */
+  font-size: 62.5%; 
 }
 
 * {
@@ -317,6 +317,29 @@ details summary h3 {
   margin-top: 2rem;
 }
 
+/* Adjust column widths in table view */
+.leads-table th:nth-child(1),
+.leads-table td:nth-child(1) {
+  width: 40%; /* Name column - make it wider */
+}
+
+.leads-table th:nth-child(2),
+.leads-table td:nth-child(2) {
+  width: 40%; /* Business column - make it wider */
+}
+
+.leads-table th:nth-child(3),
+.leads-table td:nth-child(3) {
+  width: 20%; /* Status column - narrower, pushing it to the right */
+  text-align: left; /* Center the status badges */
+  overflow-x: visible;
+}
+
+/* Make sure the table uses these width settings */
+.leads-table {
+  table-layout: fixed;
+}
+
 /* Responsive Styles */
 @media (max-width: 1200px) {
   .stats-cards {
@@ -450,14 +473,7 @@ details summary h3 {
   background: var(--background-color);
 }
 
-/* Hide any potential pseudo-elements causing issues */
-.container .main-content .header *::before, 
-.container .main-content .header *::after {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  opacity: 0;
-}
+
 
 /* Responsive table adjustments */
 .leads-table th,
@@ -474,7 +490,7 @@ details summary h3 {
 .lead-status {
   padding: 0.4rem 0.8rem;
   font-size: 1.1rem;
-}
+  }
 }
 
 @media (max-width: 768px) {
@@ -525,7 +541,7 @@ fieldset {
 .lead-status {
   padding: 0.3rem 0.6rem;
   font-size: 1rem;
-}
+  }
 }
 
 @media (max-width: 576px) {
@@ -558,7 +574,7 @@ fieldset {
 .lead-status {
   padding: 0.2rem 0.5rem;
   font-size: 0.9rem;
-}
+  }
 }
 
 /* Print Styles */
@@ -587,5 +603,5 @@ fieldset {
   break-inside: avoid;
   border: 0.1rem solid #ddd;
   box-shadow: none;
-}
+  }
 }
