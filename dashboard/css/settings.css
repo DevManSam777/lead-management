@@ -1,0 +1,75 @@
+/* Settings-specific styles */
+.settings-container {
+  background-color: var(--card-background);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 2rem;
+  margin-bottom: 3rem;
+  max-width: 80rem;
+}
+
+.settings-card {
+  margin-bottom: 2rem;
+}
+
+.settings-card h3 {
+  font-size: 1.8rem;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 0.1rem solid var(--border-color);
+}
+
+.settings-option {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.settings-option label {
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 1.5rem;
+}
+
+/* Back Button for Settings Page */
+.mobile-back-btn {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
+  z-index: 1050;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.mobile-back-btn i {
+  font-size: 2rem;
+}
+
+.mobile-back-btn:hover {
+  transform: scale(1.05);
+  background-color: var(--secondary);
+}
+
+/* Responsive Settings Styles */
+@media (max-width: 992px) {
+  .mobile-back-btn {
+    display: flex;
+  }
+}
+
+@media (max-width: 576px) {
+  .settings-container {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevLeads Dashboard</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h1>DevLeads</h1>
+          <p>Beta Version</p>
+        </div>
+        <div class="sidebar-menu">
+          <ul>
+            <li>
+              <a href="#" class="active"
+                ><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a
+              >
+            </li>
+            <li>
+              <a href="settings.html"
+                ><i class="fas fa-cog"></i> <span>Settings</span></a
+              >
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="header">
+          <h2>Project Management</h2>
+
+          <div class="search-filter-sort">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="searchInput" placeholder="Search..." />
+            </div>
+            <select id="filterStatus">
+              <option value="">All Statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="in-progress">In Progress</option>
+              <option value="closed-won">Closed (Won)</option>
+              <option value="closed-lost">Closed (Lost)</option>
+            </select>
+            <select id="combinedSort">
+              <option value="createdAt-desc">Date (Newest First)</option>
+              <option value="createdAt-asc">Date (Oldest First)</option>
+              <option value="lastContactedAt-desc">
+                Last Contacted (Newest First)
+              </option>
+              <option value="lastContactedAt-asc">
+                Last Contacted (Oldest First)
+              </option>
+              <option value="firstName-asc">Name (A to Z)</option>
+              <option value="firstName-desc">Name (Z to A)</option>
+              <option value="businessName-asc">Business Name (A to Z)</option>
+              <option value="businessName-desc">Business Name (Z to A)</option>
+              <option value="status-asc">Status (New to Closed)</option>
+              <option value="status-desc">Status (Closed to New)</option>
+            </select>
+
+            <!-- Hidden original dropdowns that the JS code will still use -->
+            <select id="sortField" style="display: none">
+              <option value="createdAt">Date</option>
+              <option value="lastContactedAt">Last Contacted</option>
+              <option value="firstName">Name</option>
+              <option value="businessName">Business Name</option>
+              <option value="status">Status</option>
+            </select>
+            <select id="sortOrder" style="display: none">
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+
+            <button id="addLeadBtn" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Add Lead
+            </button>
+          </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <details open>
+          <summary><h3>Stats</h3></summary>
+          <div class="stats-cards">
+            <div class="stats-card">
+              <h3>Total Projects</h3>
+              <div class="value" id="totalLeadsValue">0</div>
+              <div class="change positive">
+                <span id="totalLeadsChange">0%</span>
+              </div>
+            </div>
+            <div class="stats-card">
+              <h3>New Projects</h3>
+              <div class="value" id="newLeadsValue">0</div>
+              <div class="change positive">
+                <span id="newLeadsChange">0%</span>
+              </div>
+            </div>
+            <div class="stats-card">
+              <h3>Conversion Rate</h3>
+              <div class="value" id="conversionRateValue">0%</div>
+              <div class="change" id="conversionChange">
+                <i class="fas fa-arrow-up"></i> <span>0%</span>
+              </div>
+            </div>
+            <div class="stats-card">
+              <h3>Monthly Earnings</h3>
+              <div class="value" id="monthlyPaymentsValue">$0</div>
+              <div class="change" id="paymentsChange">
+                <i class="fas fa-arrow-up"></i> <span>0%</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- View Toggle -->
+        <div class="view-toggle">
+          <button id="gridViewBtn" class="active">
+            <i class="fas fa-th"></i> Grid
+          </button>
+          <button id="listViewBtn"><i class="fas fa-list"></i> List</button>
+        </div>
+
+        <!-- Leads Container -->
+        <div class="leads-container">
+          <div class="leads-header">
+            <h3>Projects</h3>
+          </div>
+
+          <!-- Grid View (Default) -->
+          <div class="lead-cards" id="leadCards">
+            <!-- Lead cards will be generated here -->
+          </div>
+
+          <!-- Table View - Modified to remove Actions column -->
+          <table class="leads-table" id="leadsTable" style="display: none">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Business</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody">
+              <!-- Table rows will be generated here -->
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <!-- Lead Modal - Consolidated version -->
+    <div id="leadModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="modalTitle">Client Info</h3>
+        </div>
+        <!-- Modal action buttons will be inserted here by JS -->
+        <form id="leadForm">
+          <input type="hidden" id="leadId" />
+
+          <!-- Personal Information Section -->
+          <div class="form-section">
+            <h4>Personal Information</h4>
+            <div class="form-group">
+              <label for="firstName">First Name*</label>
+              <input type="text" id="firstName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name*</label>
+              <input type="text" id="lastName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email*</label>
+              <input type="email" id="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone*</label>
+              <input type="tel" id="phone" required />
+            </div>
+
+            <div class="form-group">
+              <label for="textNumber">Text Number</label>
+              <input type="tel" id="textNumber" />
+            </div>
+          </div>
+
+          <!-- Business Information Section -->
+          <div class="form-section">
+            <h4>Business Information</h4>
+            <div class="form-group">
+              <label for="businessName">Business Name</label>
+              <input type="text" id="businessName" />
+            </div>
+
+            <div class="form-group">
+              <label for="businessPhone">Business Phone</label>
+              <input type="tel" id="businessPhone" />
+            </div>
+
+            <div class="form-group">
+              <label for="businessEmail">Business Email</label>
+              <input type="email" id="businessEmail" />
+            </div>
+
+            <div class="form-group">
+              <label for="businessServices">Business Services</label>
+              <input type="text" id="businessServices" />
+            </div>
+
+            <div class="form-group">
+              <label for="preferredContact">Preferred Contact Method</label>
+              <select id="preferredContact">
+                <option value="">-- Select Contact Method --</option>
+                <option value="phone">Personal Phone</option>
+                <option value="businessPhone">Business Phone</option>
+                <option value="email">Personal Email</option>
+                <option value="text">Text Message</option>
+                <option value="businessEmail">Business Email</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Service Information Section -->
+          <div class="form-section">
+            <h4>Service Information</h4>
+            <div class="form-group">
+              <label for="serviceDesired">Service Desired*</label>
+              <select id="serviceDesired" required>
+                <option value="website">Website</option>
+                <option value="app">App Development</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="hasWebsite">Has Website</label>
+              <select id="hasWebsite">
+                <option value="">-- Select Option --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="websiteAddress">Website Address</label>
+              <input type="text" id="websiteAddress" />
+            </div>
+
+            <div class="form-group">
+              <label for="budget">Estimated Budget</label>
+              <div class="budget-group">
+                <input
+                  type="text"
+                  id="budget"
+                  placeholder="Enter estimated amount"
+                />
+                <select id="currency">
+                  <option value="USD">USD</option>
+                  <option value="CAD">CAD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="AUD">AUD</option>
+                  <option value="🍕">🍕</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Information Section -->
+          <div class="form-section">
+            <h4>Lead Status</h4>
+            <div class="form-group">
+              <label for="status">Current Status*</label>
+              <select id="status" required>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="in-progress">In Progress</option>
+                <option value="closed-won">Closed (Won)</option>
+                <option value="closed-lost">Closed (Lost)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="lastContactedAt">Last Contacted Date</label>
+              <input type="date" id="lastContactedAt" />
+            </div>
+          </div>
+
+          <!-- Payment Information Section -->
+          <div class="form-section">
+            <h4>Payment Information</h4>
+            <div class="form-group">
+              <label for="totalBudget">Billed Amount</label>
+              <div class="budget-group">
+                <input
+                  type="text"
+                  id="totalBudget"
+                  placeholder="Enter billed amount"
+                />
+                <select id="budgetCurrency">
+                  <option value="USD">USD</option>
+                  <option value="CAD">CAD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="AUD">AUD</option>
+                  <option value="🍕">🍕</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="paidAmount">Paid Amount</label>
+              <input type="text" id="paidAmount" readonly />
+            </div>
+
+            <div class="form-group">
+              <label for="remainingBalance">Remaining Balance</label>
+              <input type="text" id="remainingBalance" readonly />
+            </div>
+
+            <div id="paymentsList" class="payments-list">
+              <h5>Payments</h5>
+              <div class="payments-container">
+                <!-- Payments will be loaded here -->
+              </div>
+              <button type="button" id="addPaymentBtn" class="btn btn-outline">
+                <i class="fas fa-plus"></i> Add Payment
+              </button>
+            </div>
+          </div>
+
+          <!-- Message and Notes Section -->
+          <div class="form-section">
+            <h4>Message & Notes</h4>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="notes">Internal Notes</label>
+              <textarea id="notes" rows="3"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+      <p id="toastMessage"></p>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closePaymentModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="paymentModalTitle">Add Payment</h3>
+        </div>
+        <form id="paymentForm">
+          <input type="hidden" id="paymentId" />
+          <input type="hidden" id="paymentLeadId" />
+
+          <div class="form-group">
+            <label for="paymentAmount">Amount*</label>
+            <div class="budget-group">
+              <input
+                type="text"
+                id="paymentAmount"
+                required
+                placeholder="Enter amount"
+              />
+              <select id="paymentCurrency">
+                <option value="USD">USD</option>
+                <option value="CAD">CAD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="AUD">AUD</option>
+                <option value="🍕">🍕</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="paymentDate">Payment Date*</label>
+            <input type="date" id="paymentDate" required />
+          </div>
+
+          <div class="form-group">
+            <label for="paymentNotes">Notes</label>
+            <textarea
+              id="paymentNotes"
+              rows="3"
+              placeholder="Add payment notes here"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Payment</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

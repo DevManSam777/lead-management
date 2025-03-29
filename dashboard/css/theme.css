@@ -1,0 +1,179 @@
+/* Theme variables for both light and dark modes */
+:root {
+    /* Light Mode (default) */
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --success: #4cc9f0;
+    --danger: #f72585;
+    --warning: #f8961e;
+    --info: #4895ef;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gray: #6c757d;
+    --border-color: #ced4da;
+    --box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.05);
+    --hover-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+    --background-color: #f5f7fb;
+    --card-background: #ffffff;
+    --text-color: #333333;
+    --text-muted: #6c757d;
+    --card-border-radius: 0.8rem;
+    --transition-speed: 0.3s;
+    --sidebar-width: 25rem;
+    --sidebar-collapsed-width: 7rem;
+    --sidebar-bg: #212529;
+    --sidebar-text: #ffffff;
+    --sidebar-link: #adb5bd;
+    --sidebar-active: rgba(255, 255, 255, 0.1);
+    --table-stripe: rgba(0, 0, 0, 0.02);
+    --table-hover: rgba(0, 0, 0, 0.05);
+    --input-bg: #ffffff;
+    --input-text: #333333;
+    --input-border: #ced4da;
+    --input-focus: #3498db;
+    --toast-bg: #4caf50;
+    --toast-text: #ffffff;
+    --toast-border: #2e7d32;
+    --toast-deletion-bg: #ff5722;
+    --toast-deletion-border: #d84315;
+  }
+  
+  /* Dark Mode Variables */
+  [data-theme="dark"] {
+    --primary: #5c7cfa;
+    --secondary: #5c6bc0;
+    --success: #4fd1c5;
+    --danger: #f06595;
+    --warning: #f9a826;
+    --info: #74c0fc;
+    --light: #343a40;
+    --dark: #f8f9fa;
+    --gray: #adb5bd;
+    --border-color: #495057;
+    --box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.2);
+    --hover-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.3);
+    --background-color: #1a1d21;
+    --card-background: #2d3238;
+    --text-color: #e9ecef;
+    --text-muted: #adb5bd;
+    --sidebar-bg: #111418;
+    --sidebar-text: #e9ecef;
+    --sidebar-link: #ced4da;
+    --sidebar-active: rgba(255, 255, 255, 0.15);
+    --table-stripe: rgba(255, 255, 255, 0.03);
+    --table-hover: rgba(255, 255, 255, 0.05);
+    --input-bg: #343a40;
+    --input-text: #e9ecef;
+    --input-border: #495057;
+    --input-focus: #5c7cfa;
+    --toast-bg: #2e7d32;
+    --toast-text: #ffffff;
+    --toast-border: #1b5e20;
+    --toast-deletion-bg: #d84315;
+    --toast-deletion-border: #bf360c;
+  }
+  
+  /* Theme Toggle Button */
+  .theme-toggle {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: transparent;
+    color: var(--text-color);
+    padding: 0.8rem 1.2rem;
+    border-radius: 0.5rem;
+    font-size: 1.4rem;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    z-index: 100;
+    border: none;
+  }
+  
+  .theme-toggle i {
+    margin-right: 0.6rem;
+  }
+  
+  .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .theme-toggle::after {
+    content: "Toggle Theme";
+    font-weight: 500;
+  }
+  
+  /* Theme Segmented Control */
+  .theme-segmented-control {
+    display: flex;
+    background-color: var(--background-color);
+    border-radius: 0.8rem;
+    overflow: hidden;
+    width: fit-content;
+    border: 0.1rem solid var(--border-color);
+    box-shadow: inset 0 0.1rem 0.3rem rgba(0, 0, 0, 0.1);
+  }
+  
+  .theme-segment {
+    padding: 1.2rem 2.5rem;
+    border: none;
+    background: none;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .theme-segment i {
+    font-size: 1.6rem;
+  }
+  
+  .theme-segment:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .theme-segment.active {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-theme="dark"] .theme-segment:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Media queries for theme toggle */
+  @media (max-width: 992px) {
+    .theme-toggle {
+      display: flex;
+      top: 1.5rem;
+      right: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .theme-toggle::after {
+      content: none;
+    }
+    
+    .theme-toggle i {
+      margin-right: 0;
+    }
+    
+    .theme-segmented-control {
+      width: 100%;
+      max-width: 30rem;
+    }
+    
+    .theme-segment {
+      flex: 1;
+      justify-content: center;
+      padding: 1rem 1.5rem;
+    }
+  }
