@@ -1,6 +1,6 @@
 // payments.js - Payment functionality
 
-import { formatCurrency, showToast } from './utils.js';
+import { formatCurrency, formatDate, showToast } from './utils.js';
 import { fetchLeadPayments, updatePayment, createPayment, deletePayment } from './api.js';
 
 /**
@@ -10,6 +10,7 @@ import { fetchLeadPayments, updatePayment, createPayment, deletePayment } from '
  */
 function renderLeadPayments(leadPayments, leadId) {
   const paymentsContainer = document.querySelector(".payments-container");
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
   if (!paymentsContainer) return;
 
@@ -41,7 +42,7 @@ function renderLeadPayments(leadPayments, leadId) {
 
   filteredPayments.forEach((payment) => {
     const paymentDate = payment.paymentDate
-      ? new Date(payment.paymentDate).toLocaleDateString()
+      ? formatDate(new Date(payment.paymentDate), dateFormat)
       : "Not recorded";
 
     const paymentItem = document.createElement("div");
@@ -128,6 +129,12 @@ function openPaymentModal(leadId, paymentId = null) {
   // Clear previous values
   document.getElementById("paymentId").value = "";
   document.getElementById("paymentLeadId").value = "";
+  
+  // Clear the date display
+  const dateDisplay = document.getElementById("paymentDateDisplay");
+  if (dateDisplay) {
+    dateDisplay.textContent = "";
+  }
 
   // Set the lead ID - verify it exists
   if (!leadId) {
@@ -137,6 +144,8 @@ function openPaymentModal(leadId, paymentId = null) {
 
   console.log(`Opening payment modal for lead ID: ${leadId}`);
   document.getElementById("paymentLeadId").value = leadId;
+  
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
   if (paymentId) {
     // Edit existing payment - fetch it first
@@ -157,9 +166,15 @@ function openPaymentModal(leadId, paymentId = null) {
       if (payment.paymentDate) {
         // Create a date object in the local timezone
         const dateObj = new Date(payment.paymentDate);
+        
         // Format as YYYY-MM-DD for input[type="date"]
         const formattedDate = dateObj.toISOString().split("T")[0];
         document.getElementById("paymentDate").value = formattedDate;
+        
+        // Update the display element with formatted date
+        if (dateDisplay) {
+          dateDisplay.textContent = formatDate(dateObj, dateFormat);
+        }
       }
 
       document.getElementById("paymentNotes").value = payment.notes || "";
@@ -181,9 +196,32 @@ function openPaymentModal(leadId, paymentId = null) {
     const localDate = today.toISOString().split("T")[0];
 
     document.getElementById("paymentDate").value = localDate;
+    
+    // Update the display element with today's date in the selected format
+    if (dateDisplay) {
+      dateDisplay.textContent = formatDate(today, dateFormat);
+    }
+    
     document.getElementById("paymentNotes").value = "";
 
     document.getElementById("paymentModalTitle").textContent = "Add Payment";
+  }
+  
+  // Set up event listener for date input changes
+  const paymentDateInput = document.getElementById("paymentDate");
+  if (paymentDateInput) {
+    paymentDateInput.addEventListener("change", function() {
+      if (this.value) {
+        const date = new Date(this.value);
+        if (dateDisplay) {
+          dateDisplay.textContent = formatDate(date, dateFormat);
+        }
+      } else {
+        if (dateDisplay) {
+          dateDisplay.textContent = "";
+        }
+      }
+    });
   }
 
   document.getElementById("paymentModal").style.display = "block";
@@ -384,7 +422,7 @@ async function deletePaymentAction(paymentId, leadId) {
         );
       }
 
-      // Render payment list
+      // Render payment list with current date format
       renderLeadPayments(leadPayments, leadId);
     }
 

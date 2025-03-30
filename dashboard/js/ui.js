@@ -1,6 +1,6 @@
 // ui.js - UI rendering and display functions
 
-import { formatCurrency, getLeadName, capitalizeFirstLetter, safeSetTextContent, safeUpdateChangeIndicator } from './utils.js';
+import { formatCurrency, formatDate, getLeadName, capitalizeFirstLetter, safeSetTextContent, safeUpdateChangeIndicator } from './utils.js';
 
 // Export UI functions
 export {
@@ -46,6 +46,8 @@ function renderGridView(leads) {
     return;
   }
 
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
+
   leads.forEach((lead) => {
     const card = document.createElement("div");
     card.className = "lead-card clickable";
@@ -57,9 +59,17 @@ function renderGridView(leads) {
     // Display business information with N/A as default
     const businessName = lead.businessName || "N/A";
 
+    // Format last contacted date if available
+    let lastContactedText = "";
+    if (lead.lastContactedAt) {
+      const contactDate = new Date(lead.lastContactedAt);
+      lastContactedText = `<p><strong>Last Contact:</strong> ${formatDate(contactDate, dateFormat)}</p>`;
+    }
+
     card.innerHTML = `
       <h3>${fullName}</h3>
       <p><strong>Business:</strong> ${businessName}</p>
+      ${lastContactedText}
       <p><strong>Status:</strong> <span class="lead-status status-${(
         lead.status || "new"
       ).toLowerCase()}">${capitalizeFirstLetter(
@@ -91,9 +101,11 @@ function renderListView(leads) {
   leadsTableBody.innerHTML = "";
 
   if (!leads || leads.length === 0) {
-    leadsTableBody.innerHTML = '<tr><td colspan="3">No leads found</td></tr>';
+    leadsTableBody.innerHTML = '<tr><td colspan="4">No leads found</td></tr>';
     return;
   }
+  
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
   leads.forEach((lead) => {
     const row = document.createElement("tr");
@@ -105,10 +117,18 @@ function renderListView(leads) {
 
     // Determine business info and handle empty values
     const business = lead.businessName || "N/A";
+    
+    // Format last contacted date if available
+    let lastContactCell = '<td>Not contacted</td>';
+    if (lead.lastContactedAt) {
+      const contactDate = new Date(lead.lastContactedAt);
+      lastContactCell = `<td>${formatDate(contactDate, dateFormat)}</td>`;
+    }
 
     row.innerHTML = `
       <td><span title="${fullName}">${fullName}</span></td>
       <td><span title="${business}">${business}</span></td>
+      ${lastContactCell}
       <td><span class="lead-status status-${(
         lead.status || "new"
       ).toLowerCase()}">${capitalizeFirstLetter(
@@ -262,6 +282,9 @@ function setModalReadOnly(isReadOnly) {
  */
 function calculateStats(allLeads, payments) {
   try {
+    // Get current date format
+    const dateFormat = window.dateFormat || "MM/DD/YYYY";
+    
     // If no leads, display zeros and return
     if (!allLeads || allLeads.length === 0) {
       safeSetTextContent("totalLeadsValue", "0");

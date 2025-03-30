@@ -144,12 +144,13 @@
             <!-- Lead cards will be generated here -->
           </div>
 
-          <!-- Table View - Modified to remove Actions column -->
+          <!-- Table View - Modified to include Last Contact column -->
           <table class="leads-table" id="leadsTable" style="display: none">
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Business</th>
+                <th>Last Contact</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -298,9 +299,11 @@
 
             <div class="form-group">
               <label for="lastContactedAt">Last Contacted Date</label>
-              <input type="date" id="lastContactedAt" />
+              <div class="date-input-container">
+                <input type="date" id="lastContactedAt" />
+                <div class="date-display" id="lastContactedDisplay"></div>
+              </div>
             </div>
-          </div>
 
           <!-- Payment Information Section -->
           <div class="form-section">
@@ -402,7 +405,10 @@
 
           <div class="form-group">
             <label for="paymentDate">Payment Date*</label>
-            <input type="date" id="paymentDate" required />
+            <div class="date-input-container">
+              <input type="date" id="paymentDate" required />
+              <div class="date-display" id="paymentDateDisplay"></div>
+            </div>
           </div>
 
           <div class="form-group">
@@ -419,23 +425,22 @@
       </div>
     </div>
 
-     <!-- Load utils first -->
+    <!-- Load utils first -->
     <script type="module" src="../js/utils.js"></script>
-    
+
     <!-- Then load API -->
     <script type="module" src="../js/api.js"></script>
-    
+
     <!-- Then load UI -->
     <script type="module" src="../js/ui.js"></script>
-    
+
     <!-- Then load handlers -->
     <script type="module" src="../js/handlers.js"></script>
-    
+
     <!-- Then load payments -->
     <script type="module" src="../js/payments.js"></script>
-    
+
     <!-- Finally load the main dashboard -->
     <script type="module" src="../js/dashboard.js"></script>
   </body>
-</html>
 </html>

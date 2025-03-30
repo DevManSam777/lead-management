@@ -2,7 +2,8 @@ const Setting = require('../models/Setting');
 
 // Default settings configuration
 const DEFAULT_SETTINGS = {
-  theme: 'light' // Default theme is light
+  theme: 'light', // Default theme is light
+  dateFormat: 'MM/DD/YYYY' // Default date format
 };
 
 // Function to initialize default settings

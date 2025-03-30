@@ -1,4 +1,6 @@
 // settings.js
+import { formatDate } from './utils.js';
+
 document.addEventListener("DOMContentLoaded", function () {
   // API URL Configuration (same base URL as in dashboard.js)
   const API_URL = "http://localhost:5000/api";
@@ -9,6 +11,12 @@ document.addEventListener("DOMContentLoaded", function () {
   
   // Get theme segment buttons
   const themeSegments = document.querySelectorAll('.theme-segment');
+  
+  // Get date format segment buttons
+  const dateFormatSegments = document.querySelectorAll('.date-format-segment');
+  
+  // Get date format example element
+  const dateFormatExample = document.getElementById('dateFormatExample');
   
   // Function to fetch all settings from the server
   async function fetchAllSettings() {
@@ -30,7 +38,8 @@ document.addEventListener("DOMContentLoaded", function () {
           // Fallback to localStorage if API fails
           return {
               theme: localStorage.getItem("theme") || 
-                (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+                (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
+              dateFormat: localStorage.getItem("dateFormat") || "MM/DD/YYYY"
           };
       }
   }
@@ -56,12 +65,22 @@ document.addEventListener("DOMContentLoaded", function () {
           // Also update localStorage as a fallback
           localStorage.setItem(key, value);
           
+          // Dispatch an event to notify about setting change
+          window.dispatchEvent(new CustomEvent('settingsUpdated', { 
+            detail: { key, value } 
+          }));
+          
           return updatedSetting;
       } catch (error) {
           console.error("Error updating setting:", error);
           
           // Update localStorage as a fallback
           localStorage.setItem(key, value);
+          
+          // Still dispatch the event even if server update failed
+          window.dispatchEvent(new CustomEvent('settingsUpdated', { 
+            detail: { key, value } 
+          }));
           
           return { key, value };
       }
@@ -72,8 +91,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.documentElement.setAttribute("data-theme", theme);
   }
   
-  // Function to update active segment
-  function updateActiveSegment(theme) {
+  // Function to update active theme segment
+  function updateActiveThemeSegment(theme) {
       themeSegments.forEach(segment => {
           if (segment.getAttribute('data-theme') === theme) {
               segment.classList.add('active');
@@ -81,6 +100,28 @@ document.addEventListener("DOMContentLoaded", function () {
               segment.classList.remove('active');
           }
       });
+  }
+  
+  // Function to update active date format segment
+  function updateActiveDateFormatSegment(format) {
+      dateFormatSegments.forEach(segment => {
+          if (segment.getAttribute('data-format') === format) {
+              segment.classList.add('active');
+          } else {
+              segment.classList.remove('active');
+          }
+      });
+      
+      // Update the example display
+      updateDateFormatExample(format);
+  }
+  
+  // Function to update date format example
+  function updateDateFormatExample(format) {
+      const today = new Date();
+      if (dateFormatExample) {
+          dateFormatExample.textContent = formatDate(today, format);
+      }
   }
   
   // Initialize settings on page load
@@ -99,20 +140,40 @@ document.addEventListener("DOMContentLoaded", function () {
       // Set the current theme
       setTheme(currentTheme);
       
-      // Update active segment
-      updateActiveSegment(currentTheme);
+      // Update active theme segment
+      updateActiveThemeSegment(currentTheme);
+      
+      // Handle date format setting
+      let currentDateFormat = settings.dateFormat;
+      if (!currentDateFormat) {
+          currentDateFormat = "MM/DD/YYYY"; // Default format
+          // Save it to server
+          await updateSetting('dateFormat', currentDateFormat);
+      }
+      
+      // Update active date format segment
+      updateActiveDateFormatSegment(currentDateFormat);
   }
   
   // Initialize settings
   initializeSettings();
   
-  // Add event listeners to segments
+  // Add event listeners to theme segments
   themeSegments.forEach(segment => {
       segment.addEventListener('click', function() {
           const newTheme = this.getAttribute('data-theme');
           setTheme(newTheme);
           updateSetting('theme', newTheme);
-          updateActiveSegment(newTheme);
+          updateActiveThemeSegment(newTheme);
+      });
+  });
+  
+  // Add event listeners to date format segments
+  dateFormatSegments.forEach(segment => {
+      segment.addEventListener('click', function() {
+          const newFormat = this.getAttribute('data-format');
+          updateSetting('dateFormat', newFormat);
+          updateActiveDateFormatSegment(newFormat);
       });
   });
   

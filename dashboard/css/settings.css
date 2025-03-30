@@ -33,43 +33,57 @@
   font-size: 1.5rem;
 }
 
-/* Back Button for Settings Page */
-.mobile-back-btn {
-  position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 50%;
+/* Date Format Segmented Control (based on theme segmented control) */
+.date-format-segmented-control {
+  display: flex;
+  background-color: var(--background-color);
+  border-radius: 0.8rem;
+  overflow: hidden;
+  width: fit-content;
+  border: 0.1rem solid var(--border-color);
+  box-shadow: inset 0 0.1rem 0.3rem rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.date-format-segment {
+  padding: 1.2rem 2.5rem;
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.date-format-segment i {
+  font-size: 1.6rem;
+}
+
+.date-format-segment:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.date-format-segment.active {
   background-color: var(--primary);
   color: white;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
-  z-index: 1050;
-  transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
-.mobile-back-btn i {
-  font-size: 2rem;
+[data-theme="dark"] .date-format-segment:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-.mobile-back-btn:hover {
-  transform: scale(1.05);
-  background-color: var(--secondary);
+.format-example {
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  margin-top: 0.5rem;
 }
 
-/* Responsive Settings Styles */
-@media (max-width: 992px) {
-  .mobile-back-btn {
-    display: flex;
-  }
-}
-
-@media (max-width: 576px) {
-  .settings-container {
-    padding: 1.5rem;
-  }
+.format-example span {
+  font-weight: 600;
+  color: var(--text-color);
 }

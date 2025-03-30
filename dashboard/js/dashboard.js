@@ -14,7 +14,10 @@ import * as Payments from "./payments.js";
 let allLeads = [];
 let payments = [];
 let defaultCurrency = "USD"; // Store the default currency
-let globalSettings = {}; // global settings cache
+let globalSettings = {
+  theme: "light",
+  dateFormat: "MM/DD/YYYY"
+}; // global settings cache
 
 // Set theme on HTML element
 function setTheme(theme) {
@@ -75,6 +78,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     const settings = await API.fetchAllSettings();
     globalSettings = settings;
 
+    // Make date format globally available
+    window.dateFormat = settings.dateFormat || "MM/DD/YYYY";
+
     // Always use theme from server settings (should always exist now)
     if (settings.theme) {
       setTheme(settings.theme);
@@ -96,7 +102,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         ? "dark"
         : "light");
     setTheme(savedTheme);
+    
+    // Fallback for date format
+    window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
   }
+
+  // Initialize date input displays
+  initializeDateInputs();
 
   // Setup the sidebar toggle
   setupSidebarToggle();
@@ -325,6 +337,32 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
+  // Event listener for settings changes
+  window.addEventListener("settingsUpdated", function(event) {
+    const { key, value } = event.detail;
+    
+    if (key === 'dateFormat') {
+      window.dateFormat = value;
+      
+      // Re-render leads with new date format
+      if (allLeads && allLeads.length > 0) {
+        UI.renderLeads(allLeads);
+      }
+      
+      // Re-initialize the date inputs with new format
+      initializeDateInputs();
+      
+      // Re-initialize any open lead modals with new date format
+      const leadId = document.getElementById("leadId").value;
+      if (leadId) {
+        const lead = allLeads.find(l => l._id === leadId);
+        if (lead) {
+          Handlers.updateLeadModalDates(lead);
+        }
+      }
+    }
+  });
+
   // Expose necessary functions to window object for HTML access
   window.openLeadModal = (leadId) => Handlers.openLeadModal(leadId, allLeads);
   window.closeLeadModal = closeLeadModal;
@@ -358,6 +396,53 @@ document.addEventListener("DOMContentLoaded", async function () {
     combinedSort.dispatchEvent(new Event("change"));
   }
 });
+
+/**
+ * Initialize date input displays
+ */
+function initializeDateInputs() {
+  // Set up date inputs in the lead form
+  const lastContactedInput = document.getElementById("lastContactedAt");
+  const lastContactedDisplay = document.getElementById("lastContactedDisplay");
+  
+  if (lastContactedInput && lastContactedDisplay) {
+    lastContactedInput.addEventListener("change", function() {
+      if (this.value) {
+        const date = new Date(this.value);
+        lastContactedDisplay.textContent = Utils.formatDate(date, window.dateFormat);
+      } else {
+        lastContactedDisplay.textContent = "";
+      }
+    });
+    
+    // Initial update if value exists
+    if (lastContactedInput.value) {
+      const date = new Date(lastContactedInput.value);
+      lastContactedDisplay.textContent = Utils.formatDate(date, window.dateFormat);
+    }
+  }
+  
+  // Set up date inputs in the payment form
+  const paymentDateInput = document.getElementById("paymentDate");
+  const paymentDateDisplay = document.getElementById("paymentDateDisplay");
+  
+  if (paymentDateInput && paymentDateDisplay) {
+    paymentDateInput.addEventListener("change", function() {
+      if (this.value) {
+        const date = new Date(this.value);
+        paymentDateDisplay.textContent = Utils.formatDate(date, window.dateFormat);
+      } else {
+        paymentDateDisplay.textContent = "";
+      }
+    });
+    
+    // Initial update if value exists
+    if (paymentDateInput.value) {
+      const date = new Date(paymentDateInput.value);
+      paymentDateDisplay.textContent = Utils.formatDate(date, window.dateFormat);
+    }
+  }
+}
 
 /**
  * Set up sidebar toggle functionality

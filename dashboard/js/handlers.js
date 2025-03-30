@@ -1,6 +1,6 @@
 // handlers.js - Event handlers and form validation
 
-import { showInputError, clearInputError, getErrorElement, formatCurrency, showToast } from './utils.js';
+import { showInputError, clearInputError, getErrorElement, formatCurrency, showToast, formatDate, toISODateString } from './utils.js';
 import { createLead, updateLead, deleteLead, fetchLeadPayments } from './api.js';
 import { renderLeads, setModalReadOnly } from './ui.js';
 import { renderLeadPayments } from './payments.js';
@@ -620,15 +620,8 @@ async function openLeadModal(leadId, allLeads) {
     }
   }
 
-  // Handle last contacted date
-  if (document.getElementById("lastContactedAt") && lead.lastContactedAt) {
-    const date = new Date(lead.lastContactedAt);
-    // Format date as YYYY-MM-DD for input[type="date"]
-    const formattedDate = date.toISOString().split("T")[0];
-    document.getElementById("lastContactedAt").value = formattedDate;
-  } else if (document.getElementById("lastContactedAt")) {
-    document.getElementById("lastContactedAt").value = "";
-  }
+  // Handle date formatting for last contacted date
+  updateLeadModalDates(lead);
 
   // Show/hide website address field based on hasWebsite value
   const websiteAddressField =
@@ -658,6 +651,57 @@ async function openLeadModal(leadId, allLeads) {
   window.updateModalActionButtons(lead._id);
 }
 
+/**
+ * Update dates in the lead modal based on the selected date format
+ * @param {Object} lead - Lead object
+ */
+function updateLeadModalDates(lead) {
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
+  
+  // Handle last contacted date
+  if (document.getElementById("lastContactedAt") && lead.lastContactedAt) {
+    const date = new Date(lead.lastContactedAt);
+    
+    // Format date as YYYY-MM-DD for input[type="date"]
+    // This is the HTML5 input date format regardless of display format
+    const formattedDate = date.toISOString().split("T")[0];
+    document.getElementById("lastContactedAt").value = formattedDate;
+    
+    // Update the display element with the formatted date
+    const displayElement = document.getElementById("lastContactedDisplay");
+    if (displayElement) {
+      displayElement.textContent = formatDate(date, dateFormat);
+    }
+  } else if (document.getElementById("lastContactedAt")) {
+    document.getElementById("lastContactedAt").value = "";
+    
+    // Clear the display element
+    const displayElement = document.getElementById("lastContactedDisplay");
+    if (displayElement) {
+      displayElement.textContent = "";
+    }
+  }
+  
+  // Set up event listener for date input changes
+  const lastContactedInput = document.getElementById("lastContactedAt");
+  if (lastContactedInput) {
+    lastContactedInput.addEventListener("change", function() {
+      if (this.value) {
+        const date = new Date(this.value);
+        const displayElement = document.getElementById("lastContactedDisplay");
+        if (displayElement) {
+          displayElement.textContent = formatDate(date, dateFormat);
+        }
+      } else {
+        const displayElement = document.getElementById("lastContactedDisplay");
+        if (displayElement) {
+          displayElement.textContent = "";
+        }
+      }
+    });
+  }
+}
+
 // Export handlers functions
 export {
   setupFormValidation,
@@ -670,5 +714,6 @@ export {
   saveLead,
   deleteLeadAction,
   openAddLeadModal,
-  openLeadModal
+  openLeadModal,
+  updateLeadModalDates
 };
