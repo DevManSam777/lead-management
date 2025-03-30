@@ -431,7 +431,7 @@ function openAddLeadModal() {
 
   // Clear the lead ID to ensure we're creating a new lead
   document.getElementById("leadId").value = "";
-  document.getElementById("modalTitle").textContent = "Add New Lead";
+  document.getElementById("modalTitle").textContent = "Add New";
 
   // Set default currency
   if (document.getElementById("budgetCurrency")) {

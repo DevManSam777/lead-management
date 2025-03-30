@@ -214,7 +214,7 @@ function updateModalActionButtons(leadId) {
   editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
   editButton.addEventListener("click", function () {
     setModalReadOnly(false);
-    document.getElementById("modalTitle").textContent = "Edit Lead";
+    document.getElementById("modalTitle").textContent = "Edit";
     // Hide the action buttons when in edit mode
     actionsContainer.style.display = "none";
 

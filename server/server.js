@@ -6,8 +6,10 @@ const leadRoutes = require("./routes/leadRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const settingRoutes = require("./routes/settingRoutes");
 
-// Load environment variables
-dotenv.config();
+// // Load environment variables
+
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 // Connect to database
 connectDB();
