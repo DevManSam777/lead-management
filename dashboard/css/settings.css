@@ -5,7 +5,9 @@
   box-shadow: var(--box-shadow);
   padding: 2rem;
   margin-bottom: 3rem;
-  max-width: 80rem;
+  width: 100%; /* Make it take full width */
+  /* Remove or increase the max-width */
+  /* max-width: 80rem; */
 }
 
 .settings-card {
@@ -86,4 +88,26 @@
 .format-example span {
   font-weight: 600;
   color: var(--text-color);
+}
+
+/* Responsive styles for both theme and date format controls */
+@media (max-width: 600px) {
+  .theme-segmented-control,
+  .date-format-segmented-control {
+    width: 100%;
+    max-width: 30rem;
+    flex-direction: column;
+  }
+  
+  .theme-segment,
+  .date-format-segment {
+    width: 100%;
+    justify-content: center;
+    border-bottom: 0.1rem solid var(--border-color);
+  }
+  
+  .theme-segment:last-child,
+  .date-format-segment:last-child {
+    border-bottom: none;
+  }
 }
