@@ -106,6 +106,28 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Fallback for date format
     window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
   }
+  
+  // Load saved view preference
+  const savedView = localStorage.getItem('preferredView');
+  if (savedView && (savedView === 'grid' || savedView === 'list')) {
+    console.log("Restoring saved view preference:", savedView);
+    window.switchView(savedView);
+  }
+  
+  // Setup for stats summary toggle persistence
+  const statsDetails = document.querySelector('details');
+  if (statsDetails) {
+    // Load saved state
+    const isStatsOpen = localStorage.getItem('statsOpen');
+    if (isStatsOpen !== null) {
+      statsDetails.open = isStatsOpen === 'true';
+    }
+    
+    // Save state when toggled
+    statsDetails.addEventListener('toggle', function() {
+      localStorage.setItem('statsOpen', this.open);
+    });
+  }
 
   // Initialize date input displays
   initializeDateInputs();
@@ -166,14 +188,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     listViewBtn: document.getElementById("listViewBtn"),
   });
 
+  // View toggle button event listeners
   document.getElementById("gridViewBtn").addEventListener("click", function () {
     console.log("Grid view button clicked");
     window.switchView("grid");
+    // No need to save to localStorage here as switchView function does it
   });
 
   document.getElementById("listViewBtn").addEventListener("click", function () {
     console.log("List view button clicked");
     window.switchView("list");
+    // No need to save to localStorage here as switchView function does it
   });
 
   // Form conditionals

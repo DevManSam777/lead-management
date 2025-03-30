@@ -150,8 +150,27 @@ function renderListView(leads) {
  * Switch between grid and list views
  * @param {string} view - 'grid' or 'list'
  */
+// function switchView(view) {
+//   currentView = view;
+
+//   if (view === "grid") {
+//     document.getElementById("leadCards").style.display = "grid";
+//     document.getElementById("leadsTable").style.display = "none";
+//     document.getElementById("gridViewBtn").classList.add("active");
+//     document.getElementById("listViewBtn").classList.remove("active");
+//   } else {
+//     document.getElementById("leadCards").style.display = "none";
+//     document.getElementById("leadsTable").style.display = "table";
+//     document.getElementById("gridViewBtn").classList.remove("active");
+//     document.getElementById("listViewBtn").classList.add("active");
+//   }
+// }
+
 function switchView(view) {
   currentView = view;
+  
+  // Save the current view to localStorage
+  localStorage.setItem('preferredView', view);
 
   if (view === "grid") {
     document.getElementById("leadCards").style.display = "grid";
