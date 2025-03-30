@@ -17,6 +17,9 @@ const leadSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  phoneExt: {
+    type: String,
+  },
   textNumber: {
     type: String,
   },
@@ -24,6 +27,9 @@ const leadSchema = new mongoose.Schema({
     type: String,
   },
   businessPhone: {
+    type: String,
+  },
+  businessPhoneExt: {
     type: String,
   },
   businessEmail: {

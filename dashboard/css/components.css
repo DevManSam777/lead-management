@@ -232,6 +232,11 @@
     min-width: 25rem;
     position: relative;
   }
+
+  /* phone extension */
+  .extension-field {
+    margin-top: 2rem;
+  }
   
   .form-group label {
     display: block;

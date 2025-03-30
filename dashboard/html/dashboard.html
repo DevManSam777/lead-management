@@ -174,7 +174,7 @@
           <input type="hidden" id="leadId" />
 
           <!-- Personal Information Section -->
-          <div class="form-section">
+          <!-- <div class="form-section">
             <h4>Personal Information</h4>
             <div class="form-group">
               <label for="firstName">First Name*</label>
@@ -201,6 +201,83 @@
               <input type="tel" id="textNumber" />
             </div>
           </div>
+
+          <!-- Personal Information Section -->
+<div class="form-section">
+  <h4>Personal Information</h4>
+  <div class="form-group">
+    <label for="firstName" class="required">First Name</label>
+    <input type="text" id="firstName" required />
+  </div>
+
+  <div class="form-group">
+    <label for="lastName" class="required">Last Name</label>
+    <input type="text" id="lastName" required />
+  </div>
+
+  <div class="form-group">
+    <label for="email" class="required">Email</label>
+    <input type="email" id="email" required />
+  </div>
+
+  <div class="form-group">
+    <label for="phone" class="required">Phone</label>
+    <div class="phone-group">
+      <input type="tel" id="phone" required />
+      <div class="extension-field">
+        <label for="phoneExt">Ext:</label>
+        <input type="text" id="phoneExt" placeholder="Extension" />
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="textNumber">Text Number (if different)</label>
+    <input type="tel" id="textNumber" />
+  </div>
+</div>
+
+<!-- Business Information Section -->
+<div class="form-section">
+  <h4>Business Information</h4>
+  <div class="form-group">
+    <label for="businessName">Business Name</label>
+    <input type="text" id="businessName" />
+  </div>
+
+  <div class="form-group">
+    <label for="businessPhone">Business Phone</label>
+    <div class="phone-group">
+      <input type="tel" id="businessPhone" />
+      <div class="extension-field">
+        <label for="businessPhoneExt">Ext:</label>
+        <input type="text" id="businessPhoneExt" placeholder="Extension" />
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="businessEmail">Business Email</label>
+    <input type="email" id="businessEmail" />
+  </div>
+
+  <div class="form-group">
+    <label for="businessServices">Business Services</label>
+    <input type="text" id="businessServices" />
+  </div>
+
+  <div class="form-group">
+    <label for="preferredContact">Preferred Contact Method</label>
+    <select id="preferredContact">
+      <option value="">-- Select Contact Method --</option>
+      <option value="phone">Personal Phone</option>
+      <option value="businessPhone">Business Phone</option>
+      <option value="email">Personal Email</option>
+      <option value="text">Text Message</option>
+      <option value="businessEmail">Business Email</option>
+    </select>
+  </div>
+</div>
 
           <!-- Business Information Section -->
           <div class="form-section">
@@ -236,7 +313,7 @@
                 <option value="businessEmail">Business Email</option>
               </select>
             </div>
-          </div>
+          </div> 
 
           <!-- Service Information Section -->
           <div class="form-section">
