@@ -22,7 +22,3 @@ yarn-error.log*
 # Clerk Keys
 CLERK_PUBLISHABLE_KEY=your_publishable_key
 CLERK_SECRET_KEY=your_secret_key
-
-#email forwarding
-/EMAIL.md
-/EMAIL_FORWARDING.md

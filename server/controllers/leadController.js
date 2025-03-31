@@ -1,4 +1,5 @@
 const Lead = require("../models/Lead");
+const { sendLeadNotificationEmail } = require('../utils/emailNotification');
 
 // Get all leads
 exports.getLeads = async (req, res) => {
@@ -30,8 +31,16 @@ exports.getLeadById = async (req, res) => {
 // Create a new lead
 exports.createLead = async (req, res) => {
   try {
+    // Create the lead in the database
     const lead = new Lead(req.body);
     const createdLead = await lead.save();
+
+    // Attempt to send email notification (non-blocking)
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      sendLeadNotificationEmail(createdLead)
+        .catch(error => console.error('Background email notification failed:', error));
+    }
+
     res.status(201).json(createdLead);
   } catch (error) {
     console.error(error);
