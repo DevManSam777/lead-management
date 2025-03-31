@@ -129,8 +129,34 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+
+// Prevent Enter key from accidentally submitting the form in the lead modal
+const leadForm = document.getElementById("leadForm");
+if (leadForm) {
+  leadForm.addEventListener("keydown", function(event) {
+    // Only prevent default on Enter key for input fields (not buttons or textareas)
+    if (event.key === "Enter" && 
+        (event.target.tagName === "INPUT" || 
+         (event.target.tagName === "SELECT" && !event.target.multiple))) {
+      // Prevent the default form submission
+      event.preventDefault();
+      // Move focus to the next field instead (more user-friendly)
+      const formElements = Array.from(leadForm.elements);
+      const currentIndex = formElements.indexOf(event.target);
+      if (currentIndex < formElements.length - 1) {
+        const nextElement = formElements[currentIndex + 1];
+        nextElement.focus();
+      }
+      return false;
+    }
+  });
+}
+
   // Initialize date input displays
   initializeDateInputs();
+
+  // Initialize phone number formatting
+  Utils.initializePhoneFormatting();
 
   // Setup the sidebar toggle
   setupSidebarToggle();

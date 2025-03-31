@@ -1,7 +1,7 @@
 // utils.js - Utility and helper functions
 
 /**
- * Format a phone number to a consistent format
+ * Format an imported phone number to a consistent format
  * @param {string} phoneNumber - Phone number to format
  * @returns {string} Formatted phone number
  */
@@ -22,6 +22,69 @@ function formatPhoneNumber(phoneNumber) {
 
   // If it doesn't match the expected pattern, return the original
   return phoneNumber;
+}
+
+/**
+ * Format a phone number as the user types
+ * @param {HTMLInputElement} input - The phone input element
+ */
+function formatPhoneInput(input) {
+  // Skip if the input doesn't exist
+  if (!input) return;
+
+  // Store current cursor position
+  const cursorPos = input.selectionStart;
+  
+  // Get input value and remove all non-digit characters
+  let value = input.value.replace(/\D/g, '');
+  
+  // Store original length for cursor adjustment
+  const originalLength = input.value.length;
+  
+  // Format the number as XXX-XXX-XXXX
+  if (value.length <= 3) {
+    // Do nothing for 1-3 digits
+  } else if (value.length <= 6) {
+    // Format as XXX-XXX
+    value = value.slice(0, 3) + '-' + value.slice(3);
+  } else {
+    // Format as XXX-XXX-XXXX (limit to 10 digits)
+    value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
+  }
+  
+  // Update the input value
+  input.value = value;
+  
+  // Adjust cursor position if value changed
+  if (input.value.length !== originalLength) {
+    // Calculate new cursor position
+    let newCursorPos = cursorPos;
+    // If we added a hyphen and cursor was after it, move cursor forward
+    if (input.value.charAt(cursorPos - 1) === '-') {
+      newCursorPos++;
+    }
+    // If we're at a position where a hyphen was just added, move cursor forward
+    if (cursorPos === 4 || cursorPos === 8) {
+      newCursorPos++;
+    }
+    // Set cursor position
+    input.setSelectionRange(newCursorPos, newCursorPos);
+  }
+}
+
+/**
+ * Initialize phone formatting for all phone input fields 
+ */
+function initializePhoneFormatting() {
+  // Get all phone input fields
+  const phoneInputs = document.querySelectorAll('input[type="tel"]');
+  
+  // Add input event listeners to each phone input
+  phoneInputs.forEach(input => {
+    input.addEventListener('input', function() {
+      formatPhoneInput(this);
+    });
+  });
 }
 
 /**
@@ -459,5 +522,7 @@ export {
   getLeadName,
   showInputError,
   clearInputError,
-  getErrorElement
+  getErrorElement,
+  formatPhoneInput,
+  initializePhoneFormatting
 };
