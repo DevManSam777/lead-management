@@ -35,7 +35,7 @@ function createEmailTransporter() {
  */
 async function sendLeadNotificationEmail(leadData) {
   // Validate required environment variables
-  if (!process.env.EMAIL_FROM || !process.env.ADMIN_EMAIL) {
+  if (!process.env.EMAIL_USER || !process.env.ADMIN_EMAIL) {
     console.warn("Email notification not configured. Skipping.");
     return null;
   }
@@ -48,20 +48,33 @@ async function sendLeadNotificationEmail(leadData) {
   }
 
   try {
+    const fullName = `${leadData.firstName} ${leadData.lastName}`;
     // Send email
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+      from: process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL,
-      subject: "New Web Development Inquiry Form Submission",
+      subject: `New Web Development Inquiry From ${fullName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>New Project Submission Received</h2>
+          <h2>New Form Submission Received</h2>
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
               <td style="padding: 10px; border: 1px solid #ddd;"><strong>Name:</strong></td>
               <td style="padding: 10px; border: 1px solid #ddd;">${
                 leadData.firstName
               } ${leadData.lastName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Phone:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${
+                leadData.phone
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Phone Ext:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${
+                leadData.phoneExt || "N/A"
+              }</td>
             </tr>
             <tr>
               <td style="padding: 10px; border: 1px solid #ddd;"><strong>Email:</strong></td>
@@ -73,6 +86,24 @@ async function sendLeadNotificationEmail(leadData) {
               <td style="padding: 10px; border: 1px solid #ddd;"><strong>Business Name:</strong></td>
               <td style="padding: 10px; border: 1px solid #ddd;">${
                 leadData.businessName || "N/A"
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Business Phone:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${
+                leadData.businessPhone || "N/A"
+              }</td>
+            </tr>
+             <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Business Phone Ext:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${
+                leadData.businessPhoneExt || "N/A"
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Business Email:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${
+                leadData.businessEmail || "N/A"
               }</td>
             </tr>
             <tr>

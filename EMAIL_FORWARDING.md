@@ -45,7 +45,7 @@ The `EMAIL_PASS` field is where you put your email account's authentication cred
   2. Look for "App passwords" or "Additional security"
   3. Generate an app-specific password
 
-### How to Create .env File
+### How to Create .env File (if you haven't already done so)
 
 #### Step 1: Create the File
 1. In the project's root directory, create a file named `.env`
@@ -109,7 +109,7 @@ EMAIL_SECURE=false
 - Confirm SMTP settings with your email provider
 
 ### Want to Skip Email Notifications?
-Simply do not create the .env file. The app will work normally.
+Simply do not add your email and SMTP information to the .env file. The app will work normally.
 
 ### Need More Help?
 - Check your email provider's support documentation
