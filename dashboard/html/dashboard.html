@@ -23,14 +23,14 @@
         <div class="sidebar-menu">
           <ul>
             <li>
-              <a href="#" class="active"
-                ><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a
-              >
+              <a href="#" class="active">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+              </a>
             </li>
             <li>
-              <a href="settings.html"
-                ><i class="fas fa-cog"></i> <span>Settings</span></a
-              >
+              <a href="settings.html">
+                <i class="fas fa-cog"></i> <span>Settings</span>
+              </a>
             </li>
           </ul>
         </div>
@@ -172,112 +172,41 @@
         <!-- Modal action buttons will be inserted here by JS -->
         <form id="leadForm">
           <input type="hidden" id="leadId" />
-
+          
           <!-- Personal Information Section -->
-          <!-- <div class="form-section">
+          <div class="form-section">
             <h4>Personal Information</h4>
             <div class="form-group">
-              <label for="firstName">First Name*</label>
+              <label for="firstName" class="required">First Name</label>
               <input type="text" id="firstName" required />
             </div>
 
             <div class="form-group">
-              <label for="lastName">Last Name*</label>
+              <label for="lastName" class="required">Last Name</label>
               <input type="text" id="lastName" required />
             </div>
 
             <div class="form-group">
-              <label for="email">Email*</label>
+              <label for="email" class="required">Email</label>
               <input type="email" id="email" required />
             </div>
 
             <div class="form-group">
-              <label for="phone">Phone*</label>
-              <input type="tel" id="phone" required />
+              <label for="phone" class="required">Phone</label>
+              <div class="phone-group">
+                <input type="tel" id="phone" required />
+                <div class="extension-field">
+                  <label for="phoneExt">Ext:</label>
+                  <input type="text" id="phoneExt" placeholder="Extension" />
+                </div>
+              </div>
             </div>
 
             <div class="form-group">
-              <label for="textNumber">Text Number</label>
+              <label for="textNumber">Text Number (if different)</label>
               <input type="tel" id="textNumber" />
             </div>
           </div>
-
-          <!-- Personal Information Section -->
-<div class="form-section">
-  <h4>Personal Information</h4>
-  <div class="form-group">
-    <label for="firstName" class="required">First Name</label>
-    <input type="text" id="firstName" required />
-  </div>
-
-  <div class="form-group">
-    <label for="lastName" class="required">Last Name</label>
-    <input type="text" id="lastName" required />
-  </div>
-
-  <div class="form-group">
-    <label for="email" class="required">Email</label>
-    <input type="email" id="email" required />
-  </div>
-
-  <div class="form-group">
-    <label for="phone" class="required">Phone</label>
-    <div class="phone-group">
-      <input type="tel" id="phone" required />
-      <div class="extension-field">
-        <label for="phoneExt">Ext:</label>
-        <input type="text" id="phoneExt" placeholder="Extension" />
-      </div>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label for="textNumber">Text Number (if different)</label>
-    <input type="tel" id="textNumber" />
-  </div>
-</div>
-
-<!-- Business Information Section -->
-<div class="form-section">
-  <h4>Business Information</h4>
-  <div class="form-group">
-    <label for="businessName">Business Name</label>
-    <input type="text" id="businessName" />
-  </div>
-
-  <div class="form-group">
-    <label for="businessPhone">Business Phone</label>
-    <div class="phone-group">
-      <input type="tel" id="businessPhone" />
-      <div class="extension-field">
-        <label for="businessPhoneExt">Ext:</label>
-        <input type="text" id="businessPhoneExt" placeholder="Extension" />
-      </div>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label for="businessEmail">Business Email</label>
-    <input type="email" id="businessEmail" />
-  </div>
-
-  <div class="form-group">
-    <label for="businessServices">Business Services</label>
-    <input type="text" id="businessServices" />
-  </div>
-
-  <div class="form-group">
-    <label for="preferredContact">Preferred Contact Method</label>
-    <select id="preferredContact">
-      <option value="">-- Select Contact Method --</option>
-      <option value="phone">Personal Phone</option>
-      <option value="businessPhone">Business Phone</option>
-      <option value="email">Personal Email</option>
-      <option value="text">Text Message</option>
-      <option value="businessEmail">Business Email</option>
-    </select>
-  </div>
-</div>
 
           <!-- Business Information Section -->
           <div class="form-section">
@@ -289,7 +218,13 @@
 
             <div class="form-group">
               <label for="businessPhone">Business Phone</label>
-              <input type="tel" id="businessPhone" />
+              <div class="phone-group">
+                <input type="tel" id="businessPhone" />
+                <div class="extension-field">
+                  <label for="businessPhoneExt">Ext:</label>
+                  <input type="text" id="businessPhoneExt" placeholder="Extension" />
+                </div>
+              </div>
             </div>
 
             <div class="form-group">
@@ -313,7 +248,7 @@
                 <option value="businessEmail">Business Email</option>
               </select>
             </div>
-          </div> 
+          </div>
 
           <!-- Service Information Section -->
           <div class="form-section">
@@ -382,46 +317,47 @@
               </div>
             </div>
 
-          <!-- Payment Information Section -->
-          <div class="form-section">
-            <h4>Payment Information</h4>
-            <div class="form-group">
-              <label for="totalBudget">Billed Amount</label>
-              <div class="budget-group">
-                <input
-                  type="text"
-                  id="totalBudget"
-                  placeholder="Enter billed amount"
-                />
-                <select id="budgetCurrency">
-                  <option value="USD">USD</option>
-                  <option value="CAD">CAD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                  <option value="AUD">AUD</option>
-                  <option value="🍕">🍕</option>
-                </select>
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h4>Payment Information</h4>
+              <div class="form-group">
+                <label for="totalBudget">Billed Amount</label>
+                <div class="budget-group">
+                  <input
+                    type="text"
+                    id="totalBudget"
+                    placeholder="Enter billed amount"
+                  />
+                  <select id="budgetCurrency">
+                    <option value="USD">USD</option>
+                    <option value="CAD">CAD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="AUD">AUD</option>
+                    <option value="🍕">🍕</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <div class="form-group">
-              <label for="paidAmount">Paid Amount</label>
-              <input type="text" id="paidAmount" readonly />
-            </div>
-
-            <div class="form-group">
-              <label for="remainingBalance">Remaining Balance</label>
-              <input type="text" id="remainingBalance" readonly />
-            </div>
-
-            <div id="paymentsList" class="payments-list">
-              <h5>Payments</h5>
-              <div class="payments-container">
-                <!-- Payments will be loaded here -->
+              <div class="form-group">
+                <label for="paidAmount">Paid Amount</label>
+                <input type="text" id="paidAmount" readonly />
               </div>
-              <button type="button" id="addPaymentBtn" class="btn btn-outline">
-                <i class="fas fa-plus"></i> Add Payment
-              </button>
+
+              <div class="form-group">
+                <label for="remainingBalance">Remaining Balance</label>
+                <input type="text" id="remainingBalance" readonly />
+              </div>
+
+              <div id="paymentsList" class="payments-list">
+                <h5>Payments</h5>
+                <div class="payments-container">
+                  <!-- Payments will be loaded here -->
+                </div>
+                <button type="button" id="addPaymentBtn" class="btn btn-outline">
+                  <i class="fas fa-plus"></i> Add Payment
+                </button>
+              </div>
             </div>
           </div>
 
