@@ -1,3 +1,4 @@
+// server/models/Lead.js
 const mongoose = require("mongoose");
 
 const leadSchema = new mongoose.Schema({
@@ -95,6 +96,12 @@ const leadSchema = new mongoose.Schema({
   lastContactedAt: {
     type: Date,
   },
+  // This field is only used for distinguishing form submissions from dashboard creations
+  // It will not be stored but used in controller logic
+  isFormSubmission: {
+    type: Boolean,
+    select: false, // Exclude from query results by default
+  }
 });
 
 leadSchema.pre('deleteOne', { document: false, query: true }, async function() {

@@ -349,6 +349,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Clean up the data by removing the checkbox values
     delete formObject.phoneExtCheck;
     delete formObject.businessPhoneExtCheck;
+    
+    // Add the isFormSubmission flag to identify this as coming from the form
+    formObject.isFormSubmission = true;
 
     try {
       const response = await fetch("http://localhost:5000/api/leads", {

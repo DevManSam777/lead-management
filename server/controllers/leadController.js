@@ -1,3 +1,4 @@
+// server/controllers/leadController.js
 const Lead = require("../models/Lead");
 const { sendLeadNotificationEmail } = require('../utils/emailNotification');
 
@@ -35,10 +36,23 @@ exports.createLead = async (req, res) => {
     const lead = new Lead(req.body);
     const createdLead = await lead.save();
 
-    // Attempt to send email notification (non-blocking)
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    // Check if this is from the public form submission
+    // We'll check for the isFormSubmission flag or refer to the referer header
+    const isFormSubmission = req.body.isFormSubmission === true || 
+      (req.headers.referer && req.headers.referer.includes('/form.html'));
+    
+    // Remove the flag from the response if it exists
+    if (createdLead.isFormSubmission) {
+      createdLead.isFormSubmission = undefined;
+    }
+
+    // Attempt to send email notification only for form submissions
+    if (isFormSubmission && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      console.log('Sending email notification for form submission');
       sendLeadNotificationEmail(createdLead)
         .catch(error => console.error('Background email notification failed:', error));
+    } else {
+      console.log('Skipping email notification - not a form submission or email not configured');
     }
 
     res.status(201).json(createdLead);
