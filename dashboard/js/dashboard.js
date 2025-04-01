@@ -15,9 +15,8 @@ let payments = [];
 let defaultCurrency = "USD"; // Store the default currency
 let globalSettings = {
   theme: "light",
-  dateFormat: "MM/DD/YYYY"
-}; 
-
+  dateFormat: "MM/DD/YYYY",
+};
 
 let currentPage = 1;
 let pageSize = 10; // Default number of leads per page
@@ -112,56 +111,57 @@ document.addEventListener("DOMContentLoaded", async function () {
         ? "dark"
         : "light");
     setTheme(savedTheme);
-    
+
     // Fallback for date format
     window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
   }
-  
+
   // Load saved view preference
-  const savedView = localStorage.getItem('preferredView');
-  if (savedView && (savedView === 'grid' || savedView === 'list')) {
+  const savedView = localStorage.getItem("preferredView");
+  if (savedView && (savedView === "grid" || savedView === "list")) {
     console.log("Restoring saved view preference:", savedView);
     currentView = savedView; // Set the current view variable first
     window.switchView(savedView);
   }
-  
+
   // Setup for stats summary toggle persistence
-  const statsDetails = document.querySelector('details');
+  const statsDetails = document.querySelector("details");
   if (statsDetails) {
     // Load saved state
-    const isStatsOpen = localStorage.getItem('statsOpen');
+    const isStatsOpen = localStorage.getItem("statsOpen");
     if (isStatsOpen !== null) {
-      statsDetails.open = isStatsOpen === 'true';
+      statsDetails.open = isStatsOpen === "true";
     }
-    
+
     // Save state when toggled
-    statsDetails.addEventListener('toggle', function() {
-      localStorage.setItem('statsOpen', this.open);
+    statsDetails.addEventListener("toggle", function () {
+      localStorage.setItem("statsOpen", this.open);
     });
   }
 
-
-//  Prevent Enter key from accidentally submitting the form in the lead modal
-const leadForm = document.getElementById("leadForm");
-if (leadForm) {
-  leadForm.addEventListener("keydown", function(event) {
-    // Only prevent default on Enter key for input fields (not buttons or textareas)
-    if (event.key === "Enter" && 
-        (event.target.tagName === "INPUT" || 
-         (event.target.tagName === "SELECT" && !event.target.multiple))) {
-      // Prevent the default form submission
-      event.preventDefault();
-      // Move focus to the next field instead (more user-friendly)
-      const formElements = Array.from(leadForm.elements);
-      const currentIndex = formElements.indexOf(event.target);
-      if (currentIndex < formElements.length - 1) {
-        const nextElement = formElements[currentIndex + 1];
-        nextElement.focus();
+  //  Prevent Enter key from accidentally submitting the form in the lead modal
+  const leadForm = document.getElementById("leadForm");
+  if (leadForm) {
+    leadForm.addEventListener("keydown", function (event) {
+      // Only prevent default on Enter key for input fields (not buttons or textareas)
+      if (
+        event.key === "Enter" &&
+        (event.target.tagName === "INPUT" ||
+          (event.target.tagName === "SELECT" && !event.target.multiple))
+      ) {
+        // Prevent the default form submission
+        event.preventDefault();
+        // Move focus to the next field instead (more user-friendly)
+        const formElements = Array.from(leadForm.elements);
+        const currentIndex = formElements.indexOf(event.target);
+        if (currentIndex < formElements.length - 1) {
+          const nextElement = formElements[currentIndex + 1];
+          nextElement.focus();
+        }
+        return false;
       }
-      return false;
-    }
-  });
-}
+    });
+  }
 
   // Initialize date input displays
   initializeDateInputs();
@@ -377,7 +377,7 @@ if (leadForm) {
     if (isNew) {
       currentPage = 1;
     }
-    
+
     // Re-render and update stats
     const filteredLeads = getFilteredLeads();
     renderPaginatedLeads(filteredLeads);
@@ -394,7 +394,7 @@ if (leadForm) {
     if (currentPage > Math.ceil(allLeads.length / pageSize)) {
       currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
     }
-    
+
     // Re-render and update stats
     const filteredLeads = getFilteredLeads();
     renderPaginatedLeads(filteredLeads);
@@ -412,24 +412,24 @@ if (leadForm) {
   });
 
   // Event listener for settings changes
-  window.addEventListener("settingsUpdated", function(event) {
+  window.addEventListener("settingsUpdated", function (event) {
     const { key, value } = event.detail;
-    
-    if (key === 'dateFormat') {
+
+    if (key === "dateFormat") {
       window.dateFormat = value;
-      
+
       // Re-render leads with new date format
       if (allLeads && allLeads.length > 0) {
         renderLeads(allLeads);
       }
-      
+
       // Re-initialize the date inputs with new format
       initializeDateInputs();
-      
+
       // Re-initialize any open lead modals with new date format
       const leadId = document.getElementById("leadId").value;
       if (leadId) {
-        const lead = allLeads.find(l => l._id === leadId);
+        const lead = allLeads.find((l) => l._id === leadId);
         if (lead) {
           Handlers.updateLeadModalDates(lead);
         }
@@ -478,42 +478,54 @@ function initializeDateInputs() {
   // Set up date inputs in the lead form
   const lastContactedInput = document.getElementById("lastContactedAt");
   const lastContactedDisplay = document.getElementById("lastContactedDisplay");
-  
+
   if (lastContactedInput && lastContactedDisplay) {
-    lastContactedInput.addEventListener("change", function() {
+    lastContactedInput.addEventListener("change", function () {
       if (this.value) {
         const date = new Date(this.value);
-        lastContactedDisplay.textContent = Utils.formatDate(date, window.dateFormat);
+        lastContactedDisplay.textContent = Utils.formatDate(
+          date,
+          window.dateFormat
+        );
       } else {
         lastContactedDisplay.textContent = "";
       }
     });
-    
+
     // Initial update if value exists
     if (lastContactedInput.value) {
       const date = new Date(lastContactedInput.value);
-      lastContactedDisplay.textContent = Utils.formatDate(date, window.dateFormat);
+      lastContactedDisplay.textContent = Utils.formatDate(
+        date,
+        window.dateFormat
+      );
     }
   }
-  
+
   // Set up date inputs in the payment form
   const paymentDateInput = document.getElementById("paymentDate");
   const paymentDateDisplay = document.getElementById("paymentDateDisplay");
-  
+
   if (paymentDateInput && paymentDateDisplay) {
-    paymentDateInput.addEventListener("change", function() {
+    paymentDateInput.addEventListener("change", function () {
       if (this.value) {
         const date = new Date(this.value);
-        paymentDateDisplay.textContent = Utils.formatDate(date, window.dateFormat);
+        paymentDateDisplay.textContent = Utils.formatDate(
+          date,
+          window.dateFormat
+        );
       } else {
         paymentDateDisplay.textContent = "";
       }
     });
-    
+
     // Initial update if value exists
     if (paymentDateInput.value) {
       const date = new Date(paymentDateInput.value);
-      paymentDateDisplay.textContent = Utils.formatDate(date, window.dateFormat);
+      paymentDateDisplay.textContent = Utils.formatDate(
+        date,
+        window.dateFormat
+      );
     }
   }
 }
@@ -580,7 +592,7 @@ async function fetchLeadsAndRender() {
 
     // Reset to page 1 when loading fresh data
     currentPage = 1;
-    
+
     // Render leads with pagination
     renderPaginatedLeads(allLeads);
 
@@ -677,13 +689,13 @@ function initPagination(leads) {
     currentPage = 1;
   } else {
     totalPages = Math.ceil(leads.length / pageSize);
-    
+
     // If current page is out of bounds after filtering, reset to page 1
     if (currentPage > totalPages) {
       currentPage = 1;
     }
   }
-  
+
   // Update pagination UI
   renderPagination();
 }
@@ -697,81 +709,55 @@ function getPaginatedLeads(leads) {
   if (!leads || leads.length === 0) {
     return [];
   }
-  
+
+  // Return all leads if pageSize is -1 (Show all)
+  if (pageSize === -1) {
+    return leads;
+  }
+
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, leads.length);
-  
+
   return leads.slice(startIndex, endIndex);
 }
 
+
+
 function renderPagination() {
   // Clean up any existing pagination
-  const existingPagination = document.querySelector('.pagination');
+  const existingPagination = document.querySelector(".pagination");
   if (existingPagination) {
     existingPagination.remove();
   }
-  
-  // Handle "All" page size option
-  if (pageSize === -1) {
-    // No pagination needed if showing all items
-    return;
-  }
-  
+
   // Create pagination container
-  const pagination = document.createElement('div');
-  pagination.className = 'pagination';
-  
-  // Create info text (e.g., "Showing 1-8 of 24")
+  const pagination = document.createElement("div");
+  pagination.className = "pagination";
+
+  // Total items count
   const totalItems = allLeads.length;
-  const startIndex = totalItems > 0 ? ((currentPage - 1) * pageSize) + 1 : 0;
-  const endIndex = Math.min(currentPage * pageSize, totalItems);
-  
-  // Page size selector
-  const pageSizeSelector = document.createElement('select');
-  pageSizeSelector.id = 'pageSizeSelector';
-  pageSizeSelector.innerHTML = `
-    <option value="10">10 leads per page</option>
-    <option value="25">25 leads per page</option>
-    <option value="50">50 leads per page</option>
-    <option value="-1">Show all leads</option>
-  `;
-  pageSizeSelector.value = pageSize;
-  
-  // Add event listener for page size change
-  pageSizeSelector.addEventListener('change', function() {
-    const newPageSize = parseInt(this.value);
-    
-    // Save to localStorage
-    localStorage.setItem('pageSize', newPageSize);
-    
-    // Update global page size
-    pageSize = newPageSize;
-    
-    // Reset to first page
-    currentPage = 1;
-    
-    // Re-render leads
-    const filteredLeads = getFilteredLeads();
-    renderPaginatedLeads(filteredLeads);
-  });
-  
-  const paginationInfo = document.createElement('div');
-  paginationInfo.className = 'pagination-info';
-  paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalItems}`;
-  
+
+  // Create pagination info (showing X-Y of Z)
+  const paginationInfo = document.createElement("div");
+  paginationInfo.className = "pagination-info";
+
   // Calculate total pages
   totalPages = Math.ceil(totalItems / pageSize);
-  
+
+  // Create buttons container for better responsive layout
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.className = "pagination-buttons-container";
+
   // Create previous button
-  const prevButton = document.createElement('button');
-  prevButton.className = 'pagination-button';
+  const prevButton = document.createElement("button");
+  prevButton.className = "pagination-button";
   prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-  prevButton.title = 'Previous page';
-  
+  prevButton.title = "Previous page";
+
   if (currentPage === 1) {
-    prevButton.classList.add('disabled');
+    prevButton.classList.add("disabled");
   } else {
-    prevButton.addEventListener('click', function() {
+    prevButton.addEventListener("click", function () {
       if (currentPage > 1) {
         currentPage--;
         const filteredLeads = getFilteredLeads();
@@ -779,90 +765,141 @@ function renderPagination() {
       }
     });
   }
-  
-  // Add pagination buttons
-  pagination.appendChild(prevButton);
-  
-  // Determine which page buttons to show
-  let pagesToShow = [];
-  
-  if (totalPages <= 5) {
-    // Show all pages if 5 or fewer
-    pagesToShow = Array.from({length: totalPages}, (_, i) => i + 1);
-  } else {
-    // Always include first and last page
-    pagesToShow = [1];
+
+  // Only add pagination buttons if we have multiple pages
+  if (totalPages > 1) {
+    // Add previous button
+    buttonsContainer.appendChild(prevButton);
+
+    // Determine which 3 pages to show based on current page
+    let startPage, endPage;
     
-    // Complex logic for pages in the middle
-    if (currentPage <= 3) {
-      // Near the start
-      pagesToShow = [1, 2, 3, 4, totalPages];
-    } else if (currentPage >= totalPages - 2) {
-      // Near the end
-      pagesToShow = [1, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    if (currentPage === 1) {
+      // If on first page, show pages 1, 2, 3
+      startPage = 1;
+      endPage = Math.min(3, totalPages);
+    } else if (currentPage === totalPages) {
+      // If on last page, show last 3 pages
+      startPage = Math.max(1, totalPages - 2);
+      endPage = totalPages;
     } else {
-      // Somewhere in the middle
-      pagesToShow = [1, currentPage - 1, currentPage, currentPage + 1, totalPages];
+      // Otherwise show current page with one before and one after
+      startPage = currentPage - 1;
+      endPage = currentPage + 1;
     }
-  }
-  
-  // Generate page buttons
-  let lastPage = 0;
-  pagesToShow.forEach(page => {
-    // Add ellipsis if there are gaps
-    if (page - lastPage > 1) {
-      const ellipsis = document.createElement('span');
-      ellipsis.className = 'pagination-button disabled';
-      ellipsis.textContent = '...';
-      pagination.appendChild(ellipsis);
+
+    // Generate page buttons for the 3 pages
+    for (let i = startPage; i <= endPage; i++) {
+      const pageButton = document.createElement("button");
+      pageButton.className = "pagination-button pagination-page";
+      pageButton.textContent = i;
+
+      if (i === currentPage) {
+        pageButton.classList.add("active");
+      } else {
+        pageButton.addEventListener("click", function () {
+          currentPage = i;
+          const filteredLeads = getFilteredLeads();
+          renderPaginatedLeads(filteredLeads);
+        });
+      }
+
+      buttonsContainer.appendChild(pageButton);
     }
-    
-    const pageButton = document.createElement('button');
-    pageButton.className = 'pagination-button pagination-page';
-    pageButton.textContent = page;
-    
-    if (page === currentPage) {
-      pageButton.classList.add('active');
+
+    // Create next button
+    const nextButton = document.createElement("button");
+    nextButton.className = "pagination-button";
+    nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextButton.title = "Next page";
+
+    if (currentPage === totalPages) {
+      nextButton.classList.add("disabled");
     } else {
-      pageButton.addEventListener('click', function() {
-        currentPage = page;
-        const filteredLeads = getFilteredLeads();
-        renderPaginatedLeads(filteredLeads);
+      nextButton.addEventListener("click", function () {
+        if (currentPage < totalPages) {
+          currentPage++;
+          const filteredLeads = getFilteredLeads();
+          renderPaginatedLeads(filteredLeads);
+        }
       });
     }
-    
-    pagination.appendChild(pageButton);
-    lastPage = page;
+
+    // Add next button
+    buttonsContainer.appendChild(nextButton);
+  }
+
+  // Create the select element
+  const pageSizeSelector = document.createElement("select");
+  pageSizeSelector.id = "pageSizeSelector";
+  
+  // Add options
+  const pageSizeOptions = [
+    { value: "10", text: "10 leads per page" },
+    { value: "25", text: "25 leads per page" },
+    { value: "50", text: "50 leads per page" },
+    { value: "-1", text: "Show all leads" }
+  ];
+  
+  pageSizeOptions.forEach(option => {
+    const optionElement = document.createElement("option");
+    optionElement.value = option.value;
+    optionElement.textContent = option.text;
+    pageSizeSelector.appendChild(optionElement);
   });
   
-  // Create next button
-  const nextButton = document.createElement('button');
-  nextButton.className = 'pagination-button';
-  nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-  nextButton.title = 'Next page';
-  
-  if (currentPage === totalPages) {
-    nextButton.classList.add('disabled');
-  } else {
-    nextButton.addEventListener('click', function() {
-      if (currentPage < totalPages) {
-        currentPage++;
-        const filteredLeads = getFilteredLeads();
-        renderPaginatedLeads(filteredLeads);
-      }
-    });
+  // Set current value
+  pageSizeSelector.value = pageSize;
+
+  // Add event listener for page size change
+  pageSizeSelector.addEventListener("change", function () {
+    const newPageSize = parseInt(this.value);
+
+    // Save to localStorage
+    localStorage.setItem("pageSize", newPageSize);
+
+    // Update global page size
+    pageSize = newPageSize;
+
+    // Reset to first page
+    currentPage = 1;
+
+    // Re-render leads
+    const filteredLeads = getFilteredLeads();
+    renderPaginatedLeads(filteredLeads);
+  });
+
+  // For "Show all" option, just show the total count
+  if (pageSize === -1) {
+    paginationInfo.textContent = `Showing all ${totalItems} leads`;
+    
+    // Add pagination to page with correct order for "Show all"
+    pagination.appendChild(paginationInfo);
+    pagination.appendChild(pageSizeSelector);
+    
+    // Add pagination to the page
+    const leadsContainer = document.querySelector(".leads-container");
+    leadsContainer.appendChild(pagination);
+
+    return; // Exit early, no need for page buttons
   }
-  
-  // Append elements
-  pagination.appendChild(nextButton);
-  pagination.appendChild(pageSizeSelector);
-  pagination.appendChild(paginationInfo);
-  
+
+  // For normal pagination, calculate pages and ranges
+  const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+  const endIndex = Math.min(currentPage * pageSize, totalItems);
+  paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalItems}`;
+
+  // Add components to pagination in the correct order
+  if (totalPages > 1) {
+    pagination.appendChild(buttonsContainer); // Buttons first
+  }
+  pagination.appendChild(pageSizeSelector); // Then select element
+  pagination.appendChild(paginationInfo); // Then pagination info
+
   // Add pagination to the page
-  const leadsContainer = document.querySelector('.leads-container');
+  const leadsContainer = document.querySelector(".leads-container");
   leadsContainer.appendChild(pagination);
 }
-
 
 /**
  * Render leads with pagination
@@ -871,17 +908,17 @@ function renderPagination() {
 function renderPaginatedLeads(leads) {
   // Initialize pagination with the filtered leads
   initPagination(leads);
-  
+
   // Get only the leads for the current page
   const paginatedLeads = getPaginatedLeads(leads);
-  
+
   // Render them using the existing UI render functions
   if (currentView === "grid") {
     UI.renderGridView(paginatedLeads);
   } else {
     UI.renderListView(paginatedLeads);
   }
-  
+
   // Update pagination UI
   renderPagination();
 }
@@ -893,9 +930,9 @@ function renderPaginatedLeads(leads) {
 function getFilteredLeads() {
   const filterStatus = document.getElementById("filterStatus").value;
   const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-  
+
   let filteredLeads = [...allLeads];
-  
+
   // Apply search filter
   if (searchTerm) {
     filteredLeads = filteredLeads.filter((lead) => {
@@ -940,7 +977,7 @@ function getFilteredLeads() {
       );
     });
   }
-  
+
   // Apply status filter
   if (filterStatus) {
     filteredLeads = filteredLeads.filter((lead) => {
@@ -951,14 +988,14 @@ function getFilteredLeads() {
       );
     });
   }
-  
+
   // Apply sorting
   const sortField = document.getElementById("sortField").value;
   const sortOrder = document.getElementById("sortOrder").value;
-  
+
   // Sort logic
   applySorting(filteredLeads, sortField, sortOrder);
-  
+
   return filteredLeads;
 }
 
@@ -1148,7 +1185,7 @@ function applySorting(leadsToSort, sortField, sortOrder) {
 function searchLeads() {
   // Reset to first page when searching
   currentPage = 1;
-  
+
   const filteredLeads = getFilteredLeads();
   renderPaginatedLeads(filteredLeads);
 }
@@ -1159,7 +1196,7 @@ function searchLeads() {
 function filterLeads() {
   // Reset to first page when changing filters
   currentPage = 1;
-  
+
   const filteredLeads = getFilteredLeads();
   renderPaginatedLeads(filteredLeads);
 }
@@ -1188,7 +1225,7 @@ function sortLeadsAndRender(leadsToSort) {
 
   // Create a copy of the array to avoid modifying the original
   const sortedLeads = [...leadsToSort];
-  
+
   // Sort the leads
   applySorting(sortedLeads, sortField, sortOrder);
 
@@ -1203,17 +1240,17 @@ function sortLeadsAndRender(leadsToSort) {
 function renderLeads(leads) {
   // Initialize pagination first
   initPagination(leads);
-  
+
   // Get only the leads for the current page
   const paginatedLeads = getPaginatedLeads(leads);
-  
+
   // Render them using the appropriate view
   if (currentView === "grid") {
     UI.renderGridView(paginatedLeads);
   } else {
     UI.renderListView(paginatedLeads);
   }
-  
+
   // Update pagination UI
   renderPagination();
 }

@@ -5,6 +5,14 @@
     align-items: center;
     margin: 2.5rem 0;
     gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .pagination-buttons-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 0.5rem;
   }
   
   .pagination-button {
@@ -51,7 +59,7 @@
     background-color: transparent;
     color: var(--text-muted);
     font-size: 1.2rem;
-    padding:  .65rem ;
+    padding: .65rem;
     cursor: pointer;
     transition: color var(--transition-speed);
     position: relative;
@@ -66,7 +74,6 @@
   #pageSizeSelector span {
     position: relative;
   }
-   
   
   /* Responsive Media Queries */
   @media (max-width: 768px) {
@@ -84,10 +91,8 @@
     
     .pagination-info {
       font-size: 1.2rem;
-      width: 100%;
       text-align: center;
-      margin-top: 0.5rem;
-      order: -1;
+      margin: 0.5rem 0;
     }
   
     #pageSizeSelector {
@@ -103,6 +108,14 @@
   @media (max-width: 480px) {
     .pagination {
       padding: 0 0.5rem;
+      flex-direction: column;
+    }
+    
+    .pagination-buttons-container {
+      margin-right: 0;
+      margin-bottom: 0.8rem;
+      width: 100%;
+      justify-content: center;
     }
     
     .pagination-button {
@@ -113,10 +126,11 @@
     
     .pagination-info {
       font-size: 1.1rem;
+      order: 3; /* Move to bottom on mobile */
     }
-
+  
     #pageSizeSelector {
-        width: auto;
-        margin-top: .5rem;
+      width: auto;
+      order: 2; /* Make it appear after buttons on mobile */
     }
   }
