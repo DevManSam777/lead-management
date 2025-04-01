@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/pagination.css" />
   </head>
   <body>
     <div class="container">
@@ -172,7 +173,7 @@
         <!-- Modal action buttons will be inserted here by JS -->
         <form id="leadForm">
           <input type="hidden" id="leadId" />
-          
+
           <!-- Personal Information Section -->
           <div class="form-section">
             <h4>Personal Information</h4>
@@ -222,7 +223,11 @@
                 <input type="tel" id="businessPhone" />
                 <div class="extension-field">
                   <label for="businessPhoneExt">Ext:</label>
-                  <input type="text" id="businessPhoneExt" placeholder="Extension" />
+                  <input
+                    type="text"
+                    id="businessPhoneExt"
+                    placeholder="Extension"
+                  />
                 </div>
               </div>
             </div>
@@ -354,7 +359,11 @@
                 <div class="payments-container">
                   <!-- Payments will be loaded here -->
                 </div>
-                <button type="button" id="addPaymentBtn" class="btn btn-outline">
+                <button
+                  type="button"
+                  id="addPaymentBtn"
+                  class="btn btn-outline"
+                >
                   <i class="fas fa-plus"></i> Add Payment
                 </button>
               </div>

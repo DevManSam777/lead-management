@@ -1,6 +1,5 @@
 // Main entry point for dashboard functionality
-
-// Import all modules
+// Imports
 import * as API from "./api.js";
 import * as UI from "./ui.js";
 import * as Utils from "./utils.js";
@@ -17,11 +16,11 @@ let defaultCurrency = "USD"; // Store the default currency
 let globalSettings = {
   theme: "light",
   dateFormat: "MM/DD/YYYY"
-}; // global settings cache
+}; 
 
-// Pagination variables
+
 let currentPage = 1;
-const pageSize = 12; // Number of leads per page
+let pageSize = 10; // Default number of leads per page
 let totalPages = 1;
 
 // View tracking
@@ -705,9 +704,6 @@ function getPaginatedLeads(leads) {
   return leads.slice(startIndex, endIndex);
 }
 
-/**
- * Create and render pagination UI
- */
 function renderPagination() {
   // Clean up any existing pagination
   const existingPagination = document.querySelector('.pagination');
@@ -715,24 +711,63 @@ function renderPagination() {
     existingPagination.remove();
   }
   
+  // Handle "All" page size option
+  if (pageSize === -1) {
+    // No pagination needed if showing all items
+    return;
+  }
+  
   // Create pagination container
   const pagination = document.createElement('div');
   pagination.className = 'pagination';
   
   // Create info text (e.g., "Showing 1-8 of 24")
-  const startIndex = allLeads.length > 0 ? ((currentPage - 1) * pageSize) + 1 : 0;
-  const endIndex = Math.min(currentPage * pageSize, allLeads.length);
   const totalItems = allLeads.length;
+  const startIndex = totalItems > 0 ? ((currentPage - 1) * pageSize) + 1 : 0;
+  const endIndex = Math.min(currentPage * pageSize, totalItems);
+  
+  // Page size selector
+  const pageSizeSelector = document.createElement('select');
+  pageSizeSelector.id = 'pageSizeSelector';
+  pageSizeSelector.innerHTML = `
+    <option value="10">10 leads per page</option>
+    <option value="25">25 leads per page</option>
+    <option value="50">50 leads per page</option>
+    <option value="-1">Show all leads</option>
+  `;
+  pageSizeSelector.value = pageSize;
+  
+  // Add event listener for page size change
+  pageSizeSelector.addEventListener('change', function() {
+    const newPageSize = parseInt(this.value);
+    
+    // Save to localStorage
+    localStorage.setItem('pageSize', newPageSize);
+    
+    // Update global page size
+    pageSize = newPageSize;
+    
+    // Reset to first page
+    currentPage = 1;
+    
+    // Re-render leads
+    const filteredLeads = getFilteredLeads();
+    renderPaginatedLeads(filteredLeads);
+  });
   
   const paginationInfo = document.createElement('div');
   paginationInfo.className = 'pagination-info';
   paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalItems}`;
+  
+  // Calculate total pages
+  totalPages = Math.ceil(totalItems / pageSize);
   
   // Create previous button
   const prevButton = document.createElement('button');
   prevButton.className = 'pagination-button';
   prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
   prevButton.title = 'Previous page';
+  
   if (currentPage === 1) {
     prevButton.classList.add('disabled');
   } else {
@@ -805,6 +840,7 @@ function renderPagination() {
   nextButton.className = 'pagination-button';
   nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
   nextButton.title = 'Next page';
+  
   if (currentPage === totalPages) {
     nextButton.classList.add('disabled');
   } else {
@@ -817,13 +853,16 @@ function renderPagination() {
     });
   }
   
+  // Append elements
   pagination.appendChild(nextButton);
+  pagination.appendChild(pageSizeSelector);
   pagination.appendChild(paginationInfo);
   
   // Add pagination to the page
   const leadsContainer = document.querySelector('.leads-container');
   leadsContainer.appendChild(pagination);
 }
+
 
 /**
  * Render leads with pagination
