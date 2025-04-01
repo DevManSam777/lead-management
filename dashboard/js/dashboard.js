@@ -5,6 +5,7 @@ import * as UI from "./ui.js";
 import * as Utils from "./utils.js";
 import * as Handlers from "./handlers.js";
 import * as Payments from "./payments.js";
+import * as Pagination from "./pagination.js";
 
 // Function declarations
 // These functions are specific to dashboard.js and not moved to other modules
@@ -137,6 +138,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     statsDetails.addEventListener("toggle", function () {
       localStorage.setItem("statsOpen", this.open);
     });
+  }
+
+  // Load page size from localStorage if available
+  const savedPageSize = localStorage.getItem("pageSize");
+  if (savedPageSize) {
+    pageSize = parseInt(savedPageSize);
   }
 
   //  Prevent Enter key from accidentally submitting the form in the lead modal
@@ -680,237 +687,19 @@ function closeLeadModal() {
 }
 
 /**
- * Initialize pagination based on total leads
- * @param {Array} leads - Array of leads to paginate
- */
-function initPagination(leads) {
-  if (!leads || leads.length === 0) {
-    totalPages = 1;
-    currentPage = 1;
-  } else {
-    totalPages = Math.ceil(leads.length / pageSize);
-
-    // If current page is out of bounds after filtering, reset to page 1
-    if (currentPage > totalPages) {
-      currentPage = 1;
-    }
-  }
-
-  // Update pagination UI
-  renderPagination();
-}
-
-/**
- * Get leads for the current page
- * @param {Array} leads - All leads (filtered if applicable)
- * @returns {Array} - Leads for the current page
- */
-function getPaginatedLeads(leads) {
-  if (!leads || leads.length === 0) {
-    return [];
-  }
-
-  // Return all leads if pageSize is -1 (Show all)
-  if (pageSize === -1) {
-    return leads;
-  }
-
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, leads.length);
-
-  return leads.slice(startIndex, endIndex);
-}
-
-
-
-function renderPagination() {
-  // Clean up any existing pagination
-  const existingPagination = document.querySelector(".pagination");
-  if (existingPagination) {
-    existingPagination.remove();
-  }
-
-  // Create pagination container
-  const pagination = document.createElement("div");
-  pagination.className = "pagination";
-
-  // Total items count
-  const totalItems = allLeads.length;
-
-  // Create pagination info (showing X-Y of Z)
-  const paginationInfo = document.createElement("div");
-  paginationInfo.className = "pagination-info";
-
-  // Calculate total pages
-  totalPages = Math.ceil(totalItems / pageSize);
-
-  // Create buttons container for better responsive layout
-  const buttonsContainer = document.createElement("div");
-  buttonsContainer.className = "pagination-buttons-container";
-
-  // Create previous button
-  const prevButton = document.createElement("button");
-  prevButton.className = "pagination-button";
-  prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-  prevButton.title = "Previous page";
-
-  if (currentPage === 1) {
-    prevButton.classList.add("disabled");
-  } else {
-    prevButton.addEventListener("click", function () {
-      if (currentPage > 1) {
-        currentPage--;
-        const filteredLeads = getFilteredLeads();
-        renderPaginatedLeads(filteredLeads);
-      }
-    });
-  }
-
-  // Only add pagination buttons if we have multiple pages
-  if (totalPages > 1) {
-    // Add previous button
-    buttonsContainer.appendChild(prevButton);
-
-    // Determine which 3 pages to show based on current page
-    let startPage, endPage;
-    
-    if (currentPage === 1) {
-      // If on first page, show pages 1, 2, 3
-      startPage = 1;
-      endPage = Math.min(3, totalPages);
-    } else if (currentPage === totalPages) {
-      // If on last page, show last 3 pages
-      startPage = Math.max(1, totalPages - 2);
-      endPage = totalPages;
-    } else {
-      // Otherwise show current page with one before and one after
-      startPage = currentPage - 1;
-      endPage = currentPage + 1;
-    }
-
-    // Generate page buttons for the 3 pages
-    for (let i = startPage; i <= endPage; i++) {
-      const pageButton = document.createElement("button");
-      pageButton.className = "pagination-button pagination-page";
-      pageButton.textContent = i;
-
-      if (i === currentPage) {
-        pageButton.classList.add("active");
-      } else {
-        pageButton.addEventListener("click", function () {
-          currentPage = i;
-          const filteredLeads = getFilteredLeads();
-          renderPaginatedLeads(filteredLeads);
-        });
-      }
-
-      buttonsContainer.appendChild(pageButton);
-    }
-
-    // Create next button
-    const nextButton = document.createElement("button");
-    nextButton.className = "pagination-button";
-    nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-    nextButton.title = "Next page";
-
-    if (currentPage === totalPages) {
-      nextButton.classList.add("disabled");
-    } else {
-      nextButton.addEventListener("click", function () {
-        if (currentPage < totalPages) {
-          currentPage++;
-          const filteredLeads = getFilteredLeads();
-          renderPaginatedLeads(filteredLeads);
-        }
-      });
-    }
-
-    // Add next button
-    buttonsContainer.appendChild(nextButton);
-  }
-
-  // Create the select element
-  const pageSizeSelector = document.createElement("select");
-  pageSizeSelector.id = "pageSizeSelector";
-  
-  // Add options
-  const pageSizeOptions = [
-    { value: "10", text: "10 leads per page" },
-    { value: "25", text: "25 leads per page" },
-    { value: "50", text: "50 leads per page" },
-    { value: "-1", text: "Show all leads" }
-  ];
-  
-  pageSizeOptions.forEach(option => {
-    const optionElement = document.createElement("option");
-    optionElement.value = option.value;
-    optionElement.textContent = option.text;
-    pageSizeSelector.appendChild(optionElement);
-  });
-  
-  // Set current value
-  pageSizeSelector.value = pageSize;
-
-  // Add event listener for page size change
-  pageSizeSelector.addEventListener("change", function () {
-    const newPageSize = parseInt(this.value);
-
-    // Save to localStorage
-    localStorage.setItem("pageSize", newPageSize);
-
-    // Update global page size
-    pageSize = newPageSize;
-
-    // Reset to first page
-    currentPage = 1;
-
-    // Re-render leads
-    const filteredLeads = getFilteredLeads();
-    renderPaginatedLeads(filteredLeads);
-  });
-
-  // For "Show all" option, just show the total count
-  if (pageSize === -1) {
-    paginationInfo.textContent = `Showing all ${totalItems} leads`;
-    
-    // Add pagination to page with correct order for "Show all"
-    pagination.appendChild(paginationInfo);
-    pagination.appendChild(pageSizeSelector);
-    
-    // Add pagination to the page
-    const leadsContainer = document.querySelector(".leads-container");
-    leadsContainer.appendChild(pagination);
-
-    return; // Exit early, no need for page buttons
-  }
-
-  // For normal pagination, calculate pages and ranges
-  const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
-  const endIndex = Math.min(currentPage * pageSize, totalItems);
-  paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalItems}`;
-
-  // Add components to pagination in the correct order
-  if (totalPages > 1) {
-    pagination.appendChild(buttonsContainer); // Buttons first
-  }
-  pagination.appendChild(pageSizeSelector); // Then select element
-  pagination.appendChild(paginationInfo); // Then pagination info
-
-  // Add pagination to the page
-  const leadsContainer = document.querySelector(".leads-container");
-  leadsContainer.appendChild(pagination);
-}
-
-/**
  * Render leads with pagination
  * @param {Array} leads - Array of leads (filtered if applicable)
  */
 function renderPaginatedLeads(leads) {
   // Initialize pagination with the filtered leads
-  initPagination(leads);
+  const paginationInfo = Pagination.initPagination(leads, currentPage, pageSize);
+  
+  // Update current page from pagination info
+  currentPage = paginationInfo.currentPage;
+  totalPages = paginationInfo.totalPages;
 
   // Get only the leads for the current page
-  const paginatedLeads = getPaginatedLeads(leads);
+  const paginatedLeads = Pagination.getPaginatedItems(leads, currentPage, pageSize);
 
   // Render them using the existing UI render functions
   if (currentView === "grid") {
@@ -920,7 +709,33 @@ function renderPaginatedLeads(leads) {
   }
 
   // Update pagination UI
-  renderPagination();
+  Pagination.renderPagination({
+    totalItems: leads.length,
+    totalPages: totalPages,
+    currentPage: currentPage,
+    pageSize: pageSize,
+    onPageChange: (newPage) => {
+      currentPage = newPage;
+      const filteredLeads = getFilteredLeads();
+      renderPaginatedLeads(filteredLeads);
+    },
+    onPageSizeChange: (newPageSize) => {
+      pageSize = newPageSize;
+      currentPage = 1;
+      const filteredLeads = getFilteredLeads();
+      renderPaginatedLeads(filteredLeads);
+    },
+    containerId: ".leads-container"
+  });
+}
+
+/**
+ * Render leads based on current view
+ * @param {Array} leads - Array of lead objects
+ */
+function renderLeads(leads) {
+  // Use renderPaginatedLeads to handle both the pagination and rendering
+  renderPaginatedLeads(leads);
 }
 
 /**
@@ -1233,24 +1048,15 @@ function sortLeadsAndRender(leadsToSort) {
   renderPaginatedLeads(sortedLeads);
 }
 
-/**
- * Render leads based on current view
- * @param {Array} leads - Array of lead objects
- */
-function renderLeads(leads) {
-  // Initialize pagination first
-  initPagination(leads);
-
-  // Get only the leads for the current page
-  const paginatedLeads = getPaginatedLeads(leads);
-
-  // Render them using the appropriate view
-  if (currentView === "grid") {
-    UI.renderGridView(paginatedLeads);
-  } else {
-    UI.renderListView(paginatedLeads);
-  }
-
-  // Update pagination UI
-  renderPagination();
-}
+// Export necessary functions
+export {
+  fetchLeadsAndRender,
+  sortLeadsAndRender,
+  renderLeads,
+  renderPaginatedLeads,
+  getFilteredLeads,
+  filterLeads,
+  sortLeads,
+  searchLeads,
+  applySorting
+};
