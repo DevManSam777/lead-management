@@ -19,6 +19,14 @@ let globalSettings = {
   dateFormat: "MM/DD/YYYY"
 }; // global settings cache
 
+// Pagination variables
+let currentPage = 1;
+const pageSize = 12; // Number of leads per page
+let totalPages = 1;
+
+// View tracking
+let currentView = "grid"; // 'grid' or 'list'
+
 // Set theme on HTML element
 function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
@@ -32,6 +40,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Global switchView function for dashboard.js
   window.switchView = function (view) {
     console.log("Global switchView called with:", view);
+
+    // Update the current view variable
+    currentView = view;
 
     // Get the view containers directly
     const leadCards = document.getElementById("leadCards");
@@ -68,7 +79,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Re-render leads in the new view if allLeads is available
     if (allLeads && allLeads.length > 0) {
-      UI.renderLeads(allLeads);
+      renderLeads(allLeads);
     }
   };
 
@@ -111,6 +122,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const savedView = localStorage.getItem('preferredView');
   if (savedView && (savedView === 'grid' || savedView === 'list')) {
     console.log("Restoring saved view preference:", savedView);
+    currentView = savedView; // Set the current view variable first
     window.switchView(savedView);
   }
   
@@ -362,8 +374,14 @@ if (leadForm) {
       }
     }
 
+    // Reset to first page when adding a new lead
+    if (isNew) {
+      currentPage = 1;
+    }
+    
     // Re-render and update stats
-    UI.renderLeads(allLeads);
+    const filteredLeads = getFilteredLeads();
+    renderPaginatedLeads(filteredLeads);
     UI.calculateStats(allLeads, payments);
   });
 
@@ -373,8 +391,14 @@ if (leadForm) {
     // Remove lead from array
     allLeads = allLeads.filter((lead) => lead._id !== leadId);
 
+    // Reset to first page if we're on a page higher than max pages
+    if (currentPage > Math.ceil(allLeads.length / pageSize)) {
+      currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
+    }
+    
     // Re-render and update stats
-    UI.renderLeads(allLeads);
+    const filteredLeads = getFilteredLeads();
+    renderPaginatedLeads(filteredLeads);
     UI.calculateStats(allLeads, payments);
   });
 
@@ -397,7 +421,7 @@ if (leadForm) {
       
       // Re-render leads with new date format
       if (allLeads && allLeads.length > 0) {
-        UI.renderLeads(allLeads);
+        renderLeads(allLeads);
       }
       
       // Re-initialize the date inputs with new format
@@ -555,8 +579,11 @@ async function fetchLeadsAndRender() {
     // Fetch leads
     allLeads = await API.fetchLeads();
 
-    // Render leads
-    UI.renderLeads(allLeads);
+    // Reset to page 1 when loading fresh data
+    currentPage = 1;
+    
+    // Render leads with pagination
+    renderPaginatedLeads(allLeads);
 
     // Fetch payments
     payments = await API.fetchPayments();
@@ -642,16 +669,198 @@ function closeLeadModal() {
 }
 
 /**
- * Search leads based on input
+ * Initialize pagination based on total leads
+ * @param {Array} leads - Array of leads to paginate
  */
-function searchLeads() {
+function initPagination(leads) {
+  if (!leads || leads.length === 0) {
+    totalPages = 1;
+    currentPage = 1;
+  } else {
+    totalPages = Math.ceil(leads.length / pageSize);
+    
+    // If current page is out of bounds after filtering, reset to page 1
+    if (currentPage > totalPages) {
+      currentPage = 1;
+    }
+  }
+  
+  // Update pagination UI
+  renderPagination();
+}
+
+/**
+ * Get leads for the current page
+ * @param {Array} leads - All leads (filtered if applicable)
+ * @returns {Array} - Leads for the current page
+ */
+function getPaginatedLeads(leads) {
+  if (!leads || leads.length === 0) {
+    return [];
+  }
+  
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, leads.length);
+  
+  return leads.slice(startIndex, endIndex);
+}
+
+/**
+ * Create and render pagination UI
+ */
+function renderPagination() {
+  // Clean up any existing pagination
+  const existingPagination = document.querySelector('.pagination');
+  if (existingPagination) {
+    existingPagination.remove();
+  }
+  
+  // Create pagination container
+  const pagination = document.createElement('div');
+  pagination.className = 'pagination';
+  
+  // Create info text (e.g., "Showing 1-8 of 24")
+  const startIndex = allLeads.length > 0 ? ((currentPage - 1) * pageSize) + 1 : 0;
+  const endIndex = Math.min(currentPage * pageSize, allLeads.length);
+  const totalItems = allLeads.length;
+  
+  const paginationInfo = document.createElement('div');
+  paginationInfo.className = 'pagination-info';
+  paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalItems}`;
+  
+  // Create previous button
+  const prevButton = document.createElement('button');
+  prevButton.className = 'pagination-button';
+  prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+  prevButton.title = 'Previous page';
+  if (currentPage === 1) {
+    prevButton.classList.add('disabled');
+  } else {
+    prevButton.addEventListener('click', function() {
+      if (currentPage > 1) {
+        currentPage--;
+        const filteredLeads = getFilteredLeads();
+        renderPaginatedLeads(filteredLeads);
+      }
+    });
+  }
+  
+  // Add pagination buttons
+  pagination.appendChild(prevButton);
+  
+  // Determine which page buttons to show
+  let pagesToShow = [];
+  
+  if (totalPages <= 5) {
+    // Show all pages if 5 or fewer
+    pagesToShow = Array.from({length: totalPages}, (_, i) => i + 1);
+  } else {
+    // Always include first and last page
+    pagesToShow = [1];
+    
+    // Complex logic for pages in the middle
+    if (currentPage <= 3) {
+      // Near the start
+      pagesToShow = [1, 2, 3, 4, totalPages];
+    } else if (currentPage >= totalPages - 2) {
+      // Near the end
+      pagesToShow = [1, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    } else {
+      // Somewhere in the middle
+      pagesToShow = [1, currentPage - 1, currentPage, currentPage + 1, totalPages];
+    }
+  }
+  
+  // Generate page buttons
+  let lastPage = 0;
+  pagesToShow.forEach(page => {
+    // Add ellipsis if there are gaps
+    if (page - lastPage > 1) {
+      const ellipsis = document.createElement('span');
+      ellipsis.className = 'pagination-button disabled';
+      ellipsis.textContent = '...';
+      pagination.appendChild(ellipsis);
+    }
+    
+    const pageButton = document.createElement('button');
+    pageButton.className = 'pagination-button pagination-page';
+    pageButton.textContent = page;
+    
+    if (page === currentPage) {
+      pageButton.classList.add('active');
+    } else {
+      pageButton.addEventListener('click', function() {
+        currentPage = page;
+        const filteredLeads = getFilteredLeads();
+        renderPaginatedLeads(filteredLeads);
+      });
+    }
+    
+    pagination.appendChild(pageButton);
+    lastPage = page;
+  });
+  
+  // Create next button
+  const nextButton = document.createElement('button');
+  nextButton.className = 'pagination-button';
+  nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+  nextButton.title = 'Next page';
+  if (currentPage === totalPages) {
+    nextButton.classList.add('disabled');
+  } else {
+    nextButton.addEventListener('click', function() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        const filteredLeads = getFilteredLeads();
+        renderPaginatedLeads(filteredLeads);
+      }
+    });
+  }
+  
+  pagination.appendChild(nextButton);
+  pagination.appendChild(paginationInfo);
+  
+  // Add pagination to the page
+  const leadsContainer = document.querySelector('.leads-container');
+  leadsContainer.appendChild(pagination);
+}
+
+/**
+ * Render leads with pagination
+ * @param {Array} leads - Array of leads (filtered if applicable)
+ */
+function renderPaginatedLeads(leads) {
+  // Initialize pagination with the filtered leads
+  initPagination(leads);
+  
+  // Get only the leads for the current page
+  const paginatedLeads = getPaginatedLeads(leads);
+  
+  // Render them using the existing UI render functions
+  if (currentView === "grid") {
+    UI.renderGridView(paginatedLeads);
+  } else {
+    UI.renderListView(paginatedLeads);
+  }
+  
+  // Update pagination UI
+  renderPagination();
+}
+
+/**
+ * Get filtered leads based on current filter settings
+ * @returns {Array} - Filtered leads
+ */
+function getFilteredLeads() {
+  const filterStatus = document.getElementById("filterStatus").value;
   const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-
-  let filteredLeads = allLeads;
-
+  
+  let filteredLeads = [...allLeads];
+  
+  // Apply search filter
   if (searchTerm) {
-    filteredLeads = allLeads.filter((lead) => {
-      // Search in multiple fields
+    filteredLeads = filteredLeads.filter((lead) => {
+      // Search in multiple fields (same logic as in the searchLeads function)
       const nameMatch = Utils.getLeadName(lead)
         .toLowerCase()
         .includes(searchTerm);
@@ -692,28 +901,9 @@ function searchLeads() {
       );
     });
   }
-
-  filterByStatus(filteredLeads);
-}
-
-/**
- * Filter leads by status
- */
-function filterLeads() {
-  filterByStatus(allLeads);
-}
-
-/**
- * Filter leads by status
- * @param {Array} leadsArray - Array of leads to filter
- */
-function filterByStatus(leadsArray) {
-  const filterStatus = document.getElementById("filterStatus").value;
-
-  let filteredLeads = leadsArray;
-
+  
+  // Apply status filter
   if (filterStatus) {
-    // Make case-insensitive comparison and handle multiple status formats
     filteredLeads = filteredLeads.filter((lead) => {
       const leadStatus = (lead.status || "").toLowerCase();
       return (
@@ -722,37 +912,31 @@ function filterByStatus(leadsArray) {
       );
     });
   }
-
-  // Sort the filtered results
-  sortLeadsAndRender(filteredLeads);
-}
-
-/**
- * Sort leads based on sort field and order
- */
-function sortLeads() {
-  sortLeadsAndRender(allLeads);
-}
-
-/**
- * Sort leads and render them
- * @param {Array} leadsToSort - Array of leads to sort
- */
-function sortLeadsAndRender(leadsToSort) {
+  
+  // Apply sorting
   const sortField = document.getElementById("sortField").value;
   const sortOrder = document.getElementById("sortOrder").value;
+  
+  // Sort logic
+  applySorting(filteredLeads, sortField, sortOrder);
+  
+  return filteredLeads;
+}
 
+/**
+ * Apply sorting to an array of leads
+ * @param {Array} leadsToSort - Array of leads to sort
+ * @param {string} sortField - Field to sort by
+ * @param {string} sortOrder - Sort order ('asc' or 'desc')
+ */
+function applySorting(leadsToSort, sortField, sortOrder) {
   // If no leads to sort, return
   if (!leadsToSort || leadsToSort.length === 0) {
-    UI.renderLeads([]);
-    return;
+    return leadsToSort;
   }
 
-  // Create a copy of the array to avoid modifying the original
-  const sortedLeads = [...leadsToSort];
-
-  // Sort the leads array
-  sortedLeads.sort((a, b) => {
+  // Sort the leads array (in-place)
+  leadsToSort.sort((a, b) => {
     let comparison = 0;
 
     // Handle different field types
@@ -916,6 +1100,81 @@ function sortLeadsAndRender(leadsToSort) {
     }
   });
 
-  // Render the sorted results
-  UI.renderLeads(sortedLeads);
+  return leadsToSort;
+}
+
+/**
+ * Search leads based on input
+ */
+function searchLeads() {
+  // Reset to first page when searching
+  currentPage = 1;
+  
+  const filteredLeads = getFilteredLeads();
+  renderPaginatedLeads(filteredLeads);
+}
+
+/**
+ * Filter leads by status
+ */
+function filterLeads() {
+  // Reset to first page when changing filters
+  currentPage = 1;
+  
+  const filteredLeads = getFilteredLeads();
+  renderPaginatedLeads(filteredLeads);
+}
+
+/**
+ * Sort leads based on sort field and order
+ */
+function sortLeads() {
+  const filteredLeads = getFilteredLeads();
+  renderPaginatedLeads(filteredLeads);
+}
+
+/**
+ * Sort leads and render them
+ * @param {Array} leadsToSort - Array of leads to sort
+ */
+function sortLeadsAndRender(leadsToSort) {
+  const sortField = document.getElementById("sortField").value;
+  const sortOrder = document.getElementById("sortOrder").value;
+
+  // If no leads to sort, return
+  if (!leadsToSort || leadsToSort.length === 0) {
+    renderPaginatedLeads([]);
+    return;
+  }
+
+  // Create a copy of the array to avoid modifying the original
+  const sortedLeads = [...leadsToSort];
+  
+  // Sort the leads
+  applySorting(sortedLeads, sortField, sortOrder);
+
+  // Render the sorted results with pagination
+  renderPaginatedLeads(sortedLeads);
+}
+
+/**
+ * Render leads based on current view
+ * @param {Array} leads - Array of lead objects
+ */
+function renderLeads(leads) {
+  // Initialize pagination first
+  initPagination(leads);
+  
+  // Get only the leads for the current page
+  const paginatedLeads = getPaginatedLeads(leads);
+  
+  // Render them using the appropriate view
+  if (currentView === "grid") {
+    UI.renderGridView(paginatedLeads);
+  } else {
+    UI.renderListView(paginatedLeads);
+  }
+  
+  // Update pagination UI
+  renderPagination();
 }
