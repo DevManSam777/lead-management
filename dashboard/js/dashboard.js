@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
 
-// Prevent Enter key from accidentally submitting the form in the lead modal
+//  Prevent Enter key from accidentally submitting the form in the lead modal
 const leadForm = document.getElementById("leadForm");
 if (leadForm) {
   leadForm.addEventListener("keydown", function(event) {
