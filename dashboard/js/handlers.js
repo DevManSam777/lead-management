@@ -1,6 +1,14 @@
 // handlers.js - Event handlers and form validation
-
-import { showInputError, clearInputError, getErrorElement, formatCurrency, showToast, formatDate, toISODateString } from './utils.js';
+import { 
+  showInputError, 
+  clearInputError, 
+  getErrorElement, 
+  formatCurrency, 
+  showToast, 
+  formatDate, 
+  toISODateString,
+  formatPhoneInput // Add this import
+} from './utils.js';
 import { createLead, updateLead, deleteLead, fetchLeadPayments } from './api.js';
 import { renderLeads, setModalReadOnly } from './ui.js';
 import { renderLeadPayments } from './payments.js';
@@ -110,15 +118,15 @@ function validateEmail(input) {
  * @returns {boolean} Validation result
  */
 function validatePhone(input) {
-  // Allow formats like: (123) 456-7890, 123-456-7890, 123.456.7890, 1234567890
-  const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+  // Allow formats like: 123-456-7890
+  const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
   const errorElement = getErrorElement(input);
   const isRequired = input.id === "phone"; // Only main phone is required
 
   if (isRequired && !input.value) {
     return showInputError(input, errorElement, "Phone number is required");
   } else if (input.value && !phoneRegex.test(input.value)) {
-    return showInputError(input, errorElement, "Please enter a valid phone number");
+    return showInputError(input, errorElement, "Please enter a valid 10-digit phone number in format: 000-000-0000");
   } else {
     return clearInputError(input, errorElement);
   }
@@ -494,6 +502,169 @@ function openAddLeadModal() {
   document.getElementById("leadModal").style.display = "block";
 }
 
+// /**
+//  * Open the lead modal to view/edit a lead
+//  * @param {string} leadId - ID of the lead to open
+//  */
+// async function openLeadModal(leadId, allLeads) {
+//   // Reset form first
+//   document.getElementById("leadForm").reset();
+
+//   const lead = allLeads.find((l) => l._id === leadId);
+//   if (!lead) {
+//     showToast("Lead not found");
+//     return;
+//   }
+
+//   // Set modal to read-only mode initially
+//   setModalReadOnly(true);
+
+//   // Store the current lead ID in the modal
+//   document.getElementById("leadId").value = lead._id;
+
+//   // Fill the form with lead data
+//   document.getElementById("firstName").value = lead.firstName || "";
+//   document.getElementById("lastName").value = lead.lastName || "";
+//   document.getElementById("email").value = lead.email || "";
+//   document.getElementById("phone").value = lead.phone || "";
+//   document.getElementById("phoneExt").value = lead.phoneExt || "";
+//   document.getElementById("textNumber").value = lead.textNumber || "";
+//   document.getElementById("businessPhone").value = lead.businessPhone || "";
+//   document.getElementById("businessPhoneExt").value = lead.businessPhoneExt || "";
+//   document.getElementById("businessName").value = lead.businessName || "";
+//   document.getElementById("businessEmail").value = lead.businessEmail || "";
+//   document.getElementById("businessServices").value = lead.businessServices || "";
+//   document.getElementById("preferredContact").value = lead.preferredContact || "";
+//   document.getElementById("serviceDesired").value = lead.serviceDesired || "website";
+//   document.getElementById("hasWebsite").value = lead.hasWebsite || "";
+//   document.getElementById("websiteAddress").value = lead.websiteAddress || "";
+//   document.getElementById("message").value = lead.message || "";
+//   document.getElementById("status").value = lead.status || "new";
+//   document.getElementById("notes").value = lead.notes || "";
+
+//   // Handle estimated budget field
+//   if (document.getElementById("budget")) {
+//     const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
+//     document.getElementById("budget").value = budgetValue
+//       ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
+//       : "";
+//   }
+
+//   if (document.getElementById("currency")) {
+//     document.getElementById("currency").value = lead.budgetCurrency || "USD";
+//   }
+
+//   // Handle payment fields
+//   if (document.getElementById("totalBudget")) {
+//     const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+//     document.getElementById("totalBudget").value = totalBudgetValue
+//       ? formatCurrency(totalBudgetValue, lead.currency || "USD")
+//       : "";
+//   }
+
+//   if (document.getElementById("budgetCurrency")) {
+//     document.getElementById("budgetCurrency").value = lead.currency || "USD";
+//   }
+
+//   if (document.getElementById("paidAmount")) {
+//     const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
+//     document.getElementById("paidAmount").value = formatCurrency(
+//       paidAmount,
+//       lead.currency || "USD"
+//     );
+//   }
+
+//   // Calculate remaining balance
+//   let remainingBalance = 0;
+//   if (lead.totalBudget !== undefined) {
+//     const totalBudget = parseFloat(lead.totalBudget) || 0;
+//     const paidAmount = parseFloat(lead.paidAmount) || 0;
+//     remainingBalance = Math.max(0, totalBudget - paidAmount);
+//   }
+
+//   // Find or create the remaining balance field
+//   const remainingBalanceField = document.getElementById("remainingBalance");
+//   if (remainingBalanceField) {
+//     remainingBalanceField.value = formatCurrency(
+//       remainingBalance,
+//       lead.currency || "USD"
+//     );
+//   } else {
+//     // Create the field if it doesn't exist
+//     const paidAmountField = document.getElementById("paidAmount");
+//     if (paidAmountField && paidAmountField.parentNode) {
+//       const parentDiv = paidAmountField.parentNode.parentNode;
+//       const newGroup = document.createElement("div");
+//       newGroup.className = "form-group";
+
+//       const label = document.createElement("label");
+//       label.setAttribute("for", "remainingBalance");
+//       label.textContent = "Remaining Balance";
+
+//       const input = document.createElement("input");
+//       input.type = "text";
+//       input.id = "remainingBalance";
+//       input.setAttribute("readonly", true);
+//       input.value = formatCurrency(remainingBalance, lead.currency || "USD");
+
+//       newGroup.appendChild(label);
+//       newGroup.appendChild(input);
+
+//       // Insert after paid amount field
+//       if (paidAmountField.parentNode.nextSibling) {
+//         parentDiv.insertBefore(
+//           newGroup,
+//           paidAmountField.parentNode.nextSibling
+//         );
+//       } else {
+//         parentDiv.appendChild(newGroup);
+//       }
+//     }
+//   }
+
+//   // Fetch and display payments for this lead
+//   try {
+//     const leadPayments = await fetchLeadPayments(lead._id);
+//     renderLeadPayments(leadPayments, lead._id);
+//   } catch (error) {
+//     console.error("Error fetching payments:", error);
+//     const paymentsContainer = document.querySelector(".payments-container");
+//     if (paymentsContainer) {
+//       paymentsContainer.innerHTML = '<p class="payment-item">Error loading payments</p>';
+//     }
+//   }
+
+//   // Handle date formatting for last contacted date
+//   updateLeadModalDates(lead);
+
+//   // Show/hide website address field based on hasWebsite value
+//   const websiteAddressField =
+//     document.getElementById("websiteAddress").parentNode;
+//   websiteAddressField.style.display =
+//     lead.hasWebsite === "yes" ? "block" : "none";
+
+//   // Update modal title
+//   document.getElementById("modalTitle").textContent = "Client Info";
+
+//   // Make Add Payment button visible only when in edit mode
+//   const addPaymentBtn = document.getElementById("addPaymentBtn");
+//   if (addPaymentBtn) {
+//     addPaymentBtn.style.display = "none";
+//   }
+
+//   // First, check if the action buttons container exists and remove it
+//   const existingActions = document.getElementById("modalActions");
+//   if (existingActions) {
+//     existingActions.remove();
+//   }
+
+//   // Display the modal
+//   document.getElementById("leadModal").style.display = "block";
+
+//   // Then add modal action buttons (Edit, Delete)
+//   window.updateModalActionButtons(lead._id);
+// }
+
 /**
  * Open the lead modal to view/edit a lead
  * @param {string} leadId - ID of the lead to open
@@ -649,6 +820,15 @@ async function openLeadModal(leadId, allLeads) {
   if (existingActions) {
     existingActions.remove();
   }
+
+  // Format the phone numbers in the modal
+  const phoneFields = document.querySelectorAll('#leadModal input[type="tel"]');
+  phoneFields.forEach(field => {
+    if (field.value) {
+      // Only format if the field has a value
+      formatPhoneInput(field);
+    }
+  });
 
   // Display the modal
   document.getElementById("leadModal").style.display = "block";
