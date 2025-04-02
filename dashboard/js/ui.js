@@ -1,6 +1,13 @@
 // ui.js - UI rendering and display functions
 
-import { formatCurrency, formatDate, getLeadName, capitalizeFirstLetter, safeSetTextContent, safeUpdateChangeIndicator } from './utils.js';
+import {
+  formatCurrency,
+  formatDate,
+  getLeadName,
+  capitalizeFirstLetter,
+  safeSetTextContent,
+  safeUpdateChangeIndicator,
+} from "./utils.js";
 
 // Export UI functions
 export {
@@ -10,7 +17,7 @@ export {
   switchView,
   updateModalActionButtons,
   setModalReadOnly,
-  calculateStats
+  calculateStats,
 };
 
 // Global variable to track current view
@@ -38,7 +45,7 @@ function renderGridView(leads) {
     console.error("Lead cards container not found");
     return;
   }
-  
+
   leadCards.innerHTML = "";
 
   if (!leads || leads.length === 0) {
@@ -63,7 +70,10 @@ function renderGridView(leads) {
     let lastContactedText = "";
     if (lead.lastContactedAt) {
       const contactDate = new Date(lead.lastContactedAt);
-      lastContactedText = `<p><strong>Last Contact:</strong> ${formatDate(contactDate, dateFormat)}</p>`;
+      lastContactedText = `<p><strong>Last Contact:</strong> ${formatDate(
+        contactDate,
+        dateFormat
+      )}</p>`;
     }
 
     card.innerHTML = `
@@ -97,14 +107,14 @@ function renderListView(leads) {
     console.error("Leads table body not found");
     return;
   }
-  
+
   leadsTableBody.innerHTML = "";
 
   if (!leads || leads.length === 0) {
     leadsTableBody.innerHTML = '<tr><td colspan="4">No leads found</td></tr>';
     return;
   }
-  
+
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
   leads.forEach((lead) => {
@@ -117,9 +127,9 @@ function renderListView(leads) {
 
     // Determine business info and handle empty values
     const business = lead.businessName || "N/A";
-    
+
     // Format last contacted date if available
-    let lastContactCell = '<td>Not contacted</td>';
+    let lastContactCell = "<td>Not contacted</td>";
     if (lead.lastContactedAt) {
       const contactDate = new Date(lead.lastContactedAt);
       lastContactCell = `<td>${formatDate(contactDate, dateFormat)}</td>`;
@@ -152,9 +162,9 @@ function renderListView(leads) {
  */
 function switchView(view) {
   currentView = view;
-  
+
   // Save the current view to localStorage
-  localStorage.setItem('preferredView', view);
+  localStorage.setItem("preferredView", view);
 
   if (view === "grid") {
     document.getElementById("leadCards").style.display = "grid";
@@ -283,7 +293,7 @@ function calculateStats(allLeads, payments) {
   try {
     // Get current date format
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
-    
+
     // If no leads, display zeros and return
     if (!allLeads || allLeads.length === 0) {
       safeSetTextContent("totalLeadsValue", "0");
@@ -293,17 +303,19 @@ function calculateStats(allLeads, payments) {
 
       // Replace change indicators with descriptive text
       const totalLeadsChange = document.getElementById("totalLeadsChange");
-      totalLeadsChange.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
-      
+      totalLeadsChange.innerHTML =
+        '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+
       const conversionChange = document.getElementById("conversionChange");
-      conversionChange.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
-      
+      conversionChange.innerHTML =
+        '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+
       // Set remaining change indicators with one decimal place
-      document.getElementById("newLeadsChange").innerHTML = 
+      document.getElementById("newLeadsChange").innerHTML =
         '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
-      document.getElementById("paymentsChange").innerHTML = 
+      document.getElementById("paymentsChange").innerHTML =
         '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
-      
+
       return;
     }
 
@@ -368,7 +380,7 @@ function calculateStats(allLeads, payments) {
     }
 
     // Replace Total Projects change indicator with descriptive text
-    document.getElementById("totalLeadsChange").innerHTML = 
+    document.getElementById("totalLeadsChange").innerHTML =
       '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
 
     // For new leads, just show the current month's leads - no week comparison
@@ -382,10 +394,14 @@ function calculateStats(allLeads, payments) {
     // Custom implementation to add "from last month" text and extra decimal
     const newLeadsChangeElement = document.getElementById("newLeadsChange");
     if (newLeadsChange > 0) {
-      newLeadsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(newLeadsChange).toFixed(2)}% from last month`;
+      newLeadsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
+        newLeadsChange
+      ).toFixed(2)}% from last month`;
       newLeadsChangeElement.parentElement.className = "change positive";
     } else if (newLeadsChange < 0) {
-      newLeadsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(newLeadsChange).toFixed(2)}% from last month`;
+      newLeadsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(
+        newLeadsChange
+      ).toFixed(2)}% from last month`;
       newLeadsChangeElement.parentElement.className = "change negative";
     } else {
       newLeadsChangeElement.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
@@ -404,31 +420,15 @@ function calculateStats(allLeads, payments) {
     safeSetTextContent("conversionRateValue", `${conversionRate}%`);
 
     // Replace conversion rate change indicator with descriptive text
-    document.getElementById("conversionChange").innerHTML = 
+    document.getElementById("conversionChange").innerHTML =
       '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
 
     // Payment metrics
     // Calculate total payments for current month
     let currentMonthPayments = 0;
     let previousMonthPayments = 0;
-    let mostCommonCurrency = "USD";
 
     if (payments && payments.length > 0) {
-      // Find most common currency
-      const currencies = {};
-      payments.forEach((payment) => {
-        const currency = payment.currency || "USD";
-        currencies[currency] = (currencies[currency] || 0) + 1;
-      });
-
-      let maxCount = 0;
-      for (const [currency, count] of Object.entries(currencies)) {
-        if (count > maxCount) {
-          mostCommonCurrency = currency;
-          maxCount = count;
-        }
-      }
-
       // Create a set of valid lead IDs for faster lookup
       const validLeadIds = new Set(allLeads.map((lead) => lead._id));
 
@@ -456,13 +456,7 @@ function calculateStats(allLeads, payments) {
           return isInCurrentMonth;
         })
         .reduce((total, payment) => {
-          if (
-            payment.currency === mostCommonCurrency ||
-            (!payment.currency && mostCommonCurrency === "USD")
-          ) {
-            return total + (payment.amount || 0);
-          }
-          return total;
+          return total + (payment.amount || 0);
         }, 0);
 
       // Calculate previous month's total payments - ONLY for existing leads
@@ -483,20 +477,14 @@ function calculateStats(allLeads, payments) {
           return paymentDate >= twoMonthsAgo && paymentDate < oneMonthAgo;
         })
         .reduce((total, payment) => {
-          if (
-            payment.currency === mostCommonCurrency ||
-            (!payment.currency && mostCommonCurrency === "USD")
-          ) {
-            return total + (payment.amount || 0);
-          }
-          return total;
+          return total + (payment.amount || 0);
         }, 0);
     }
 
     // Update monthly payments display
     safeSetTextContent(
       "monthlyPaymentsValue",
-      formatCurrency(currentMonthPayments, mostCommonCurrency)
+      formatCurrency(currentMonthPayments)
     );
 
     // Calculate percentage change for payments
@@ -511,10 +499,14 @@ function calculateStats(allLeads, payments) {
     // Update payments change display (with extra decimal)
     const paymentsChangeElement = document.getElementById("paymentsChange");
     if (paymentsChange > 0) {
-      paymentsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(paymentsChange).toFixed(2)}% from last month`;
+      paymentsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
+        paymentsChange
+      ).toFixed(2)}% from last month`;
       paymentsChangeElement.className = "change positive";
     } else if (paymentsChange < 0) {
-      paymentsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(paymentsChange).toFixed(2)}% from last month`;
+      paymentsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(
+        paymentsChange
+      ).toFixed(2)}% from last month`;
       paymentsChangeElement.className = "change negative";
     } else {
       paymentsChangeElement.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
@@ -526,19 +518,21 @@ function calculateStats(allLeads, payments) {
     safeSetTextContent("totalLeadsValue", "0");
     safeSetTextContent("newLeadsValue", "0");
     safeSetTextContent("conversionRateValue", "0%");
-    safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
+    safeSetTextContent("monthlyPaymentsValue", formatCurrency(0));
 
     // Replace change indicators with descriptive text even in error cases
     const totalLeadsChange = document.getElementById("totalLeadsChange");
-    totalLeadsChange.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
-    
+    totalLeadsChange.innerHTML =
+      '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+
     const conversionChange = document.getElementById("conversionChange");
-    conversionChange.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
-    
+    conversionChange.innerHTML =
+      '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+
     // Set remaining change indicators with one decimal place
-    document.getElementById("newLeadsChange").innerHTML = 
+    document.getElementById("newLeadsChange").innerHTML =
       '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
-    document.getElementById("paymentsChange").innerHTML = 
+    document.getElementById("paymentsChange").innerHTML =
       '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
   }
 }

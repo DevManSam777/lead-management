@@ -7,7 +7,8 @@ import {
   showToast, 
   formatDate, 
   toISODateString,
-  formatPhoneInput // Add this import
+  formatPhoneInput,
+  initializeMonetaryInputs,
 } from './utils.js';
 import { createLead, updateLead, deleteLead, fetchLeadPayments } from './api.js';
 import { renderLeads, setModalReadOnly } from './ui.js';
@@ -311,7 +312,6 @@ async function validateAndSaveLead(event) {
   }
 }
 
-
 /**
  * Save lead data to the server
  */
@@ -356,39 +356,27 @@ async function saveLead() {
 
   // Handle estimated budget (what customer expects to spend)
   const budgetInput = document.getElementById("budget");
-  const currencyInput = document.getElementById("currency");
-
   if (budgetInput && budgetInput.value) {
     // Extract numeric value from formatted budget
     const cleanBudgetValue = budgetInput.value.replace(/[^\d.-]/g, "");
     const numericBudgetValue = parseFloat(cleanBudgetValue);
-
+    
     if (!isNaN(numericBudgetValue)) {
       // Store the budget value as a number
       leadData.budget = numericBudgetValue;
-
-      if (currencyInput) {
-        leadData.budgetCurrency = currencyInput.value;
-      }
     }
   }
 
   // Handle billed amount/total budget (what you're charging)
   const totalBudgetInput = document.getElementById("totalBudget");
-  const budgetCurrencyInput = document.getElementById("budgetCurrency");
-
   if (totalBudgetInput && totalBudgetInput.value) {
     // Extract numeric value from formatted total budget
     const cleanTotalValue = totalBudgetInput.value.replace(/[^\d.-]/g, "");
     const numericTotalValue = parseFloat(cleanTotalValue);
-
+    
     if (!isNaN(numericTotalValue)) {
       // Store the total budget value as a number
       leadData.totalBudget = numericTotalValue;
-
-      if (budgetCurrencyInput) {
-        leadData.currency = budgetCurrencyInput.value;
-      }
     }
   }
 
@@ -453,11 +441,6 @@ function openAddLeadModal() {
   document.getElementById("leadId").value = "";
   document.getElementById("modalTitle").textContent = "Add New";
 
-  // Set default currency
-  if (document.getElementById("budgetCurrency")) {
-    document.getElementById("budgetCurrency").value = "USD";
-  }
-
   // Hide website address field initially
   const websiteAddressField =
     document.getElementById("websiteAddress").parentNode;
@@ -499,15 +482,18 @@ function openAddLeadModal() {
   // Clear payment-related fields
   const paidAmountField = document.getElementById("paidAmount");
   if (paidAmountField) {
-    paidAmountField.value = formatCurrency(0, "USD");
+    paidAmountField.value = formatCurrency(0);
   }
 
   const remainingBalanceField = document.getElementById("remainingBalance");
   if (remainingBalanceField) {
-    remainingBalanceField.value = formatCurrency(0, "USD");
+    remainingBalanceField.value = formatCurrency(0);
   }
 
   document.getElementById("leadModal").style.display = "block";
+
+  // Initialize any monetary inputs in the modal
+  initializeMonetaryInputs();
 }
 
 /**
@@ -554,32 +540,21 @@ async function openLeadModal(leadId, allLeads) {
   if (document.getElementById("budget")) {
     const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
     document.getElementById("budget").value = budgetValue
-      ? formatCurrency(budgetValue, lead.budgetCurrency || "USD")
+      ? formatCurrency(budgetValue)
       : "";
-  }
-
-  if (document.getElementById("currency")) {
-    document.getElementById("currency").value = lead.budgetCurrency || "USD";
   }
 
   // Handle payment fields
   if (document.getElementById("totalBudget")) {
     const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
     document.getElementById("totalBudget").value = totalBudgetValue
-      ? formatCurrency(totalBudgetValue, lead.currency || "USD")
+      ? formatCurrency(totalBudgetValue)
       : "";
-  }
-
-  if (document.getElementById("budgetCurrency")) {
-    document.getElementById("budgetCurrency").value = lead.currency || "USD";
   }
 
   if (document.getElementById("paidAmount")) {
     const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
-    document.getElementById("paidAmount").value = formatCurrency(
-      paidAmount,
-      lead.currency || "USD"
-    );
+    document.getElementById("paidAmount").value = formatCurrency(paidAmount);
   }
 
   // Calculate remaining balance
@@ -593,10 +568,7 @@ async function openLeadModal(leadId, allLeads) {
   // Find or create the remaining balance field
   const remainingBalanceField = document.getElementById("remainingBalance");
   if (remainingBalanceField) {
-    remainingBalanceField.value = formatCurrency(
-      remainingBalance,
-      lead.currency || "USD"
-    );
+    remainingBalanceField.value = formatCurrency(remainingBalance);
   } else {
     // Create the field if it doesn't exist
     const paidAmountField = document.getElementById("paidAmount");
@@ -613,7 +585,7 @@ async function openLeadModal(leadId, allLeads) {
       input.type = "text";
       input.id = "remainingBalance";
       input.setAttribute("readonly", true);
-      input.value = formatCurrency(remainingBalance, lead.currency || "USD");
+      input.value = formatCurrency(remainingBalance);
 
       newGroup.appendChild(label);
       newGroup.appendChild(input);
@@ -680,6 +652,9 @@ async function openLeadModal(leadId, allLeads) {
 
   // Then add modal action buttons (Edit, Delete)
   window.updateModalActionButtons(lead._id);
+
+    // Initialize any monetary inputs in the modal
+    initializeMonetaryInputs()
 }
 
 /**

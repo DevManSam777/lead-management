@@ -84,11 +84,6 @@ const leadSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  currency: {
-    type: String,
-    default: "USD",
-    enum: ["USD", "CAD", "EUR", "GBP", "AUD", "🍕"],
-  },
   createdAt: {
     type: Date,
     default: Date.now,

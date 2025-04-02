@@ -1,6 +1,6 @@
 // payments.js - Payment functionality
 
-import { formatCurrency, formatDate, showToast } from './utils.js';
+import { formatCurrency, formatDate, showToast, initializeMonetaryInputs } from './utils.js';
 import { fetchLeadPayments, updatePayment, createPayment, deletePayment } from './api.js';
 
 /**
@@ -56,10 +56,7 @@ function renderLeadPayments(leadPayments, leadId) {
 
     const amountDiv = document.createElement("div");
     amountDiv.className = "payment-amount";
-    amountDiv.textContent = formatCurrency(
-      payment.amount,
-      payment.currency || "USD"
-    );
+    amountDiv.textContent = formatCurrency(payment.amount);
 
     const dateDiv = document.createElement("div");
     dateDiv.className = "payment-date";
@@ -160,7 +157,6 @@ function openPaymentModal(leadId, paymentId = null) {
       
       document.getElementById("paymentId").value = payment._id;
       document.getElementById("paymentAmount").value = payment.amount;
-      document.getElementById("paymentCurrency").value = payment.currency || "USD";
 
       // Format date for the date input
       if (payment.paymentDate) {
@@ -186,10 +182,6 @@ function openPaymentModal(leadId, paymentId = null) {
     });
   } else {
     // New payment
-    // Set default values
-    const defaultCurrency = document.getElementById("budgetCurrency")?.value || "USD";
-    document.getElementById("paymentCurrency").value = defaultCurrency;
-
     // Set today's date correctly with timezone adjustment
     const today = new Date();
     today.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
@@ -225,6 +217,8 @@ function openPaymentModal(leadId, paymentId = null) {
   }
 
   document.getElementById("paymentModal").style.display = "block";
+   // Initialize monetary inputs in the payment modal
+   initializeMonetaryInputs();
 }
 
 /**
@@ -257,7 +251,6 @@ async function validateAndSavePayment(event) {
   const paymentId = document.getElementById("paymentId").value;
   const leadId = document.getElementById("paymentLeadId").value;
   const amountStr = document.getElementById("paymentAmount").value;
-  const currency = document.getElementById("paymentCurrency").value;
   const paymentDate = document.getElementById("paymentDate").value;
   const notes = document.getElementById("paymentNotes").value;
 
@@ -288,7 +281,6 @@ async function validateAndSavePayment(event) {
   const paymentData = {
     leadId,
     amount,
-    currency,
     paymentDate: adjustedDate,
     notes,
   };
@@ -324,10 +316,7 @@ async function validateAndSavePayment(event) {
       // Update paid amount field
       const paidAmountField = document.getElementById("paidAmount");
       if (paidAmountField) {
-        paidAmountField.value = formatCurrency(
-          totalPaid,
-          currency || "USD"
-        );
+        paidAmountField.value = formatCurrency(totalPaid);
       }
 
       // Update remaining balance field
@@ -338,10 +327,7 @@ async function validateAndSavePayment(event) {
         const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
         const remainingBalance = Math.max(0, totalBudget - totalPaid);
         
-        remainingBalanceField.value = formatCurrency(
-          remainingBalance,
-          currency || "USD"
-        );
+        remainingBalanceField.value = formatCurrency(remainingBalance);
       }
 
       // Render payment list
@@ -395,17 +381,10 @@ async function deletePaymentAction(paymentId, leadId) {
         0
       );
 
-      // Get the lead's currency
-      const currencyElem = document.getElementById("budgetCurrency");
-      const currency = currencyElem ? currencyElem.value : "USD";
-
       // Update paid amount field
       const paidAmountField = document.getElementById("paidAmount");
       if (paidAmountField) {
-        paidAmountField.value = formatCurrency(
-          totalPaid,
-          currency
-        );
+        paidAmountField.value = formatCurrency(totalPaid);
       }
 
       // Update remaining balance field
@@ -416,10 +395,7 @@ async function deletePaymentAction(paymentId, leadId) {
         const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
         const remainingBalance = Math.max(0, totalBudget - totalPaid);
         
-        remainingBalanceField.value = formatCurrency(
-          remainingBalance,
-          currency
-        );
+        remainingBalanceField.value = formatCurrency(remainingBalance);
       }
 
       // Render payment list with current date format

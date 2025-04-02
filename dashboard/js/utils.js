@@ -88,45 +88,114 @@ function initializePhoneFormatting() {
 }
 
 /**
+ * Restrict input to digits and decimal point only
+ * @param {HTMLInputElement} input - The monetary input element
+ */
+function restrictToDigits(input) {
+  // Skip if the input doesn't exist
+  if (!input) return;
+
+  // Store current cursor position
+  const cursorPos = input.selectionStart;
+  
+  // Get input value
+  let value = input.value;
+  const originalLength = value.length;
+  
+  // Only allow digits and at most one decimal point
+  // First, check if there's already a decimal point
+  const decimalIndex = value.indexOf('.');
+  
+  if (decimalIndex !== -1) {
+    // If there's a decimal point, only allow digits before and after it
+    const beforeDecimal = value.substring(0, decimalIndex).replace(/[^\d]/g, '');
+    const afterDecimal = value.substring(decimalIndex + 1).replace(/[^\d]/g, '');
+    value = beforeDecimal + '.' + afterDecimal;
+  } else {
+    // If no decimal point, just remove all non-digits except decimal point
+    value = value.replace(/[^\d.]/g, '');
+    
+    // Make sure there's only one decimal point
+    const parts = value.split('.');
+    if (parts.length > 2) {
+      value = parts[0] + '.' + parts.slice(1).join('');
+    }
+  }
+  
+  // Update the input value
+  input.value = value;
+  
+  // Adjust cursor position if value changed
+  if (input.value.length !== originalLength) {
+    // Calculate new cursor position (simple approach)
+    let newPos = cursorPos;
+    if (newPos > input.value.length) {
+      newPos = input.value.length;
+    }
+    input.setSelectionRange(newPos, newPos);
+  }
+}
+
+/**
+ * Initialize monetary input fields with digit-only restrictions
+ */
+function initializeMonetaryInputs() {
+  // Get all monetary input fields
+  const monetaryInputs = [
+    document.getElementById("budget"),
+    document.getElementById("totalBudget"),
+    document.getElementById("paymentAmount")
+  ];
+  
+  // Add input event listeners to each monetary input to restrict to digits
+  monetaryInputs.forEach(input => {
+    if (input) {
+      input.addEventListener('input', function() {
+        restrictToDigits(this);
+      });
+      
+      // Also when the field loses focus, format as currency
+      input.addEventListener('blur', function() {
+        if (this.value) {
+          // Parse as a number
+          const numValue = parseFloat(this.value);
+          if (!isNaN(numValue)) {
+            // Format as currency
+            this.value = formatCurrency(numValue);
+          }
+        }
+      });
+      
+      // When the field gains focus, convert from formatted currency to plain number
+      input.addEventListener('focus', function() {
+        if (this.value) {
+          // Remove currency formatting
+          const numStr = this.value.replace(/[^\d.]/g, '');
+          this.value = numStr;
+        }
+      });
+    }
+  });
+}
+
+/**
  * Format currency with proper symbols
  * @param {number} amount - Amount to format
- * @param {string} currency - Currency code (default: USD)
  * @returns {string} Formatted currency string
  */
-function formatCurrency(amount, currency = "USD") {
-  // Special case for pizza currency
-  if (currency === "🍕") {
-    return `${amount.toFixed(2)} 🍕`;
-  }
-
+function formatCurrency(amount) {
   try {
-    // Use the browser's Intl.NumberFormat to format currency properly
+    // Always use USD
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currency,
+      currency: "USD",
       minimumFractionDigits: 2,
       currencyDisplay: "symbol",
     }).format(amount);
   } catch (error) {
-    // Fallback in case of error (like invalid currency code)
-    console.warn(`Error formatting currency ${currency}:`, error);
-
-    // Basic manual formatting with appropriate symbols
-    const formatted = amount.toFixed(2);
-    switch (currency) {
-      case "USD":
-        return "$" + formatted;
-      case "EUR":
-        return "€" + formatted;
-      case "GBP":
-        return "£" + formatted;
-      case "CAD":
-        return "CA$" + formatted;
-      case "AUD":
-        return "A$" + formatted;
-      default:
-        return "$" + formatted;
-    }
+    // Fallback in case of error
+    console.warn("Error formatting currency:", error);
+    return "$" + amount.toFixed(2);
   }
 }
 
@@ -524,5 +593,7 @@ export {
   clearInputError,
   getErrorElement,
   formatPhoneInput,
-  initializePhoneFormatting
+  initializePhoneFormatting,
+  restrictToDigits,
+  initializeMonetaryInputs
 };

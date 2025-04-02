@@ -282,22 +282,13 @@
 
             <div class="form-group">
               <label for="budget">Estimated Budget</label>
-              <div class="budget-group">
-                <input
-                  type="text"
-                  id="budget"
-                  placeholder="Enter estimated amount"
-                />
-                <select id="currency">
-                  <option value="USD">USD</option>
-                  <option value="CAD">CAD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                  <option value="AUD">AUD</option>
-                  <option value="🍕">🍕</option>
-                </select>
-              </div>
+              <input
+                type="text"
+                id="budget"
+                placeholder="Enter estimated amount"
+              />
             </div>
+            
           </div>
 
           <!-- Status Information Section -->
@@ -327,21 +318,7 @@
               <h4>Payment Information</h4>
               <div class="form-group">
                 <label for="totalBudget">Billed Amount</label>
-                <div class="budget-group">
-                  <input
-                    type="text"
-                    id="totalBudget"
-                    placeholder="Enter billed amount"
-                  />
-                  <select id="budgetCurrency">
-                    <option value="USD">USD</option>
-                    <option value="CAD">CAD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="GBP">GBP</option>
-                    <option value="AUD">AUD</option>
-                    <option value="🍕">🍕</option>
-                  </select>
-                </div>
+                <input type="text" id="totalBudget" placeholder="Enter billed amount" />
               </div>
 
               <div class="form-group">
@@ -405,7 +382,7 @@
           <input type="hidden" id="paymentId" />
           <input type="hidden" id="paymentLeadId" />
 
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label for="paymentAmount">Amount*</label>
             <div class="budget-group">
               <input
@@ -423,7 +400,17 @@
                 <option value="🍕">🍕</option>
               </select>
             </div>
+          </div> -->
+          <div class="form-group">
+            <label for="paymentAmount">Amount*</label>
+            <input
+              type="text"
+              id="paymentAmount"
+              required
+              placeholder="Enter amount"
+            />
           </div>
+          
 
           <div class="form-group">
             <label for="paymentDate">Payment Date*</label>

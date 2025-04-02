@@ -289,20 +289,16 @@
     background-color: rgba(247, 37, 133, 0.05);
   }
   
+
   .budget-group {
-    display: flex;
-    gap: 1rem;
+    width: 100%;
   }
-  
+
   .budget-group input {
-    flex: 3;
+    width: 100%;
   }
   
-  .budget-group select {
-    flex: 1;
-    min-width: 8rem;
-  }
-  
+
   /* Tables */
   .leads-table {
     width: 100%;

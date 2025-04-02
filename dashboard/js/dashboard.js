@@ -19,7 +19,7 @@ let globalSettings = {
   dateFormat: "MM/DD/YYYY",
 };
 
-// pagination variables 
+// pagination variables
 let currentPage = 1;
 let pageSize = 12; // This is just default fallback after browser reload - go to pagination.js pageSizeOptions to change values too if you change this
 let totalPages = 1;
@@ -431,6 +431,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         renderLeads(allLeads);
       }
 
+      // Initialize monetary input formatting
+      initializeMonetaryInputs();
+
       // Re-initialize the date inputs with new format
       initializeDateInputs();
 
@@ -693,14 +696,22 @@ function closeLeadModal() {
  */
 function renderPaginatedLeads(leads) {
   // Initialize pagination with the filtered leads
-  const paginationInfo = Pagination.initPagination(leads, currentPage, pageSize);
-  
+  const paginationInfo = Pagination.initPagination(
+    leads,
+    currentPage,
+    pageSize
+  );
+
   // Update current page from pagination info
   currentPage = paginationInfo.currentPage;
   totalPages = paginationInfo.totalPages;
 
   // Get only the leads for the current page
-  const paginatedLeads = Pagination.getPaginatedItems(leads, currentPage, pageSize);
+  const paginatedLeads = Pagination.getPaginatedItems(
+    leads,
+    currentPage,
+    pageSize
+  );
 
   // Render them using the existing UI render functions
   if (currentView === "grid") {
@@ -726,7 +737,7 @@ function renderPaginatedLeads(leads) {
       const filteredLeads = getFilteredLeads();
       renderPaginatedLeads(filteredLeads);
     },
-    containerId: ".leads-container"
+    containerId: ".leads-container",
   });
 }
 
@@ -1059,5 +1070,5 @@ export {
   filterLeads,
   sortLeads,
   searchLeads,
-  applySorting
+  applySorting,
 };

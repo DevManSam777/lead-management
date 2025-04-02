@@ -11,11 +11,6 @@ const paymentSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  currency: {
-    type: String,
-    default: 'USD',
-    enum: ['USD', 'CAD', 'EUR', 'GBP', 'AUD', '🍕']
-  },
   paymentDate: {
     type: Date,
     required: true,
