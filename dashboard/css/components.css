@@ -70,7 +70,7 @@
     white-space: nowrap;
     line-height: 1.5;
     overflow: hidden;
-    text-overflow: ellipsis;
+    /* text-overflow: ellipsis; */
     color: var(--text-muted);
   }
   
