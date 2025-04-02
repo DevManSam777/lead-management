@@ -611,34 +611,41 @@ fieldset {
   grid-template-columns: 1fr;
 }
 
-/* Table adjustments */
+
 .leads-table th,
 .leads-table td {
-  padding: 0.8rem 0.5rem;
-  font-size: 1.2rem;
-}
+    padding: 1rem 0.8rem; /* Increased padding for better touch target and readability */
+    font-size: 1.2rem;
+  }
 
-/* Hide Last Contact column */
+.leads-table th {
+    font-size: 1.3rem;
+    padding: 0.8rem 0.8rem; /* Consistent padding for headers */
+  }
+
+  /* Hide Last Contact column */
 .leads-table th:nth-child(3),
 .leads-table td:nth-child(3) {
-  display: none;
-}
+    display: none;
+  }
 
-/* Adjust remaining columns for 3-column layout */
 .leads-table th:nth-child(1),
 .leads-table td:nth-child(1) {
-  width: 40%; /* Name column - wider on mobile */
-}
+    width: 40%; 
+    padding-left: 2rem; 
+  }
 
 .leads-table th:nth-child(2),
 .leads-table td:nth-child(2) {
-  width: 35%; /* Business column */
-}
+    width: 35%; /* Business column */
+  }
 
 .leads-table th:nth-child(4),
 .leads-table td:nth-child(4) {
-  width: 25%; /* Status column */
-}
+    width: 25%; /* Status column */
+    padding-right: 1rem; 
+  }
+
 
 /* Modal adjustments */
 .modal-content {
