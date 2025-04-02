@@ -427,12 +427,14 @@ details summary h3 {
 
 /* Responsive Styles */
 @media (max-width: 1200px) {
-  .stats-cards {
-    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-  }
-
   .lead-cards {
     grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
+  }
+}
+
+@media (max-width: 1080px) {
+  .stats-cards {
+    grid-template-columns: 1fr 1fr; /* Two columns */
   }
 }
 
@@ -576,7 +578,12 @@ details summary h3 {
   padding: 0.4rem 0.8rem;
   font-size: 1.1rem;
   }
+
+  .stats-cards {
+    grid-template-columns: 1fr 1fr; /* Two columns */
+  }
 }
+
 
 @media (max-width: 768px) {
 html {
@@ -598,11 +605,6 @@ h1 {
 
 fieldset {
   padding: 1.5rem;
-}
-
-/* Grid adjustments */
-.stats-cards {
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
 }
 
 .lead-cards {
@@ -656,9 +658,7 @@ fieldset {
   padding: 1.5rem 1rem;
 }
 
-.stats-cards {
-  grid-template-columns: 1fr;
-}
+
 
 .btn {
   padding: 0.6rem 1.2rem;
@@ -681,6 +681,20 @@ fieldset {
 .lead-status {
   padding: 0.2rem 0.5rem;
   font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .leads-container {
+    padding: 0;
+  }
+
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .leads-header h3 {
+    padding: 2rem 0 0 2rem;
   }
 }
 

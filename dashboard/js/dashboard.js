@@ -19,8 +19,9 @@ let globalSettings = {
   dateFormat: "MM/DD/YYYY",
 };
 
+// pagination variables 
 let currentPage = 1;
-let pageSize = 10; // Default number of leads per page
+let pageSize = 12; // This is just default fallback after browser reload - go to pagination.js pageSizeOptions to change values too if you change this
 let totalPages = 1;
 
 // View tracking

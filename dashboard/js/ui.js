@@ -294,11 +294,238 @@ function setModalReadOnly(isReadOnly) {
   }
 }
 
-/**
- * Calculate dashboard statistics
- * @param {Array} allLeads - Array of all leads
- * @param {Array} payments - Array of all payments
- */
+// /**
+//  * Calculate dashboard statistics
+//  * @param {Array} allLeads - Array of all leads
+//  * @param {Array} payments - Array of all payments
+//  */
+// function calculateStats(allLeads, payments) {
+//   try {
+//     // Get current date format
+//     const dateFormat = window.dateFormat || "MM/DD/YYYY";
+    
+//     // If no leads, display zeros and return
+//     if (!allLeads || allLeads.length === 0) {
+//       safeSetTextContent("totalLeadsValue", "0");
+//       safeSetTextContent("newLeadsValue", "0");
+//       safeSetTextContent("conversionRateValue", "0%");
+//       safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
+
+//       // Set all change indicators to 0%
+//       safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
+//       safeUpdateChangeIndicator("newLeadsChange", 0, "");
+//       safeUpdateChangeIndicator("conversionChange", 0, "month");
+//       safeUpdateChangeIndicator("paymentsChange", 0, "month");
+//       return;
+//     }
+
+//     // Get current date and calculate previous periods
+//     const currentDate = new Date();
+
+//     // Create date objects for previous periods
+//     const oneMonthAgo = new Date(currentDate);
+//     oneMonthAgo.setMonth(currentDate.getMonth() - 1);
+
+//     const twoMonthsAgo = new Date(currentDate);
+//     twoMonthsAgo.setMonth(currentDate.getMonth() - 2);
+
+//     // For consistent comparison, set all dates to the same time (noon)
+//     currentDate.setHours(12, 0, 0, 0);
+//     oneMonthAgo.setHours(12, 0, 0, 0);
+//     twoMonthsAgo.setHours(12, 0, 0, 0);
+
+//     // Calculate total leads
+//     const totalLeads = allLeads.length;
+//     safeSetTextContent("totalLeadsValue", totalLeads);
+
+//     // Calculate leads from last month
+//     const lastMonthLeads = allLeads.filter((lead) => {
+//       if (!lead || !lead.createdAt) return false;
+//       try {
+//         const leadDate = new Date(lead.createdAt);
+//         leadDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
+//         return (
+//           !isNaN(leadDate.getTime()) &&
+//           leadDate >= oneMonthAgo &&
+//           leadDate <= currentDate
+//         );
+//       } catch (e) {
+//         console.error("Error parsing lead date:", e);
+//         return false;
+//       }
+//     }).length;
+
+//     // Calculate leads from two months ago
+//     const twoMonthsAgoLeads = allLeads.filter((lead) => {
+//       if (!lead || !lead.createdAt) return false;
+//       try {
+//         const leadDate = new Date(lead.createdAt);
+//         leadDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
+//         return (
+//           !isNaN(leadDate.getTime()) &&
+//           leadDate >= twoMonthsAgo &&
+//           leadDate <= oneMonthAgo
+//         );
+//       } catch (e) {
+//         console.error("Error parsing lead date:", e);
+//         return false;
+//       }
+//     }).length;
+
+//     // Calculate percentage change for total leads
+//     let totalLeadsChange = 0;
+//     if (twoMonthsAgoLeads > 0) {
+//       totalLeadsChange =
+//         ((lastMonthLeads - twoMonthsAgoLeads) / twoMonthsAgoLeads) * 100;
+//     }
+
+//     // Update total leads change display
+//     safeUpdateChangeIndicator("totalLeadsChange", totalLeadsChange, "month");
+
+//     // For new leads, just show the current month's leads - no week comparison
+//     const newLeads = lastMonthLeads; // Using monthly data instead of weekly
+//     safeSetTextContent("newLeadsValue", newLeads);
+
+//     // Use the same month-over-month change for new leads too
+//     const newLeadsChange = totalLeadsChange; // Same change as total leads
+
+//     // Update new leads change display (without period text)
+//     safeUpdateChangeIndicator("newLeadsChange", newLeadsChange, "");
+
+//     // Calculate conversion rate (won leads / total leads)
+//     const wonLeads = allLeads.filter((lead) => {
+//       if (!lead || !lead.status) return false;
+//       const status = lead.status.toLowerCase();
+//       return status === "closed-won" || status === "converted";
+//     }).length;
+
+//     const conversionRate =
+//       totalLeads > 0 ? Math.round((wonLeads / totalLeads) * 100) : 0;
+//     safeSetTextContent("conversionRateValue", `${conversionRate}%`);
+
+//     // Set a placeholder for conversion rate change (would need historical data)
+//     safeUpdateChangeIndicator("conversionChange", 0, "month");
+
+//     // Payment metrics
+//     // Calculate total payments for current month
+//     let currentMonthPayments = 0;
+//     let previousMonthPayments = 0;
+//     let mostCommonCurrency = "USD";
+
+//     if (payments && payments.length > 0) {
+//       // Find most common currency
+//       const currencies = {};
+//       payments.forEach((payment) => {
+//         const currency = payment.currency || "USD";
+//         currencies[currency] = (currencies[currency] || 0) + 1;
+//       });
+
+//       let maxCount = 0;
+//       for (const [currency, count] of Object.entries(currencies)) {
+//         if (count > maxCount) {
+//           mostCommonCurrency = currency;
+//           maxCount = count;
+//         }
+//       }
+
+//       // Create a set of valid lead IDs for faster lookup
+//       const validLeadIds = new Set(allLeads.map((lead) => lead._id));
+
+//       // Calculate current month's total payments - ONLY for existing leads
+//       currentMonthPayments = payments
+//         .filter((payment) => {
+//           if (!payment.paymentDate) {
+//             console.log("Payment has no date:", payment._id);
+//             return false;
+//           }
+
+//           // Check if this payment belongs to a lead that still exists
+//           if (!validLeadIds.has(payment.leadId)) {
+//             return false;
+//           }
+
+//           // Create a date object
+//           const paymentDate = new Date(payment.paymentDate);
+//           paymentDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
+
+//           // Check if payment is in current month range
+//           const isInCurrentMonth =
+//             paymentDate >= oneMonthAgo && paymentDate <= currentDate;
+
+//           return isInCurrentMonth;
+//         })
+//         .reduce((total, payment) => {
+//           if (
+//             payment.currency === mostCommonCurrency ||
+//             (!payment.currency && mostCommonCurrency === "USD")
+//           ) {
+//             return total + (payment.amount || 0);
+//           }
+//           return total;
+//         }, 0);
+
+//       // Calculate previous month's total payments - ONLY for existing leads
+//       previousMonthPayments = payments
+//         .filter((payment) => {
+//           if (!payment.paymentDate) return false;
+
+//           // Check if this payment belongs to a lead that still exists
+//           if (!validLeadIds.has(payment.leadId)) {
+//             return false;
+//           }
+
+//           // Create a date object
+//           const paymentDate = new Date(payment.paymentDate);
+//           paymentDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
+
+//           // Check if payment is in previous month range
+//           return paymentDate >= twoMonthsAgo && paymentDate < oneMonthAgo;
+//         })
+//         .reduce((total, payment) => {
+//           if (
+//             payment.currency === mostCommonCurrency ||
+//             (!payment.currency && mostCommonCurrency === "USD")
+//           ) {
+//             return total + (payment.amount || 0);
+//           }
+//           return total;
+//         }, 0);
+//     }
+
+//     // Update monthly payments display
+//     safeSetTextContent(
+//       "monthlyPaymentsValue",
+//       formatCurrency(currentMonthPayments, mostCommonCurrency)
+//     );
+
+//     // Calculate percentage change for payments
+//     let paymentsChange = 0;
+//     if (previousMonthPayments > 0) {
+//       paymentsChange =
+//         ((currentMonthPayments - previousMonthPayments) /
+//           previousMonthPayments) *
+//         100;
+//     }
+
+//     // Update payments change display
+//     safeUpdateChangeIndicator("paymentsChange", paymentsChange, "month");
+//   } catch (error) {
+//     console.error("Error calculating statistics:", error);
+//     // Set default values in case of error
+//     safeSetTextContent("totalLeadsValue", "0");
+//     safeSetTextContent("newLeadsValue", "0");
+//     safeSetTextContent("conversionRateValue", "0%");
+//     safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
+
+//     // Set all change indicators to 0%
+//     safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
+//     safeUpdateChangeIndicator("newLeadsChange", 0, "");
+//     safeUpdateChangeIndicator("conversionChange", 0, "month");
+//     safeUpdateChangeIndicator("paymentsChange", 0, "month");
+//   }
+// }
+
+// Modified version of the calculateStats function from ui.js
 function calculateStats(allLeads, payments) {
   try {
     // Get current date format
@@ -311,11 +538,19 @@ function calculateStats(allLeads, payments) {
       safeSetTextContent("conversionRateValue", "0%");
       safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
 
-      // Set all change indicators to 0%
-      safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
-      safeUpdateChangeIndicator("newLeadsChange", 0, "");
-      safeUpdateChangeIndicator("conversionChange", 0, "month");
-      safeUpdateChangeIndicator("paymentsChange", 0, "month");
+      // Replace change indicators with descriptive text
+      const totalLeadsChange = document.getElementById("totalLeadsChange");
+      totalLeadsChange.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+      
+      const conversionChange = document.getElementById("conversionChange");
+      conversionChange.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+      
+      // Set remaining change indicators with one decimal place
+      document.getElementById("newLeadsChange").innerHTML = 
+        '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+      document.getElementById("paymentsChange").innerHTML = 
+        '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+      
       return;
     }
 
@@ -379,8 +614,9 @@ function calculateStats(allLeads, payments) {
         ((lastMonthLeads - twoMonthsAgoLeads) / twoMonthsAgoLeads) * 100;
     }
 
-    // Update total leads change display
-    safeUpdateChangeIndicator("totalLeadsChange", totalLeadsChange, "month");
+    // Replace Total Projects change indicator with descriptive text
+    document.getElementById("totalLeadsChange").innerHTML = 
+      '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
 
     // For new leads, just show the current month's leads - no week comparison
     const newLeads = lastMonthLeads; // Using monthly data instead of weekly
@@ -389,8 +625,19 @@ function calculateStats(allLeads, payments) {
     // Use the same month-over-month change for new leads too
     const newLeadsChange = totalLeadsChange; // Same change as total leads
 
-    // Update new leads change display (without period text)
-    safeUpdateChangeIndicator("newLeadsChange", newLeadsChange, "");
+    // Update new leads change display (WITH "from last month" text and extra decimal)
+    // Custom implementation to add "from last month" text and extra decimal
+    const newLeadsChangeElement = document.getElementById("newLeadsChange");
+    if (newLeadsChange > 0) {
+      newLeadsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(newLeadsChange).toFixed(2)}% from last month`;
+      newLeadsChangeElement.parentElement.className = "change positive";
+    } else if (newLeadsChange < 0) {
+      newLeadsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(newLeadsChange).toFixed(2)}% from last month`;
+      newLeadsChangeElement.parentElement.className = "change negative";
+    } else {
+      newLeadsChangeElement.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
+      newLeadsChangeElement.parentElement.className = "change";
+    }
 
     // Calculate conversion rate (won leads / total leads)
     const wonLeads = allLeads.filter((lead) => {
@@ -403,8 +650,9 @@ function calculateStats(allLeads, payments) {
       totalLeads > 0 ? Math.round((wonLeads / totalLeads) * 100) : 0;
     safeSetTextContent("conversionRateValue", `${conversionRate}%`);
 
-    // Set a placeholder for conversion rate change (would need historical data)
-    safeUpdateChangeIndicator("conversionChange", 0, "month");
+    // Replace conversion rate change indicator with descriptive text
+    document.getElementById("conversionChange").innerHTML = 
+      '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
 
     // Payment metrics
     // Calculate total payments for current month
@@ -507,8 +755,18 @@ function calculateStats(allLeads, payments) {
         100;
     }
 
-    // Update payments change display
-    safeUpdateChangeIndicator("paymentsChange", paymentsChange, "month");
+    // Update payments change display (with extra decimal)
+    const paymentsChangeElement = document.getElementById("paymentsChange");
+    if (paymentsChange > 0) {
+      paymentsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(paymentsChange).toFixed(2)}% from last month`;
+      paymentsChangeElement.className = "change positive";
+    } else if (paymentsChange < 0) {
+      paymentsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(paymentsChange).toFixed(2)}% from last month`;
+      paymentsChangeElement.className = "change negative";
+    } else {
+      paymentsChangeElement.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
+      paymentsChangeElement.className = "change";
+    }
   } catch (error) {
     console.error("Error calculating statistics:", error);
     // Set default values in case of error
@@ -517,10 +775,17 @@ function calculateStats(allLeads, payments) {
     safeSetTextContent("conversionRateValue", "0%");
     safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
 
-    // Set all change indicators to 0%
-    safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
-    safeUpdateChangeIndicator("newLeadsChange", 0, "");
-    safeUpdateChangeIndicator("conversionChange", 0, "month");
-    safeUpdateChangeIndicator("paymentsChange", 0, "month");
+    // Replace change indicators with descriptive text even in error cases
+    const totalLeadsChange = document.getElementById("totalLeadsChange");
+    totalLeadsChange.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+    
+    const conversionChange = document.getElementById("conversionChange");
+    conversionChange.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+    
+    // Set remaining change indicators with one decimal place
+    document.getElementById("newLeadsChange").innerHTML = 
+      '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+    document.getElementById("paymentsChange").innerHTML = 
+      '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
   }
 }
