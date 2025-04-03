@@ -434,11 +434,23 @@ select,
   color: var(--text-muted);
 }
 
+/* Update the payments container to remove scrolling behavior */
+.payments-container {
+  margin-bottom: 1rem;
+  border: 0.1rem solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0;
+}
+
+/* Payment notes to properly handle text wrapping and height */
 .payment-notes {
   font-style: italic;
   margin-top: 0.4rem;
   white-space: normal;
-  overflow-wrap: break-word;
+  word-break: break-word;
+  width: 100%;
+  height: auto;
+  padding: 1rem 1rem 1rem 0;
 }
 
 .payment-actions {
