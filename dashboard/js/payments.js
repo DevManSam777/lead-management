@@ -53,6 +53,7 @@ function renderLeadPayments(leadPayments, leadId) {
     // Create the payment details element
     const paymentDetails = document.createElement("div");
     paymentDetails.className = "payment-details";
+    paymentDetails.style.width = "100%"; // Ensure full width
 
     const amountDiv = document.createElement("div");
     amountDiv.className = "payment-amount";
@@ -68,7 +69,19 @@ function renderLeadPayments(leadPayments, leadId) {
     if (payment.notes) {
       const notesDiv = document.createElement("div");
       notesDiv.className = "payment-notes";
+      
+      // Critical fix: Set proper styles for dynamic height
+      notesDiv.style.width = "100%";
+      notesDiv.style.minHeight = "auto";
+      notesDiv.style.height = "auto";
+      notesDiv.style.whiteSpace = "normal";
+      notesDiv.style.overflowWrap = "break-word";
+      notesDiv.style.wordBreak = "break-word";
+      notesDiv.style.overflow = "visible";
+      
+      // Set content
       notesDiv.textContent = payment.notes;
+      
       paymentDetails.appendChild(notesDiv);
     }
 
