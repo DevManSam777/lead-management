@@ -436,9 +436,6 @@ async function deleteLeadAction(leadId) {
   }
 }
 
-/**
- * Open the add lead modal
- */
 function openAddLeadModal() {
   const leadForm = document.getElementById("leadForm");
   leadForm.reset();
@@ -478,22 +475,23 @@ function openAddLeadModal() {
     paymentsContainer.innerHTML = '<p class="payment-item">No payments yet</p>';
   }
 
-  // Hide the Add Payment button for new leads
+  // Ensure Add Payment button is visible
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
-    // Hide add payment button until the lead is saved
-    addPaymentBtn.style.display = "none";
+    addPaymentBtn.style.display = "block";
   }
 
-  // Clear payment-related fields
+  // Set Paid Amount and Remaining Balance to readonly with zero value
   const paidAmountField = document.getElementById("paidAmount");
   if (paidAmountField) {
     paidAmountField.value = formatCurrency(0);
+    paidAmountField.setAttribute("readonly", true);
   }
 
   const remainingBalanceField = document.getElementById("remainingBalance");
   if (remainingBalanceField) {
     remainingBalanceField.value = formatCurrency(0);
+    remainingBalanceField.setAttribute("readonly", true);
   }
 
   // Display the modal first so elements are in the DOM
@@ -581,7 +579,7 @@ async function openLeadModal(leadId, allLeads) {
   if (lead.totalBudget !== undefined) {
     const totalBudget = parseFloat(lead.totalBudget) || 0;
     const paidAmount = parseFloat(lead.paidAmount) || 0;
-    remainingBalance = Math.max(0, totalBudget - paidAmount);
+    remainingBalance =  totalBudget - paidAmount;
   }
 
   // Find or create the remaining balance field

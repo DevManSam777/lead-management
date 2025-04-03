@@ -1,7 +1,17 @@
-// payments.js - Payment functionality
+// Payment functionality
 
-import { formatCurrency, formatDate, showToast, initializeMonetaryInputs } from './utils.js';
-import { fetchLeadPayments, updatePayment, createPayment, deletePayment } from './api.js';
+import {
+  formatCurrency,
+  formatDate,
+  showToast,
+  initializeMonetaryInputs,
+} from "./utils.js";
+import {
+  fetchLeadPayments,
+  updatePayment,
+  createPayment,
+  deletePayment,
+} from "./api.js";
 
 /**
  * Render all payments for a specific lead
@@ -68,10 +78,10 @@ function renderLeadPayments(leadPayments, leadId) {
     if (payment.notes) {
       const notesDiv = document.createElement("div");
       notesDiv.className = "payment-notes";
-      
+
       // Set content
       notesDiv.textContent = payment.notes;
-      
+
       paymentDetails.appendChild(notesDiv);
     }
 
@@ -128,7 +138,7 @@ function openPaymentModal(leadId, paymentId = null) {
   // Clear previous values
   document.getElementById("paymentId").value = "";
   document.getElementById("paymentLeadId").value = "";
-  
+
   // Clear the date display
   const dateDisplay = document.getElementById("paymentDateDisplay");
   if (dateDisplay) {
@@ -143,55 +153,59 @@ function openPaymentModal(leadId, paymentId = null) {
 
   console.log(`Opening payment modal for lead ID: ${leadId}`);
   document.getElementById("paymentLeadId").value = leadId;
-  
+
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
   if (paymentId) {
     // Edit existing payment - fetch it first
-    fetchLeadPayments(leadId).then(payments => {
-      // Find the specific payment
-      const payment = payments.find(p => p._id === paymentId && p.leadId === leadId);
-      
-      if (!payment) {
-        showToast("Payment not found or doesn't belong to this lead");
-        return;
-      }
-      
-      document.getElementById("paymentId").value = payment._id;
-      document.getElementById("paymentAmount").value = payment.amount;
+    fetchLeadPayments(leadId)
+      .then((payments) => {
+        // Find the specific payment
+        const payment = payments.find(
+          (p) => p._id === paymentId && p.leadId === leadId
+        );
 
-      // Format date for the date input
-      if (payment.paymentDate) {
-        // Create a date object in the local timezone
-        const dateObj = new Date(payment.paymentDate);
-        
-        // Format as YYYY-MM-DD for input[type="date"]
-        const formattedDate = dateObj.toISOString().split("T")[0];
-        document.getElementById("paymentDate").value = formattedDate;
-        
-        // Update the display element with formatted date
-        if (dateDisplay) {
-          dateDisplay.textContent = formatDate(dateObj, dateFormat);
+        if (!payment) {
+          showToast("Payment not found or doesn't belong to this lead");
+          return;
         }
-      }
 
-      // Set notes content
-      document.getElementById("paymentNotes").value = payment.notes || "";
+        document.getElementById("paymentId").value = payment._id;
+        document.getElementById("paymentAmount").value = payment.amount;
 
-      document.getElementById("paymentModalTitle").textContent = "Edit Payment";
-      
-      // Make sure modal is visible before trying to resize textarea
-      document.getElementById("paymentModal").style.display = "block";
-      
-      // After modal is shown, adjust the textarea height
-      setTimeout(() => {
-        autoResizePaymentTextarea();
-      }, 0);
-      
-    }).catch(error => {
-      console.error("Error fetching payment:", error);
-      showToast("Error: " + error.message);
-    });
+        // Format date for the date input
+        if (payment.paymentDate) {
+          // Create a date object in the local timezone
+          const dateObj = new Date(payment.paymentDate);
+
+          // Format as YYYY-MM-DD for input[type="date"]
+          const formattedDate = dateObj.toISOString().split("T")[0];
+          document.getElementById("paymentDate").value = formattedDate;
+
+          // Update the display element with formatted date
+          if (dateDisplay) {
+            dateDisplay.textContent = formatDate(dateObj, dateFormat);
+          }
+        }
+
+        // Set notes content
+        document.getElementById("paymentNotes").value = payment.notes || "";
+
+        document.getElementById("paymentModalTitle").textContent =
+          "Edit Payment";
+
+        // Make sure modal is visible before trying to resize textarea
+        document.getElementById("paymentModal").style.display = "block";
+
+        // After modal is shown, adjust the textarea height
+        setTimeout(() => {
+          autoResizePaymentTextarea();
+        }, 0);
+      })
+      .catch((error) => {
+        console.error("Error fetching payment:", error);
+        showToast("Error: " + error.message);
+      });
   } else {
     // New payment
     // Set today's date correctly with timezone adjustment
@@ -200,29 +214,29 @@ function openPaymentModal(leadId, paymentId = null) {
     const localDate = today.toISOString().split("T")[0];
 
     document.getElementById("paymentDate").value = localDate;
-    
+
     // Update the display element with today's date in the selected format
     if (dateDisplay) {
       dateDisplay.textContent = formatDate(today, dateFormat);
     }
-    
+
     document.getElementById("paymentNotes").value = "";
 
     document.getElementById("paymentModalTitle").textContent = "Add Payment";
-    
+
     // Show modal
     document.getElementById("paymentModal").style.display = "block";
-    
+
     // Adjust textarea height
     setTimeout(() => {
       autoResizePaymentTextarea();
     }, 0);
   }
-  
+
   // Set up event listener for date input changes
   const paymentDateInput = document.getElementById("paymentDate");
   if (paymentDateInput) {
-    paymentDateInput.addEventListener("change", function() {
+    paymentDateInput.addEventListener("change", function () {
       if (this.value) {
         const date = new Date(this.value);
         if (dateDisplay) {
@@ -235,13 +249,16 @@ function openPaymentModal(leadId, paymentId = null) {
       }
     });
   }
-  
+
   // Set up textarea auto-resize
   const paymentNotesTextarea = document.getElementById("paymentNotes");
   if (paymentNotesTextarea) {
     // Add input event listener for auto-resize
-    paymentNotesTextarea.removeEventListener('input', autoResizePaymentTextarea);
-    paymentNotesTextarea.addEventListener('input', autoResizePaymentTextarea);
+    paymentNotesTextarea.removeEventListener(
+      "input",
+      autoResizePaymentTextarea
+    );
+    paymentNotesTextarea.addEventListener("input", autoResizePaymentTextarea);
   }
 
   // Initialize monetary inputs in the payment modal
@@ -252,18 +269,18 @@ function openPaymentModal(leadId, paymentId = null) {
  * Auto-resize payment notes textarea
  */
 function autoResizePaymentTextarea() {
-  const textarea = document.getElementById('paymentNotes');
+  const textarea = document.getElementById("paymentNotes");
   if (!textarea) return;
-  
+
   // Reset height to auto to get the correct scrollHeight
-  textarea.style.height = 'auto';
-  
+  textarea.style.height = "auto";
+
   // Get the scroll height (content height)
   const scrollHeight = textarea.scrollHeight;
-  
+
   // Set a minimum height to match input fields
   const minHeight = 38; // in pixels - matches standard input height
-  
+
   // Only expand beyond minimum if content requires it
   if (scrollHeight > minHeight) {
     textarea.style.cssText += `height: ${scrollHeight}px !important;`;
@@ -326,7 +343,10 @@ async function validateAndSavePayment(event) {
   // Timezone offset to ensure the date doesn't shift
   const timezoneOffset = dateObj.getTimezoneOffset() * 60000; // Convert to milliseconds
   const adjustedDate = new Date(dateObj.getTime() + timezoneOffset);
-  console.log("Adjusted date with timezone offset:", adjustedDate.toISOString());
+  console.log(
+    "Adjusted date with timezone offset:",
+    adjustedDate.toISOString()
+  );
 
   // Prepare payment data with adjusted date
   const paymentData = {
@@ -373,31 +393,29 @@ async function validateAndSavePayment(event) {
       // Update remaining balance field
       const remainingBalanceField = document.getElementById("remainingBalance");
       if (remainingBalanceField) {
-        // Get the total budget from the form
+        // Get the billed amount (total budget) from the form
         const totalBudgetStr = document.getElementById("totalBudget").value;
-        const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
-        const remainingBalance = Math.max(0, totalBudget - totalPaid);
-        
+        const totalBudget =
+          parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
+        const remainingBalance = totalBudget - totalPaid;
+
         remainingBalanceField.value = formatCurrency(remainingBalance);
       }
 
       // Render payment list
       renderLeadPayments(leadPayments, leadId);
     }
-    
+
     // Close the payment modal
     closePaymentModal();
 
     // Show success message
     showToast(
-      paymentId
-        ? "Payment updated successfully"
-        : "Payment added successfully"
+      paymentId ? "Payment updated successfully" : "Payment added successfully"
     );
-    
+
     // Signal that payments have been updated
-    window.dispatchEvent(new CustomEvent('paymentsUpdated'));
-    
+    window.dispatchEvent(new CustomEvent("paymentsUpdated"));
   } catch (error) {
     console.error("Error saving payment:", error);
     showToast("Error: " + error.message);
@@ -443,9 +461,10 @@ async function deletePaymentAction(paymentId, leadId) {
       if (remainingBalanceField) {
         // Get the total budget from the form
         const totalBudgetStr = document.getElementById("totalBudget").value;
-        const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
-        const remainingBalance = Math.max(0, totalBudget - totalPaid);
-        
+        const totalBudget =
+          parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
+        const remainingBalance = totalBudget - totalPaid;
+
         remainingBalanceField.value = formatCurrency(remainingBalance);
       }
 
@@ -457,7 +476,7 @@ async function deletePaymentAction(paymentId, leadId) {
     document.getElementById("leadModal").style.display = leadModalDisplayStyle;
 
     // Signal that payments have been updated
-    window.dispatchEvent(new CustomEvent('paymentsUpdated'));
+    window.dispatchEvent(new CustomEvent("paymentsUpdated"));
 
     showToast("Payment deleted successfully");
   } catch (error) {
@@ -472,5 +491,5 @@ export {
   openPaymentModal,
   closePaymentModal,
   validateAndSavePayment,
-  deletePaymentAction
+  deletePaymentAction,
 };
