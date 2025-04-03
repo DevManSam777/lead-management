@@ -177,6 +177,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Initialize phone number formatting
   Utils.initializePhoneFormatting();
 
+  // Initialize auto-resizing textareas
+  Utils.initializeAutoResizeTextareas();
+
   // Setup the sidebar toggle
   setupSidebarToggle();
 

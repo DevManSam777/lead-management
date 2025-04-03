@@ -67,6 +67,13 @@
     box-sizing: border-box;
     transition: border-color 0.3s, background-color 0.3s;
   }
+
+  textarea {
+    resize: none;
+    min-height: 3.4rem;
+    overflow-y: hidden;
+    transition: height 0.2s ease;
+  }
   
   .radio-group {
     display: flex;

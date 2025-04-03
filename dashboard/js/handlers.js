@@ -14,6 +14,12 @@ import { createLead, updateLead, deleteLead, fetchLeadPayments } from './api.js'
 import { renderLeads, setModalReadOnly } from './ui.js';
 import { renderLeadPayments } from './payments.js';
 
+// Function to handle textarea auto-resize
+function handleTextareaResize() {
+  this.style.height = 'auto';
+  this.style.height = this.scrollHeight + 'px';
+}
+
 /**
  * Setup form validation for the lead form
  */
@@ -490,7 +496,20 @@ function openAddLeadModal() {
     remainingBalanceField.value = formatCurrency(0);
   }
 
+  // Display the modal first so elements are in the DOM
   document.getElementById("leadModal").style.display = "block";
+  
+  // Then setup the auto-resize for textareas
+  const textareas = document.querySelectorAll('#leadModal textarea');
+  textareas.forEach(textarea => {
+    // Set initial height based on content
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+    
+    // Make sure we don't add duplicate listeners
+    textarea.removeEventListener('input', handleTextareaResize);
+    textarea.addEventListener('input', handleTextareaResize);
+  });
 
   // Initialize any monetary inputs in the modal
   initializeMonetaryInputs();
@@ -646,15 +665,30 @@ async function openLeadModal(leadId, allLeads) {
       formatPhoneInput(field);
     }
   });
-
-  // Display the modal
+  
+  // Display the modal first so elements are in the DOM
   document.getElementById("leadModal").style.display = "block";
+
+  // Then setup the auto-resize for textareas
+  // Important: This needs to be after setting the display to "block" to work properly
+  const textareas = document.querySelectorAll('#leadModal textarea');
+  textareas.forEach(textarea => {
+    // Set initial height based on content after a brief delay to ensure content is rendered
+    setTimeout(() => {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+      
+      // Make sure we don't add duplicate listeners
+      textarea.removeEventListener('input', handleTextareaResize);
+      textarea.addEventListener('input', handleTextareaResize);
+    }, 0);
+  });
 
   // Then add modal action buttons (Edit, Delete)
   window.updateModalActionButtons(lead._id);
 
-    // Initialize any monetary inputs in the modal
-    initializeMonetaryInputs()
+  // Initialize any monetary inputs in the modal
+  initializeMonetaryInputs();
 }
 
 /**

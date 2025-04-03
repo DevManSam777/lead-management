@@ -173,9 +173,19 @@ function openPaymentModal(leadId, paymentId = null) {
         }
       }
 
+      // Set notes content
       document.getElementById("paymentNotes").value = payment.notes || "";
 
       document.getElementById("paymentModalTitle").textContent = "Edit Payment";
+      
+      // Make sure modal is visible before trying to resize textarea
+      document.getElementById("paymentModal").style.display = "block";
+      
+      // After modal is shown, adjust the textarea height
+      setTimeout(() => {
+        autoResizePaymentTextarea();
+      }, 0);
+      
     }).catch(error => {
       console.error("Error fetching payment:", error);
       showToast("Error: " + error.message);
@@ -197,6 +207,14 @@ function openPaymentModal(leadId, paymentId = null) {
     document.getElementById("paymentNotes").value = "";
 
     document.getElementById("paymentModalTitle").textContent = "Add Payment";
+    
+    // Show modal
+    document.getElementById("paymentModal").style.display = "block";
+    
+    // Adjust textarea height
+    setTimeout(() => {
+      autoResizePaymentTextarea();
+    }, 0);
   }
   
   // Set up event listener for date input changes
@@ -215,10 +233,41 @@ function openPaymentModal(leadId, paymentId = null) {
       }
     });
   }
+  
+  // Set up textarea auto-resize
+  const paymentNotesTextarea = document.getElementById("paymentNotes");
+  if (paymentNotesTextarea) {
+    // Add input event listener for auto-resize
+    paymentNotesTextarea.removeEventListener('input', autoResizePaymentTextarea);
+    paymentNotesTextarea.addEventListener('input', autoResizePaymentTextarea);
+  }
 
-  document.getElementById("paymentModal").style.display = "block";
-   // Initialize monetary inputs in the payment modal
-   initializeMonetaryInputs();
+  // Initialize monetary inputs in the payment modal
+  initializeMonetaryInputs();
+}
+
+/**
+ * Auto-resize payment notes textarea
+ */
+function autoResizePaymentTextarea() {
+  const textarea = document.getElementById('paymentNotes');
+  if (!textarea) return;
+  
+  // Reset height to auto to get the correct scrollHeight
+  textarea.style.height = 'auto';
+  
+  // Get the scroll height (content height)
+  const scrollHeight = textarea.scrollHeight;
+  
+  // Set a minimum height to match input fields
+  const minHeight = 38; // in pixels - matches standard input height
+  
+  // Only expand beyond minimum if content requires it
+  if (scrollHeight > minHeight) {
+    textarea.style.cssText += `height: ${scrollHeight}px !important;`;
+  } else {
+    textarea.style.cssText += `height: ${minHeight}px !important;`;
+  }
 }
 
 /**

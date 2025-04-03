@@ -58,12 +58,8 @@
             <select id="combinedSort">
               <option value="createdAt-desc">Date (Newest First)</option>
               <option value="createdAt-asc">Date (Oldest First)</option>
-              <option value="lastContactedAt-desc">
-                Last Contacted (Newest First)
-              </option>
-              <option value="lastContactedAt-asc">
-                Last Contacted (Oldest First)
-              </option>
+              <option value="lastContactedAt-desc">Last Contacted (Newest First)</option>
+              <option value="lastContactedAt-asc">Last Contacted (Oldest First)</option>
               <option value="firstName-asc">Name (A to Z)</option>
               <option value="firstName-desc">Name (Z to A)</option>
               <option value="businessName-asc">Business Name (A to Z)</option>
@@ -223,11 +219,7 @@
                 <input type="tel" id="businessPhone" />
                 <div class="extension-field">
                   <label for="businessPhoneExt">Ext:</label>
-                  <input
-                    type="text"
-                    id="businessPhoneExt"
-                    placeholder="Extension"
-                  />
+                  <input type="text" id="businessPhoneExt" placeholder="Extension" />
                 </div>
               </div>
             </div>
@@ -239,7 +231,7 @@
 
             <div class="form-group">
               <label for="businessServices">Business Services</label>
-              <input type="text" id="businessServices" />
+              <textarea id="businessServices" rows="1"></textarea>
             </div>
 
             <div class="form-group">
@@ -282,13 +274,8 @@
 
             <div class="form-group">
               <label for="budget">Estimated Budget</label>
-              <input
-                type="text"
-                id="budget"
-                placeholder="Enter estimated amount"
-              />
+              <input type="text" id="budget" placeholder="Enter estimated amount" />
             </div>
-            
           </div>
 
           <!-- Status Information Section -->
@@ -336,11 +323,7 @@
                 <div class="payments-container">
                   <!-- Payments will be loaded here -->
                 </div>
-                <button
-                  type="button"
-                  id="addPaymentBtn"
-                  class="btn btn-outline"
-                >
+                <button type="button" id="addPaymentBtn" class="btn btn-outline">
                   <i class="fas fa-plus"></i> Add Payment
                 </button>
               </div>
@@ -352,12 +335,12 @@
             <h4>Message & Notes</h4>
             <div class="form-group">
               <label for="message">Message</label>
-              <textarea id="message" rows="3"></textarea>
+              <textarea id="message" rows="1"></textarea>
             </div>
 
             <div class="form-group">
               <label for="notes">Internal Notes</label>
-              <textarea id="notes" rows="3"></textarea>
+              <textarea id="notes" rows="1"></textarea>
             </div>
           </div>
 
@@ -382,35 +365,10 @@
           <input type="hidden" id="paymentId" />
           <input type="hidden" id="paymentLeadId" />
 
-          <!-- <div class="form-group">
-            <label for="paymentAmount">Amount*</label>
-            <div class="budget-group">
-              <input
-                type="text"
-                id="paymentAmount"
-                required
-                placeholder="Enter amount"
-              />
-              <select id="paymentCurrency">
-                <option value="USD">USD</option>
-                <option value="CAD">CAD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                <option value="AUD">AUD</option>
-                <option value="🍕">🍕</option>
-              </select>
-            </div>
-          </div> -->
           <div class="form-group">
             <label for="paymentAmount">Amount*</label>
-            <input
-              type="text"
-              id="paymentAmount"
-              required
-              placeholder="Enter amount"
-            />
+            <input type="text" id="paymentAmount" required placeholder="Enter amount" />
           </div>
-          
 
           <div class="form-group">
             <label for="paymentDate">Payment Date*</label>
@@ -422,11 +380,7 @@
 
           <div class="form-group">
             <label for="paymentNotes">Notes</label>
-            <textarea
-              id="paymentNotes"
-              rows="3"
-              placeholder="Add payment notes here"
-            ></textarea>
+            <textarea id="paymentNotes" rows="5" placeholder="Add payment notes here"></textarea>
           </div>
 
           <button type="submit" class="btn btn-primary">Save Payment</button>
@@ -434,22 +388,12 @@
       </div>
     </div>
 
-    <!-- Load utils first -->
+    <!-- Load scripts in sequence -->
     <script type="module" src="../js/utils.js"></script>
-
-    <!-- Then load API -->
     <script type="module" src="../js/api.js"></script>
-
-    <!-- Then load UI -->
     <script type="module" src="../js/ui.js"></script>
-
-    <!-- Then load handlers -->
     <script type="module" src="../js/handlers.js"></script>
-
-    <!-- Then load payments -->
     <script type="module" src="../js/payments.js"></script>
-
-    <!-- Finally load the main dashboard -->
     <script type="module" src="../js/dashboard.js"></script>
   </body>
 </html>

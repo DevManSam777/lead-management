@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Get the form element
   const form = document.getElementById("inquiry-form");
 
+  // Initialize auto-resize for textareas
+  initializeAutoResizeTextareas();
+
   // Helper function to create and show error messages
   function showError(input, message) {
     // Remove any existing error message
@@ -195,6 +198,37 @@ document.addEventListener("DOMContentLoaded", function () {
       delimiters: ['-', '-']
     });
   });
+
+  /**
+ * Initialize auto-resizing textareas
+ */
+function initializeAutoResizeTextareas() {
+  // Get all textareas
+  const textareas = document.querySelectorAll('textarea');
+  
+  // Apply auto-resize to each textarea
+  textareas.forEach(textarea => {
+    // Set initial height based on content
+    adjustTextareaHeight(textarea);
+    
+    // Add event listener for input changes
+    textarea.addEventListener('input', function() {
+      adjustTextareaHeight(this);
+    });
+  });
+}
+
+/**
+ * Adjust the height of a textarea to fit its content
+ * @param {HTMLElement} textarea - The textarea element to adjust
+ */
+function adjustTextareaHeight(textarea) {
+  // Reset height to auto to get the correct scrollHeight
+  textarea.style.height = 'auto';
+  
+  // Set height to scrollHeight to fit content
+  textarea.style.height = (textarea.scrollHeight) + 'px';
+}
 
   // Show/hide extension fields based on checkbox selection
   document.getElementById("phoneExtCheck").addEventListener("change", function() {
