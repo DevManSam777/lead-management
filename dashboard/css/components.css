@@ -73,6 +73,19 @@
   color: var(--text-muted);
 }
 
+.stats-card > i {
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.fa-arrow-up {
+  color: var(--toast-bg);
+}
+
+.fa-arrow-down {
+  color: var(--toast-deletion-bg);
+}
+
 .stats-card .change i {
   margin-right: 0.5rem;
   min-width: 1.4rem;
@@ -237,11 +250,12 @@
   margin-top: 2rem;
 }
 
-.form-group label {
+.form-group label, .payments-list h5 {
   display: block;
   margin-bottom: 0.8rem;
   font-weight: 500;
   color: var(--text-color);
+  font-size: 1.6rem;
 }
 
 select,
