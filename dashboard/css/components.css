@@ -45,7 +45,6 @@
   box-shadow: var(--box-shadow);
   display: flex;
   flex-direction: column;
-  position: relative;
   transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
@@ -59,23 +58,23 @@
   font-size: clamp(1.8rem, 2vw, 2.8rem);
   font-weight: bold;
   color: var(--text-color);
-  margin-bottom: 0.8rem;
+  margin-bottom: 1.5rem;
 }
 
 .stats-card .change {
   display: flex;
   align-items: center;
-  margin-top: 0.5rem;
   font-size: 1rem;
+  letter-spacing: .05rem;
   white-space: nowrap;
-  line-height: 1.5;
+
   overflow: hidden;
   color: var(--text-muted);
 }
 
 .stats-card > i {
   color: var(--primary);
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .fa-arrow-up {

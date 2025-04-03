@@ -71,11 +71,6 @@ details[open] .stats-cards {
   margin-top: 1.5rem;
 }
 
-details summary h3 {
-  margin: 0;
-  display: inline;
-}
-
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-width);
