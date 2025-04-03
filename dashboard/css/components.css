@@ -446,7 +446,8 @@ select,
 .payment-notes {
   font-style: italic;
   margin-top: 0.4rem;
-  white-space: normal;
+  /* preserves indentation */
+  white-space: pre-wrap;
   word-break: break-word;
   width: 100%;
   height: auto;
