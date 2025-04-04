@@ -256,19 +256,21 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Currency formatting for budget input
-  const totalBudgetInput = document.getElementById("totalBudget");
-  if (totalBudgetInput) {
-    totalBudgetInput.addEventListener("blur", function (e) {
-      if (this.value) {
-        // Format number with 2 decimal places
-        const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
-        if (!isNaN(value)) {
-          const currency = document.getElementById("budgetCurrency").value;
-          this.value = Utils.formatCurrency(value, currency);
-        }
+const totalBudgetInput = document.getElementById("totalBudget");
+if (totalBudgetInput) {
+  totalBudgetInput.addEventListener("blur", function (e) {
+    if (this.value) {
+      // Format number with 2 decimal places
+      const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
+      if (!isNaN(value)) {
+        // Add a null check for budgetCurrency
+        const budgetCurrencyElement = document.getElementById("budgetCurrency");
+        const currency = budgetCurrencyElement ? budgetCurrencyElement.value : 'USD';
+        this.value = Utils.formatCurrency(value, currency);
       }
-    });
-  }
+    }
+  });
+}
 
   // Payment related listeners
   const paymentForm = document.getElementById("paymentForm");
