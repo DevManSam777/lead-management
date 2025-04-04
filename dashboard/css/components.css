@@ -94,6 +94,7 @@
 .stats-card .change span {
   display: inline-block;
   vertical-align: middle;
+  font-size: .9rem;
 }
 
 .lead-card {

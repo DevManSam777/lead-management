@@ -288,7 +288,6 @@ function setModalReadOnly(isReadOnly) {
   }
 }
 
-// Modified version of the calculateStats function from ui.js
 function calculateStats(allLeads, payments) {
   try {
     // Get current date format
@@ -302,19 +301,30 @@ function calculateStats(allLeads, payments) {
       safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
 
       // Replace change indicators with descriptive text
-      const totalLeadsChange = document.getElementById("totalLeadsChange");
-      totalLeadsChange.innerHTML =
-        '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+      const totalLeadsChangeSpan = document.querySelector('#totalLeadsValue + .change span');
+      if (totalLeadsChangeSpan) {
+        totalLeadsChangeSpan.innerHTML = 
+          '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+      }
 
-      const conversionChange = document.getElementById("conversionChange");
-      conversionChange.innerHTML =
-        '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+      const conversionChangeSpan = document.querySelector('#conversionRateValue + .change span');
+      if (conversionChangeSpan) {
+        conversionChangeSpan.innerHTML = 
+          '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+      }
 
       // Set remaining change indicators with one decimal place
-      document.getElementById("newLeadsChange").innerHTML =
-        '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
-      document.getElementById("paymentsChange").innerHTML =
-        '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+      const newLeadsChangeSpan = document.querySelector('#newLeadsValue + .change span');
+      if (newLeadsChangeSpan) {
+        newLeadsChangeSpan.innerHTML = 
+          '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+      }
+      
+      const paymentsChangeSpan = document.querySelector('#monthlyPaymentsValue + .change span');
+      if (paymentsChangeSpan) {
+        paymentsChangeSpan.innerHTML = 
+          '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+      }
 
       return;
     }
@@ -380,8 +390,11 @@ function calculateStats(allLeads, payments) {
     }
 
     // Replace Total Projects change indicator with descriptive text
-    document.getElementById("totalLeadsChange").innerHTML =
-      '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+    const totalLeadsChangeSpan = document.querySelector('#totalLeadsValue + .change span');
+    if (totalLeadsChangeSpan) {
+      totalLeadsChangeSpan.innerHTML = 
+        '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+    }
 
     // For new leads, just show the current month's leads - no week comparison
     const newLeads = lastMonthLeads; // Using monthly data instead of weekly
@@ -390,22 +403,23 @@ function calculateStats(allLeads, payments) {
     // Use the same month-over-month change for new leads too
     const newLeadsChange = totalLeadsChange; // Same change as total leads
 
-    // Update new leads change display (WITH "from last month" text and extra decimal)
-    // Custom implementation to add "from last month" text and extra decimal
-    const newLeadsChangeElement = document.getElementById("newLeadsChange");
-    if (newLeadsChange > 0) {
-      newLeadsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
-        newLeadsChange
-      ).toFixed(2)}% from last month`;
-      newLeadsChangeElement.parentElement.className = "change positive";
-    } else if (newLeadsChange < 0) {
-      newLeadsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(
-        newLeadsChange
-      ).toFixed(2)}% from last month`;
-      newLeadsChangeElement.parentElement.className = "change negative";
-    } else {
-      newLeadsChangeElement.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
-      newLeadsChangeElement.parentElement.className = "change";
+    // Update new leads change display
+    const newLeadsChangeSpan = document.querySelector('#newLeadsValue + .change span');
+    if (newLeadsChangeSpan) {
+      if (newLeadsChange > 0) {
+        newLeadsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
+          newLeadsChange
+        ).toFixed(2)}% from last month`;
+        newLeadsChangeSpan.closest('.change').className = "change positive";
+      } else if (newLeadsChange < 0) {
+        newLeadsChangeSpan.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(
+          newLeadsChange
+        ).toFixed(2)}% from last month`;
+        newLeadsChangeSpan.closest('.change').className = "change negative";
+      } else {
+        newLeadsChangeSpan.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
+        newLeadsChangeSpan.closest('.change').className = "change";
+      }
     }
 
     // Calculate conversion rate (won leads / total leads)
@@ -420,8 +434,11 @@ function calculateStats(allLeads, payments) {
     safeSetTextContent("conversionRateValue", `${conversionRate}%`);
 
     // Replace conversion rate change indicator with descriptive text
-    document.getElementById("conversionChange").innerHTML =
-      '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+    const conversionChangeSpan = document.querySelector('#conversionRateValue + .change span');
+    if (conversionChangeSpan) {
+      conversionChangeSpan.innerHTML = 
+        '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+    }
 
     // Payment metrics
     // Calculate total payments for current month
@@ -496,21 +513,23 @@ function calculateStats(allLeads, payments) {
         100;
     }
 
-    // Update payments change display (with extra decimal)
-    const paymentsChangeElement = document.getElementById("paymentsChange");
-    if (paymentsChange > 0) {
-      paymentsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
-        paymentsChange
-      ).toFixed(2)}% from last month`;
-      paymentsChangeElement.className = "change positive";
-    } else if (paymentsChange < 0) {
-      paymentsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(
-        paymentsChange
-      ).toFixed(2)}% from last month`;
-      paymentsChangeElement.className = "change negative";
-    } else {
-      paymentsChangeElement.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
-      paymentsChangeElement.className = "change";
+    // Update payments change display
+    const paymentsChangeSpan = document.querySelector('#monthlyPaymentsValue + .change span');
+    if (paymentsChangeSpan) {
+      if (paymentsChange > 0) {
+        paymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
+          paymentsChange
+        ).toFixed(2)}% from last month`;
+        paymentsChangeSpan.closest('.change').className = "change positive";
+      } else if (paymentsChange < 0) {
+        paymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(
+          paymentsChange
+        ).toFixed(2)}% from last month`;
+        paymentsChangeSpan.closest('.change').className = "change negative";
+      } else {
+        paymentsChangeSpan.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
+        paymentsChangeSpan.closest('.change').className = "change";
+      }
     }
   } catch (error) {
     console.error("Error calculating statistics:", error);
@@ -521,18 +540,29 @@ function calculateStats(allLeads, payments) {
     safeSetTextContent("monthlyPaymentsValue", formatCurrency(0));
 
     // Replace change indicators with descriptive text even in error cases
-    const totalLeadsChange = document.getElementById("totalLeadsChange");
-    totalLeadsChange.innerHTML =
-      '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+    const totalLeadsChangeSpan = document.querySelector('#totalLeadsValue + .change span');
+    if (totalLeadsChangeSpan) {
+      totalLeadsChangeSpan.innerHTML = 
+        '<span style="color: var(--text-muted); font-size: 0.9rem;">All-Time Projects</span>';
+    }
 
-    const conversionChange = document.getElementById("conversionChange");
-    conversionChange.innerHTML =
-      '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+    const conversionChangeSpan = document.querySelector('#conversionRateValue + .change span');
+    if (conversionChangeSpan) {
+      conversionChangeSpan.innerHTML = 
+        '<span style="color: var(--text-muted); font-size: 0.9rem;">Closed-Won Projects</span>';
+    }
 
     // Set remaining change indicators with one decimal place
-    document.getElementById("newLeadsChange").innerHTML =
-      '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
-    document.getElementById("paymentsChange").innerHTML =
-      '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+    const newLeadsChangeSpan = document.querySelector('#newLeadsValue + .change span');
+    if (newLeadsChangeSpan) {
+      newLeadsChangeSpan.innerHTML = 
+        '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+    }
+    
+    const paymentsChangeSpan = document.querySelector('#monthlyPaymentsValue + .change span');
+    if (paymentsChangeSpan) {
+      paymentsChangeSpan.innerHTML = 
+        '<i class="fas fa-minus"></i> <span>0.0% from last month</span>';
+    }
   }
 }
