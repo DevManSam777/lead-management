@@ -12,8 +12,37 @@
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/pagination.css" />
+    
+    <script>
+      // critical line css to prevent flash of white
+      (function() {
+        // set theme from localStorage or system preference
+        const savedTheme = localStorage.getItem('theme') || 
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        
+        // }
+      })();
+    </script>
+    
+    <style>
+      /* Prevent initial white flash */
+      html {
+        transition: background-color 0.3s ease, color 0.3s ease;
+        background-color: var(--background-color);
+        color: var(--text-color);
+      }
+      
+      /* Smooth sidebar transition */
+      /* .sidebar,  */
+      .main-content {
+        transition: all 0.3s ease;
+      }
+    </style>
   </head>
   <body>
+    <!-- Rest of the HTML remains the same -->
     <div class="container">
       <!-- Sidebar -->
       <aside class="sidebar">
@@ -36,8 +65,7 @@
           </ul>
         </div>
       </aside>
-
-      <!-- Main Content -->
+<!-- Main Content -->
       <main class="main-content">
         <header class="header">
           <h2>Project Management</h2>

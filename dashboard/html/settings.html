@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<head>
+<html lang="en">
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevLeads Settings</title>
@@ -11,6 +12,36 @@
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/settings.css" />
+    
+    <script>
+      // Inline script to set theme and sidebar state before page render
+      (function() {
+        // Set theme from localStorage or system preference
+        const savedTheme = localStorage.getItem('theme') || 
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // // Set sidebar state from localStorage
+        // const savedSidebarState = localStorage.getItem('sidebarCollapsed') === 'true';
+        // if (savedSidebarState) {
+        //   document.documentElement.classList.add('sidebar-collapsed');
+        // }
+      })();
+    </script>
+    
+    <style>
+      /* Prevent initial white flash */
+      html {
+        transition: background-color 0.3s ease, color 0.3s ease;
+        background-color: var(--background-color);
+        color: var(--text-color);
+      }
+      
+      /* Smooth sidebar transition */
+      .sidebar, .main-content {
+        transition: all 0.3s ease;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -29,7 +60,7 @@
         </div>
       </aside>
 
-      <!-- Main Content -->
+      <!-- Rest of the settings page remains the same -->
       <main class="main-content">
         <header class="header">
           <h2>Settings</h2>
@@ -82,4 +113,5 @@
     
     <!-- Then load settings -->
     <script type="module" src="../js/settings.js"></script>
+  </body>
 </html>
