@@ -505,10 +505,9 @@ details[open] .stats-cards {
     width: 100%;
   }
   
-  /* Fix the toggle button positioning */
+  /* Toggle button positioning */
   .sidebar-toggle {
     position: fixed;
-    z-index: 1100;
     width: 3.2rem;
     height: 3.2rem;
     border-radius: 50%;
@@ -600,16 +599,16 @@ fieldset {
 
 .leads-table th,
 .leads-table td {
-    padding: 1rem 0.8rem; /* Increased padding for better touch target and readability */
+    padding: 1rem 0.8rem; 
     font-size: 1.2rem;
   }
 
 .leads-table th {
     font-size: 1.3rem;
-    padding: 0.8rem 0.8rem; /* Consistent padding for headers */
+    padding: 0.8rem 0.8rem; 
   }
 
-  /* Hide Last Contact column */
+
 .leads-table th:nth-child(3),
 .leads-table td:nth-child(3) {
     display: none;
@@ -670,7 +669,7 @@ fieldset {
   overflow-x: hidden;
 }
 
-/* Smallest screen status badges */
+
 .lead-status {
   padding: 0.2rem 0.5rem;
   font-size: 0.9rem;

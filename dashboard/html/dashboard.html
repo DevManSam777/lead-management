@@ -4,15 +4,43 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevLeads Dashboard</title>
+    <style>
+      /* Add this to the <head> section */
+      .sidebar, .main-content {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+    </style>
     <script>
       (function () {
-        // set theme from localStorage or system preference
+        // Original theme setup from localStorage 
         const savedTheme =
           localStorage.getItem("theme") ||
           (window.matchMedia("(prefers-color-scheme: dark)").matches
             ? "dark"
             : "light");
         document.documentElement.setAttribute("data-theme", savedTheme);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+          // Get references to sidebar and main content
+          const sidebar = document.querySelector('.sidebar');
+          const mainContent = document.querySelector('.main-content');
+          
+          // Set initial state based on localStorage
+          const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+          
+          if (isSidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+          }
+          
+          // Give a short delay to ensure all layout calculations are done
+          setTimeout(function() {
+            // Make sidebar and content visible
+            sidebar.style.opacity = '1';
+            mainContent.style.opacity = '1';
+          }, 100);
+        });
       })();
     </script>
     <link
