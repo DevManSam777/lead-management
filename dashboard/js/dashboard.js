@@ -604,12 +604,6 @@ function setupSidebarToggle() {
       sidebar.classList.contains("collapsed")
     );
   });
-  
-  // Restore transitions after a short delay (to ensure initial render is complete)
-  setTimeout(() => {
-    sidebar.style.transition = originalSidebarTransition;
-    mainContent.style.transition = originalMainContentTransition;
-  }, 800);
 }
 
 // Ensure this function runs as early as possible
