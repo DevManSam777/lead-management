@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevLeads Dashboard</title>
+    <script>
+      (function () {
+        // set theme from localStorage or system preference
+        const savedTheme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      })();
+    </script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
@@ -12,24 +23,6 @@
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/pagination.css" />
-    
-    <script>
-      (function() {
-        // set theme from localStorage or system preference
-        const savedTheme = localStorage.getItem('theme') || 
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', savedTheme);
-      })();
-    </script>
-    
-    <style>
-      /* Prevent initial white flash */
-      html {
-        transition: background-color 0.3s ease, color 0.3s ease;
-        background-color: var(--background-color);
-        color: var(--text-color);
-      }
-    </style>
   </head>
   <body>
     <!-- Rest of the HTML remains the same -->
@@ -55,7 +48,7 @@
           </ul>
         </div>
       </aside>
-<!-- Main Content -->
+      <!-- Main Content -->
       <main class="main-content">
         <header class="header">
           <h2>Project Management</h2>
@@ -76,8 +69,12 @@
             <select id="combinedSort">
               <option value="createdAt-desc">Date (Newest First)</option>
               <option value="createdAt-asc">Date (Oldest First)</option>
-              <option value="lastContactedAt-desc">Last Contacted (Newest First)</option>
-              <option value="lastContactedAt-asc">Last Contacted (Oldest First)</option>
+              <option value="lastContactedAt-desc">
+                Last Contacted (Newest First)
+              </option>
+              <option value="lastContactedAt-asc">
+                Last Contacted (Oldest First)
+              </option>
               <option value="firstName-asc">Name (A to Z)</option>
               <option value="firstName-desc">Name (Z to A)</option>
               <option value="businessName-asc">Business Name (A to Z)</option>
@@ -241,7 +238,11 @@
                 <input type="tel" id="businessPhone" />
                 <div class="extension-field">
                   <label for="businessPhoneExt">Ext:</label>
-                  <input type="text" id="businessPhoneExt" placeholder="Extension" />
+                  <input
+                    type="text"
+                    id="businessPhoneExt"
+                    placeholder="Extension"
+                  />
                 </div>
               </div>
             </div>
@@ -296,7 +297,11 @@
 
             <div class="form-group">
               <label for="budget">Estimated Budget</label>
-              <input type="text" id="budget" placeholder="Enter estimated amount" />
+              <input
+                type="text"
+                id="budget"
+                placeholder="Enter estimated amount"
+              />
             </div>
           </div>
 
@@ -327,7 +332,11 @@
               <h4>Payment Information</h4>
               <div class="form-group">
                 <label for="totalBudget">Billed Amount</label>
-                <input type="text" id="totalBudget" placeholder="Enter billed amount" />
+                <input
+                  type="text"
+                  id="totalBudget"
+                  placeholder="Enter billed amount"
+                />
               </div>
 
               <div class="form-group">
@@ -345,7 +354,11 @@
                 <div class="payments-container">
                   <!-- Payments will be loaded here -->
                 </div>
-                <button type="button" id="addPaymentBtn" class="btn btn-outline">
+                <button
+                  type="button"
+                  id="addPaymentBtn"
+                  class="btn btn-outline"
+                >
                   <i class="fas fa-plus"></i> Add Payment
                 </button>
               </div>
@@ -389,7 +402,12 @@
 
           <div class="form-group">
             <label for="paymentAmount">Amount*</label>
-            <input type="text" id="paymentAmount" required placeholder="Enter amount" />
+            <input
+              type="text"
+              id="paymentAmount"
+              required
+              placeholder="Enter amount"
+            />
           </div>
 
           <div class="form-group">
@@ -402,7 +420,11 @@
 
           <div class="form-group">
             <label for="paymentNotes">Notes</label>
-            <textarea id="paymentNotes" rows="5" placeholder="Add payment notes here"></textarea>
+            <textarea
+              id="paymentNotes"
+              rows="5"
+              placeholder="Add payment notes here"
+            ></textarea>
           </div>
 
           <button type="submit" class="btn btn-primary">Save Payment</button>
