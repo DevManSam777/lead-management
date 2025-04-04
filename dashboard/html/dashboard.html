@@ -14,15 +14,11 @@
     <link rel="stylesheet" href="../css/pagination.css" />
     
     <script>
-      // critical line css to prevent flash of white
       (function() {
         // set theme from localStorage or system preference
         const savedTheme = localStorage.getItem('theme') || 
           (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.setAttribute('data-theme', savedTheme);
-
-        
-        // }
       })();
     </script>
     
@@ -32,12 +28,6 @@
         transition: background-color 0.3s ease, color 0.3s ease;
         background-color: var(--background-color);
         color: var(--text-color);
-      }
-      
-      /* Smooth sidebar transition */
-      /* .sidebar,  */
-      .main-content {
-        transition: all 0.3s ease;
       }
     </style>
   </head>

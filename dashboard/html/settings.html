@@ -12,34 +12,26 @@
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/settings.css" />
-    
+
     <script>
       // Inline script to set theme and sidebar state before page render
-      (function() {
+      (function () {
         // Set theme from localStorage or system preference
-        const savedTheme = localStorage.getItem('theme') || 
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', savedTheme);
-
-        // // Set sidebar state from localStorage
-        // const savedSidebarState = localStorage.getItem('sidebarCollapsed') === 'true';
-        // if (savedSidebarState) {
-        //   document.documentElement.classList.add('sidebar-collapsed');
-        // }
+        const savedTheme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        document.documentElement.setAttribute("data-theme", savedTheme);
       })();
     </script>
-    
+
     <style>
       /* Prevent initial white flash */
       html {
         transition: background-color 0.3s ease, color 0.3s ease;
         background-color: var(--background-color);
         color: var(--text-color);
-      }
-      
-      /* Smooth sidebar transition */
-      .sidebar, .main-content {
-        transition: all 0.3s ease;
       }
     </style>
   </head>
@@ -54,7 +46,9 @@
         <div class="sidebar-menu">
           <ul>
             <li>
-              <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+              <a href="dashboard.html"
+                ><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a
+              >
             </li>
           </ul>
         </div>
@@ -82,23 +76,37 @@
               </div>
             </div>
           </div>
-          
+
           <div class="settings-card">
             <h3>Date Format Settings</h3>
             <div class="settings-option">
               <label>Date Format</label>
               <div class="date-format-segmented-control">
-                <button type="button" class="date-format-segment" data-format="MM/DD/YYYY">
+                <button
+                  type="button"
+                  class="date-format-segment"
+                  data-format="MM/DD/YYYY"
+                >
                   <i class="fas fa-calendar"></i> MM/DD/YYYY
                 </button>
-                <button type="button" class="date-format-segment" data-format="DD/MM/YYYY">
+                <button
+                  type="button"
+                  class="date-format-segment"
+                  data-format="DD/MM/YYYY"
+                >
                   <i class="fas fa-calendar"></i> DD/MM/YYYY
                 </button>
-                <button type="button" class="date-format-segment" data-format="YYYY-MM-DD">
+                <button
+                  type="button"
+                  class="date-format-segment"
+                  data-format="YYYY-MM-DD"
+                >
                   <i class="fas fa-calendar"></i> YYYY-MM-DD
                 </button>
               </div>
-              <p class="format-example">Example: <span id="dateFormatExample"></span></p>
+              <p class="format-example">
+                Example: <span id="dateFormatExample"></span>
+              </p>
             </div>
           </div>
         </div>
@@ -107,10 +115,10 @@
 
     <!-- Load utils first -->
     <script type="module" src="../js/utils.js"></script>
-    
+
     <!-- Then load API -->
     <script type="module" src="../js/api.js"></script>
-    
+
     <!-- Then load settings -->
     <script type="module" src="../js/settings.js"></script>
   </body>
