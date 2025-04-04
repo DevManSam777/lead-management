@@ -598,11 +598,6 @@ fieldset {
   padding: 1.5rem;
 }
 
-.lead-cards {
-  grid-template-columns: 1fr;
-}
-
-
 .leads-table th,
 .leads-table td {
     padding: 1rem 0.8rem; /* Increased padding for better touch target and readability */
