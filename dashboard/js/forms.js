@@ -114,7 +114,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Display the modal
         templateModal.style.display = 'block';
         
-        // In a real app, we would load the template content here
         // For demo purposes, just show the modal
       });
     });
