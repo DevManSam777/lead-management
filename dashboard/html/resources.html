@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevLeads Resources</title>
+    <style>
+        .sidebar, .main-content {
+          opacity: 0;
+          transition: opacity .5s ease;
+        }
+      </style>
+      <script>
+        (function () {
+          // Original theme setup from localStorage 
+          const savedTheme =
+            localStorage.getItem("theme") ||
+            (window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light");
+          document.documentElement.setAttribute("data-theme", savedTheme);
+          
+          document.addEventListener('DOMContentLoaded', function() {
+            // Get references to sidebar and main content
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            // Set initial state based on localStorage
+            const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            
+            if (isSidebarCollapsed) {
+              sidebar.classList.add('collapsed');
+              mainContent.classList.add('expanded');
+            }
+            
+            // Give a short delay to ensure all layout calculations are done
+            setTimeout(function() {
+              // Make sidebar and content visible
+              sidebar.style.opacity = '1';
+              mainContent.style.opacity = '1';
+            }, 100);
+          });
+        })();
+      </script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/pagination.css" />
+    <link rel="stylesheet" href="../css/resources.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h1>DevLeads</h1>
+          <p>Beta Version</p>
+        </div>
+        <div class="sidebar-menu">
+          <ul>
+            <li>
+              <a href="dashboard.html" id="dashboard-link" title="Dashboard">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="resources.html" id="resources-link" title="Resources" class="active">
+                <i class="fa-solid fa-toolbox"></i></i> <span>Resources</span>
+              </a>
+            </li>
+            <li>
+              <a href="forms.html" id="forms-link" title="Forms">
+                <i class="fas fa-file-alt"></i> <span>Forms</span>
+              </a>
+            </li>
+            <li>
+              <a href="settings.html" id="settings-link" title="Settings">
+                <i class="fas fa-cog"></i> <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="header">
+          <h2>Resources</h2>
+        </header>
+
+        <!-- Resources Container -->
+        <div class="resources-container">
+          
+          <!-- Design Resources -->
+          <div class="resource-card">
+            <h3><i class="fas fa-palette"></i> Design Resources</h3>
+            <div class="resource-content">
+              <ul class="resource-list">
+                <li>
+                  <a href="https://coolors.co/" target="_blank" class="resource-link">
+                    <i class="fas fa-swatchbook"></i>
+                    <div class="resource-info">
+                      <h4>Coolors</h4>
+                      <p>Color palette generator for creating harmonious color schemes</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://fonts.google.com/" target="_blank" class="resource-link">
+                    <i class="fas fa-font"></i>
+                    <div class="resource-info">
+                      <h4>Google Fonts</h4>
+                      <p>Free and open-source font library for web projects</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://undraw.co/" target="_blank" class="resource-link">
+                    <i class="fas fa-draw-polygon"></i>
+                    <div class="resource-info">
+                      <h4>unDraw</h4>
+                      <p>Open-source illustrations for any idea you can imagine</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.figma.com/" target="_blank" class="resource-link">
+                    <i class="fab fa-figma"></i>
+                    <div class="resource-info">
+                      <h4>Figma</h4>
+                      <p>Collaborative interface design tool with prototyping capabilities</p>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Development Resources -->
+          <div class="resource-card">
+            <h3><i class="fas fa-code"></i> Development Resources</h3>
+            <div class="resource-content">
+              <ul class="resource-list">
+                <li>
+                  <a href="https://developer.mozilla.org/" target="_blank" class="resource-link">
+                    <i class="fab fa-firefox-browser"></i>
+                    <div class="resource-info">
+                      <h4>MDN Web Docs</h4>
+                      <p>Comprehensive documentation for web standards and Mozilla projects</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://css-tricks.com/" target="_blank" class="resource-link">
+                    <i class="fab fa-css3-alt"></i>
+                    <div class="resource-info">
+                      <h4>CSS-Tricks</h4>
+                      <p>Daily articles about CSS, HTML, JavaScript, and all things web design</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://github.com/" target="_blank" class="resource-link">
+                    <i class="fab fa-github"></i>
+                    <div class="resource-info">
+                      <h4>GitHub</h4>
+                      <p>Platform for code hosting, version control, and project collaboration</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://stackoverflow.com/" target="_blank" class="resource-link">
+                    <i class="fab fa-stack-overflow"></i>
+                    <div class="resource-info">
+                      <h4>Stack Overflow</h4>
+                      <p>Community-based space to find and contribute answers to technical challenges</p>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Tools & Utilities -->
+          <div class="resource-card">
+            <h3><i class="fas fa-tools"></i> Tools & Utilities</h3>
+            <div class="resource-content">
+              <ul class="resource-list">
+                <li>
+                  <a href="https://www.netlify.com/" target="_blank" class="resource-link">
+                    <i class="fas fa-server"></i>
+                    <div class="resource-info">
+                      <h4>Netlify</h4>
+                      <p>All-in-one platform for automating modern web projects</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://vercel.com/" target="_blank" class="resource-link">
+                    <i class="fas fa-globe"></i>
+                    <div class="resource-info">
+                      <h4>Vercel</h4>
+                      <p>Platform for frontend frameworks and static sites</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.postman.com/" target="_blank" class="resource-link">
+                    <i class="fas fa-paper-plane"></i>
+                    <div class="resource-info">
+                      <h4>Postman</h4>
+                      <p>API platform for building and using APIs</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://gtmetrix.com/" target="_blank" class="resource-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <div class="resource-info">
+                      <h4>GTmetrix</h4>
+                      <p>Website performance testing and monitoring</p>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Business Resources -->
+          <div class="resource-card">
+            <h3><i class="fas fa-briefcase"></i> Business Resources</h3>
+            <div class="resource-content">
+              <ul class="resource-list">
+                <li>
+                  <a href="https://www.upwork.com/" target="_blank" class="resource-link">
+                    <i class="fas fa-laptop-house"></i>
+                    <div class="resource-info">
+                      <h4>Upwork</h4>
+                      <p>Freelance job marketplace to find clients and projects</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.freelancersunion.org/" target="_blank" class="resource-link">
+                    <i class="fas fa-users"></i>
+                    <div class="resource-info">
+                      <h4>Freelancers Union</h4>
+                      <p>Organization that provides resources and advocacy for freelancers</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.waveapps.com/" target="_blank" class="resource-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <div class="resource-info">
+                      <h4>Wave</h4>
+                      <p>Free accounting, invoicing and receipt tracking software</p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.notion.so/" target="_blank" class="resource-link">
+                    <i class="fas fa-tasks"></i>
+                    <div class="resource-info">
+                      <h4>Notion</h4>
+                      <p>All-in-one workspace for notes, tasks, wikis, and databases</p>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- Load scripts in sequence -->
+    <script type="module" src="../js/utils.js"></script>
+    <script type="module" src="../js/api.js"></script>
+    <script type="module" src="../js/resources.js"></script>
+  </body>
+</html>

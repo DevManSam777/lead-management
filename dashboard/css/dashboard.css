@@ -79,7 +79,7 @@ details[open] .stats-cards {
   padding: 2rem 0;
   position: fixed;
   height: 100vh;
-  overflow-y: auto;
+  overflow-y: hidden;
   z-index: 1000;
   transition: width var(--transition-speed), background-color var(--transition-speed);
 }
@@ -142,14 +142,17 @@ details[open] .stats-cards {
 /* Sidebar Menu */
 .sidebar-menu {
   padding: 2rem;
+  height: 100%;
 }
 
 .sidebar-menu ul {
   list-style: none;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-menu li {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.6rem;
 }
 
 .sidebar-menu a {
@@ -165,7 +168,7 @@ details[open] .stats-cards {
 .sidebar-menu a:hover,
 .sidebar-menu a.active {
   background-color: var(--sidebar-active);
-  color: var(--sidebar-text);
+  color: var(--primary);
 }
 
 .sidebar-menu i {
