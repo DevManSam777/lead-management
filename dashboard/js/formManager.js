@@ -1,4 +1,4 @@
-// Form Manager JavaScript
+// Form Manager for dashboard forms.html JavaScript
 import * as API from "./api.js";
 import * as Utils from "./utils.js";
 
@@ -985,7 +985,7 @@ async function generateFormWithLeadData(formId, leadId) {
     const generatedForm = await response.json();
     
     // Set form title
-    document.getElementById("generatedFormTitle").textContent = generatedForm.title + " (Generated)";
+    document.getElementById("generatedFormTitle").textContent = generatedForm.title;
     
     // Convert markdown to HTML
     const html = DOMPurify.sanitize(marked.parse(generatedForm.content));
