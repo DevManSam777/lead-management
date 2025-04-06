@@ -390,8 +390,18 @@ function createFormCard(form) {
   card.dataset.formId = form._id;
   
   // Choose icon based on template status
-  const icon = form.isTemplate ? "fa-copy" : "fa-file-alt";
-  
+  let icon = "fa-file-alt"; // Default icon
+
+// Choose icon based on category
+if (form.category === "contract") {
+  icon = "fa-file-contract";
+} else if (form.category === "proposal") {
+  icon = "fa-file-invoice";
+} else if (form.category === "invoice") {
+  icon = "fa-file-invoice-dollar";
+} else if (form.category === "agreement") {
+  icon = "fa-handshake";
+}
   // Format date
   const lastModified = new Date(form.lastModified);
   const formattedDate = `${lastModified.toLocaleDateString()} ${lastModified.toLocaleTimeString()}`;
@@ -568,6 +578,7 @@ function openCreateFormModal() {
   document.getElementById("formEditorModal").style.display = "block";
 }
 
+
 // Open the form editor modal for editing an existing form
 async function openEditFormModal(formId) {
   try {
@@ -592,6 +603,13 @@ async function openEditFormModal(formId) {
     
     // Set editor content
     editor.setValue(form.content);
+    
+    // This is the important part - refresh the editor after setting content
+    setTimeout(() => {
+      editor.refresh();
+      // Also force focus on the editor to ensure it's visible
+      editor.focus();
+    }, 10);
     
     // Update modal title
     document.getElementById("formEditorTitle").textContent = "Edit Form";
