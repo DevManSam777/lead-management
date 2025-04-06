@@ -26,7 +26,7 @@
           const sidebar = document.querySelector(".sidebar");
           const mainContent = document.querySelector(".main-content");
 
-          // Set initial state based on localStorage preference
+          // Set initial state based on localStorage
           const isSidebarCollapsed =
             localStorage.getItem("sidebarCollapsed") === "true";
 
@@ -40,7 +40,7 @@
             // Make sidebar and content visible
             sidebar.style.opacity = "1";
             mainContent.style.opacity = "1";
-          }, 100);
+          }, 300);
         });
       })();
     </script>
