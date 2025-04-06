@@ -4,6 +4,12 @@
 const API_URL = "http://localhost:5000/api/leads";
 const API_PAYMENTS_URL = "http://localhost:5000/api/payments";
 const SETTINGS_API_URL = "http://localhost:5000/api/settings";
+const FORMS_API_URL = "http://localhost:5000/api/forms";
+
+// Helper function to get base URL
+function getBaseUrl() {
+  return "http://localhost:5000";
+}
 
 // ===== LEAD API FUNCTIONS =====
 
@@ -350,8 +356,212 @@ async function updateSetting(key, value) {
   }
 }
 
+// ===== FORMS API FUNCTIONS =====
+
+/**
+ * Fetch all forms from the API
+ * @param {Object} filters - Optional filters (category, isTemplate)
+ * @returns {Promise<Array>} Array of form objects
+ */
+async function fetchForms(filters = {}) {
+  try {
+    // Build query string from filters
+    const queryParams = new URLSearchParams();
+    
+    if (filters.category) {
+      queryParams.append("category", filters.category);
+    }
+    
+    if (filters.isTemplate !== undefined) {
+      queryParams.append("isTemplate", filters.isTemplate);
+    }
+    
+    const queryString = queryParams.toString();
+    const url = queryString ? `${FORMS_API_URL}?${queryString}` : FORMS_API_URL;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch forms");
+    }
+    
+    const data = await response.json();
+    
+    // Make sure data is an array
+    if (!Array.isArray(data)) {
+      throw new Error("Invalid data format received");
+    }
+    
+    return data;
+  } catch (error) {
+    console.error("Error fetching forms:", error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch a specific form by ID
+ * @param {string} formId - ID of the form to fetch
+ * @returns {Promise<Object>} Form object
+ */
+async function fetchFormById(formId) {
+  try {
+    const response = await fetch(`${FORMS_API_URL}/${formId}`);
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch form");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching form ${formId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Create a new form
+ * @param {Object} formData - Form data to create
+ * @returns {Promise<Object>} Created form object
+ */
+async function createForm(formData) {
+  try {
+    const response = await fetch(FORMS_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to create form");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating form:", error);
+    throw error;
+  }
+}
+
+/**
+ * Update an existing form
+ * @param {string} formId - ID of the form to update
+ * @param {Object} formData - Updated form data
+ * @returns {Promise<Object>} Updated form object
+ */
+async function updateForm(formId, formData) {
+  try {
+    const response = await fetch(`${FORMS_API_URL}/${formId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update form");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating form:", error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a form
+ * @param {string} formId - ID of the form to delete
+ * @returns {Promise<Object>} Deletion response
+ */
+async function deleteForm(formId) {
+  try {
+    const response = await fetch(`${FORMS_API_URL}/${formId}`, {
+      method: "DELETE",
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to delete form");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting form:", error);
+    throw error;
+  }
+}
+
+/**
+ * Search forms by query
+ * @param {string} query - Search query
+ * @returns {Promise<Array>} Array of matching form objects
+ */
+async function searchForms(query) {
+  try {
+    const response = await fetch(`${FORMS_API_URL}/search?query=${encodeURIComponent(query)}`);
+    
+    if (!response.ok) {
+      throw new Error("Failed to search forms");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error searching forms:", error);
+    throw error;
+  }
+}
+
+/**
+ * Clone a template form
+ * @param {string} templateId - ID of the template form to clone
+ * @returns {Promise<Object>} Cloned form object
+ */
+async function cloneTemplateForm(templateId) {
+  try {
+    const response = await fetch(`${FORMS_API_URL}/${templateId}/clone`, {
+      method: "POST",
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to clone template");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error cloning template:", error);
+    throw error;
+  }
+}
+
+/**
+ * Generate a form with lead data
+ * @param {string} formId - ID of the form to generate
+ * @param {string} leadId - ID of the lead to use
+ * @returns {Promise<Object>} Generated form content
+ */
+async function generateFormWithLeadData(formId, leadId) {
+  try {
+    const response = await fetch(`${FORMS_API_URL}/${formId}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId }),
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to generate form with lead data");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error generating form with lead data:", error);
+    throw error;
+  }
+}
+
 // Export all API functions
 export {
+  getBaseUrl,
   fetchLeads,
   fetchLeadById,
   createLead,
@@ -365,4 +575,12 @@ export {
   deletePayment,
   fetchAllSettings,
   updateSetting,
+  fetchForms,
+  fetchFormById,
+  createForm,
+  updateForm,
+  deleteForm,
+  searchForms,
+  cloneTemplateForm,
+  generateFormWithLeadData,
 };

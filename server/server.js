@@ -5,9 +5,9 @@ const connectDB = require("./config/db");
 const leadRoutes = require("./routes/leadRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const settingRoutes = require("./routes/settingRoutes");
+const formRoutes = require("./routes/formRoutes"); // Add this line
 
-// // Load environment variables
-
+// Load environment variables
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
@@ -17,8 +17,12 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: '*', // Allow all origins during development
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(express.json({ limit: '5mb' })); // Increased limit for larger form content
 
 // Port configuration
 const PORT = process.env.PORT || 5000;
@@ -50,78 +54,61 @@ app.get("/", (req, res) => {
       settingByKey: `http://localhost:${PORT}/api/settings/:key`,
       updateSetting: `http://localhost:${PORT}/api/settings/:key`,
     },
+    formEndpoints: {
+      allForms: `http://localhost:${PORT}/api/forms`,
+      formById: `http://localhost:${PORT}/api/forms/:id`,
+      searchForms: `http://localhost:${PORT}/api/forms/search?query=term`,
+      createForm: `http://localhost:${PORT}/api/forms`,
+      updateForm: `http://localhost:${PORT}/api/forms/:id`,
+      deleteForm: `http://localhost:${PORT}/api/forms/:id`,
+      cloneTemplate: `http://localhost:${PORT}/api/forms/:id/clone`,
+      generateForm: `http://localhost:${PORT}/api/forms/:id/generate`,
+    },
     documentation: {
       description: "LEADS REST API",
       endpoints: [
+        // Existing endpoints...
+        
+        // Form endpoints
         {
           method: "GET",
-          path: "/api/leads",
-          description: "Get all leads",
+          path: "/api/forms",
+          description: "Get all forms (with optional filters)",
         },
         {
           method: "GET",
-          path: "/api/leads/:id",
-          description: "Get lead by ID",
+          path: "/api/forms/:id",
+          description: "Get form by ID",
         },
         {
           method: "POST",
-          path: "/api/leads",
-          description: "Create a new lead",
+          path: "/api/forms",
+          description: "Create a new form",
         },
         {
           method: "PUT",
-          path: "/api/leads/:id",
-          description: "Update a lead",
+          path: "/api/forms/:id",
+          description: "Update a form",
         },
         {
           method: "DELETE",
-          path: "/api/leads/:id",
-          description: "Delete a lead",
+          path: "/api/forms/:id",
+          description: "Delete a form",
         },
         {
           method: "GET",
-          path: "/api/leads/search?query=term",
-          description: "Search leads with query parameter",
-        },
-        {
-          method: "GET",
-          path: "/api/payments",
-          description: "Get all payments",
-        },
-        {
-          method: "GET",
-          path: "/api/payments/lead/:leadId",
-          description: "Get payments for a specific lead",
+          path: "/api/forms/search?query=term",
+          description: "Search forms with query parameter",
         },
         {
           method: "POST",
-          path: "/api/payments",
-          description: "Create a new payment",
+          path: "/api/forms/:id/clone",
+          description: "Clone a template form",
         },
         {
-          method: "PUT",
-          path: "/api/payments/:id",
-          description: "Update a payment",
-        },
-        {
-          method: "DELETE",
-          path: "/api/payments/:id",
-          description: "Delete a payment",
-        },
-        {
-          method: "GET",
-          path: "/api/settings",
-          description: "Get all settings",
-        },
-        {
-          method: "GET",
-          path: "/api/settings/:key",
-          description: "Get a setting by key",
-        },
-        {
-          method: "PUT",
-          path: "/api/settings/:key",
-          description: "Update a setting",
+          method: "POST",
+          path: "/api/forms/:id/generate",
+          description: "Generate form with lead data",
         },
       ],
     },
@@ -132,6 +119,7 @@ app.get("/", (req, res) => {
 app.use("/api/leads", leadRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/settings", settingRoutes);
+app.use("/api/forms", formRoutes); // Add this line
 
 // Start the server
 app.listen(PORT, () => {

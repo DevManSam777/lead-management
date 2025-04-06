@@ -25,7 +25,7 @@
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
             
-            // Set initial state based on localStorage
+            // Set initial state based on localStorage preference
             const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
             
             if (isSidebarCollapsed) {
@@ -78,6 +78,11 @@
               </a>
             </li>
             <li>
+              <a href="forms-manager.html">
+                <i class="fa-solid fa-pen-to-square"></i><span>Form Manager</span>
+              </a>
+            </li>
+            <li>
               <a href="settings.html">
                 <i class="fas fa-cog"></i> <span>Settings</span>
               </a>
@@ -102,9 +107,9 @@
               <option value="invoice">Invoices</option>
               <option value="agreement">Agreements</option>
             </select>
-            <button id="addTemplateBtn" class="btn btn-primary">
-              <i class="fas fa-plus"></i> Add Template
-            </button>
+            <a href="forms-manager.html" class="btn btn-primary">
+              <i class="fas fa-pen-to-square"></i> Manage Forms
+            </a>
           </div>
         </header>
 
@@ -125,12 +130,6 @@
                   </div>
                 </div>
                 <div class="template-actions">
-                  <button class="btn-icon" title="Preview">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                  <button class="btn-icon" title="Download">
-                    <i class="fas fa-download"></i>
-                  </button>
                   <button class="btn-icon" title="Edit">
                     <i class="fas fa-edit"></i>
                   </button>
@@ -346,6 +345,24 @@
             </div>
           </div>
         </div>
+
+        <!-- Message about Form Manager -->
+        <div style="margin: 2rem 0; padding: 2rem; background-color: var(--card-background); border-radius: var(--card-border-radius); box-shadow: var(--box-shadow);">
+          <h3><i class="fas fa-info-circle"></i> Form Management</h3>
+          <p>Need to create, edit, or manage custom forms? Use our new <a href="forms-manager.html" style="color: var(--primary); font-weight: bold;">Form Manager</a>!</p>
+          <p>With Form Manager, you can:</p>
+          <ul style="margin-left: 2rem; margin-top: 1rem;">
+            <li>Create custom forms in Markdown format</li>
+            <li>Use variables to dynamically insert lead data</li>
+            <li>Organize forms by category</li>
+            <li>Create reusable templates</li>
+            <li>Preview forms before generating</li>
+            <li>Generate forms with client data</li>
+          </ul>
+          <a href="forms-manager.html" class="btn btn-primary" style="margin-top: 1.5rem;">
+            <i class="fas fa-pen-to-square"></i> Go to Form Manager
+          </a>
+        </div>
       </main>
     </div>
 
@@ -380,4 +397,10 @@
     <script type="module" src="../js/api.js"></script>
     <script type="module" src="../js/forms.js"></script>
   </body>
-</html>
+</html>Preview">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="btn-icon" title="Download">
+                    <i class="fas fa-download"></i>
+                  </button>
+                  <button class="btn-icon" title="
