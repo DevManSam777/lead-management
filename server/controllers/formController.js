@@ -1,4 +1,3 @@
-// server/controllers/formController.js
 const Form = require('../models/Form');
 
 // Get all forms
