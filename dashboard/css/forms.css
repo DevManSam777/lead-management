@@ -11,7 +11,8 @@
   border-radius: var(--card-border-radius);
   box-shadow: var(--box-shadow);
   overflow: hidden;
-  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition: background-color var(--transition-speed),
+    box-shadow var(--transition-speed);
 }
 
 .forms-category h3 {
@@ -89,15 +90,14 @@
   gap: 0.8rem;
 }
 
-
 .modal-actions button {
-width: 14rem;
-height: 4rem;
-font-size: 1.4rem;
+  width: 14rem;
+  height: 4rem;
+  font-size: 1.4rem;
 }
 
 .modal-actions button:first-of-type {
-margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .btn-icon {
@@ -145,6 +145,61 @@ margin-bottom: 1rem;
   display: flex;
   gap: 2rem;
   overflow: hidden;
+}
+
+#formEditorModal .modal-content {
+  width: 95%;
+  max-width: 1200px;
+}
+
+#formPreviewModal .modal-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+#generatedFormModal .modal-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+#generatedFormModal .modal-content {
+  width: 95%; 
+  max-width: 1000px;
+}
+
+#leadSelectionModal .search-box {
+  margin-bottom: 2rem;
+}
+
+#leadsList {
+  max-height: 400px; 
+  overflow-y: auto;
+}
+
+#formPreviewModal .modal-content {
+  width: 95%;
+  max-width: 1000px;
+}
+
+.preview-container {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 2rem;
+  background-color: var(--background-color);
+  border-radius: var(--card-border-radius);
+}
+
+div.editor-section{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+div.preview-section {
+  margin-top: 2.6rem;
 }
 
 .editor-section {
