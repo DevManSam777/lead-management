@@ -91,6 +91,11 @@ const leadSchema = new mongoose.Schema({
   lastContactedAt: {
     type: Date,
   },
+  // Add the associatedForms field to track forms related to this lead
+  associatedForms: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Form'
+  }],
   // This field is only used for distinguishing form submissions from dashboard creations
   // It will not be stored but used in controller logic
   isFormSubmission: {

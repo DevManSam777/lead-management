@@ -559,6 +559,53 @@ async function generateFormWithLeadData(formId, leadId) {
   }
 }
 
+/**
+ * Get forms for a specific lead
+ * @param {string} leadId - ID of the lead
+ * @returns {Promise<Array>} Array of forms
+ */
+async function getFormsByLead(leadId) {
+  try {
+    const response = await fetch(`${getBaseUrl()}/api/forms/lead/${leadId}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch forms for lead');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching forms for lead ${leadId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Generate a form for a lead using a template
+ * @param {string} templateId - ID of the template form
+ * @param {string} leadId - ID of the lead
+ * @returns {Promise<Object>} Generated form
+ */
+async function generateFormForLead(templateId, leadId) {
+  try {
+    const response = await fetch(`${getBaseUrl()}/api/forms/${templateId}/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ leadId })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate form');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error generating form:', error);
+    throw error;
+  }
+}
+
 // Export all API functions
 export {
   getBaseUrl,
@@ -583,4 +630,6 @@ export {
   searchForms,
   cloneTemplateForm,
   generateFormWithLeadData,
+  getFormsByLead,
+  generateFormForLead
 };

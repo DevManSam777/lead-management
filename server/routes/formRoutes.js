@@ -26,4 +26,8 @@ router.post('/:id/clone', formController.cloneTemplate);
 // POST /api/forms/:id/generate - Generate form with lead data
 router.post('/:id/generate', formController.generateFormWithLeadData);
 
+// Get /api/forms/:leadId/generate - Get Lead's forms
+router.get('/lead/:leadId', formController.getFormsByLead);
+
+
 module.exports = router;

@@ -417,6 +417,48 @@ details[open] .stats-cards {
   display: none;
 }
 
+/* Forms list in the lead modal */
+.forms-list {
+  margin-bottom: 1rem;
+}
+
+.form-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 0.1rem solid var(--border-color);
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-details {
+  flex: 1;
+}
+
+.form-title {
+  font-weight: bold;
+}
+
+.form-category {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.no-forms-message {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* Add these styles to dashboard.css */
 
 /* Responsive Styles */

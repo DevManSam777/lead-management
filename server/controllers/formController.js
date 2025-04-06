@@ -35,6 +35,26 @@ exports.getFormById = async (req, res) => {
   }
 };
 
+// In server/controllers/formController.js
+exports.getFormsByLead = async (req, res) => {
+  try {
+    const { leadId } = req.params;
+    
+    // Find the lead
+    const Lead = require('../models/Lead');
+    const lead = await Lead.findById(leadId).populate('associatedForms');
+    
+    if (!lead) {
+      return res.status(404).json({ message: 'Lead not found' });
+    }
+    
+    res.json(lead.associatedForms || []);
+  } catch (error) {
+    console.error('Error fetching forms for lead:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 // Create a new form
 exports.createForm = async (req, res) => {
   try {
@@ -150,6 +170,7 @@ exports.cloneTemplate = async (req, res) => {
   }
 };
 
+
 // In server/controllers/formController.js
 exports.generateFormWithLeadData = async (req, res) => {
   try {
@@ -173,7 +194,19 @@ exports.generateFormWithLeadData = async (req, res) => {
       return res.status(404).json({ message: 'Lead not found' });
     }
     
-    // Replace variables in content
+    // Create a new form based on the template with lead data
+    const newForm = new Form({
+      // Keep title for organization in the database
+      title: `${form.title} - ${lead.firstName} ${lead.lastName}`,
+      description: form.description,
+      // Just use the original content without adding the title
+      content: form.content,
+      category: form.category,
+      isTemplate: false,
+      variables: [...form.variables]
+    });
+    
+    // Replace variables in content with lead data
     let populatedContent = form.content;
     
     // Add current date as a special variable
@@ -189,25 +222,40 @@ exports.generateFormWithLeadData = async (req, res) => {
     
     // Replace all other variables with lead data
     form.variables.forEach(variable => {
-      // Skip currentDate as we've already handled it
       if (variable === 'currentDate') return;
       
-      // Create a RegExp to find all occurrences
       const variablePattern = new RegExp(`\\{\\{${variable}\\}\\}`, 'g');
       
-      // Get the value from lead object
-      const value = getNestedProperty(lead, variable) || `[${variable} not found]`;
+      // Get the value from lead object (handle nested properties)
+      let value = lead[variable] || '';
+      
+      // Special handling for empty values
+      if (value === '' || value === undefined || value === null) {
+        value = `[${variable} not available]`;
+      }
       
       // Replace in content
       populatedContent = populatedContent.replace(variablePattern, value);
     });
     
+    // Set the populated content
+    newForm.content = populatedContent;
+    
+    // Save the new form
+    const savedForm = await newForm.save();
+    
+    // Associate the form with the lead
+    await Lead.findByIdAndUpdate(
+      leadId,
+      { $addToSet: { associatedForms: savedForm._id } }
+    );
+    
     res.json({
-      title: form.title,
-      description: form.description,
+      _id: savedForm._id,
+      title: savedForm.title,
+      description: savedForm.description,
       content: populatedContent,
-      leadId: leadId,
-      formId: formId
+      leadId: leadId
     });
   } catch (error) {
     console.error('Error generating form with lead data:', error);

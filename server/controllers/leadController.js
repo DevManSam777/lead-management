@@ -71,27 +71,39 @@ exports.updateLead = async (req, res) => {
       return res.status(404).json({ message: "Lead not found" });
     }
 
-    // If updating status to 'contacted', update lastContactedAt
-    if (req.body.status === "contacted" && lead.status !== "contacted") {
-      req.body.lastContactedAt = Date.now();
+    if (req.body.$pull) {
+      // Handle removing items from arrays
+      if (req.body.$pull.associatedForms) {
+        await Lead.findByIdAndUpdate(req.params.id, {
+          $pull: { associatedForms: req.body.$pull.associatedForms }
+        });
+        
+        // Remove the $pull operation from the regular update
+        delete req.body.$pull;
+      }
     }
 
-    // If total budget is being updated, calculate remaining balance
-    if (req.body.totalBudget !== undefined) {
-      const totalBudget = parseFloat(req.body.totalBudget);
-      const paidAmount = lead.paidAmount || 0;
-      req.body.remainingBalance = Math.max(0, totalBudget - paidAmount);
-    }
 
-    const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+if (req.body.status === "contacted" && lead.status !== "contacted") {
+  req.body.lastContactedAt = Date.now();
+}
 
-    res.json(updatedLead);
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
-  }
+// If total budget is being updated, calculate remaining balance
+if (req.body.totalBudget !== undefined) {
+  const totalBudget = parseFloat(req.body.totalBudget);
+  const paidAmount = lead.paidAmount || 0;
+  req.body.remainingBalance = Math.max(0, totalBudget - paidAmount);
+}
+
+const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
+  new: true,
+});
+
+res.json(updatedLead);
+} catch (error) {
+console.error(error);
+res.status(400).json({ message: error.message });
+}
 };
 
 // Delete lead

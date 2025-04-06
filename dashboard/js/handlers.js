@@ -13,6 +13,7 @@ import {
 import { createLead, updateLead, deleteLead, fetchLeadPayments } from './api.js';
 import { renderLeads, setModalReadOnly } from './ui.js';
 import { renderLeadPayments } from './payments.js';
+import { loadLeadForms } from './leadForms.js';
 
 // Function to handle textarea auto-resize
 function handleTextareaResize() {
@@ -95,6 +96,19 @@ function setupFormValidation() {
         validateBudget(this);
       } else {
         clearInputError(this, getErrorElement(this));
+      }
+    });
+  }
+  
+  // Add event listener for the Create Form button
+  const addFormBtn = document.getElementById('addFormBtn');
+  if (addFormBtn) {
+    addFormBtn.addEventListener('click', function() {
+      const leadId = document.getElementById('leadId').value;
+      if (leadId) {
+        window.openFormTemplateModal(leadId);
+      } else {
+        showToast('Please save the lead first before creating forms');
       }
     });
   }
@@ -511,6 +525,12 @@ function openAddLeadModal() {
 
   // Initialize any monetary inputs in the modal
   initializeMonetaryInputs();
+  
+  // Show the "Create Form" button since we're in edit mode
+  const addFormBtn = document.getElementById('addFormBtn');
+  if (addFormBtn) {
+    addFormBtn.style.display = 'block';
+  }
 }
 
 /**
@@ -623,8 +643,11 @@ async function openLeadModal(leadId, allLeads) {
   try {
     const leadPayments = await fetchLeadPayments(lead._id);
     renderLeadPayments(leadPayments, lead._id);
+    
+    // Load forms for this lead
+    loadLeadForms(lead._id);
   } catch (error) {
-    console.error("Error fetching payments:", error);
+    console.error("Error fetching data:", error);
     const paymentsContainer = document.querySelector(".payments-container");
     if (paymentsContainer) {
       paymentsContainer.innerHTML = '<p class="payment-item">Error loading payments</p>';
@@ -643,10 +666,16 @@ async function openLeadModal(leadId, allLeads) {
   // Update modal title
   document.getElementById("modalTitle").textContent = "Client Info";
 
-  // Make Add Payment button visible only when in edit mode
+  // Hide Add Payment button in read-only mode
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
     addPaymentBtn.style.display = "none";
+  }
+  
+  // Hide Add Form button in read-only mode
+  const addFormBtn = document.getElementById("addFormBtn");
+  if (addFormBtn) {
+    addFormBtn.style.display = "none";
   }
 
   // First, check if the action buttons container exists and remove it
