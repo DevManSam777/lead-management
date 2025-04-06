@@ -89,6 +89,35 @@ function setupSidebarToggle() {
   });
 }
 
+// Add this to your forms.js to ensure the Preview tab works correctly
+document.addEventListener("DOMContentLoaded", function() {
+  // Set up the editor/preview tabs functionality
+  const editorTabs = document.querySelectorAll(".editor-tab");
+  
+  editorTabs.forEach(tab => {
+    tab.addEventListener("click", function() {
+      // Get the tab type (editor or preview)
+      const tabType = this.getAttribute("data-tab");
+      
+      // Update active tab
+      editorTabs.forEach(t => t.classList.remove("active"));
+      this.classList.add("active");
+      
+      // Update content sections
+      if (tabType === "editor") {
+        document.querySelector(".editor-section").classList.remove("inactive");
+        document.querySelector(".preview-section").classList.remove("active");
+      } else if (tabType === "preview") {
+        document.querySelector(".editor-section").classList.add("inactive");
+        document.querySelector(".preview-section").classList.add("active");
+        
+        // Force update the preview when switching to preview tab
+        updateMarkdownPreview();
+      }
+    });
+  });
+});
+
 // Set up all event listeners
 function setupEventListeners() {
   // Filter and search listeners
@@ -250,13 +279,13 @@ async function fetchAndRenderForms() {
     formsList.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading forms...</div>';
     
     // Get filter values
-    const category = document.getElementById("filterCategory").value;
+    const categoryFilter = document.getElementById("filterCategory").value;
     const isTemplate = document.getElementById("filterTemplate").value;
     const searchTerm = document.getElementById("searchInput").value;
     
     // Build query parameters
     let queryParams = new URLSearchParams();
-    if (category) queryParams.append("category", category);
+    if (categoryFilter) queryParams.append("category", categoryFilter);
     if (isTemplate) queryParams.append("isTemplate", isTemplate);
     
     // If search term exists, use search endpoint instead
@@ -290,22 +319,68 @@ async function fetchAndRenderForms() {
       return;
     }
     
-    // Calculate pagination
-    totalPages = Math.ceil(allForms.length / pageSize);
-    if (currentPage > totalPages) {
-      currentPage = 1;
-    }
+    // Clear previous content
+    formsList.innerHTML = '';
     
-    // Get forms for current page
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    const currentForms = allForms.slice(start, end);
+    // Simple approach: group forms by category
+    const groupedForms = {};
+    allForms.forEach(form => {
+      if (!groupedForms[form.category]) {
+        groupedForms[form.category] = [];
+      }
+      groupedForms[form.category].push(form);
+    });
     
-    // Render forms
-    renderForms(currentForms);
+    // Create a container for all categories
+    const allCategoriesContainer = document.createElement('div');
     
-    // Render pagination
-    renderPagination();
+    // Process each category
+    Object.entries(groupedForms).forEach(([category, forms]) => {
+      // Create category container
+      const categoryDiv = document.createElement("div");
+      categoryDiv.className = "forms-category";
+      categoryDiv.style.marginBottom = "30px"; // Add spacing between categories
+      
+      // Create category header
+      const header = document.createElement("h3");
+      let icon = "fa-file-alt"; // Default icon
+      
+      // Set icon based on category
+      switch(category) {
+        case "contract": icon = "fa-file-contract"; break;
+        case "proposal": icon = "fa-file-invoice"; break;
+        case "invoice": icon = "fa-file-invoice-dollar"; break;
+        case "agreement": icon = "fa-handshake"; break;
+      }
+      
+      // Format category name
+      const categoryName = category.charAt(0).toUpperCase() + category.slice(1) + "s";
+      
+      header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
+      categoryDiv.appendChild(header);
+      
+      // Create template cards container
+      const cardsDiv = document.createElement("div");
+      cardsDiv.className = "template-cards";
+      cardsDiv.style.display = "grid"; // Force grid display
+      
+      // Add form cards
+      forms.forEach(form => {
+        const card = createFormCard(form);
+        card.style.display = "flex"; // Force display
+        cardsDiv.appendChild(card);
+      });
+      
+      categoryDiv.appendChild(cardsDiv);
+      allCategoriesContainer.appendChild(categoryDiv);
+    });
+    
+    // Add all categories to the forms list
+    formsList.appendChild(allCategoriesContainer);
+    
+    // Add a console.log to debug if forms are being rendered
+    console.log(`Rendered ${allForms.length} forms across ${Object.keys(groupedForms).length} categories`);
+    
   } catch (error) {
     console.error("Error fetching forms:", error);
     const formsList = document.getElementById("formsList");
@@ -559,7 +634,6 @@ function applyFilters() {
   fetchAndRenderForms();
 }
 
-// Open the form editor modal for creating a new form
 function openCreateFormModal() {
   // Clear form
   document.getElementById("formId").value = "";
@@ -568,8 +642,19 @@ function openCreateFormModal() {
   document.getElementById("formCategory").value = "contract";
   document.getElementById("isTemplate").value = "false";
   
-  // Clear editor content
-  editor.setValue("");
+  // Clear editor content properly and update preview
+  if (editor) {
+    // Set to empty string
+    editor.setValue("");
+    
+    // Force editor refresh to update display
+    setTimeout(() => {
+      editor.refresh();
+      editor.focus();
+      // Force update the preview
+      updateMarkdownPreview();
+    }, 50);
+  }
   
   // Update modal title
   document.getElementById("formEditorTitle").textContent = "Create New Form";
