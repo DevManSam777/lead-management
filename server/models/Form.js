@@ -31,6 +31,10 @@ const formSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  currentDate: {
+    type: Date,
+    default: Date.now
+  },
   variables: {
     type: [String],
     default: []

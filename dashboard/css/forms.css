@@ -88,6 +88,17 @@
     display: flex;
     gap: 0.8rem;
   }
+
+
+.modal-actions button {
+  width: 14rem;
+  height: 4rem;
+  font-size: 1.4rem;
+}
+
+.modal-actions button:first-of-type {
+  margin-bottom: 1rem;
+}
   
   .btn-icon {
     width: 3.6rem;
