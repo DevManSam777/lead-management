@@ -5,39 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevLeads Dashboard</title>
     <style>
-      .sidebar, .main-content {
+      .sidebar,
+      .main-content {
         opacity: 0;
-        transition: opacity .3s ease;
+        transition: opacity 0.3s ease;
       }
     </style>
     <script>
       (function () {
-        // Original theme setup from localStorage 
+        // Original theme setup from localStorage
         const savedTheme =
           localStorage.getItem("theme") ||
           (window.matchMedia("(prefers-color-scheme: dark)").matches
             ? "dark"
             : "light");
         document.documentElement.setAttribute("data-theme", savedTheme);
-        
-        document.addEventListener('DOMContentLoaded', function() {
+
+        document.addEventListener("DOMContentLoaded", function () {
           // Get references to sidebar and main content
-          const sidebar = document.querySelector('.sidebar');
-          const mainContent = document.querySelector('.main-content');
-          
+          const sidebar = document.querySelector(".sidebar");
+          const mainContent = document.querySelector(".main-content");
+
           // Set initial state based on localStorage
-          const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-          
+          const isSidebarCollapsed =
+            localStorage.getItem("sidebarCollapsed") === "true";
+
           if (isSidebarCollapsed) {
-            sidebar.classList.add('collapsed');
-            mainContent.classList.add('expanded');
+            sidebar.classList.add("collapsed");
+            mainContent.classList.add("expanded");
           }
-          
+
           // Give a short delay to ensure all layout calculations are done
-          setTimeout(function() {
+          setTimeout(function () {
             // Make sidebar and content visible
-            sidebar.style.opacity = '1';
-            mainContent.style.opacity = '1';
+            sidebar.style.opacity = "1";
+            mainContent.style.opacity = "1";
           }, 100);
         });
       })();
@@ -63,7 +65,12 @@
         <div class="sidebar-menu">
           <ul>
             <li>
-              <a href="dashboard.html" id="dashboard-link" title="Dashboard" class="active">
+              <a
+                href="dashboard.html"
+                id="dashboard-link"
+                title="Dashboard"
+                class="active"
+              >
                 <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
               </a>
             </li>
@@ -140,7 +147,7 @@
         </header>
 
         <!-- Stats Cards -->
-         <!--Values are dynamically set in calculateStats() ui.js-->
+        <!--Values are dynamically set in calculateStats() ui.js-->
         <details open>
           <summary><h3>Stats</h3></summary>
           <div class="stats-cards">
@@ -165,7 +172,7 @@
               <h3>Conversion Rate</h3>
               <div class="value" id="conversionRateValue">0%</div>
               <div class="change" id="conversionChange">
-                 <span>Closed-Won Projects</span>
+                <span>Closed-Won Projects</span>
               </div>
             </div>
             <div class="stats-card">
@@ -173,7 +180,7 @@
               <h3>30-Day Earnings</h3>
               <div class="value" id="monthlyPaymentsValue">$0</div>
               <div class="change" id="paymentsChange">
-                 <span>% from last month</span>
+                <span>% from last month</span>
               </div>
             </div>
           </div>
@@ -191,6 +198,11 @@
         <div class="leads-container">
           <div class="leads-header">
             <h3>Projects</h3>
+          </div>
+
+          <!-- Add this loading spinner div -->
+          <div id="leadsLoadingSpinner" class="loading-indicator">
+            <i class="fas fa-spinner fa-spin"></i> Loading projects...
           </div>
 
           <!-- Grid View (Default) -->

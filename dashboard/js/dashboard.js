@@ -615,11 +615,35 @@ if (document.readyState === 'loading') {
   setupSidebarToggle();
 }
 
+
+/**
+ * Show the loading spinner for leads
+ */
+function showLeadsLoadingSpinner() {
+  const spinner = document.getElementById("leadsLoadingSpinner");
+  if (spinner) {
+    spinner.classList.remove("hidden");
+  }
+}
+
+/**
+ * Hide the loading spinner for leads
+ */
+function hideLeadsLoadingSpinner() {
+  const spinner = document.getElementById("leadsLoadingSpinner");
+  if (spinner) {
+    spinner.classList.add("hidden");
+  }
+}
+
 /**
  * Fetch leads from API and render them
  */
 async function fetchLeadsAndRender() {
   try {
+    // Show loading spinner
+    showLeadsLoadingSpinner();
+    
     // Fetch leads
     allLeads = await API.fetchLeads();
 
@@ -634,8 +658,14 @@ async function fetchLeadsAndRender() {
 
     // Calculate and update stats
     UI.calculateStats(allLeads, payments);
+    
+    // Hide loading spinner
+    hideLeadsLoadingSpinner();
   } catch (error) {
     console.error("Error in fetchLeadsAndRender:", error);
+
+    // Hide loading spinner even on error
+    hideLeadsLoadingSpinner();
 
     // Display error message in UI
     const leadCardsElement = document.getElementById("leadCards");

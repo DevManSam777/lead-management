@@ -502,3 +502,25 @@ select,
   color: white;
   border-color: var(--primary);
 }
+
+/* Loading indicator styling */
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  font-size: 1.6rem;
+  color: var(--text-muted);
+  width: 100%;
+}
+
+.loading-indicator i {
+  margin-right: 1rem;
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+/* Hide the loading indicator when content is loaded */
+.loading-indicator.hidden {
+  display: none;
+}
