@@ -8,7 +8,7 @@ import * as Pagination from "./pagination.js";
 // Global variables
 let allLeads = [];
 let payments = [];
-
+let globalSettings = {}; 
 
 // pagination variables
 let currentPage = 1;

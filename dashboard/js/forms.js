@@ -1,3 +1,4 @@
+// Import API and Utils modules
 import * as API from "./api.js";
 import * as Utils from "./utils.js";
 
@@ -5,9 +6,13 @@ import * as Utils from "./utils.js";
 let allForms = [];
 let editor;
 let currentFormId = null;
+let globalSettings = {}; // Store global settings
 
 // Initialize everything when the document is ready
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  // Initialize global settings first (important!)
+  await initializeSettings();
+  
   // Setup sidebar toggle
   setupSidebarToggle();
   
@@ -21,7 +26,59 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchAndRenderForms();
 });
 
+/**
+ * Initialize settings from the server
+ */
+async function initializeSettings() {
+  try {
+    // Fetch all settings
+    const settings = await API.fetchAllSettings();
+    globalSettings = settings;
+    
+    // Set date format in window object for global access
+    window.dateFormat = settings.dateFormat || "MM/DD/YYYY";
+    
+    // Apply theme from settings
+    if (settings.theme) {
+      document.documentElement.setAttribute("data-theme", settings.theme);
+    } else {
+      // Use system preference as fallback
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      document.documentElement.setAttribute("data-theme", systemTheme);
+      // Save it back to the server
+      await API.updateSetting("theme", systemTheme);
+    }
+    
+    // Log settings for debugging
+    console.log("Initialized settings:", { 
+      theme: settings.theme,
+      dateFormat: window.dateFormat
+    });
+    
+    return settings;
+  } catch (error) {
+    console.error("Error initializing settings:", error);
+    
+    // Use fallbacks from localStorage if API fails
+    const savedTheme = localStorage.getItem("theme") ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    
+    // Set fallback date format
+    window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
+    
+    return {
+      theme: savedTheme,
+      dateFormat: window.dateFormat
+    };
+  }
+}
 
+/**
+ * Set up sidebar toggle functionality
+ */
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
   const mainContent = document.querySelector(".main-content");
@@ -83,38 +140,17 @@ function setupSidebarToggle() {
       sidebar.classList.contains("collapsed")
     );
   });
+  
+  // Restore transitions
+  setTimeout(() => {
+    sidebar.style.transition = originalSidebarTransition;
+    mainContent.style.transition = originalMainContentTransition;
+  }, 50);
 }
 
-// Add this to your forms.js to ensure the Preview tab works correctly
-document.addEventListener("DOMContentLoaded", function() {
-  // Set up the editor/preview tabs functionality
-  const editorTabs = document.querySelectorAll(".editor-tab");
-  
-  editorTabs.forEach(tab => {
-    tab.addEventListener("click", function() {
-      // Get the tab type (editor or preview)
-      const tabType = this.getAttribute("data-tab");
-      
-      // Update active tab
-      editorTabs.forEach(t => t.classList.remove("active"));
-      this.classList.add("active");
-      
-      // Update content sections
-      if (tabType === "editor") {
-        document.querySelector(".editor-section").classList.remove("inactive");
-        document.querySelector(".preview-section").classList.remove("active");
-      } else if (tabType === "preview") {
-        document.querySelector(".editor-section").classList.add("inactive");
-        document.querySelector(".preview-section").classList.add("active");
-        
-        // Force update the preview when switching to preview tab
-        updateMarkdownPreview();
-      }
-    });
-  });
-});
-
-// Set up all event listeners
+/**
+ * Set up all event listeners
+ */
 function setupEventListeners() {
   // Filter and search listeners
   document.getElementById("filterCategory").addEventListener("change", applyFilters);
@@ -157,6 +193,8 @@ function setupEventListeners() {
       } else {
         document.querySelector(".editor-section").classList.add("inactive");
         document.querySelector(".preview-section").classList.add("active");
+        // Update preview when switching to preview tab
+        updateMarkdownPreview();
       }
     });
   });
@@ -215,38 +253,57 @@ function setupEventListeners() {
       }
     });
   });
+  
+  // IMPORTANT: Listen for settings updates from other pages
+  window.addEventListener("settingsUpdated", function(event) {
+    const { key, value } = event.detail;
+    
+    if (key === "dateFormat") {
+      console.log("Date format updated to:", value);
+      window.dateFormat = value;
+      
+      // Refresh forms list to update date displays
+      fetchAndRenderForms();
+    } else if (key === "theme") {
+      document.documentElement.setAttribute("data-theme", value);
+    }
+  });
 }
 
-// Initialize the markdown editor
+/**
+ * Initialize the markdown editor
+ */
 function initializeMarkdownEditor() {
-    const contentTextarea = document.getElementById("formContent");
+  const contentTextarea = document.getElementById("formContent");
+  
+  // Make sure the textarea is visible while CodeMirror initializes
+  contentTextarea.style.display = "block";
+  
+  // Initialize CodeMirror
+  editor = CodeMirror.fromTextArea(contentTextarea, {
+    mode: "markdown",
+    lineNumbers: true,
+    lineWrapping: true,
+    theme: "default",
+    placeholder: "Write your form content here in Markdown format...",
+  });
+  
+  // Sync content back to textarea when needed
+  editor.on("change", function() {
+    // Update the underlying textarea value
+    editor.save();
     
-    // Make sure the textarea is visible while CodeMirror initializes
-    contentTextarea.style.display = "block";
-    
-    // Initialize CodeMirror
-    editor = CodeMirror.fromTextArea(contentTextarea, {
-      mode: "markdown",
-      lineNumbers: true,
-      lineWrapping: true,
-      theme: "default",
-      placeholder: "Write your form content here in Markdown format...",
-    });
-    
-    // Sync content back to textarea when needed
-    editor.on("change", function() {
-      // Update the underlying textarea value
-      editor.save();
-      
-      // Update preview
-      updateMarkdownPreview();
-    });
-    
-    // Initial preview update
+    // Update preview
     updateMarkdownPreview();
-  }
+  });
+  
+  // Initial preview update
+  updateMarkdownPreview();
+}
 
-// Update the markdown preview
+/**
+ * Update the markdown preview
+ */
 function updateMarkdownPreview() {
   const content = editor.getValue();
   const preview = document.getElementById("markdownPreview");
@@ -261,14 +318,18 @@ function updateMarkdownPreview() {
   preview.innerHTML = html;
 }
 
-// Insert a variable at the current cursor position
+/**
+ * Insert a variable at the current cursor position
+ */
 function insertVariable(variable) {
   const cursor = editor.getCursor();
   editor.replaceRange(`{{${variable}}}`, cursor);
   editor.focus();
 }
 
-// Fetch forms from the API and render them
+/**
+ * Fetch forms from the API and render them
+ */
 async function fetchAndRenderForms() {
   try {
     const formsList = document.getElementById("formsList");
@@ -292,7 +353,9 @@ async function fetchAndRenderForms() {
     }
     
     // Add query parameters to URL
-    apiUrl += `?${queryParams.toString()}`;
+    if (queryParams.toString()) {
+      apiUrl += `?${queryParams.toString()}`;
+    }
     
     // Fetch forms
     const response = await fetch(apiUrl);
@@ -302,12 +365,13 @@ async function fetchAndRenderForms() {
     }
     
     allForms = await response.json();
+    console.log(`Fetched ${allForms.length} forms`);
     
     // Handle empty state
     if (allForms.length === 0) {
       formsList.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-file-alt" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+        <div class="empty-state" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+          <i class="fas fa-file-alt" style="font-size: 4rem; margin-bottom: 1rem;"></i>
           <h3>No forms found</h3>
           <p>Create your first form by clicking the "Create New Form" button.</p>
         </div>
@@ -318,7 +382,7 @@ async function fetchAndRenderForms() {
     // Clear previous content
     formsList.innerHTML = '';
     
-    // Simple approach: group forms by category
+    // Group forms by category
     const groupedForms = {};
     allForms.forEach(form => {
       if (!groupedForms[form.category]) {
@@ -374,15 +438,14 @@ async function fetchAndRenderForms() {
     // Add all categories to the forms list
     formsList.appendChild(allCategoriesContainer);
     
-    // Add a console.log to debug if forms are being rendered
     console.log(`Rendered ${allForms.length} forms across ${Object.keys(groupedForms).length} categories`);
     
   } catch (error) {
     console.error("Error fetching forms:", error);
     const formsList = document.getElementById("formsList");
     formsList.innerHTML = `
-      <div class="error-state">
-        <i class="fas fa-exclamation-circle" style="font-size: 4rem; color: var(--danger); margin-bottom: 1rem;"></i>
+      <div class="error-state" style="text-align: center; padding: 3rem; color: var(--danger);">
+        <i class="fas fa-exclamation-circle" style="font-size: 4rem; margin-bottom: 1rem;"></i>
         <h3>Error Loading Forms</h3>
         <p>${error.message}</p>
         <button class="btn btn-primary" onclick="fetchAndRenderForms()">Try Again</button>
@@ -391,70 +454,9 @@ async function fetchAndRenderForms() {
   }
 }
 
-// Render the forms list
-function renderForms(forms) {
-  const formsList = document.getElementById("formsList");
-  formsList.innerHTML = '';
-  
-  // Group forms by category
-  const groupedForms = {};
-  
-  forms.forEach(form => {
-    if (!groupedForms[form.category]) {
-      groupedForms[form.category] = [];
-    }
-    
-    groupedForms[form.category].push(form);
-  });
-  
-  // Create category sections
-  for (const [category, categoryForms] of Object.entries(groupedForms)) {
-    // Create category container
-    const categoryDiv = document.createElement("div");
-    categoryDiv.className = "forms-category";
-    
-    // Create category header
-    const header = document.createElement("h3");
-    let icon = "fa-file-alt"; // Default icon
-    
-    // Set icon based on category
-    switch(category) {
-      case "contract":
-        icon = "fa-file-contract";
-        break;
-      case "proposal":
-        icon = "fa-file-invoice";
-        break;
-      case "invoice":
-        icon = "fa-file-invoice-dollar";
-        break;
-      case "agreement":
-        icon = "fa-handshake";
-        break;
-    }
-    
-    // Format category name
-    const categoryName = category.charAt(0).toUpperCase() + category.slice(1) + "s";
-    
-    header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
-    categoryDiv.appendChild(header);
-    
-    // Create template cards container
-    const cardsDiv = document.createElement("div");
-    cardsDiv.className = "template-cards";
-    
-    // Add form cards
-    categoryForms.forEach(form => {
-      const card = createFormCard(form);
-      cardsDiv.appendChild(card);
-    });
-    
-    categoryDiv.appendChild(cardsDiv);
-    formsList.appendChild(categoryDiv);
-  }
-}
-
-// Create a form card element
+/**
+ * Create a form card element
+ */
 function createFormCard(form) {
   const card = document.createElement("div");
   card.className = "template-card";
@@ -474,12 +476,12 @@ function createFormCard(form) {
     icon = "fa-handshake";
   }
   
-  // Determine date format
-  const dateFormat = localStorage.getItem('dateFormat') || window.dateFormat || "MM/DD/YYYY";
+  // Use the GLOBAL date format - this is the key fix!
+  const currentDateFormat = window.dateFormat || "MM/DD/YYYY";
   
-  // Format date using the selected format
+  // Format date using the current format
   const lastModified = new Date(form.lastModified);
-  const formattedDate = Utils.formatDateTime(lastModified, dateFormat);
+  const formattedDate = Utils.formatDateTime(lastModified, currentDateFormat);
   
   // Create card content
   card.innerHTML = `
@@ -530,12 +532,16 @@ function createFormCard(form) {
   return card;
 }
 
-// Apply filters and search
+/**
+ * Apply filters and search
+ */
 function applyFilters() {
-  currentPage = 1; // Reset to first page when filters change
   fetchAndRenderForms();
 }
 
+/**
+ * Open the form creation modal
+ */
 function openCreateFormModal() {
   // Clear form
   document.getElementById("formId").value = "";
@@ -565,8 +571,9 @@ function openCreateFormModal() {
   document.getElementById("formEditorModal").style.display = "block";
 }
 
-
-// Open the form editor modal for editing an existing form
+/**
+ * Open the form editor modal for editing an existing form
+ */
 async function openEditFormModal(formId) {
   try {
     // Show loading
@@ -609,109 +616,114 @@ async function openEditFormModal(formId) {
   }
 }
 
-// Close the form editor modal
+/**
+ * Close the form editor modal
+ */
 function closeFormEditorModal() {
   document.getElementById("formEditorModal").style.display = "none";
 }
 
-// Handle form submission
-
+/**
+ * Handle form submission
+ */
 async function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    // Show loading indicator
-    Utils.showToast("Saving form...");
-    
-    // Get form data
-    const formId = document.getElementById("formId").value;
-    const title = document.getElementById("formTitle").value;
-    const description = document.getElementById("formDescription").value;
-    const category = document.getElementById("formCategory").value;
-    const isTemplate = document.getElementById("isTemplate").value === "true";
-    
-    // Important: Get content from CodeMirror editor instead of the hidden textarea
-    const content = editor.getValue();
-    
-    console.log("Form data gathered:", {
-      formId,
-      title,
-      description, 
-      category,
-      isTemplate,
-      contentLength: content.length
-    });
-    
-    // Validate required fields
-    if (!title) {
-      Utils.showToast("Title is required");
-      document.getElementById("formTitle").focus();
-      return;
-    }
-    
-    if (!content) {
-      Utils.showToast("Content is required");
-      editor.focus();
-      return;
-    }
-    
-    // Prepare form data
-    const formData = {
-      title,
-      description,
-      category,
-      isTemplate,
-      content
-    };
-    
-    try {
-      console.log("Attempting to save form...");
-const baseUrl = "http://127.0.0.1:5000/api/forms";
-      
-      let response;
-      if (formId) {
-        console.log(`Updating form ID: ${formId}`);
-        response = await fetch(`${baseUrl}/${formId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(formData)
-        });
-      } else {
-        console.log("Creating new form");
-        response = await fetch(baseUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(formData)
-        });
-      }
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("Error response:", errorData);
-        throw new Error(errorData.message || `Server returned ${response.status}`);
-      }
-      
-      const savedForm = await response.json();
-      console.log("Form saved successfully:", savedForm);
-      
-      // Close modal
-      closeFormEditorModal();
-      
-      // Show success message
-      Utils.showToast(formId ? "Form updated successfully" : "Form created successfully");
-      
-      // Refresh forms list
-      fetchAndRenderForms();
-    } catch (error) {
-      console.error("Error saving form:", error);
-      Utils.showToast(`Error: ${error.message || "Failed to save form"}. Check console for details.`);
-    }
+  event.preventDefault();
+  
+  // Show loading indicator
+  Utils.showToast("Saving form...");
+  
+  // Get form data
+  const formId = document.getElementById("formId").value;
+  const title = document.getElementById("formTitle").value;
+  const description = document.getElementById("formDescription").value;
+  const category = document.getElementById("formCategory").value;
+  const isTemplate = document.getElementById("isTemplate").value === "true";
+  
+  // Important: Get content from CodeMirror editor instead of the hidden textarea
+  const content = editor.getValue();
+  
+  console.log("Form data gathered:", {
+    formId,
+    title,
+    description, 
+    category,
+    isTemplate,
+    contentLength: content.length
+  });
+  
+  // Validate required fields
+  if (!title) {
+    Utils.showToast("Title is required");
+    document.getElementById("formTitle").focus();
+    return;
   }
+  
+  if (!content) {
+    Utils.showToast("Content is required");
+    editor.focus();
+    return;
+  }
+  
+  // Prepare form data
+  const formData = {
+    title,
+    description,
+    category,
+    isTemplate,
+    content
+  };
+  
+  try {
+    console.log("Attempting to save form...");
+    const baseUrl = API.getBaseUrl() + "/api/forms";
+    
+    let response;
+    if (formId) {
+      console.log(`Updating form ID: ${formId}`);
+      response = await fetch(`${baseUrl}/${formId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+    } else {
+      console.log("Creating new form");
+      response = await fetch(baseUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+    }
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Error response:", errorData);
+      throw new Error(errorData.message || `Server returned ${response.status}`);
+    }
+    
+    const savedForm = await response.json();
+    console.log("Form saved successfully:", savedForm);
+    
+    // Close modal
+    closeFormEditorModal();
+    
+    // Show success message
+    Utils.showToast(formId ? "Form updated successfully" : "Form created successfully");
+    
+    // Refresh forms list
+    fetchAndRenderForms();
+  } catch (error) {
+    console.error("Error saving form:", error);
+    Utils.showToast(`Error: ${error.message || "Failed to save form"}. Check console for details.`);
+  }
+}
 
-// Open form preview
+/**
+ * Open form preview
+ */
 async function openFormPreview(formId) {
   try {
     // Store current form ID
@@ -746,19 +758,25 @@ async function openFormPreview(formId) {
   }
 }
 
-// Close the form preview modal
+/**
+ * Close the form preview modal
+ */
 function closeFormPreviewModal() {
   document.getElementById("formPreviewModal").style.display = "none";
 }
 
-// Confirm delete form
+/**
+ * Confirm delete form
+ */
 function confirmDeleteForm(formId) {
   if (confirm("Are you sure you want to delete this form? This action cannot be undone.")) {
     deleteForm(formId);
   }
 }
 
-// Delete a form
+/**
+ * Delete a form
+ */
 async function deleteForm(formId) {
   try {
     // Show loading
@@ -784,7 +802,9 @@ async function deleteForm(formId) {
   }
 }
 
-// Download form as markdown or PDF
+/**
+ * Download form as markdown
+ */
 function downloadForm() {
   const title = document.getElementById("previewFormTitle").textContent;
   const content = document.getElementById("previewContent").innerHTML;
@@ -808,7 +828,9 @@ function downloadForm() {
   document.body.removeChild(downloadLink);
 }
 
-// Print the form
+/**
+ * Print the form
+ */
 function printForm() {
   const title = document.getElementById("previewFormTitle").textContent;
   const content = document.getElementById("previewContent").innerHTML;
@@ -895,12 +917,11 @@ function printForm() {
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
-  
-  // Close the window after printing (optional)
-  // printWindow.close();
 }
 
-// Open lead selection modal
+/**
+ * Open lead selection modal
+ */
 async function openLeadSelectionModal() {
   try {
     // Show loading
@@ -962,12 +983,16 @@ async function openLeadSelectionModal() {
   }
 }
 
-// Close the lead selection modal
+/**
+ * Close the lead selection modal
+ */
 function closeLeadSelectionModal() {
   document.getElementById("leadSelectionModal").style.display = "none";
 }
 
-// Generate form with lead data
+/**
+ * Generate form with lead data
+ */
 async function generateFormWithLeadData(formId, leadId) {
   try {
     // Show loading
@@ -1005,12 +1030,16 @@ async function generateFormWithLeadData(formId, leadId) {
   }
 }
 
-// Close the generated form modal
+/**
+ * Close the generated form modal
+ */
 function closeGeneratedFormModal() {
   document.getElementById("generatedFormModal").style.display = "none";
 }
 
-// Download generated form
+/**
+ * Download generated form
+ */
 function downloadGeneratedForm() {
   const title = document.getElementById("generatedFormTitle").textContent;
   const content = document.getElementById("generatedContent").innerHTML;
@@ -1034,7 +1063,9 @@ function downloadGeneratedForm() {
   document.body.removeChild(downloadLink);
 }
 
-// Print the generated form
+/**
+ * Print the generated form
+ */
 function printGeneratedForm() {
   const title = document.getElementById("generatedFormTitle").textContent;
   const content = document.getElementById("generatedContent").innerHTML;
