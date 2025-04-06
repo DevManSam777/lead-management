@@ -1,13 +1,9 @@
-// Form Manager for dashboard forms.html JavaScript
 import * as API from "./api.js";
 import * as Utils from "./utils.js";
 
 // Global variables
 let allForms = [];
 let editor;
-let currentPage = 1;
-let pageSize = 8;
-let totalPages = 1;
 let currentFormId = null;
 
 // Initialize everything when the document is ready
@@ -467,19 +463,23 @@ function createFormCard(form) {
   // Choose icon based on template status
   let icon = "fa-file-alt"; // Default icon
 
-// Choose icon based on category
-if (form.category === "contract") {
-  icon = "fa-file-contract";
-} else if (form.category === "proposal") {
-  icon = "fa-file-invoice";
-} else if (form.category === "invoice") {
-  icon = "fa-file-invoice-dollar";
-} else if (form.category === "agreement") {
-  icon = "fa-handshake";
-}
-  // Format date
+  // Choose icon based on category
+  if (form.category === "contract") {
+    icon = "fa-file-contract";
+  } else if (form.category === "proposal") {
+    icon = "fa-file-invoice";
+  } else if (form.category === "invoice") {
+    icon = "fa-file-invoice-dollar";
+  } else if (form.category === "agreement") {
+    icon = "fa-handshake";
+  }
+  
+  // Determine date format
+  const dateFormat = localStorage.getItem('dateFormat') || window.dateFormat || "MM/DD/YYYY";
+  
+  // Format date using the selected format
   const lastModified = new Date(form.lastModified);
-  const formattedDate = `${lastModified.toLocaleDateString()} ${lastModified.toLocaleTimeString()}`;
+  const formattedDate = Utils.formatDateTime(lastModified, dateFormat);
   
   // Create card content
   card.innerHTML = `
@@ -528,104 +528,6 @@ if (form.category === "contract") {
   });
   
   return card;
-}
-
-// Render pagination controls
-function renderPagination() {
-  const container = document.getElementById("paginationContainer");
-  container.innerHTML = '';
-  
-  if (totalPages <= 1) {
-    return;
-  }
-  
-  // Create pagination container
-  const pagination = document.createElement("div");
-  pagination.className = "pagination";
-  
-  // Create buttons container
-  const buttonsContainer = document.createElement("div");
-  buttonsContainer.className = "pagination-buttons-container";
-  
-  // Previous button
-  const prevButton = document.createElement("button");
-  prevButton.className = "pagination-button";
-  prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-  prevButton.title = "Previous page";
-  
-  if (currentPage === 1) {
-    prevButton.classList.add("disabled");
-  } else {
-    prevButton.addEventListener("click", function() {
-      if (currentPage > 1) {
-        currentPage--;
-        fetchAndRenderForms();
-      }
-    });
-  }
-  
-  buttonsContainer.appendChild(prevButton);
-  
-  // Page buttons
-  let startPage, endPage;
-  
-  if (currentPage === 1) {
-    startPage = 1;
-    endPage = Math.min(3, totalPages);
-  } else if (currentPage === totalPages) {
-    startPage = Math.max(1, totalPages - 2);
-    endPage = totalPages;
-  } else {
-    startPage = currentPage - 1;
-    endPage = currentPage + 1;
-  }
-  
-  for (let i = startPage; i <= endPage; i++) {
-    const pageButton = document.createElement("button");
-    pageButton.className = "pagination-button pagination-page";
-    pageButton.textContent = i;
-    
-    if (i === currentPage) {
-      pageButton.classList.add("active");
-    } else {
-      pageButton.addEventListener("click", function() {
-        currentPage = i;
-        fetchAndRenderForms();
-      });
-    }
-    
-    buttonsContainer.appendChild(pageButton);
-  }
-  
-  // Next button
-  const nextButton = document.createElement("button");
-  nextButton.className = "pagination-button";
-  nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-  nextButton.title = "Next page";
-  
-  if (currentPage === totalPages) {
-    nextButton.classList.add("disabled");
-  } else {
-    nextButton.addEventListener("click", function() {
-      if (currentPage < totalPages) {
-        currentPage++;
-        fetchAndRenderForms();
-      }
-    });
-  }
-  
-  buttonsContainer.appendChild(nextButton);
-  
-  // Page info
-  const pageInfo = document.createElement("div");
-  pageInfo.className = "pagination-info";
-  pageInfo.textContent = `Showing ${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, allForms.length)} of ${allForms.length}`;
-  
-  // Add elements to pagination
-  pagination.appendChild(buttonsContainer);
-  pagination.appendChild(pageInfo);
-  
-  container.appendChild(pagination);
 }
 
 // Apply filters and search

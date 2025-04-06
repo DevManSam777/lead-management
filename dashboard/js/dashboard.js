@@ -8,11 +8,7 @@ import * as Pagination from "./pagination.js";
 // Global variables
 let allLeads = [];
 let payments = [];
-let defaultCurrency = "USD"; // Store the default currency
-let globalSettings = {
-  theme: "light",
-  dateFormat: "MM/DD/YYYY",
-};
+
 
 // pagination variables
 let currentPage = 1;
