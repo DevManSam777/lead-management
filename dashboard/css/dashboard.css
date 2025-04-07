@@ -452,6 +452,10 @@ details[open] .stats-cards {
   gap: 0.5rem;
 }
 
+#editFormContent {
+  overflow-y: auto;
+}
+
 .no-forms-message {
   padding: 1rem;
   text-align: center;
