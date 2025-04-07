@@ -657,6 +657,8 @@ async function deleteForm(formId, leadId) {
   }
 }
 
+window.openFormTemplateModal = openFormTemplateModal;
+
 export {
     loadLeadForms,
     openFormTemplateModal,

@@ -479,7 +479,7 @@ if (totalBudgetInput) {
 });
 
 /**
- * Initialize date input displays
+ * Initialize date input displaysd
  */
 function initializeDateInputs() {
   // Set up date inputs in the lead form
@@ -736,6 +736,19 @@ function closeLeadModal() {
   if (modalActions) {
     modalActions.remove();
   }
+
+  const addFormBtn = document.getElementById('addFormBtn');
+if (addFormBtn) {
+  addFormBtn.addEventListener('click', function() {
+    const leadId = document.getElementById('leadId').value;
+    if (leadId) {
+      // Open form template modal for this lead
+      window.openFormTemplateModal(leadId);
+    } else {
+      Utils.showToast('Please save the lead first before creating forms');
+    }
+  });
+}
 }
 
 /**

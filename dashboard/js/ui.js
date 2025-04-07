@@ -239,6 +239,55 @@ function updateModalActionButtons(leadId) {
   actionsContainer.appendChild(deleteButton);
 }
 
+// /**
+//  * Set the modal to read-only or editable mode
+//  * @param {boolean} isReadOnly - Whether the modal should be read-only
+//  */
+// function setModalReadOnly(isReadOnly) {
+//   const formElements = document.querySelectorAll(
+//     "#leadForm input, #leadForm select, #leadForm textarea"
+//   );
+
+//   formElements.forEach((element) => {
+//     if (isReadOnly) {
+//       element.setAttribute("readonly", true);
+//       if (element.tagName === "SELECT") {
+//         element.setAttribute("disabled", true);
+//       }
+//     } else {
+//       element.removeAttribute("readonly");
+//       if (element.tagName === "SELECT") {
+//         element.removeAttribute("disabled");
+//       }
+//     }
+//   });
+
+//   // Always keep these fields read-only
+//   const paidAmountField = document.getElementById("paidAmount");
+//   if (paidAmountField) {
+//     paidAmountField.setAttribute("readonly", true);
+//   }
+
+//   const remainingBalanceField = document.getElementById("remainingBalance");
+//   if (remainingBalanceField) {
+//     remainingBalanceField.setAttribute("readonly", true);
+//   }
+
+//   // Show/hide the form submission button based on mode
+//   const submitButton = document.querySelector(
+//     '#leadForm button[type="submit"]'
+//   );
+//   if (submitButton) {
+//     submitButton.style.display = isReadOnly ? "none" : "block";
+//   }
+
+//   // Show/hide Add Payment button based on mode
+//   const addPaymentBtn = document.getElementById("addPaymentBtn");
+//   if (addPaymentBtn) {
+//     addPaymentBtn.style.display = isReadOnly ? "none" : "block";
+//   }
+// }
+
 /**
  * Set the modal to read-only or editable mode
  * @param {boolean} isReadOnly - Whether the modal should be read-only
@@ -285,6 +334,12 @@ function setModalReadOnly(isReadOnly) {
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
     addPaymentBtn.style.display = isReadOnly ? "none" : "block";
+  }
+
+  // Show/hide Add Form button based on mode
+  const addFormBtn = document.getElementById("addFormBtn");
+  if (addFormBtn) {
+    addFormBtn.style.display = isReadOnly ? "none" : "block";
   }
 }
 
