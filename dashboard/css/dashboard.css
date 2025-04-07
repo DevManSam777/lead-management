@@ -459,6 +459,10 @@ details[open] .stats-cards {
   font-style: italic;
 }
 
+#editFormContent {
+  overflow-y: auto;
+}
+
 /* Add these styles to dashboard.css */
 
 /* Responsive Styles */
