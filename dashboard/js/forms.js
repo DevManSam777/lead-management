@@ -768,10 +768,10 @@ async function openFormPreview(formId) {
         </div>
         <div>
           <button type="button" id="downloadFormBtn" class="btn btn-primary">
-            <i class="fas fa-download"></i> Download
+            <i class="fas fa-download"></i> Download .md
           </button>
           <button type="button" id="printFormBtn" class="btn btn-primary">
-            <i class="fas fa-print"></i> Print
+            <i class="fas fa-print"></i> Print PDF
           </button>
         </div>
       `;
