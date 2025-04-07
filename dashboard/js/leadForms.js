@@ -329,10 +329,10 @@ async function viewForm(formId) {
               </button>
             ` : ''}
             <button type="button" id="printPreviewBtn" class="btn btn-primary">
-              <i class="fas fa-print"></i> Print
+              <i class="fas fa-print"></i> Print PDF
             </button>
             <button type="button" id="downloadPreviewBtn" class="btn btn-primary">
-              <i class="fas fa-download"></i> Download
+              <i class="fas fa-download"></i> Download .md
             </button>
           </div>
         </div>
