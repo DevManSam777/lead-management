@@ -456,6 +456,7 @@ details[open] .stats-cards {
   overflow-y: auto;
 }
 
+
 .no-forms-message {
   padding: 1rem;
   text-align: center;
@@ -740,6 +741,11 @@ fieldset {
 
   .leads-header h3 {
     padding: 2rem 0 0 2rem;
+  }
+
+  #lead-modal-form-actions {
+    flex-direction: column;
+    width: 100%;
   }
 }
 

@@ -357,15 +357,15 @@ async function viewForm(formId, isEditMode) {
           <div class="preview-container">
             <div class="markdown-content">${formattedContent}</div>
           </div>
-          <div class="modal-actions">
+          <div id="lead-modal-form-actions" class="modal-actions">
             <button type="button" id="editContentBtn" class="btn btn-primary">
               <i class="fas fa-edit"></i> Edit Content
             </button>
             <button type="button" id="printPreviewBtn" class="btn btn-primary">
-              <i class="fas fa-print"></i> Print
+              <i class="fas fa-print"></i> Print PDF
             </button>
             <button type="button" id="downloadPreviewBtn" class="btn btn-primary">
-              <i class="fas fa-download"></i> Download
+              <i class="fas fa-download"></i> Download .md
             </button>
           </div>
         </div>
