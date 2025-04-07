@@ -750,8 +750,57 @@ async function openFormPreview(formId) {
     // Set preview content
     document.getElementById("previewContent").innerHTML = html;
     
+    // Only show the "Use with Lead" button for templates
+    const useWithLeadButton = form.isTemplate ? 
+      `<button type="button" id="useWithLeadBtn" class="btn btn-outline">
+        <i class="fas fa-user"></i> Use with Lead
+      </button>` : '';
+    
+    // Update the modal-actions div to conditionally include the use with lead button
+    const modalActions = document.querySelector('#formPreviewModal .modal-actions');
+    if (modalActions) {
+      modalActions.innerHTML = `
+        <div>
+          <button type="button" id="editFormBtn" class="btn btn-outline">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          ${useWithLeadButton}
+        </div>
+        <div>
+          <button type="button" id="downloadFormBtn" class="btn btn-primary">
+            <i class="fas fa-download"></i> Download
+          </button>
+          <button type="button" id="printFormBtn" class="btn btn-primary">
+            <i class="fas fa-print"></i> Print
+          </button>
+        </div>
+      `;
+    }
+    
     // Show modal
     document.getElementById("formPreviewModal").style.display = "block";
+    
+    // Add event listeners to buttons
+    document.getElementById("editFormBtn").addEventListener("click", function() {
+      closeFormPreviewModal();
+      openEditFormModal(formId);
+    });
+    
+    document.getElementById("downloadFormBtn").addEventListener("click", function() {
+      downloadForm(formId);
+    });
+    
+    document.getElementById("printFormBtn").addEventListener("click", function() {
+      printForm(formId);
+    });
+    
+    // Only add the Use with Lead event listener if the button exists
+    const useWithLeadBtn = document.getElementById("useWithLeadBtn");
+    if (useWithLeadBtn) {
+      useWithLeadBtn.addEventListener("click", function() {
+        openLeadSelectionModal();
+      });
+    }
   } catch (error) {
     console.error("Error loading form preview:", error);
     Utils.showToast("Error: " + error.message);
@@ -922,8 +971,82 @@ function printForm() {
 /**
  * Open lead selection modal
  */
+// async function openLeadSelectionModal() {
+//   try {
+//     // Show loading
+//     Utils.showToast("Loading leads...");
+    
+//     // Fetch leads
+//     const response = await fetch(`${API.getBaseUrl()}/api/leads`);
+    
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch leads");
+//     }
+    
+//     const leads = await response.json();
+    
+//     // Build leads list
+//     const leadsList = document.getElementById("leadsList");
+//     leadsList.innerHTML = "";
+    
+//     if (leads.length === 0) {
+//       leadsList.innerHTML = "<p>No leads found</p>";
+//     } else {
+//       leads.forEach(lead => {
+//         const leadItem = document.createElement("div");
+//         leadItem.className = "lead-item";
+//         leadItem.style.display = "flex";
+//         leadItem.style.alignItems = "center";
+//         leadItem.style.justifyContent = "space-between";
+//         leadItem.style.padding = "1rem";
+//         leadItem.style.borderBottom = "1px solid var(--border-color)";
+//         leadItem.style.cursor = "pointer";
+        
+//         // Format lead name
+//         const fullName = `${lead.firstName} ${lead.lastName}`;
+//         const businessName = lead.businessName || "N/A";
+        
+//         leadItem.innerHTML = `
+//           <div>
+//             <h4 style="margin: 0 0 0.5rem 0;">${fullName}</h4>
+//             <p style="margin: 0; color: var(--text-muted);">${businessName}</p>
+//           </div>
+//           <button class="btn btn-primary">Use</button>
+//         `;
+        
+//         // Add click event to button
+//         leadItem.querySelector("button").addEventListener("click", function() {
+//           generateFormWithLeadData(currentFormId, lead._id);
+//           closeLeadSelectionModal();
+//         });
+        
+//         leadsList.appendChild(leadItem);
+//       });
+//     }
+    
+//     // Show modal
+//     document.getElementById("leadSelectionModal").style.display = "block";
+//   } catch (error) {
+//     console.error("Error loading leads:", error);
+//     Utils.showToast("Error: " + error.message);
+//   }
+// }
+
 async function openLeadSelectionModal() {
   try {
+    // Check if the current form is a template
+    if (currentFormId) {
+      const form = await fetchFormById(currentFormId);
+      
+      if (!form.isTemplate) {
+        Utils.showToast('Only templates can be used with leads. This is a regular form.');
+        return;
+      }
+    } else {
+      Utils.showToast('Form not found');
+      return;
+    }
+    
     // Show loading
     Utils.showToast("Loading leads...");
     
@@ -980,6 +1103,22 @@ async function openLeadSelectionModal() {
   } catch (error) {
     console.error("Error loading leads:", error);
     Utils.showToast("Error: " + error.message);
+  }
+}
+
+// Helper function to fetch a single form
+async function fetchFormById(formId) {
+  try {
+    const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch form");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching form:", error);
+    throw error;
   }
 }
 
