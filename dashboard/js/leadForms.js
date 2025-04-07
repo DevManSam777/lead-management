@@ -54,13 +54,13 @@ async function loadLeadForms(leadId) {
             <div class="form-category">${category} • ${formattedDate}</div>
           </div>
           <div class="form-actions">
-            <button class="btn-icon view-form" title="View Form">
+            <button type="button" class="btn-icon view-form" title="View Form">
               <i class="fas fa-eye"></i>
             </button>
-            <button class="btn-icon edit-form" title="Edit Form">
+            <button type="button" class="btn-icon edit-form" title="Edit Form">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn-icon delete-form" title="Delete Form">
+            <button type="button" class="btn-icon delete-form" title="Delete Form">
               <i class="fas fa-trash"></i>
             </button>
           </div>
