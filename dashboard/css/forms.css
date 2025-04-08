@@ -201,7 +201,7 @@
 
 #formPreviewModal .modal-content {
   width: 95%;
-  max-width: 1200px;
+  /* max-width: 1200px; */
 }
 
 .preview-container {
@@ -216,10 +216,6 @@ div.editor-section{
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.editor-section {
-  flex: 1;
 }
 
 .preview-section {
@@ -285,22 +281,6 @@ div.editor-section{
   margin: 2rem 0;
 }
 
-/* Fix for CodeMirror scrolling issues */
-.CodeMirror {
-  height: auto;
-  /* min-height: 350px;
-  max-height: 500px; */
-  /* overflow-y: auto !important;
-  overflow-x: auto !important; */
-}
-
-/* .CodeMirror-scroll {
-  min-height: 350px;
-  max-height: 500px;
-  overflow-y: auto !important;
-  overflow-x: auto !important;
-} */
-
 /* Fix modal overflow issues */
 .modal-content {
   max-height: 90vh;
@@ -309,8 +289,12 @@ div.editor-section{
 
 /* Make sure editor section allows scrolling */
 .editor-section {
-  max-height: 600px;
   overflow-y: auto;
+  flex: 1;
+  max-height: none; /* Remove any max-height constraint */
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 2rem;
 }
 
 /* Tab UI for editor/preview on mobile */

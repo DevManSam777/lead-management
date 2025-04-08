@@ -45,8 +45,8 @@ const leadSchema = new mongoose.Schema({
   },
   serviceDesired: {
     type: String,
-    enum: ["website", "app"],
-    default: "website",
+    enum: ["Web Development", "App Development"],
+    default: "Web Development",
   },
   hasWebsite: {
     type: String,
@@ -92,31 +92,37 @@ const leadSchema = new mongoose.Schema({
     type: Date,
   },
   // Add the associatedForms field to track forms related to this lead
-  associatedForms: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Form'
-  }],
+  associatedForms: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Form",
+    },
+  ],
   // This field is only used for distinguishing form submissions from dashboard creations
   // It will not be stored but used in controller logic
   isFormSubmission: {
     type: Boolean,
     select: false, // Exclude from query results by default
-  }
+  },
 });
 
-leadSchema.pre('deleteOne', { document: false, query: true }, async function() {
-  // Get the document that's about to be deleted
-  const leadId = this.getFilter()._id;
-  
-  // Delete all payments for this lead
-  await mongoose.model('Payment').deleteMany({ leadId: leadId });
-  console.log(`Automatically deleted payments for lead ${leadId}`);
-});
+leadSchema.pre(
+  "deleteOne",
+  { document: false, query: true },
+  async function () {
+    // Get the document that's about to be deleted
+    const leadId = this.getFilter()._id;
+
+    // Delete all payments for this lead
+    await mongoose.model("Payment").deleteMany({ leadId: leadId });
+    console.log(`Automatically deleted payments for lead ${leadId}`);
+  }
+);
 
 // Make sure we also handle remove() method if it's used anywhere
-leadSchema.pre('remove', async function() {
+leadSchema.pre("remove", async function () {
   // Delete all payments for this lead
-  await mongoose.model('Payment').deleteMany({ leadId: this._id });
+  await mongoose.model("Payment").deleteMany({ leadId: this._id });
   console.log(`Automatically deleted payments for lead ${this._id}`);
 });
 

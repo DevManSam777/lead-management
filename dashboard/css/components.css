@@ -414,12 +414,11 @@ select,
 /* CodeMirror Integration */
 .CodeMirror {
   height: auto;
-  /* min-height: 350px;
-  max-height: 500px; */
-  height: 100%;
+  /* height: 100%; */
   font-size: 1.4rem;
   border: 1px solid var(--border-color);
   border-radius: var(--card-border-radius);
+  padding: 2rem 2rem 2rem 0;
 }
 
 .CodeMirror-scroll {
@@ -816,13 +815,6 @@ select,
   gap: 1rem;
   flex-direction: column;
 }
-
-
-
-.CodeMirror-lines {
- padding-right: 1rem;
-}
-
 
 .form-editor-container {
   flex-direction: column;
