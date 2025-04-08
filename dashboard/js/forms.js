@@ -572,8 +572,50 @@ function openCreateFormModal() {
 }
 
 /**
- * Open the form editor modal for editing an existing form
- */
+//  * Open the form editor modal for editing an existing form
+//  */
+// async function openEditFormModal(formId) {
+//   try {
+//     // Show loading
+//     Utils.showToast("Loading form...");
+    
+//     // Fetch form details
+//     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
+    
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch form details");
+//     }
+    
+//     const form = await response.json();
+    
+//     // Populate form fields
+//     document.getElementById("formId").value = form._id;
+//     document.getElementById("formTitle").value = form.title;
+//     document.getElementById("formDescription").value = form.description || "";
+//     document.getElementById("formCategory").value = form.category;
+//     document.getElementById("isTemplate").value = form.isTemplate.toString();
+    
+//     // Set editor content
+//     editor.setValue(form.content);
+    
+//     // This is the important part - refresh the editor after setting content
+//     setTimeout(() => {
+//       editor.refresh();
+//       // Also force focus on the editor to ensure it's visible
+//       editor.focus();
+//     }, 10);
+    
+//     // Update modal title
+//     document.getElementById("formEditorTitle").textContent = "Edit Form";
+    
+//     // Show modal
+//     document.getElementById("formEditorModal").style.display = "block";
+//   } catch (error) {
+//     console.error("Error loading form for editing:", error);
+//     Utils.showToast("Error: " + error.message);
+//   }
+// }
+
 async function openEditFormModal(formId) {
   try {
     // Show loading
@@ -607,6 +649,14 @@ async function openEditFormModal(formId) {
     
     // Update modal title
     document.getElementById("formEditorTitle").textContent = "Edit Form";
+    
+    // Show/hide variables section based on template status
+    const variablesContainer = document.querySelector('.variables-container');
+    const isTemplate = form.isTemplate;
+    
+    if (variablesContainer) {
+      variablesContainer.style.display = isTemplate ? 'block' : 'none';
+    }
     
     // Show modal
     document.getElementById("formEditorModal").style.display = "block";

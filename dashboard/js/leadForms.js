@@ -1,5 +1,3 @@
-// dashboard/js/leadForms.js - Complete fixed version
-
 import * as API from "./api.js";
 import * as Utils from "./utils.js";
 
@@ -22,7 +20,6 @@ async function loadLeadForms(leadId) {
       
       const forms = await response.json();
       
-      // CRITICAL FIX: Always consider edit mode true when in the lead modal
       // This ensures edit/delete buttons are always available
       let isEditMode = true;
       
@@ -414,52 +411,52 @@ function openEditContentModal(form) {
   const modal = document.createElement('div');
   modal.id = 'formEditContentModal';
   modal.className = 'modal';
-  
   modal.innerHTML = `
-    <div class="modal-content">
-      <span class="close-modal" id="closeEditContentModal">&times;</span>
-      <div class="modal-header">
-        <h3>Edit Form: ${form.title}</h3>
-      </div>
-      <div class="form-editor-container">
-        <div class="editor-section">
-          <textarea id="editFormContent">${form.content}</textarea>
-          <div class="variables-container">
-            <h4>Available Variables</h4>
-            <p class="variable-hint">
-              Click a variable to insert it at the cursor position. Use format <code>{{variableName}}</code> in your content.
-            </p>
-            <div class="variables-list" id="variablesList">
-              <span class="variable-tag" data-variable="firstName">firstName</span>
-              <span class="variable-tag" data-variable="lastName">lastName</span>
-              <span class="variable-tag" data-variable="email">email</span>
-              <span class="variable-tag" data-variable="phone">phone</span>
-              <span class="variable-tag" data-variable="businessName">businessName</span>
-              <span class="variable-tag" data-variable="businessEmail">businessEmail</span>
-              <span class="variable-tag" data-variable="businessPhone">businessPhone</span>
-              <span class="variable-tag" data-variable="serviceDesired">serviceDesired</span>
-              <span class="variable-tag" data-variable="estimatedBudget">estimatedBudget</span>
-              <span class="variable-tag" data-variable="totalBudget">totalBudget</span>
-              <span class="variable-tag" data-variable="currentDate">currentDate</span>
-            </div>
+  <div class="modal-content">
+    <span class="close-modal" id="closeEditContentModal">&times;</span>
+    <div class="modal-header">
+      <h3>Edit Form: ${form.title}</h3>
+    </div>
+    <div class="form-editor-container">
+      <div class="editor-section">
+        <textarea id="editFormContent">${form.content}</textarea>
+        <div class="variables-container" style="display: ${form.isTemplate ? 'block' : 'none'};">
+          <h4>Available Variables</h4>
+          <p class="variable-hint">
+            Click a variable to insert it at the cursor position. Use format <code>{{variableName}}</code> in your content.
+          </p>
+          <div class="variables-list" id="variablesList">
+            <span class="variable-tag" data-variable="firstName">firstName</span>
+            <span class="variable-tag" data-variable="lastName">lastName</span>
+            <span class="variable-tag" data-variable="email">email</span>
+            <span class="variable-tag" data-variable="phone">phone</span>
+            <span class="variable-tag" data-variable="businessName">businessName</span>
+            <span class="variable-tag" data-variable="businessEmail">businessEmail</span>
+            <span class="variable-tag" data-variable="businessPhone">businessPhone</span>
+            <span class="variable-tag" data-variable="serviceDesired">serviceDesired</span>
+            <span class="variable-tag" data-variable="estimatedBudget">estimatedBudget</span>
+            <span class="variable-tag" data-variable="totalBudget">totalBudget</span>
+            <span class="variable-tag" data-variable="currentDate">currentDate</span>
           </div>
         </div>
-        <div class="preview-section">
-          <h4>Preview</h4>
-          <div class="markdown-content" id="markdownPreview"></div>
-        </div>
       </div>
-      <div class="modal-actions">
-        <button type="button" id="saveContentBtn" class="btn btn-primary">
-          <i class="fas fa-save"></i> Save Changes
-        </button>
-        <button type="button" id="cancelEditBtn" class="btn btn-outline">
-          Cancel
-        </button>
+      <div class="preview-section">
+        <h4>Preview</h4>
+        <div class="markdown-content" id="markdownPreview"></div>
       </div>
     </div>
-  `;
-  
+    <div class="modal-actions">
+      <button type="button" id="saveContentBtn" class="btn btn-primary">
+        <i class="fas fa-save"></i> Save Changes
+      </button>
+      <button type="button" id="cancelEditBtn" class="btn btn-outline">
+        Cancel
+      </button>
+    </div>
+  </div>
+`;
+
+
   // Add modal to the DOM
   document.body.appendChild(modal);
   
