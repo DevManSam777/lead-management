@@ -406,6 +406,177 @@ async function viewForm(formId, isEditMode) {
 }
 
 // Function to open edit content modal with CodeMirror
+// function openEditContentModal(form) {
+//   // Create edit modal
+//   const modal = document.createElement('div');
+//   modal.id = 'formEditContentModal';
+//   modal.className = 'modal';
+//   modal.innerHTML = `
+//   <div class="modal-content">
+//     <span class="close-modal" id="closeEditContentModal">&times;</span>
+//     <div class="modal-header">
+//       <h3>Edit Form: ${form.title}</h3>
+//     </div>
+//     <div class="form-editor-container">
+//       <div class="editor-section">
+//         <textarea id="editFormContent">${form.content}</textarea>
+//         <div class="variables-container" style="display: ${form.isTemplate ? 'block' : 'none'};">
+//           <h4>Available Variables</h4>
+//           <p class="variable-hint">
+//             Click a variable to insert it at the cursor position. Use format <code>{{variableName}}</code> in your content.
+//           </p>
+//           <div class="variables-list" id="variablesList">
+//             <span class="variable-tag" data-variable="firstName">firstName</span>
+//             <span class="variable-tag" data-variable="lastName">lastName</span>
+//             <span class="variable-tag" data-variable="email">email</span>
+//             <span class="variable-tag" data-variable="phone">phone</span>
+//             <span class="variable-tag" data-variable="businessName">businessName</span>
+//             <span class="variable-tag" data-variable="businessEmail">businessEmail</span>
+//             <span class="variable-tag" data-variable="businessPhone">businessPhone</span>
+//             <span class="variable-tag" data-variable="serviceDesired">serviceDesired</span>
+//             <span class="variable-tag" data-variable="estimatedBudget">estimatedBudget</span>
+//             <span class="variable-tag" data-variable="totalBudget">totalBudget</span>
+//             <span class="variable-tag" data-variable="currentDate">currentDate</span>
+//           </div>
+//         </div>
+//       </div>
+//       <div class="preview-section">
+//         <h4>Preview</h4>
+//         <div class="markdown-content" id="markdownPreview"></div>
+//       </div>
+//     </div>
+//     <div class="modal-actions">
+//       <button type="button" id="saveContentBtn" class="btn btn-primary">
+//         <i class="fas fa-save"></i> Save Changes
+//       </button>
+//       <button type="button" id="cancelEditBtn" class="btn btn-outline">
+//         Cancel
+//       </button>
+//     </div>
+//   </div>
+// `;
+
+
+//   // Add modal to the DOM
+//   document.body.appendChild(modal);
+  
+//   // Show the modal
+//   modal.style.display = 'block';
+  
+//   let editor;
+  
+//   try {
+//     // Initialize CodeMirror
+//     const textarea = document.getElementById('editFormContent');
+//     editor = CodeMirror.fromTextArea(textarea, {
+//       mode: "markdown",
+//       lineNumbers: true,
+//       lineWrapping: true,
+//       theme: "default",
+//       placeholder: "Write your form content here in Markdown format...",
+//     });
+    
+//     // Set initial content
+//     editor.setValue(form.content);
+    
+//     // Update the preview when the editor content changes
+//     editor.on("change", function() {
+//       updateMarkdownPreview(editor);
+//     });
+    
+//     // Initial preview update
+//     updateMarkdownPreview(editor);
+    
+//     // Add variables click handlers
+//     document.querySelectorAll(".variable-tag").forEach(tag => {
+//       tag.addEventListener("click", function() {
+//         const variable = this.getAttribute("data-variable");
+//         const cursor = editor.getCursor();
+//         editor.replaceRange(`{{${variable}}}`, cursor);
+//         editor.focus();
+//       });
+//     });
+//   } catch (error) {
+//     console.error('Error initializing CodeMirror:', error);
+    
+//     // Fallback to regular textarea if CodeMirror fails
+//     const textarea = document.getElementById('editFormContent');
+//     textarea.style.width = '100%';
+//     textarea.style.minHeight = '300px';
+//     textarea.style.fontFamily = 'monospace';
+    
+//     // Update preview on textarea change
+//     textarea.addEventListener('input', function() {
+//       const preview = document.getElementById("markdownPreview");
+//       if (marked && DOMPurify) {
+//         preview.innerHTML = DOMPurify.sanitize(marked.parse(textarea.value));
+//       } else {
+//         preview.innerHTML = `<pre>${textarea.value}</pre>`;
+//       }
+//     });
+    
+//     // Initial preview update
+//     const preview = document.getElementById("markdownPreview");
+//     if (marked && DOMPurify) {
+//       preview.innerHTML = DOMPurify.sanitize(marked.parse(textarea.value));
+//     } else {
+//       preview.innerHTML = `<pre>${textarea.value}</pre>`;
+//     }
+    
+//     // Add variables click handlers for textarea
+//     document.querySelectorAll(".variable-tag").forEach(tag => {
+//       tag.addEventListener("click", function() {
+//         const variable = this.getAttribute("data-variable");
+//         const cursorPos = textarea.selectionStart;
+//         const textBefore = textarea.value.substring(0, cursorPos);
+//         const textAfter = textarea.value.substring(cursorPos);
+//         textarea.value = textBefore + `{{${variable}}}` + textAfter;
+        
+//         // Update preview
+//         if (marked && DOMPurify) {
+//           preview.innerHTML = DOMPurify.sanitize(marked.parse(textarea.value));
+//         } else {
+//           preview.innerHTML = `<pre>${textarea.value}</pre>`;
+//         }
+        
+//         // Focus back to textarea
+//         textarea.focus();
+//       });
+//     });
+//   }
+  
+//   // Add close button event listener
+//   document.getElementById('closeEditContentModal').addEventListener('click', function() {
+//     if (confirm('Are you sure you want to close without saving changes?')) {
+//       modal.style.display = 'none';
+//       document.body.removeChild(modal);
+//     }
+//   });
+  
+//   // Add save button event listener
+//   document.getElementById('saveContentBtn').addEventListener('click', function() {
+//     // Get the content from CodeMirror or the textarea
+//     let content;
+//     if (editor) {
+//       content = editor.getValue();
+//     } else {
+//       content = document.getElementById('editFormContent').value;
+//     }
+    
+//     saveFormContent(form._id, content);
+//     modal.style.display = 'none';
+//     document.body.removeChild(modal);
+//   });
+  
+//   // Add cancel button event listener
+//   document.getElementById('cancelEditBtn').addEventListener('click', function() {
+//     if (confirm('Are you sure you want to cancel without saving changes?')) {
+//       modal.style.display = 'none';
+//       document.body.removeChild(modal);
+//     }
+//   });
+// }
+
 function openEditContentModal(form) {
   // Create edit modal
   const modal = document.createElement('div');
@@ -416,6 +587,10 @@ function openEditContentModal(form) {
     <span class="close-modal" id="closeEditContentModal">&times;</span>
     <div class="modal-header">
       <h3>Edit Form: ${form.title}</h3>
+      <div class="editor-tabs">
+        <div class="editor-tab active" data-tab="editor">Editor</div>
+        <div class="editor-tab" data-tab="preview">Preview</div>
+      </div>
     </div>
     <div class="form-editor-container">
       <div class="editor-section">
@@ -456,7 +631,6 @@ function openEditContentModal(form) {
   </div>
 `;
 
-
   // Add modal to the DOM
   document.body.appendChild(modal);
   
@@ -494,6 +668,36 @@ function openEditContentModal(form) {
         const cursor = editor.getCursor();
         editor.replaceRange(`{{${variable}}}`, cursor);
         editor.focus();
+      });
+    });
+
+    // Add mobile tab toggle functionality
+    document.querySelectorAll(".editor-tab").forEach(tab => {
+      tab.addEventListener("click", function() {
+        // Set active tab
+        document.querySelectorAll(".editor-tab").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        
+        const tabName = this.getAttribute("data-tab");
+        const editorSection = document.querySelector(".editor-section");
+        const previewSection = document.querySelector(".preview-section");
+        
+        if (tabName === "editor") {
+          editorSection.classList.remove("inactive");
+          previewSection.classList.remove("active");
+        } else {
+          editorSection.classList.add("inactive");
+          previewSection.classList.add("active");
+          // Update preview when switching to preview tab
+          updateMarkdownPreview(editor);
+        }
+
+        // Ensure the CodeMirror editor refreshes if it exists
+        if (editor) {
+          setTimeout(() => {
+            editor.refresh();
+          }, 50);
+        }
       });
     });
   } catch (error) {
