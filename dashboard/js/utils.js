@@ -199,13 +199,12 @@ function formatCurrency(amount) {
   }
 }
 
-// /**
-//  * Format a date according to the specified format
-//  * @param {Date|string} date - Date to format
-//  * @param {string} format - Format string (default: MM/DD/YYYY)
-//  * @returns {string} Formatted date string
-//  */
-
+/**
+ * Format a date according to the specified format
+ * @param {Date|string} date - Date to format
+ * @param {string} format - Format string (default: MM/DD/YYYY)
+ * @returns {string} Formatted date string
+ */
 function formatDate(date, format = "MM/DD/YYYY") {
   if (!date) return "";
 
@@ -218,11 +217,10 @@ function formatDate(date, format = "MM/DD/YYYY") {
     return "";
   }
   
-  // Get UTC components to match the stored UTC date
-  // This is the key fix - we use UTC methods instead of local time methods
-  const year = dateObj.getUTCFullYear();
-  const month = dateObj.getUTCMonth() + 1; // getUTCMonth() returns 0-11
-  const day = dateObj.getUTCDate();
+  // Use local time methods instead of UTC methods
+  const year = dateObj.getFullYear();
+  const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
+  const day = dateObj.getDate();
   
   // Create padded versions for single-digit values
   const paddedMonth = month.toString().padStart(2, "0");
@@ -312,7 +310,7 @@ function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
   // Format the date
   const formattedDate = formatDate(dateObj, dateFormat);
   
-  // Format the time
+  // Format the time - using local time methods
   let hours = dateObj.getHours();
   const minutes = dateObj.getMinutes().toString().padStart(2, "0");
   const ampm = hours >= 12 ? "PM" : "AM";
@@ -354,18 +352,53 @@ function updateDateInputDisplay(inputId, displayId, format = null) {
  * @param {string} inputId - ID of the date input element
  * @param {string} displayId - ID of the display element
  */
+// function setupDateInput(inputId, displayId) {
+//   const input = document.getElementById(inputId);
+  
+//   if (!input) return;
+  
+//   // Update display when input changes
+//   input.addEventListener('change', function() {
+//     updateDateInputDisplay(inputId, displayId);
+//   });
+  
+//   // Initial update
+//   updateDateInputDisplay(inputId, displayId);
+// }
+
 function setupDateInput(inputId, displayId) {
   const input = document.getElementById(inputId);
   
   if (!input) return;
   
-  // Update display when input changes
   input.addEventListener('change', function() {
-    updateDateInputDisplay(inputId, displayId);
+    if (this.value) {
+      // Create a date at noon to avoid timezone issues
+      const dateValue = this.value; // "YYYY-MM-DD" format
+      const [year, month, day] = dateValue.split('-').map(num => parseInt(num, 10));
+      
+      // Create a date object with specific year, month, day at noon local time
+      // Month is 0-indexed in JavaScript dates, so subtract 1
+      const date = new Date(year, month - 1, day, 12, 0, 0);
+      
+      // Format and display
+      const display = document.getElementById(displayId);
+      if (display) {
+        display.textContent = formatDate(date, window.dateFormat);
+      }
+    } else {
+      // Clear display if input is empty
+      const display = document.getElementById(displayId);
+      if (display) {
+        display.textContent = "";
+      }
+    }
   });
   
   // Initial update
-  updateDateInputDisplay(inputId, displayId);
+  if (input.value) {
+    input.dispatchEvent(new Event('change'));
+  }
 }
 
 /**

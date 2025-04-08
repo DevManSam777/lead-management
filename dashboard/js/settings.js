@@ -116,11 +116,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   
   // Function to update date format example
-  function updateDateFormatExample(format) {
-      const today = new Date();
-      if (dateFormatExample) {
-          dateFormatExample.textContent = formatDate(today, format);
-      }
+function updateDateFormatExample(format) {
+    const today = new Date();
+    // Ensure we're using the local time display, not UTC
+    if (dateFormatExample) {
+      dateFormatExample.textContent = formatDate(today, format);
+    }
   }
   
   // Initialize settings on page load

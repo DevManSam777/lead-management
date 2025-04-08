@@ -370,7 +370,15 @@ async function saveLead() {
   // Add last contacted date if present
   const lastContactedInput = document.getElementById("lastContactedAt");
   if (lastContactedInput && lastContactedInput.value) {
-    leadData.lastContactedAt = new Date(lastContactedInput.value);
+    // Create a date at noon to avoid timezone issues
+    const dateValue = lastContactedInput.value; // "YYYY-MM-DD" format
+    const [year, month, day] = dateValue.split('-').map(num => parseInt(num, 10));
+    
+    // Create a date object with specific year, month, day at noon local time
+    // Month is 0-indexed in JavaScript dates, so subtract 1
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    
+    leadData.lastContactedAt = date;
   }
 
   // Handle estimated budget (what customer expects to spend)
@@ -730,8 +738,11 @@ function updateLeadModalDates(lead) {
     
     // Format date as YYYY-MM-DD for input[type="date"]
     // This is the HTML5 input date format regardless of display format
-    const formattedDate = date.toISOString().split("T")[0];
-    document.getElementById("lastContactedAt").value = formattedDate;
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    document.getElementById("lastContactedAt").value = `${year}-${month}-${day}`;
     
     // Update the display element with the formatted date
     const displayElement = document.getElementById("lastContactedDisplay");
@@ -753,7 +764,14 @@ function updateLeadModalDates(lead) {
   if (lastContactedInput) {
     lastContactedInput.addEventListener("change", function() {
       if (this.value) {
-        const date = new Date(this.value);
+        // Create a date at noon to avoid timezone issues
+        const dateValue = this.value; // "YYYY-MM-DD" format
+        const [year, month, day] = dateValue.split('-').map(num => parseInt(num, 10));
+        
+        // Create a date object with specific year, month, day at noon local time
+        // Month is 0-indexed in JavaScript dates, so subtract 1
+        const date = new Date(year, month - 1, day, 12, 0, 0);
+        
         const displayElement = document.getElementById("lastContactedDisplay");
         if (displayElement) {
           displayElement.textContent = formatDate(date, dateFormat);
