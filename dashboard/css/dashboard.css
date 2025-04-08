@@ -351,7 +351,7 @@ details[open] .stats-cards {
 }
 
 /* Custom date input styling */
-.date-input-container {
+/* .date-input-container {
   position: relative;
   width: 100%;
 }
@@ -373,49 +373,49 @@ details[open] .stats-cards {
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-}
+} */
 
 /* Visual date display */
-.date-display {
+/* .date-display {
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(100% - 3.5rem); /* Leave space for calendar icon */
+  width: calc(100% - 3.5rem); 
   height: 100%;
   padding: 1rem;
   font-size: 1.4rem;
   color: var(--input-text);
   background-color: transparent;
-  pointer-events: none; /* Allow clicks to pass through to the input */
+  pointer-events: none; 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
+} */
 
 /* Hide the default date format shown when not focused */
-.date-input-container input[type="date"]:not(:focus)::-webkit-datetime-edit {
+/* .date-input-container input[type="date"]:not(:focus)::-webkit-datetime-edit {
   color: transparent;
   background-color: transparent;
-}
+} */
 
 /* Show the default date format when focused */
-.date-input-container input[type="date"]:focus::-webkit-datetime-edit {
+/* .date-input-container input[type="date"]:focus::-webkit-datetime-edit {
   color: var(--input-text);
-}
+} */
 
 /* For Firefox and other browsers that don't support ::-webkit-datetime-edit */
-.date-input-container input[type="date"]:not(:focus) {
+/* .date-input-container input[type="date"]:not(:focus) {
   color: transparent;
-}
+} */
 
-.date-input-container input[type="date"]:focus {
+/* .date-input-container input[type="date"]:focus {
   color: var(--input-text);
-}
+} */
 
 /* Hide the display when input is focused */
-.date-input-container input[type="date"]:focus + .date-display {
+/* .date-input-container input[type="date"]:focus + .date-display {
   display: none;
-}
+} */
 
 /* Forms list in the lead modal */
 .forms-list {
