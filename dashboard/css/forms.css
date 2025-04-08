@@ -142,11 +142,32 @@
   justify-content: flex-end;
   margin-top: 2rem;
 }
-
+/* In dashboard/css/forms.css, update the form-editor-container and section styles */
 .form-editor-container {
   display: flex;
-  gap: 2rem;
+  height: 600px; /* Fixed height */
+  max-height: 70vh; /* Maximum height relative to viewport height */
   overflow: hidden;
+  margin: 0 auto; /* Center the container horizontally */
+  max-width: 1200px; /* Optional: Limit the maximum width for very wide screens */
+  gap: 20px; /* Consistent gap between the sections */
+}
+
+.editor-section,
+.preview-section {
+  flex: 1 1 50%; /* Each section takes exactly 50% of the width */
+  overflow-y: auto;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  height: 100%; /* Full height of the container */
+  min-width: 0; /* Prevents flexbox issues with overflow */
+  box-sizing: border-box; /* Include padding and border in the element's width */
+}
+
+/* Ensure the form content in the editor section is properly aligned */
+.editor-section .CodeMirror {
+  height: 100% !important; /* Force the editor to take full height */
 }
 
 #formEditorModal .modal-content {
@@ -183,7 +204,7 @@
 
 #formPreviewModal .modal-content {
   width: 95%;
-  max-width: 1000px;
+  max-width: 1200px;
 }
 
 .preview-container {
@@ -346,6 +367,30 @@ div.editor-section{
   font-size: 1.3rem;
   color: var(--text-muted);
 }
+
+
+
+.form-editor-container {
+  flex-direction: column;
+}
+
+.editor-tabs {
+  display: flex;
+}
+
+.preview-section {
+  display: none;
+}
+
+.preview-section.active {
+  display: block;
+}
+
+.editor-section.inactive {
+  display: none;
+}
+
+
 
 /* Responsive adjustments */
 @media (max-width: 992px) {

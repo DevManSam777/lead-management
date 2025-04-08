@@ -801,6 +801,7 @@ select,
   height: 500px; 
   max-height: 70vh; 
   overflow: hidden;
+  max-width: 1200px;
 }
 
 .editor-section,
@@ -811,6 +812,9 @@ select,
   border: 1px solid var(--border-color);
   background-color: var(--background-color);
   margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
 }
 
 
@@ -819,3 +823,28 @@ select,
  padding-right: 1rem;
 }
 
+
+.form-editor-container {
+  flex-direction: column;
+}
+
+.editor-tabs {
+  display: flex;
+}
+
+.preview-section {
+  display: none;
+  padding: 2rem;
+}
+
+.preview-section.active {
+  display: block;
+}
+
+.editor-section.inactive {
+  display: none;
+}
+
+.content-label {
+  font-size: 1.6 rem;
+}

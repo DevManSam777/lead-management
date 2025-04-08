@@ -422,6 +422,7 @@ function openEditContentModal(form) {
     </div>
     <div class="form-editor-container">
       <div class="editor-section">
+        <label for="formContent" class="required content-label">Content</label>
         <textarea id="editFormContent">${form.content}</textarea>
         <div class="variables-container" style="display: ${form.isTemplate ? 'block' : 'none'};">
           <h4>Available Variables</h4>
