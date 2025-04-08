@@ -766,7 +766,7 @@ select,
 
 #formTemplateModal .modal-content {
   width: 90%;
-  max-width: 900px;
+  /* max-width: 900px; */
 }
 
 #formTemplateModal .search-box {
