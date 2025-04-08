@@ -834,8 +834,6 @@ function confirmDeleteForm(formId) {
  */
 async function deleteForm(formId) {
   try {
-    // Show loading
-    Utils.showToast("Deleting form...");
     
     // Delete form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
