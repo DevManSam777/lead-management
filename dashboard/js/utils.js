@@ -205,6 +205,7 @@ function formatCurrency(amount) {
  * @param {string} format - Format string (default: MM/DD/YYYY)
  * @returns {string} Formatted date string
  */
+
 function formatDate(date, format = "MM/DD/YYYY") {
   if (!date) return "";
 
@@ -217,10 +218,11 @@ function formatDate(date, format = "MM/DD/YYYY") {
     return "";
   }
   
-  // Use local time methods instead of UTC methods
-  const year = dateObj.getFullYear();
-  const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
-  const day = dateObj.getDate();
+  // Get UTC components to match the stored UTC date
+  // This is the key fix - we use UTC methods instead of local time methods
+  const year = dateObj.getUTCFullYear();
+  const month = dateObj.getUTCMonth() + 1; // getUTCMonth() returns 0-11
+  const day = dateObj.getUTCDate();
   
   // Create padded versions for single-digit values
   const paddedMonth = month.toString().padStart(2, "0");
@@ -289,11 +291,79 @@ function toISODateString(dateStr, format = "MM/DD/YYYY") {
   return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 }
 
+// /**
+//  * Format a datetime with both date and time
+//  * @param {Date|string} datetime - Datetime to format
+//  * @param {string} dateFormat - Date format (default: MM/DD/YYYY)
+//  * @returns {string} Formatted datetime string
+//  */
+// function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
+//   if (!datetime) return "";
+
+//   // Create a date object if string is provided
+//   const dateObj = typeof datetime === "string" ? new Date(datetime) : datetime;
+
+//   // Check if date is valid
+//   if (isNaN(dateObj.getTime())) {
+//     console.warn("Invalid datetime:", datetime);
+//     return "";
+//   }
+
+//   // Format the date
+//   const formattedDate = formatDate(dateObj, dateFormat);
+  
+//   // Format the time
+//   let hours = dateObj.getHours();
+//   const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+//   const ampm = hours >= 12 ? "PM" : "AM";
+  
+//   // Convert to 12-hour format
+//   hours = hours % 12;
+//   hours = hours ? hours : 12; // the hour '0' should be '12'
+  
+//   // Combine date and time
+//   return `${formattedDate} ${hours}:${minutes} ${ampm}`;
+// }
+
 /**
- * Format a datetime with both date and time
+ * Format a datetime with date and actual time
  * @param {Date|string} datetime - Datetime to format
  * @param {string} dateFormat - Date format (default: MM/DD/YYYY)
  * @returns {string} Formatted datetime string
+ */
+// function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
+//   if (!datetime) return "";
+
+//   // Create a date object if string is provided
+//   const dateObj = typeof datetime === "string" ? new Date(datetime) : datetime;
+
+//   // Check if date is valid
+//   if (isNaN(dateObj.getTime())) {
+//     console.warn("Invalid datetime:", datetime);
+//     return "";
+//   }
+
+//   // Format the date
+//   const formattedDate = formatDate(dateObj, dateFormat);
+  
+//   // Format the time - using local time methods
+//   let hours = dateObj.getHours();
+//   const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+//   const ampm = hours >= 12 ? "PM" : "AM";
+  
+//   // Convert to 12-hour format
+//   hours = hours % 12;
+//   hours = hours ? hours : 12; // the hour '0' should be '12'
+  
+//   // Combine date and time
+//   return `${formattedDate} ${hours}:${minutes} ${ampm}`;
+// }
+
+/**
+ * Format a datetime with only the date
+ * @param {Date|string} datetime - Datetime to format
+ * @param {string} dateFormat - Date format (default: MM/DD/YYYY)
+ * @returns {string} Formatted date string
  */
 function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
   if (!datetime) return "";
@@ -307,20 +377,8 @@ function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
     return "";
   }
 
-  // Format the date
-  const formattedDate = formatDate(dateObj, dateFormat);
-  
-  // Format the time - using local time methods
-  let hours = dateObj.getHours();
-  const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
-  
-  // Convert to 12-hour format
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  
-  // Combine date and time
-  return `${formattedDate} ${hours}:${minutes} ${ampm}`;
+  // Format the date using the existing formatDate function
+  return formatDate(dateObj, dateFormat);
 }
 
 /**
@@ -352,53 +410,18 @@ function updateDateInputDisplay(inputId, displayId, format = null) {
  * @param {string} inputId - ID of the date input element
  * @param {string} displayId - ID of the display element
  */
-// function setupDateInput(inputId, displayId) {
-//   const input = document.getElementById(inputId);
-  
-//   if (!input) return;
-  
-//   // Update display when input changes
-//   input.addEventListener('change', function() {
-//     updateDateInputDisplay(inputId, displayId);
-//   });
-  
-//   // Initial update
-//   updateDateInputDisplay(inputId, displayId);
-// }
-
 function setupDateInput(inputId, displayId) {
   const input = document.getElementById(inputId);
   
   if (!input) return;
   
+  // Update display when input changes
   input.addEventListener('change', function() {
-    if (this.value) {
-      // Create a date at noon to avoid timezone issues
-      const dateValue = this.value; // "YYYY-MM-DD" format
-      const [year, month, day] = dateValue.split('-').map(num => parseInt(num, 10));
-      
-      // Create a date object with specific year, month, day at noon local time
-      // Month is 0-indexed in JavaScript dates, so subtract 1
-      const date = new Date(year, month - 1, day, 12, 0, 0);
-      
-      // Format and display
-      const display = document.getElementById(displayId);
-      if (display) {
-        display.textContent = formatDate(date, window.dateFormat);
-      }
-    } else {
-      // Clear display if input is empty
-      const display = document.getElementById(displayId);
-      if (display) {
-        display.textContent = "";
-      }
-    }
+    updateDateInputDisplay(inputId, displayId);
   });
   
   // Initial update
-  if (input.value) {
-    input.dispatchEvent(new Event('change'));
-  }
+  updateDateInputDisplay(inputId, displayId);
 }
 
 /**
