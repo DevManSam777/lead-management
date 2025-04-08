@@ -151,7 +151,7 @@
 
 #formEditorModal .modal-content {
   width: 95%;
-  max-width: 1200px;
+  /* max-width: 1200px; */
 }
 
 #formPreviewModal .modal-actions {
@@ -169,7 +169,7 @@
 
 #generatedFormModal .modal-content {
   width: 95%; 
-  max-width: 1000px;
+  /* max-width: 1000px; */
 }
 
 #leadSelectionModal .search-box {
@@ -200,9 +200,9 @@ div.editor-section{
   gap: 1rem;
 }
 
-div.preview-section {
+/* div.preview-section {
   margin-top: 2.6rem;
-}
+} */
 
 .editor-section {
   flex: 1;
@@ -274,17 +274,17 @@ div.preview-section {
 /* Fix for CodeMirror scrolling issues */
 .CodeMirror {
   height: auto;
-  min-height: 350px;
-  max-height: 500px;
+  /* min-height: 350px;
+  max-height: 500px; */
   overflow-y: auto !important;
   overflow-x: auto !important;
 }
 
 .CodeMirror-scroll {
-  min-height: 350px;
+  /* min-height: 350px;
   max-height: 500px;
   overflow-y: auto !important;
-  overflow-x: auto !important;
+  overflow-x: auto !important; */
 }
 
 /* Fix modal overflow issues */
