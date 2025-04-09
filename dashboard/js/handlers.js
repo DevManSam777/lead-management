@@ -434,12 +434,16 @@ async function saveLead() {
   }
 }
 
-/**
- * Delete a lead
- * @param {string} leadId - ID of the lead to delete
- */
+
 async function deleteLeadAction(leadId) {
   try {
+    // Close the modal first to avoid UI issues
+    window.closeLeadModal();
+    
+    // Show a toast indicating deletion is in progress
+    showToast("Deleting lead...");
+    
+    // Delete the lead
     await deleteLead(leadId);
     
     // Signal that a lead was deleted - will be caught in dashboard.js
@@ -447,9 +451,10 @@ async function deleteLeadAction(leadId) {
       detail: { leadId } 
     }));
     
-    // Close the modal
-    window.closeLeadModal();
+    // Refresh the dashboard
+    await window.fetchLeadsAndRender();
     
+    // Show success toast
     showToast("Lead deleted successfully");
   } catch (error) {
     console.error("Error deleting lead:", error);

@@ -13,117 +13,128 @@ import {
   deletePayment,
 } from "./api.js";
 
-/**
- * Render all payments for a specific lead
- * @param {Array} leadPayments - Payments for the lead
- * @param {string} leadId - ID of the lead
- */
 function renderLeadPayments(leadPayments, leadId) {
   const paymentsContainer = document.querySelector(".payments-container");
+  
+  if (!paymentsContainer) {
+    console.error("Payments container not found");
+    return;
+  }
+
+  // Get the date format from window object or use default
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
-  if (!paymentsContainer) return;
-
-  // Clear container before rendering
+  // Clear the container first
   paymentsContainer.innerHTML = "";
 
-  if (!leadPayments || leadPayments.length === 0) {
-    paymentsContainer.innerHTML =
-      '<p class="payment-item">No payments found</p>';
+  // Make sure we have valid payments
+  if (!leadPayments || !Array.isArray(leadPayments) || leadPayments.length === 0) {
+    paymentsContainer.innerHTML = '<p class="payment-item">No payments found</p>';
     return;
   }
 
-  // Only render payments that match the current lead ID
-  const filteredPayments = leadPayments.filter(
-    (payment) => payment.leadId === leadId
-  );
+  // Make sure we are filtering for the current lead ID
+  const filteredPayments = leadPayments.filter(payment => {
+    // Ensure we're dealing with the correct lead ID
+    return payment && payment.leadId === leadId;
+  });
 
+  // If no payments for this lead
   if (filteredPayments.length === 0) {
-    paymentsContainer.innerHTML =
-      '<p class="payment-item">No payments found</p>';
+    paymentsContainer.innerHTML = '<p class="payment-item">No payments found</p>';
     return;
   }
 
-  // Check if we're in edit mode by looking for the submit button visibility
-  const submitButton = document.querySelector(
-    '#leadForm button[type="submit"]'
-  );
-  const isEditMode = submitButton && submitButton.style.display !== "none";
+  // Sort payments by date (newest first)
+  const sortedPayments = [...filteredPayments].sort((a, b) => {
+    const dateA = new Date(a.paymentDate);
+    const dateB = new Date(b.paymentDate);
+    return dateB - dateA;  // Newest first
+  });
 
-  filteredPayments.forEach((payment) => {
-    const paymentDate = payment.paymentDate
+  // Check if we're in edit mode
+  const submitButton = document.querySelector('#leadForm button[type="submit"]');
+  const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
+
+  // Render each payment
+  sortedPayments.forEach(payment => {
+    // Format the payment date
+    const paymentDate = payment.paymentDate 
       ? formatDate(new Date(payment.paymentDate), dateFormat)
       : "Not recorded";
 
+    // Create payment item element
     const paymentItem = document.createElement("div");
     paymentItem.className = "payment-item";
     paymentItem.dataset.leadId = payment.leadId;
     paymentItem.dataset.paymentId = payment._id;
 
-    // Create the payment details element
+    // Create payment details section
     const paymentDetails = document.createElement("div");
     paymentDetails.className = "payment-details";
 
+    // Add payment amount
     const amountDiv = document.createElement("div");
     amountDiv.className = "payment-amount";
     amountDiv.textContent = formatCurrency(payment.amount);
+    paymentDetails.appendChild(amountDiv);
 
+    // Add payment date
     const dateDiv = document.createElement("div");
     dateDiv.className = "payment-date";
     dateDiv.textContent = `Paid: ${paymentDate}`;
-
-    paymentDetails.appendChild(amountDiv);
     paymentDetails.appendChild(dateDiv);
 
+    // Add payment notes if available
     if (payment.notes) {
       const notesDiv = document.createElement("div");
       notesDiv.className = "payment-notes";
-
-      // Set content
       notesDiv.textContent = payment.notes;
-
       paymentDetails.appendChild(notesDiv);
     }
 
+    // Add details to the payment item
     paymentItem.appendChild(paymentDetails);
 
-    // Only add action buttons if we're in edit mode
+    // Add action buttons if in edit mode
     if (isEditMode) {
       const actionsDiv = document.createElement("div");
       actionsDiv.className = "payment-actions";
 
-      // Create edit button with direct click handler
+      // Edit button
       const editButton = document.createElement("button");
       editButton.innerHTML = '<i class="fas fa-edit"></i>';
-      editButton.onclick = function (e) {
-        if (e) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
+      editButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         openPaymentModal(leadId, payment._id);
-      };
+      });
+      actionsDiv.appendChild(editButton);
 
-      // Create delete button with direct click handler
+      // Delete button
       const deleteButton = document.createElement("button");
       deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-      deleteButton.onclick = function (e) {
-        if (e) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
+      deleteButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         if (confirm("Are you sure you want to delete this payment?")) {
           deletePaymentAction(payment._id, leadId);
         }
-      };
-
-      actionsDiv.appendChild(editButton);
+      });
       actionsDiv.appendChild(deleteButton);
+
+      // Add actions to payment item
       paymentItem.appendChild(actionsDiv);
     }
 
+    // Add the payment item to the container
     paymentsContainer.appendChild(paymentItem);
   });
+
+  // Log the rendered payments
+  console.log(`Rendered ${filteredPayments.length} payments for lead ID: ${leadId}`);
 }
+
 /**
  * Open the payment modal for adding or editing a payment
  * @param {string} leadId - ID of the lead
@@ -308,10 +319,6 @@ function closePaymentModal() {
   }
 }
 
-/**
- * Validate and save a payment
- * @param {Event} event - Form submission event
- */
 async function validateAndSavePayment(event) {
   event.preventDefault();
 
@@ -321,6 +328,12 @@ async function validateAndSavePayment(event) {
   const amountStr = document.getElementById("paymentAmount").value;
   const paymentDate = document.getElementById("paymentDate").value;
   const notes = document.getElementById("paymentNotes").value;
+
+  // Validate data
+  if (!leadId) {
+    showToast("Error: Missing lead ID");
+    return;
+  }
 
   // Extract numeric value from formatted amount
   const amount = parseFloat(amountStr.replace(/[^\d.-]/g, ""));
@@ -335,79 +348,67 @@ async function validateAndSavePayment(event) {
     return;
   }
 
-  // Create a date at noon local time, then adjust for timezone
-  const dateObj = new Date(paymentDate + "T12:00:00");
-  console.log("Original payment date input:", paymentDate);
-  console.log("Date object created:", dateObj.toISOString());
+  // Create a date object at noon to avoid timezone issues
+  const dateObj = new Date(paymentDate);
+  dateObj.setHours(12, 0, 0, 0);
 
-  // Timezone offset to ensure the date doesn't shift
-  const timezoneOffset = dateObj.getTimezoneOffset() * 60000; // Convert to milliseconds
-  const adjustedDate = new Date(dateObj.getTime() + timezoneOffset);
-  console.log(
-    "Adjusted date with timezone offset:",
-    adjustedDate.toISOString()
-  );
-
-  // Prepare payment data with adjusted date
+  // Prepare payment data
   const paymentData = {
     leadId,
     amount,
-    paymentDate: adjustedDate,
+    paymentDate: dateObj,
     notes,
   };
 
-  // If editing existing payment, add the ID
-  if (paymentId) {
-    paymentData._id = paymentId;
-  }
-
   try {
     let result;
+    
     if (paymentId) {
       // Update existing payment
       result = await updatePayment(paymentId, paymentData);
+      console.log("Updated payment:", result);
     } else {
       // Create new payment
       result = await createPayment(paymentData);
-    }
-
-    // Get the current lead ID
-    const leadId = document.getElementById("leadId").value;
-
-    if (leadId) {
-      // Get updated payments specifically for this lead
-      const leadPayments = await fetchLeadPayments(leadId);
-
-      // Calculate the total paid
-      const totalPaid = leadPayments.reduce(
-        (sum, payment) => sum + payment.amount,
-        0
-      );
-
-      // Update paid amount field
-      const paidAmountField = document.getElementById("paidAmount");
-      if (paidAmountField) {
-        paidAmountField.value = formatCurrency(totalPaid);
-      }
-
-      // Update remaining balance field
-      const remainingBalanceField = document.getElementById("remainingBalance");
-      if (remainingBalanceField) {
-        // Get the billed amount (total budget) from the form
-        const totalBudgetStr = document.getElementById("totalBudget").value;
-        const totalBudget =
-          parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
-        const remainingBalance = totalBudget - totalPaid;
-
-        remainingBalanceField.value = formatCurrency(remainingBalance);
-      }
-
-      // Render payment list
-      renderLeadPayments(leadPayments, leadId);
+      console.log("Created payment:", result);
     }
 
     // Close the payment modal
     closePaymentModal();
+
+    // Get updated payments list
+    const updatedPayments = await fetchLeadPayments(leadId);
+    console.log("Updated payments:", updatedPayments);
+
+    // Calculate the total paid
+    const totalPaid = updatedPayments.reduce((sum, payment) => {
+      return sum + (parseFloat(payment.amount) || 0);
+    }, 0);
+
+    // Update paid amount field
+    const paidAmountField = document.getElementById("paidAmount");
+    if (paidAmountField) {
+      paidAmountField.value = formatCurrency(totalPaid);
+    }
+
+    // Update remaining balance field
+    const remainingBalanceField = document.getElementById("remainingBalance");
+    if (remainingBalanceField) {
+      // Get the billed amount (total budget) from the form
+      const totalBudgetStr = document.getElementById("totalBudget").value;
+      const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
+      const remainingBalance = totalBudget - totalPaid;
+      remainingBalanceField.value = formatCurrency(remainingBalance);
+      
+      console.log("Updated payment amounts:", {
+        totalBudget,
+        totalPaid,
+        remainingBalance
+      });
+    }
+
+    // Render updated payment list
+    renderLeadPayments(updatedPayments, leadId);
 
     // Show success message
     showToast(
@@ -422,55 +423,50 @@ async function validateAndSavePayment(event) {
   }
 }
 
-/**
- * Delete a payment
- * @param {string} paymentId - ID of the payment to delete
- * @param {string} leadId - ID of the lead the payment belongs to
- */
+
 async function deletePaymentAction(paymentId, leadId) {
   try {
-    // Store the lead modal state before any operations
-    const leadModalDisplayStyle =
-      document.getElementById("leadModal").style.display;
-
     if (!paymentId || !leadId) {
       throw new Error("Missing payment ID or lead ID");
     }
 
+    // Store the lead modal state before any operations
+    const leadModalDisplayStyle = document.getElementById("leadModal").style.display;
+
     // Delete the payment
-    await deletePayment(paymentId);
-
-    if (leadId) {
-      // Get updated payments for this specific lead
-      const leadPayments = await fetchLeadPayments(leadId);
-
-      // Calculate the total paid
-      const totalPaid = leadPayments.reduce(
-        (sum, payment) => sum + payment.amount,
-        0
-      );
-
-      // Update paid amount field
-      const paidAmountField = document.getElementById("paidAmount");
-      if (paidAmountField) {
-        paidAmountField.value = formatCurrency(totalPaid);
-      }
-
-      // Update remaining balance field
-      const remainingBalanceField = document.getElementById("remainingBalance");
-      if (remainingBalanceField) {
-        // Get the total budget from the form
-        const totalBudgetStr = document.getElementById("totalBudget").value;
-        const totalBudget =
-          parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
-        const remainingBalance = totalBudget - totalPaid;
-
-        remainingBalanceField.value = formatCurrency(remainingBalance);
-      }
-
-      // Render payment list with current date format
-      renderLeadPayments(leadPayments, leadId);
+    const response = await deletePayment(paymentId);
+    if (!response) {
+      throw new Error("Failed to delete payment");
     }
+
+    // Get updated payments for this specific lead
+    const leadPayments = await fetchLeadPayments(leadId);
+    console.log("Updated payments after deletion:", leadPayments);
+
+    // Calculate the total paid
+    const totalPaid = leadPayments.reduce((sum, payment) => {
+      const amount = parseFloat(payment.amount) || 0;
+      return sum + amount;
+    }, 0);
+
+    // Update paid amount field
+    const paidAmountField = document.getElementById("paidAmount");
+    if (paidAmountField) {
+      paidAmountField.value = formatCurrency(totalPaid);
+    }
+
+    // Update remaining balance field
+    const remainingBalanceField = document.getElementById("remainingBalance");
+    if (remainingBalanceField) {
+      // Get the total budget from the form
+      const totalBudgetStr = document.getElementById("totalBudget").value;
+      const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
+      const remainingBalance = totalBudget - totalPaid;
+      remainingBalanceField.value = formatCurrency(remainingBalance);
+    }
+
+    // Force re-render payment list with current date format
+    renderLeadPayments(leadPayments, leadId);
 
     // Ensure lead modal stays in its original state
     document.getElementById("leadModal").style.display = leadModalDisplayStyle;
@@ -478,6 +474,7 @@ async function deletePaymentAction(paymentId, leadId) {
     // Signal that payments have been updated
     window.dispatchEvent(new CustomEvent("paymentsUpdated"));
 
+    // Show success message
     showToast("Payment deleted successfully");
   } catch (error) {
     console.error("Error deleting payment:", error);

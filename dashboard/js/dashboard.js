@@ -405,11 +405,21 @@ if (totalBudgetInput) {
     UI.calculateStats(allLeads, payments);
   });
 
+  
   window.addEventListener("paymentsUpdated", async function () {
     // Refresh all payments data
     try {
+      console.log("Payment update detected, refreshing data...");
       payments = await API.fetchPayments();
+      
+      // Force recalculation of stats
       UI.calculateStats(allLeads, payments);
+      
+      // Refresh lead list display
+      const filteredLeads = getFilteredLeads();
+      renderPaginatedLeads(filteredLeads);
+      
+      console.log("Dashboard data refreshed after payment update");
     } catch (error) {
       console.error("Error updating payments:", error);
     }
@@ -441,6 +451,25 @@ if (totalBudgetInput) {
           Handlers.updateLeadModalDates(lead);
         }
       }
+    }
+  });
+
+  window.addEventListener("paymentsUpdated", async function () {
+    // Refresh all payments data
+    try {
+      console.log("Payment update detected, refreshing data...");
+      payments = await API.fetchPayments();
+      
+      // Force recalculation of stats
+      UI.calculateStats(allLeads, payments);
+      
+      // Refresh lead list display
+      const filteredLeads = getFilteredLeads();
+      renderPaginatedLeads(filteredLeads);
+      
+      console.log("Dashboard data refreshed after payment update");
+    } catch (error) {
+      console.error("Error updating payments:", error);
     }
   });
 
