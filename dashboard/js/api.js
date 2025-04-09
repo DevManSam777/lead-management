@@ -606,7 +606,7 @@ async function generateFormForLead(templateId, leadId) {
   }
 }
 
-// Export all API functions
+
 export {
   getBaseUrl,
   fetchLeads,

@@ -1,12 +1,3 @@
-// Pagination functionality for dashboard
-
-/**
- * Initialize pagination based on total items
- * @param {Array} items - Array of items to paginate
- * @param {number} currentPage - Current page number
- * @param {number} pageSize - Number of items per page
- * @returns {Object} Pagination info
- */
 function initPagination(items, currentPage, pageSize) {
     const totalItems = items ? items.length : 0;
     const totalPages = pageSize === -1 ? 1 : Math.ceil(totalItems / pageSize);
@@ -23,13 +14,7 @@ function initPagination(items, currentPage, pageSize) {
     };
   }
   
-  /**
-   * Get items for the current page
-   * @param {Array} items - All items (filtered if applicable)
-   * @param {number} currentPage - Current page number
-   * @param {number} pageSize - Number of items per page
-   * @returns {Array} - Items for the current page
-   */
+ 
   function getPaginatedItems(items, currentPage, pageSize) {
     if (!items || items.length === 0) {
       return [];
@@ -46,22 +31,8 @@ function initPagination(items, currentPage, pageSize) {
     return items.slice(startIndex, endIndex);
   }
   
-  /**
-   * Render pagination UI
-   * @param {Object} params - Pagination parameters
-   * @param {number} params.totalItems - Total number of items
-   * @param {number} params.totalPages - Total number of pages
-   * @param {number} params.currentPage - Current page number
-   * @param {number} params.pageSize - Number of items per page
-   * @param {Function} params.onPageChange - Callback when page changes
-   * @param {Function} params.onPageSizeChange - Callback when page size changes
-   * @param {string} params.containerId - ID of container to append pagination to
-   */
 
-/**
- * Render pagination UI with scroll position maintenance
- * @param {Object} params - Pagination parameters
- */
+
 function renderPagination({ 
   totalItems, 
   totalPages, 

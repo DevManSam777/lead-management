@@ -1,6 +1,3 @@
-/**
- * Resources page JavaScript functionality
- */
 document.addEventListener("DOMContentLoaded", function () {
     // Setup sidebar toggle
     setupSidebarToggle();
@@ -18,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
   
-    // First, hide the sidebar to prevent flicker
+    // hide the sidebar to prevent flicker
     // Store original transition for later restoration
     const originalSidebarTransition = sidebar.style.transition;
     const originalMainContentTransition = mainContent.style.transition;

@@ -1,5 +1,3 @@
-// Payment functionality
-
 import {
   formatCurrency,
   formatDate,
@@ -58,10 +56,40 @@ function renderLeadPayments(leadPayments, leadId) {
 
   // Render each payment
   sortedPayments.forEach(payment => {
-    // Format the payment date
-    const paymentDate = payment.paymentDate 
-      ? formatDate(new Date(payment.paymentDate), dateFormat)
-      : "Not recorded";
+    // Format the payment date - FIX HERE
+    let formattedDate = "Not recorded";
+    
+    // if (payment.paymentDate) {
+    //   // Create a new date that preserves the correct day by forcing a fixed time
+    //   // Extract just the date parts to prevent timezone shifts
+    //   const paymentDate = new Date(payment.paymentDate);
+    //   const year = paymentDate.getFullYear();
+    //   const month = paymentDate.getMonth();
+    //   const day = paymentDate.getDate() + 1;
+      
+    //   // Recreate the date with local noon time to avoid timezone shifts
+    //   const adjustedDate = new Date(year, month, day, 12, 0, 0, 0);
+      
+    //   // Now format it using our utility
+    //   formattedDate = formatDate(adjustedDate, dateFormat);
+      
+    //   // Debug logging to identify issues
+    //   console.log(`Payment date: Original=${payment.paymentDate}, Adjusted=${adjustedDate.toISOString()}, Formatted=${formattedDate}`);
+    // }
+
+    if (payment.paymentDate) {
+      // Convert the date string to a local date object without timezone conversion
+      const dateStr = new Date(payment.paymentDate).toISOString().split('T')[0];
+      const [year, month, day] = dateStr.split('-');
+      
+      // Create a new date object with the local date parts and fixed time  12(noon) // try 24
+      const localDate = new Date(Number(year), Number(month) - 1, Number(day), 24, 0, 0);
+      
+      formattedDate = formatDate(localDate, dateFormat);
+      
+      console.log(`Original: ${payment.paymentDate}, Parsed: ${localDate.toLocaleDateString()}`);
+    }
+    
 
     // Create payment item element
     const paymentItem = document.createElement("div");
@@ -82,7 +110,7 @@ function renderLeadPayments(leadPayments, leadId) {
     // Add payment date
     const dateDiv = document.createElement("div");
     dateDiv.className = "payment-date";
-    dateDiv.textContent = `Paid: ${paymentDate}`;
+    dateDiv.textContent = `Paid: ${formattedDate}`;
     paymentDetails.appendChild(dateDiv);
 
     // Add payment notes if available
@@ -136,7 +164,7 @@ function renderLeadPayments(leadPayments, leadId) {
 }
 
 /**
- * Open the payment modal for adding or editing a payment
+ * Open the payment modal for adding or editing a payment - with fixed date handling
  * @param {string} leadId - ID of the lead
  * @param {string} paymentId - ID of the payment (optional, for editing)
  */
@@ -184,14 +212,18 @@ function openPaymentModal(leadId, paymentId = null) {
         document.getElementById("paymentId").value = payment._id;
         document.getElementById("paymentAmount").value = payment.amount;
 
-        // Format date for the date input
+        // Format date for the date input - ensuring we get the correct local date
         if (payment.paymentDate) {
-          // Create a date object in the local timezone
+          // Create a date object (payments are stored with time at noon)
           const dateObj = new Date(payment.paymentDate);
-
+          
           // Format as YYYY-MM-DD for input[type="date"]
-          const formattedDate = dateObj.toISOString().split("T")[0];
-          document.getElementById("paymentDate").value = formattedDate;
+          const year = dateObj.getFullYear();
+          const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+          const day = dateObj.getDate().toString().padStart(2, '0');
+          
+          const formattedDateForInput = `${year}-${month}-${day}`;
+          document.getElementById("paymentDate").value = formattedDateForInput;
 
           // Update the display element with formatted date
           if (dateDisplay) {
@@ -218,13 +250,17 @@ function openPaymentModal(leadId, paymentId = null) {
         showToast("Error: " + error.message);
       });
   } else {
-    // New payment
-    // Set today's date correctly with timezone adjustment
+    // New payment - set today's date with proper timezone handling
     const today = new Date();
-    today.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
-    const localDate = today.toISOString().split("T")[0];
-
-    document.getElementById("paymentDate").value = localDate;
+    
+    // Format for input as YYYY-MM-DD
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    
+    // Create ISO date string for the input
+    const todayFormatted = `${year}-${month}-${day}`;
+    document.getElementById("paymentDate").value = todayFormatted;
 
     // Update the display element with today's date in the selected format
     if (dateDisplay) {
@@ -249,7 +285,15 @@ function openPaymentModal(leadId, paymentId = null) {
   if (paymentDateInput) {
     paymentDateInput.addEventListener("change", function () {
       if (this.value) {
-        const date = new Date(this.value);
+        // Create a date from the input value
+        const dateParts = this.value.split('-');
+        const year = parseInt(dateParts[0]);
+        const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JS
+        const day = parseInt(dateParts[2]);
+        
+        // Create a date object with time at noon to prevent timezone issues
+        const date = new Date(year, month, day, 12, 0, 0, 0);
+        
         if (dateDisplay) {
           dateDisplay.textContent = formatDate(date, dateFormat);
         }

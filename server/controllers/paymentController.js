@@ -1,4 +1,3 @@
-// server/controllers/paymentController.js
 const Payment = require('../models/Payment');
 const Lead = require('../models/Lead');
 
@@ -37,16 +36,23 @@ exports.getPaymentsByLead = async (req, res) => {
 // Create a new payment
 exports.createPayment = async (req, res) => {
   try {
-    // Make sure we have a payment date that's at noon to avoid timezone issues
+    // Make sure we have a payment date that's normalized to avoid timezone issues
     let paymentData = req.body;
     
-    // Convert paymentDate string to a Date object if it's not already
+    // Convert paymentDate string to a Date object if it's not already 
     if (typeof paymentData.paymentDate === 'string') {
-      const dateObj = new Date(paymentData.paymentDate);
-      dateObj.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
+      // Parse the date parts to ensure date is created correctly without timezone shifts
+      const dateParts = paymentData.paymentDate.split('T')[0].split('-');
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JS Date
+      const day = parseInt(dateParts[2]);
+      
+      // Create date with UTC to avoid any timezone issues
+      const dateObj = new Date(Date.UTC(year, month, day, 12, 0, 0, 0));
       paymentData.paymentDate = dateObj;
     }
     
+    // Create new payment
     const payment = new Payment(paymentData);
     const createdPayment = await payment.save();
     
@@ -69,13 +75,19 @@ exports.updatePayment = async (req, res) => {
       return res.status(404).json({ message: 'Payment not found' });
     }
     
-    // Make sure we have a payment date that's at noon to avoid timezone issues
+    // Make sure we have a payment date that's normalized to avoid timezone issues
     let paymentData = req.body;
     
     // Convert paymentDate string to a Date object if it's not already
     if (typeof paymentData.paymentDate === 'string') {
-      const dateObj = new Date(paymentData.paymentDate);
-      dateObj.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
+      // Parse the date parts to ensure date is created correctly without timezone shifts
+      const dateParts = paymentData.paymentDate.split('T')[0].split('-');
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JS Date
+      const day = parseInt(dateParts[2]);
+      
+      // Create date with UTC to avoid any timezone issues
+      const dateObj = new Date(Date.UTC(year, month, day, 12, 0, 0, 0));
       paymentData.paymentDate = dateObj;
     }
     

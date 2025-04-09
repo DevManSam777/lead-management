@@ -1,10 +1,3 @@
-// utils.js - Utility and helper functions
-
-/**
- * Format an imported phone number to a consistent format
- * @param {string} phoneNumber - Phone number to format
- * @returns {string} Formatted phone number
- */
 function formatPhoneNumber(phoneNumber) {
   if (!phoneNumber) return "";
 
@@ -24,10 +17,7 @@ function formatPhoneNumber(phoneNumber) {
   return phoneNumber;
 }
 
-/**
- * Format a phone number as the user types
- * @param {HTMLInputElement} input - The phone input element
- */
+
 function formatPhoneInput(input) {
   // Skip if the input doesn't exist
   if (!input) return;
@@ -72,9 +62,7 @@ function formatPhoneInput(input) {
   }
 }
 
-/**
- * Initialize phone formatting for all phone input fields 
- */
+
 function initializePhoneFormatting() {
   // Get all phone input fields
   const phoneInputs = document.querySelectorAll('input[type="tel"]');
@@ -87,10 +75,7 @@ function initializePhoneFormatting() {
   });
 }
 
-/**
- * Restrict input to digits and decimal point only
- * @param {HTMLInputElement} input - The monetary input element
- */
+
 function restrictToDigits(input) {
   // Skip if the input doesn't exist
   if (!input) return;
@@ -103,7 +88,7 @@ function restrictToDigits(input) {
   const originalLength = value.length;
   
   // Only allow digits and at most one decimal point
-  // First, check if there's already a decimal point
+  // check if there's already a decimal point
   const decimalIndex = value.indexOf('.');
   
   if (decimalIndex !== -1) {
@@ -136,9 +121,7 @@ function restrictToDigits(input) {
   }
 }
 
-/**
- * Initialize monetary input fields with digit-only restrictions
- */
+
 function initializeMonetaryInputs() {
   // Get all monetary input fields
   const monetaryInputs = [
@@ -178,11 +161,7 @@ function initializeMonetaryInputs() {
   });
 }
 
-/**
- * Format currency with proper symbols
- * @param {number} amount - Amount to format
- * @returns {string} Formatted currency string
- */
+
 function formatCurrency(amount) {
   try {
     // Always use USD
@@ -199,52 +178,19 @@ function formatCurrency(amount) {
   }
 }
 
-/**
- * Format a date according to the specified format
- * @param {Date|string} date - Date to format
- * @param {string} format - Format string (default: MM/DD/YYYY)
- * @returns {string} Formatted date string
- */
 
-// function formatDate(date, format = "MM/DD/YYYY") {
-//   if (!date) return "";
-
-//   // Create a date object
-//   const dateObj = typeof date === "string" ? new Date(date) : date;
-
-//   // Check if date is valid
-//   if (isNaN(dateObj.getTime())) {
-//     console.warn("Invalid date:", date);
-//     return "";
-//   }
-  
-//   // Get UTC components to match the stored UTC date
-//   // This is the key fix - we use UTC methods instead of local time methods
-//   const year = dateObj.getUTCFullYear();
-//   const month = dateObj.getUTCMonth() + 1; // getUTCMonth() returns 0-11
-//   const day = dateObj.getUTCDate();
-  
-//   // Create padded versions for single-digit values
-//   const paddedMonth = month.toString().padStart(2, "0");
-//   const paddedDay = day.toString().padStart(2, "0");
-
-//   // Replace format tokens with actual values
-//   let formattedDate = format;
-//   formattedDate = formattedDate.replace(/YYYY/g, year);
-//   formattedDate = formattedDate.replace(/YY/g, String(year).slice(-2));
-//   formattedDate = formattedDate.replace(/MM/g, paddedMonth);
-//   formattedDate = formattedDate.replace(/M/g, month);
-//   formattedDate = formattedDate.replace(/DD/g, paddedDay);
-//   formattedDate = formattedDate.replace(/D/g, day);
-
-//   return formattedDate;
-// }
 
 function formatDate(date, format = "MM/DD/YYYY") {
   if (!date) return "";
 
-  // Create a date object
-  const dateObj = typeof date === "string" ? new Date(date) : date;
+  // Create a date object - ensure we're working with a Date object
+  let dateObj;
+  if (typeof date === "string") {
+    // Handle both date-only strings and full ISO strings
+    dateObj = new Date(date);
+  } else {
+    dateObj = date;
+  }
 
   // Check if date is valid
   if (isNaN(dateObj.getTime())) {
@@ -252,7 +198,7 @@ function formatDate(date, format = "MM/DD/YYYY") {
     return "";
   }
   
-  // Use local methods instead of UTC to get consistent local date
+  // Use local methods to get date components
   const year = dateObj.getFullYear();
   const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
   const day = dateObj.getDate();
@@ -273,12 +219,7 @@ function formatDate(date, format = "MM/DD/YYYY") {
   return formattedDate;
 }
 
-/**
- * Convert a formatted date string back to ISO format for inputs
- * @param {string} dateStr - Formatted date string 
- * @param {string} format - Format of the date string (default: MM/DD/YYYY)
- * @returns {string} ISO formatted date (YYYY-MM-DD)
- */
+
 function toISODateString(dateStr, format = "MM/DD/YYYY") {
   if (!dateStr) return "";
   
@@ -324,85 +265,29 @@ function toISODateString(dateStr, format = "MM/DD/YYYY") {
   return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 }
 
-// /**
-//  * Format a datetime with both date and time
-//  * @param {Date|string} datetime - Datetime to format
-//  * @param {string} dateFormat - Date format (default: MM/DD/YYYY)
-//  * @returns {string} Formatted datetime string
-//  */
-// function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
-//   if (!datetime) return "";
 
-//   // Create a date object if string is provided
-//   const dateObj = typeof datetime === "string" ? new Date(datetime) : datetime;
-
-//   // Check if date is valid
-//   if (isNaN(dateObj.getTime())) {
-//     console.warn("Invalid datetime:", datetime);
-//     return "";
-//   }
-
-//   // Format the date
-//   const formattedDate = formatDate(dateObj, dateFormat);
-  
-//   // Format the time
-//   let hours = dateObj.getHours();
-//   const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-//   const ampm = hours >= 12 ? "PM" : "AM";
-  
-//   // Convert to 12-hour format
-//   hours = hours % 12;
-//   hours = hours ? hours : 12; // the hour '0' should be '12'
-  
-//   // Combine date and time
-//   return `${formattedDate} ${hours}:${minutes} ${ampm}`;
-// }
-
-/**
- * Format a datetime with date and actual time
- * @param {Date|string} datetime - Datetime to format
- * @param {string} dateFormat - Date format (default: MM/DD/YYYY)
- * @returns {string} Formatted datetime string
- */
-// function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
-//   if (!datetime) return "";
-
-//   // Create a date object if string is provided
-//   const dateObj = typeof datetime === "string" ? new Date(datetime) : datetime;
-
-//   // Check if date is valid
-//   if (isNaN(dateObj.getTime())) {
-//     console.warn("Invalid datetime:", datetime);
-//     return "";
-//   }
-
-//   // Format the date
-//   const formattedDate = formatDate(dateObj, dateFormat);
-  
-//   // Format the time - using local time methods
-//   let hours = dateObj.getHours();
-//   const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-//   const ampm = hours >= 12 ? "PM" : "AM";
-  
-//   // Convert to 12-hour format
-//   hours = hours % 12;
-//   hours = hours ? hours : 12; // the hour '0' should be '12'
-  
-//   // Combine date and time
-//   return `${formattedDate} ${hours}:${minutes} ${ampm}`;
-// }
-
-/**
- * Format a datetime with only the date
- * @param {Date|string} datetime - Datetime to format
- * @param {string} dateFormat - Date format (default: MM/DD/YYYY)
- * @returns {string} Formatted date string
- */
 function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
   if (!datetime) return "";
 
   // Create a date object if string is provided
-  const dateObj = typeof datetime === "string" ? new Date(datetime) : datetime;
+  let dateObj;
+  if (typeof datetime === "string") {
+    // For date strings, create a new date and set hours to noon to avoid timezone issues
+    const dateParts = datetime.split('T')[0].split('-');
+    if (dateParts.length === 3) {
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JS Date
+      const day = parseInt(dateParts[2]);
+      
+      // Create date object with consistent time (noon)
+      dateObj = new Date(year, month, day, 12, 0, 0, 0);
+    } else {
+      // Fallback if date format is unexpected
+      dateObj = new Date(datetime);
+    }
+  } else {
+    dateObj = datetime;
+  }
 
   // Check if date is valid
   if (isNaN(dateObj.getTime())) {
@@ -414,12 +299,7 @@ function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
   return formatDate(dateObj, dateFormat);
 }
 
-/**
- * Update a date input display to show the formatted date
- * @param {string} inputId - ID of the date input element
- * @param {string} displayId - ID of the display element
- * @param {string} format - Date format to use (default: from window.dateFormat)
- */
+
 function updateDateInputDisplay(inputId, displayId, format = null) {
   const input = document.getElementById(inputId);
   const display = document.getElementById(displayId);
@@ -438,11 +318,7 @@ function updateDateInputDisplay(inputId, displayId, format = null) {
   }
 }
 
-/**
- * Set up event listeners for a date input and its display
- * @param {string} inputId - ID of the date input element
- * @param {string} displayId - ID of the display element
- */
+
 function setupDateInput(inputId, displayId) {
   const input = document.getElementById(inputId);
   
@@ -457,9 +333,7 @@ function setupDateInput(inputId, displayId) {
   updateDateInputDisplay(inputId, displayId);
 }
 
-/**
- * Initialize all date inputs in the application
- */
+
 function initializeDateInputs() {
   // Setup date inputs with their display elements
   setupDateInput('lastContactedAt', 'lastContactedDisplay');
@@ -477,11 +351,6 @@ function initializeDateInputs() {
   });
 }
 
-/**
- * Show a toast notification
- * @param {string} message - The message to display
- * @param {string} type - Notification type ('default' or 'deletion')
- */
 function showToast(message, type = "default") {
   const toast = document.getElementById("toast");
   const toastMessage = document.getElementById("toastMessage");
@@ -509,11 +378,7 @@ function showToast(message, type = "default") {
   }, 3000);
 }
 
-/**
- * Helper function to safely set text content of an element
- * @param {string} elementId - ID of the element
- * @param {string} text - Text to set
- */
+
 function safeSetTextContent(elementId, text) {
   const element = document.getElementById(elementId);
   if (element) {
@@ -523,12 +388,7 @@ function safeSetTextContent(elementId, text) {
   }
 }
 
-/**
- * Helper function to safely update change indicator
- * @param {string} elementId - ID of the element
- * @param {number} value - Value to display
- * @param {string} period - Period text (e.g., 'month')
- */
+
 function safeUpdateChangeIndicator(elementId, value, period) {
   const element = document.getElementById(elementId);
   if (!element) {
@@ -584,21 +444,13 @@ function safeUpdateChangeIndicator(elementId, value, period) {
   }
 }
 
-/**
- * Capitalize the first letter of a string
- * @param {string} string - String to capitalize
- * @returns {string} Capitalized string
- */
+
 function capitalizeFirstLetter(string) {
   if (!string) return "";
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-/**
- * Get the full name of a lead
- * @param {Object} lead - Lead object
- * @returns {string} Full name
- */
+
 function getLeadName(lead) {
   if (lead.firstName && lead.lastName) {
     return `${lead.firstName} ${lead.lastName}`;
@@ -609,13 +461,7 @@ function getLeadName(lead) {
   }
 }
 
-/**
- * Show input error
- * @param {HTMLElement} input - The input element
- * @param {HTMLElement} errorElement - The error element
- * @param {string} message - Error message
- * @returns {boolean} Always returns false
- */
+
 function showInputError(input, errorElement, message) {
   input.classList.add("invalid");
 
@@ -630,12 +476,7 @@ function showInputError(input, errorElement, message) {
   return false;
 }
 
-/**
- * Clear input error
- * @param {HTMLElement} input - The input element
- * @param {HTMLElement} errorElement - The error element
- * @returns {boolean} Always returns true
- */
+
 function clearInputError(input, errorElement) {
   input.classList.remove("invalid");
 
@@ -646,11 +487,7 @@ function clearInputError(input, errorElement) {
   return true;
 }
 
-/**
- * Get or create error element for an input
- * @param {HTMLElement} input - The input element
- * @returns {HTMLElement} The error element
- */
+
 function getErrorElement(input) {
   let errorElement = input.parentNode.querySelector(".error-message");
 
@@ -663,9 +500,7 @@ function getErrorElement(input) {
   return errorElement;
 }
 
-/**
- * Initialize auto-resizing textareas
- */
+
 function initializeAutoResizeTextareas() {
   // Get all textareas
   const textareas = document.querySelectorAll('textarea');
@@ -682,10 +517,7 @@ function initializeAutoResizeTextareas() {
   });
 }
 
-/**
- * Adjust the height of a textarea to fit its content
- * @param {HTMLElement} textarea - The textarea element to adjust
- */
+
 function adjustTextareaHeight(textarea) {
   // Reset height to auto to get the correct scrollHeight
   textarea.style.height = 'auto';
@@ -694,7 +526,7 @@ function adjustTextareaHeight(textarea) {
   textarea.style.height = (textarea.scrollHeight) + 'px';
 }
 
-// Export the utility functions
+
 export {
   formatPhoneNumber,
   formatCurrency,
