@@ -206,6 +206,40 @@ function formatCurrency(amount) {
  * @returns {string} Formatted date string
  */
 
+// function formatDate(date, format = "MM/DD/YYYY") {
+//   if (!date) return "";
+
+//   // Create a date object
+//   const dateObj = typeof date === "string" ? new Date(date) : date;
+
+//   // Check if date is valid
+//   if (isNaN(dateObj.getTime())) {
+//     console.warn("Invalid date:", date);
+//     return "";
+//   }
+  
+//   // Get UTC components to match the stored UTC date
+//   // This is the key fix - we use UTC methods instead of local time methods
+//   const year = dateObj.getUTCFullYear();
+//   const month = dateObj.getUTCMonth() + 1; // getUTCMonth() returns 0-11
+//   const day = dateObj.getUTCDate();
+  
+//   // Create padded versions for single-digit values
+//   const paddedMonth = month.toString().padStart(2, "0");
+//   const paddedDay = day.toString().padStart(2, "0");
+
+//   // Replace format tokens with actual values
+//   let formattedDate = format;
+//   formattedDate = formattedDate.replace(/YYYY/g, year);
+//   formattedDate = formattedDate.replace(/YY/g, String(year).slice(-2));
+//   formattedDate = formattedDate.replace(/MM/g, paddedMonth);
+//   formattedDate = formattedDate.replace(/M/g, month);
+//   formattedDate = formattedDate.replace(/DD/g, paddedDay);
+//   formattedDate = formattedDate.replace(/D/g, day);
+
+//   return formattedDate;
+// }
+
 function formatDate(date, format = "MM/DD/YYYY") {
   if (!date) return "";
 
@@ -218,11 +252,10 @@ function formatDate(date, format = "MM/DD/YYYY") {
     return "";
   }
   
-  // Get UTC components to match the stored UTC date
-  // This is the key fix - we use UTC methods instead of local time methods
-  const year = dateObj.getUTCFullYear();
-  const month = dateObj.getUTCMonth() + 1; // getUTCMonth() returns 0-11
-  const day = dateObj.getUTCDate();
+  // Use local methods instead of UTC to get consistent local date
+  const year = dateObj.getFullYear();
+  const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
+  const day = dateObj.getDate();
   
   // Create padded versions for single-digit values
   const paddedMonth = month.toString().padStart(2, "0");
