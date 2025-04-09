@@ -39,6 +39,27 @@ const leadSchema = new mongoose.Schema({
   businessServices: {
     type: String,
   },
+  billingAddress: {
+    street: {
+      type: String,
+    },
+    aptUnit: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+    zipCode: {
+      type: String,
+    },
+    country: {
+      type: String,
+      default: "United States",
+    },
+  },
   preferredContact: {
     type: String,
     enum: ["phone", "businessPhone", "email", "text", "businessEmail"],

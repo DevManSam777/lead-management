@@ -107,6 +107,17 @@ async function sendLeadNotificationEmail(leadData) {
               }</td>
             </tr>
             <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Billing Address:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">
+                ${leadData.billingAddress ? 
+                  `${leadData.billingAddress.street || ''}<br>
+                  ${leadData.billingAddress.aptUnit ? leadData.billingAddress.aptUnit + '<br>' : ''}
+                  ${leadData.billingAddress.city || ''}, ${leadData.billingAddress.state || ''} ${leadData.billingAddress.zipCode || ''}<br>
+                  ${leadData.billingAddress.country || 'United States'}` 
+                  : 'Not provided'}
+              </td>
+            </tr>
+            <tr>
               <td style="padding: 10px; border: 1px solid #ddd;"><strong>Service Desired:</strong></td>
               <td style="padding: 10px; border: 1px solid #ddd;">${
                 leadData.serviceDesired

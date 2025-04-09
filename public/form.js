@@ -9,8 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Helper function to create and show error messages
   function showError(input, message) {
     // Remove any existing error message
-    const existingError =
-      input.parentElement.querySelector(".error-message");
+    const existingError = input.parentElement.querySelector(".error-message");
     if (existingError) {
       existingError.remove();
     }
@@ -117,7 +116,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (field.type === "tel" && field.value.trim() !== "" && field.required) {
       if (!isValidPhone(field.value)) {
-        showError(field, "Please enter a valid 10-digit phone number in format: 000-000-0000");
+        showError(
+          field,
+          "Please enter a valid 10-digit phone number in format: 000-000-0000"
+        );
         return false;
       }
     }
@@ -191,61 +193,70 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize phone number formatting with Cleave.js for all telephone inputs
   const phoneInputs = document.querySelectorAll('input[type="tel"]');
-  phoneInputs.forEach(input => {
+  phoneInputs.forEach((input) => {
     new Cleave(input, {
       numericOnly: true,
       blocks: [3, 3, 4],
-      delimiters: ['-', '-']
+      delimiters: ["-", "-"],
     });
   });
 
   /**
- * Initialize auto-resizing textareas
- */
-function initializeAutoResizeTextareas() {
-  // Get all textareas
-  const textareas = document.querySelectorAll('textarea');
-  
-  // Apply auto-resize to each textarea
-  textareas.forEach(textarea => {
-    // Set initial height based on content
-    adjustTextareaHeight(textarea);
-    
-    // Add event listener for input changes
-    textarea.addEventListener('input', function() {
-      adjustTextareaHeight(this);
-    });
-  });
-}
+   * Initialize auto-resizing textareas
+   */
+  function initializeAutoResizeTextareas() {
+    // Get all textareas
+    const textareas = document.querySelectorAll("textarea");
 
-/**
- * Adjust the height of a textarea to fit its content
- * @param {HTMLElement} textarea - The textarea element to adjust
- */
-function adjustTextareaHeight(textarea) {
-  // Reset height to auto to get the correct scrollHeight
-  textarea.style.height = 'auto';
-  
-  // Set height to scrollHeight to fit content
-  textarea.style.height = (textarea.scrollHeight) + 'px';
-}
+    // Apply auto-resize to each textarea
+    textareas.forEach((textarea) => {
+      // Set initial height based on content
+      adjustTextareaHeight(textarea);
+
+      // Add event listener for input changes
+      textarea.addEventListener("input", function () {
+        adjustTextareaHeight(this);
+      });
+    });
+  }
+
+  /**
+   * Adjust the height of a textarea to fit its content
+   * @param {HTMLElement} textarea - The textarea element to adjust
+   */
+  function adjustTextareaHeight(textarea) {
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = "auto";
+
+    // Set height to scrollHeight to fit content
+    textarea.style.height = textarea.scrollHeight + "px";
+  }
 
   // Show/hide extension fields based on checkbox selection
-  document.getElementById("phoneExtCheck").addEventListener("change", function() {
-    document.getElementById("phoneExtField").style.display = this.checked ? "block" : "none";
-    // Clear the field when hiding
-    if (!this.checked) {
-      document.getElementById("phoneExt").value = "";
-    }
-  });
+  document
+    .getElementById("phoneExtCheck")
+    .addEventListener("change", function () {
+      document.getElementById("phoneExtField").style.display = this.checked
+        ? "block"
+        : "none";
+      // Clear the field when hiding
+      if (!this.checked) {
+        document.getElementById("phoneExt").value = "";
+      }
+    });
 
-  document.getElementById("businessPhoneExtCheck").addEventListener("change", function() {
-    document.getElementById("businessPhoneExtField").style.display = this.checked ? "block" : "none";
-    // Clear the field when hiding
-    if (!this.checked) {
-      document.getElementById("businessPhoneExt").value = "";
-    }
-  });
+  document
+    .getElementById("businessPhoneExtCheck")
+    .addEventListener("change", function () {
+      document.getElementById("businessPhoneExtField").style.display = this
+        .checked
+        ? "block"
+        : "none";
+      // Clear the field when hiding
+      if (!this.checked) {
+        document.getElementById("businessPhoneExt").value = "";
+      }
+    });
 
   // Add blur event listeners to validate as user moves between fields
   const requiredInputs = form.querySelectorAll(
@@ -276,7 +287,10 @@ function adjustTextareaHeight(textarea) {
     input.addEventListener("blur", function () {
       if (this.value.trim() !== "" && input.required) {
         if (!isValidPhone(this.value)) {
-          showError(this, "Please enter a valid 10-digit phone number in format: 000-000-0000");
+          showError(
+            this,
+            "Please enter a valid 10-digit phone number in format: 000-000-0000"
+          );
         } else {
           removeError(this);
         }
@@ -302,22 +316,20 @@ function adjustTextareaHeight(textarea) {
   }
 
   // Show/hide website address field based on radio selection
-  document
-    .querySelectorAll('input[name="hasWebsite"]')
-    .forEach((radio) => {
-      radio.addEventListener("change", function () {
-        const websiteAddressField = document.getElementById(
-          "websiteAddressField"
-        );
-        if (this.value === "yes") {
-          websiteAddressField.style.display = "block";
-        } else {
-          websiteAddressField.style.display = "none";
-          // Clear any errors when hiding field
-          removeError(document.getElementById("websiteAddress"));
-        }
-      });
+  document.querySelectorAll('input[name="hasWebsite"]').forEach((radio) => {
+    radio.addEventListener("change", function () {
+      const websiteAddressField = document.getElementById(
+        "websiteAddressField"
+      );
+      if (this.value === "yes") {
+        websiteAddressField.style.display = "block";
+      } else {
+        websiteAddressField.style.display = "none";
+        // Clear any errors when hiding field
+        removeError(document.getElementById("websiteAddress"));
+      }
     });
+  });
 
   // Form submission with validation
   form.addEventListener("submit", async function (e) {
@@ -367,23 +379,38 @@ function adjustTextareaHeight(textarea) {
       formObject[key] = value;
     });
 
+    // In the form submission handler in public/form.js
+// Include billing address fields without conditional check
+
+formObject.billingAddress = {
+  street: document.getElementById("billingStreet").value || '',
+  aptUnit: document.getElementById("billingAptUnit").value || '',
+  city: document.getElementById("billingCity").value || '',
+  state: document.getElementById("billingState").value || '',
+  zipCode: document.getElementById("billingZipCode").value || '',
+  country: document.getElementById("billingCountry").value || 'United States'
+};
+
     // Handle phone extensions properly
     if (formObject.phoneExtCheck === "on" && formObject.phoneExt) {
       formObject.phoneExt = formObject.phoneExt;
     } else {
       formObject.phoneExt = undefined;
     }
-    
-    if (formObject.businessPhoneExtCheck === "on" && formObject.businessPhoneExt) {
+
+    if (
+      formObject.businessPhoneExtCheck === "on" &&
+      formObject.businessPhoneExt
+    ) {
       formObject.businessPhoneExt = formObject.businessPhoneExt;
     } else {
       formObject.businessPhoneExt = undefined;
     }
-    
+
     // Clean up the data by removing the checkbox values
     delete formObject.phoneExtCheck;
     delete formObject.businessPhoneExtCheck;
-    
+
     // Add the isFormSubmission flag to identify this as coming from the form
     formObject.isFormSubmission = true;
 
@@ -411,9 +438,7 @@ function adjustTextareaHeight(textarea) {
         document.getElementById("websiteAddressField").style.display = "none";
       } else {
         const errorData = await response.json();
-        throw new Error(
-          errorData.message || "Server responded with an error"
-        );
+        throw new Error(errorData.message || "Server responded with an error");
       }
     } catch (error) {
       console.error("Error submitting form:", error);

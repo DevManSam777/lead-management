@@ -33,10 +33,19 @@
             <label for="phone" class="required">Phone Number</label>
             <input type="tel" id="phone" name="phone" required />
             <div class="extension-option">
-              <input type="checkbox" id="phoneExtCheck" name="phoneExtCheck">
+              <input type="checkbox" id="phoneExtCheck" name="phoneExtCheck" />
               <label for="phoneExtCheck">Add Extension</label>
-              <div class="extension-field" id="phoneExtField" style="display: none;">
-                <input type="text" id="phoneExt" name="phoneExt" placeholder="Extension">
+              <div
+                class="extension-field"
+                id="phoneExtField"
+                style="display: none"
+              >
+                <input
+                  type="text"
+                  id="phoneExt"
+                  name="phoneExt"
+                  placeholder="Extension"
+                />
               </div>
             </div>
           </div>
@@ -58,10 +67,23 @@
             <label for="businessPhone">Business Phone Number</label>
             <input type="tel" id="businessPhone" name="businessPhone" />
             <div class="extension-option">
-              <input type="checkbox" id="businessPhoneExtCheck" name="businessPhoneExtCheck">
+              <input
+                type="checkbox"
+                id="businessPhoneExtCheck"
+                name="businessPhoneExtCheck"
+              />
               <label for="businessPhoneExtCheck">Add Extension</label>
-              <div class="extension-field" id="businessPhoneExtField" style="display: none;">
-                <input type="text" id="businessPhoneExt" name="businessPhoneExt" placeholder="Extension">
+              <div
+                class="extension-field"
+                id="businessPhoneExtField"
+                style="display: none"
+              >
+                <input
+                  type="text"
+                  id="businessPhoneExt"
+                  name="businessPhoneExt"
+                  placeholder="Extension"
+                />
               </div>
             </div>
           </div>
@@ -79,6 +101,44 @@
               rows="3"
               placeholder="What type of goods and/or services does your business provide?"
             ></textarea>
+          </div>
+
+          <!-- Replace the conditional billing address section with this -->
+          <div class="form-group">
+            <label for="billingStreet">Billing Address</label>
+            <input type="text" id="billingStreet" name="billingStreet" />
+          </div>
+          <div class="form-group">
+            <label for="billingAptUnit">Apartment/Unit Number</label>
+            <input
+              type="text"
+              id="billingAptUnit"
+              name="billingAptUnit"
+              placeholder="Apartment, suite, unit, etc. (optional)"
+            />
+          </div>
+          <div class="form-group">
+            <label for="billingCity">City</label>
+            <input type="text" id="billingCity" name="billingCity" />
+          </div>
+          <div class="form-group" style="display: flex; gap: 1rem">
+            <div style="flex: 1">
+              <label for="billingState">State/Province</label>
+              <input type="text" id="billingState" name="billingState" />
+            </div>
+            <div style="flex: 1">
+              <label for="billingZipCode">ZIP/Postal Code</label>
+              <input type="text" id="billingZipCode" name="billingZipCode" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="billingCountry">Country</label>
+            <input
+              type="text"
+              id="billingCountry"
+              name="billingCountry"
+              value="United States"
+            />
           </div>
         </fieldset>
 

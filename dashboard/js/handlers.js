@@ -1,23 +1,28 @@
 // handlers.js - Event handlers and form validation
-import { 
-  showInputError, 
-  clearInputError, 
-  getErrorElement, 
-  formatCurrency, 
-  showToast, 
-  formatDate, 
+import {
+  showInputError,
+  clearInputError,
+  getErrorElement,
+  formatCurrency,
+  showToast,
+  formatDate,
   formatPhoneInput,
   initializeMonetaryInputs,
-} from './utils.js';
-import { createLead, updateLead, deleteLead, fetchLeadPayments } from './api.js';
-import { setModalReadOnly } from './ui.js';
-import { renderLeadPayments } from './payments.js';
-import { loadLeadForms } from './leadForms.js';
+} from "./utils.js";
+import {
+  createLead,
+  updateLead,
+  deleteLead,
+  fetchLeadPayments,
+} from "./api.js";
+import { setModalReadOnly } from "./ui.js";
+import { renderLeadPayments } from "./payments.js";
+import { loadLeadForms } from "./leadForms.js";
 
 // Function to handle textarea auto-resize
 function handleTextareaResize() {
-  this.style.height = 'auto';
-  this.style.height = this.scrollHeight + 'px';
+  this.style.height = "auto";
+  this.style.height = this.scrollHeight + "px";
 }
 
 /**
@@ -98,16 +103,16 @@ function setupFormValidation() {
       }
     });
   }
-  
+
   // Add event listener for the Create Form button
-  const addFormBtn = document.getElementById('addFormBtn');
+  const addFormBtn = document.getElementById("addFormBtn");
   if (addFormBtn) {
-    addFormBtn.addEventListener('click', function() {
-      const leadId = document.getElementById('leadId').value;
+    addFormBtn.addEventListener("click", function () {
+      const leadId = document.getElementById("leadId").value;
       if (leadId) {
         window.openFormTemplateModal(leadId);
       } else {
-        showToast('Please save the lead first before creating forms');
+        showToast("Please save the lead first before creating forms");
       }
     });
   }
@@ -126,7 +131,11 @@ function validateEmail(input) {
   if (isRequired && !input.value) {
     return showInputError(input, errorElement, "Email is required");
   } else if (input.value && !emailRegex.test(input.value)) {
-    return showInputError(input, errorElement, "Please enter a valid email address");
+    return showInputError(
+      input,
+      errorElement,
+      "Please enter a valid email address"
+    );
   } else {
     return clearInputError(input, errorElement);
   }
@@ -146,12 +155,15 @@ function validatePhone(input) {
   if (isRequired && !input.value) {
     return showInputError(input, errorElement, "Phone number is required");
   } else if (input.value && !phoneRegex.test(input.value)) {
-    return showInputError(input, errorElement, "Please enter a valid 10-digit phone number in format: 000-000-0000");
+    return showInputError(
+      input,
+      errorElement,
+      "Please enter a valid 10-digit phone number in format: 000-000-0000"
+    );
   } else {
     return clearInputError(input, errorElement);
   }
 }
-
 
 /**
  * Name validation with configurable minimum length
@@ -169,7 +181,9 @@ function validateName(input, fieldName, minLength = 1) {
     return showInputError(
       input,
       errorElement,
-      `${fieldName} must be at least ${minLength} character${minLength !== 1 ? 's' : ''}`
+      `${fieldName} must be at least ${minLength} character${
+        minLength !== 1 ? "s" : ""
+      }`
     );
   } else if (input.value.length > 50) {
     return showInputError(
@@ -226,7 +240,11 @@ function validateUrl(input) {
     new URL(testUrl);
     return clearInputError(input, errorElement);
   } catch (e) {
-    return showInputError(input, errorElement, "Please enter a valid website address");
+    return showInputError(
+      input,
+      errorElement,
+      "Please enter a valid website address"
+    );
   }
 }
 
@@ -258,17 +276,17 @@ async function validateAndSaveLead(event) {
   // Validate required fields
   const isEmailValid = validateEmail(document.getElementById("email"));
   const isPhoneValid = validatePhone(document.getElementById("phone"));
-  
+
   // Modified name validation to allow single characters
   const isFirstNameValid = validateName(
     document.getElementById("firstName"),
     "First name",
-    1  // Minimum length changed to 1
+    1 // Minimum length changed to 1
   );
   const isLastNameValid = validateName(
     document.getElementById("lastName"),
     "Last name",
-    1  // Minimum length changed to 1
+    1 // Minimum length changed to 1
   );
 
   // Validate optional fields that have values
@@ -331,6 +349,7 @@ async function validateAndSaveLead(event) {
   }
 }
 
+
 /**
  * Save lead data to the server
  */
@@ -349,7 +368,8 @@ async function saveLead() {
     textNumber: document.getElementById("textNumber").value || undefined,
     businessName: document.getElementById("businessName").value || "N/A",
     businessPhone: document.getElementById("businessPhone").value || undefined,
-    businessPhoneExt: document.getElementById("businessPhoneExt").value || undefined,
+    businessPhoneExt:
+      document.getElementById("businessPhoneExt").value || undefined,
     businessEmail: document.getElementById("businessEmail").value || undefined,
     businessServices:
       document.getElementById("businessServices").value || undefined,
@@ -364,7 +384,18 @@ async function saveLead() {
     status: document.getElementById("status").value,
     notes: document.getElementById("notes").value,
     // Explicitly set this to false to ensure dashboard creations don't trigger emails
-    isFormSubmission: false
+    isFormSubmission: false,
+
+    // Add billing address fields
+    billingAddress: {
+      street: document.getElementById("billingStreet").value || "",
+      aptUnit: document.getElementById("billingAptUnit").value || "",
+      city: document.getElementById("billingCity").value || "",
+      state: document.getElementById("billingState").value || "",
+      zipCode: document.getElementById("billingZipCode").value || "",
+      country:
+        document.getElementById("billingCountry").value || "United States",
+    },
   };
 
   // Add last contacted date if present
@@ -372,12 +403,14 @@ async function saveLead() {
   if (lastContactedInput && lastContactedInput.value) {
     // Create a date at noon to avoid timezone issues
     const dateValue = lastContactedInput.value; // "YYYY-MM-DD" format
-    const [year, month, day] = dateValue.split('-').map(num => parseInt(num, 10));
-    
+    const [year, month, day] = dateValue
+      .split("-")
+      .map((num) => parseInt(num, 10));
+
     // Create a date object with specific year, month, day at noon local time
     // Month is 0-indexed in JavaScript dates, so subtract 1
     const date = new Date(year, month - 1, day, 12, 0, 0);
-    
+
     leadData.lastContactedAt = date;
   }
 
@@ -387,7 +420,7 @@ async function saveLead() {
     // Extract numeric value from formatted budget
     const cleanBudgetValue = budgetInput.value.replace(/[^\d.-]/g, "");
     const numericBudgetValue = parseFloat(cleanBudgetValue);
-    
+
     if (!isNaN(numericBudgetValue)) {
       // Store the budget value as a number
       leadData.budget = numericBudgetValue;
@@ -400,7 +433,7 @@ async function saveLead() {
     // Extract numeric value from formatted total budget
     const cleanTotalValue = totalBudgetInput.value.replace(/[^\d.-]/g, "");
     const numericTotalValue = parseFloat(cleanTotalValue);
-    
+
     if (!isNaN(numericTotalValue)) {
       // Store the total budget value as a number
       leadData.totalBudget = numericTotalValue;
@@ -419,9 +452,11 @@ async function saveLead() {
     }
 
     // Signal that a lead was saved - will be caught in dashboard.js
-    window.dispatchEvent(new CustomEvent('leadSaved', { 
-      detail: { lead: updatedLead, isNew: isNewLead } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent("leadSaved", {
+        detail: { lead: updatedLead, isNew: isNewLead },
+      })
+    );
 
     // Show success message
     showToast(leadId ? "Lead updated successfully" : "Lead added successfully");
@@ -434,26 +469,27 @@ async function saveLead() {
   }
 }
 
-
 async function deleteLeadAction(leadId) {
   try {
     // Close the modal first to avoid UI issues
     window.closeLeadModal();
-    
+
     // Show a toast indicating deletion is in progress
     showToast("Deleting lead...");
-    
+
     // Delete the lead
     await deleteLead(leadId);
-    
+
     // Signal that a lead was deleted - will be caught in dashboard.js
-    window.dispatchEvent(new CustomEvent('leadDeleted', { 
-      detail: { leadId } 
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent("leadDeleted", {
+        detail: { leadId },
+      })
+    );
+
     // Refresh the dashboard
     await window.fetchLeadsAndRender();
-    
+
     // Show success toast
     showToast("Lead deleted successfully");
   } catch (error) {
@@ -522,26 +558,26 @@ function openAddLeadModal() {
 
   // Display the modal first so elements are in the DOM
   document.getElementById("leadModal").style.display = "block";
-  
+
   // Then setup the auto-resize for textareas
-  const textareas = document.querySelectorAll('#leadModal textarea');
-  textareas.forEach(textarea => {
+  const textareas = document.querySelectorAll("#leadModal textarea");
+  textareas.forEach((textarea) => {
     // Set initial height based on content
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-    
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+
     // Make sure we don't add duplicate listeners
-    textarea.removeEventListener('input', handleTextareaResize);
-    textarea.addEventListener('input', handleTextareaResize);
+    textarea.removeEventListener("input", handleTextareaResize);
+    textarea.addEventListener("input", handleTextareaResize);
   });
 
   // Initialize any monetary inputs in the modal
   initializeMonetaryInputs();
-  
+
   // Show the "Create Form" button since we're in edit mode
-  const addFormBtn = document.getElementById('addFormBtn');
+  const addFormBtn = document.getElementById("addFormBtn");
   if (addFormBtn) {
-    addFormBtn.style.display = 'block';
+    addFormBtn.style.display = "block";
   }
 }
 
@@ -573,12 +609,26 @@ async function openLeadModal(leadId, allLeads) {
   document.getElementById("phoneExt").value = lead.phoneExt || "";
   document.getElementById("textNumber").value = lead.textNumber || "";
   document.getElementById("businessPhone").value = lead.businessPhone || "";
-  document.getElementById("businessPhoneExt").value = lead.businessPhoneExt || "";
+  document.getElementById("businessPhoneExt").value =
+    lead.businessPhoneExt || "";
   document.getElementById("businessName").value = lead.businessName || "";
   document.getElementById("businessEmail").value = lead.businessEmail || "";
-  document.getElementById("businessServices").value = lead.businessServices || "";
-  document.getElementById("preferredContact").value = lead.preferredContact || "";
-  document.getElementById("serviceDesired").value = lead.serviceDesired || "website";
+  document.getElementById("businessServices").value =
+    lead.businessServices || "";
+  const billingAddress = lead.billingAddress || {};
+  document.getElementById("billingStreet").value = billingAddress.street || "";
+  document.getElementById("billingAptUnit").value =
+    billingAddress.aptUnit || "";
+  document.getElementById("billingCity").value = billingAddress.city || "";
+  document.getElementById("billingState").value = billingAddress.state || "";
+  document.getElementById("billingZipCode").value =
+    billingAddress.zipCode || "";
+  document.getElementById("billingCountry").value =
+    billingAddress.country || "United States";
+  document.getElementById("preferredContact").value =
+    lead.preferredContact || "";
+  document.getElementById("serviceDesired").value =
+    lead.serviceDesired || "website";
   document.getElementById("hasWebsite").value = lead.hasWebsite || "";
   document.getElementById("websiteAddress").value = lead.websiteAddress || "";
   document.getElementById("message").value = lead.message || "";
@@ -587,7 +637,8 @@ async function openLeadModal(leadId, allLeads) {
 
   // Handle estimated budget field
   if (document.getElementById("budget")) {
-    const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
+    const budgetValue =
+      lead.budget !== undefined ? parseFloat(lead.budget) : "";
     document.getElementById("budget").value = budgetValue
       ? formatCurrency(budgetValue)
       : "";
@@ -595,7 +646,8 @@ async function openLeadModal(leadId, allLeads) {
 
   // Handle payment fields
   if (document.getElementById("totalBudget")) {
-    const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+    const totalBudgetValue =
+      lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
     document.getElementById("totalBudget").value = totalBudgetValue
       ? formatCurrency(totalBudgetValue)
       : "";
@@ -611,7 +663,7 @@ async function openLeadModal(leadId, allLeads) {
   if (lead.totalBudget !== undefined) {
     const totalBudget = parseFloat(lead.totalBudget) || 0;
     const paidAmount = parseFloat(lead.paidAmount) || 0;
-    remainingBalance =  totalBudget - paidAmount;
+    remainingBalance = totalBudget - paidAmount;
   }
 
   // Find or create the remaining balance field
@@ -655,14 +707,15 @@ async function openLeadModal(leadId, allLeads) {
   try {
     const leadPayments = await fetchLeadPayments(lead._id);
     renderLeadPayments(leadPayments, lead._id);
-    
+
     // Load forms for this lead
     loadLeadForms(lead._id);
   } catch (error) {
     console.error("Error fetching data:", error);
     const paymentsContainer = document.querySelector(".payments-container");
     if (paymentsContainer) {
-      paymentsContainer.innerHTML = '<p class="payment-item">Error loading payments</p>';
+      paymentsContainer.innerHTML =
+        '<p class="payment-item">Error loading payments</p>';
     }
   }
 
@@ -683,7 +736,7 @@ async function openLeadModal(leadId, allLeads) {
   if (addPaymentBtn) {
     addPaymentBtn.style.display = "none";
   }
-  
+
   // Show the Add Form button
   const addFormBtn = document.getElementById("addFormBtn");
   if (addFormBtn) {
@@ -698,28 +751,28 @@ async function openLeadModal(leadId, allLeads) {
 
   // Format the phone numbers in the modal
   const phoneFields = document.querySelectorAll('#leadModal input[type="tel"]');
-  phoneFields.forEach(field => {
+  phoneFields.forEach((field) => {
     if (field.value) {
       // Only format if the field has a value
       formatPhoneInput(field);
     }
   });
-  
+
   // Display the modal first so elements are in the DOM
   document.getElementById("leadModal").style.display = "block";
 
   // Then setup the auto-resize for textareas
   // Important: This needs to be after setting the display to "block" to work properly
-  const textareas = document.querySelectorAll('#leadModal textarea');
-  textareas.forEach(textarea => {
+  const textareas = document.querySelectorAll("#leadModal textarea");
+  textareas.forEach((textarea) => {
     // Set initial height based on content after a brief delay to ensure content is rendered
     setTimeout(() => {
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-      
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+
       // Make sure we don't add duplicate listeners
-      textarea.removeEventListener('input', handleTextareaResize);
-      textarea.addEventListener('input', handleTextareaResize);
+      textarea.removeEventListener("input", handleTextareaResize);
+      textarea.addEventListener("input", handleTextareaResize);
     }, 0);
   });
 
@@ -736,19 +789,21 @@ async function openLeadModal(leadId, allLeads) {
  */
 function updateLeadModalDates(lead) {
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
-  
+
   // Handle last contacted date
   if (document.getElementById("lastContactedAt") && lead.lastContactedAt) {
     const date = new Date(lead.lastContactedAt);
-    
+
     // Format date as YYYY-MM-DD for input[type="date"]
     // This is the HTML5 input date format regardless of display format
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    
-    document.getElementById("lastContactedAt").value = `${year}-${month}-${day}`;
-    
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+
+    document.getElementById(
+      "lastContactedAt"
+    ).value = `${year}-${month}-${day}`;
+
     // Update the display element with the formatted date
     const displayElement = document.getElementById("lastContactedDisplay");
     if (displayElement) {
@@ -756,27 +811,29 @@ function updateLeadModalDates(lead) {
     }
   } else if (document.getElementById("lastContactedAt")) {
     document.getElementById("lastContactedAt").value = "";
-    
+
     // Clear the display element
     const displayElement = document.getElementById("lastContactedDisplay");
     if (displayElement) {
       displayElement.textContent = "";
     }
   }
-  
+
   // Set up event listener for date input changes
   const lastContactedInput = document.getElementById("lastContactedAt");
   if (lastContactedInput) {
-    lastContactedInput.addEventListener("change", function() {
+    lastContactedInput.addEventListener("change", function () {
       if (this.value) {
         // Create a date at noon to avoid timezone issues
         const dateValue = this.value; // "YYYY-MM-DD" format
-        const [year, month, day] = dateValue.split('-').map(num => parseInt(num, 10));
-        
+        const [year, month, day] = dateValue
+          .split("-")
+          .map((num) => parseInt(num, 10));
+
         // Create a date object with specific year, month, day at noon local time
         // Month is 0-indexed in JavaScript dates, so subtract 1
         const date = new Date(year, month - 1, day, 12, 0, 0);
-        
+
         const displayElement = document.getElementById("lastContactedDisplay");
         if (displayElement) {
           displayElement.textContent = formatDate(date, dateFormat);
@@ -804,5 +861,5 @@ export {
   deleteLeadAction,
   openAddLeadModal,
   openLeadModal,
-  updateLeadModalDates
+  updateLeadModalDates,
 };

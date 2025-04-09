@@ -326,6 +326,30 @@
             </div>
 
             <div class="form-group">
+              <label for="billingStreet">Billing Address</label>
+              <input type="text" id="billingStreet" name="billingStreet" placeholder="Street Address" />
+            </div>
+            <div class="form-group">
+              <input type="text" id="billingAptUnit" name="billingAptUnit" placeholder="Apartment/Unit Number (optional)" />
+            </div>
+            <div class="form-group" style="display: flex; gap: 1rem;">
+              <div style="flex: 1;">
+                <input type="text" id="billingCity" name="billingCity" placeholder="City" />
+              </div>
+              <div style="flex: 1;">
+                <input type="text" id="billingState" name="billingState" placeholder="State/Province" />
+              </div>
+            </div>
+            <div class="form-group" style="display: flex; gap: 1rem;">
+              <div style="flex: 1;">
+                <input type="text" id="billingZipCode" name="billingZipCode" placeholder="ZIP/Postal Code" />
+              </div>
+              <div style="flex: 1;">
+                <input type="text" id="billingCountry" name="billingCountry" placeholder="Country" value="United States" />
+              </div>
+            </div>
+
+            <div class="form-group">
               <label for="preferredContact">Preferred Contact Method</label>
               <select id="preferredContact">
                 <option value="">-- Select Contact Method --</option>
