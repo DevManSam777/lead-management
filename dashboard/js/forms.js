@@ -1336,6 +1336,13 @@ function closeGeneratedFormModal() {
   document.getElementById("generatedFormModal").style.display = "none";
 }
 
+function closeLeadSelectionModal() {
+  const modal = document.getElementById('leadSelectionModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
 /**
  * Download generated form
  */
