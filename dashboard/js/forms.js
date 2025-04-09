@@ -970,10 +970,90 @@ function printForm() {
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
-}
+ }
+
+// async function openLeadSelectionModal() {
+//   try {
+//     // Check if the current form is a template
+//     if (currentFormId) {
+//       const form = await fetchFormById(currentFormId);
+      
+//       if (!form.isTemplate) {
+//         Utils.showToast('Only templates can be used with leads. This is a regular form.');
+//         return;
+//       }
+//     } else {
+//       Utils.showToast('Form not found');
+//       return;
+//     }
+    
+//     // Show loading
+//     Utils.showToast("Loading leads...");
+    
+//     // Fetch leads
+//     const response = await fetch(`${API.getBaseUrl()}/api/leads`);
+    
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch leads");
+//     }
+    
+//     const leads = await response.json();
+    
+//     // Build leads list
+//     const leadsList = document.getElementById("leadsList");
+//     leadsList.innerHTML = "";
+    
+//     if (leads.length === 0) {
+//       leadsList.innerHTML = "<p>No leads found</p>";
+//     } else {
+//       leads.forEach(lead => {
+//         const leadItem = document.createElement("div");
+//         leadItem.className = "lead-item";
+//         leadItem.style.display = "flex";
+//         leadItem.style.alignItems = "center";
+//         leadItem.style.justifyContent = "space-between";
+//         leadItem.style.padding = "1rem";
+//         leadItem.style.borderBottom = "1px solid var(--border-color)";
+//         leadItem.style.cursor = "pointer";
+        
+//         // Format lead name
+//         const fullName = `${lead.firstName} ${lead.lastName}`;
+//         const businessName = lead.businessName || "N/A";
+        
+//         leadItem.innerHTML = `
+//           <div>
+//             <h4 style="margin: 0 0 0.5rem 0;">${fullName}</h4>
+//             <p style="margin: 0; color: var(--text-muted);">${businessName}</p>
+//           </div>
+//           <button class="btn btn-primary">Use</button>
+//         `;
+        
+//         // Add click event to button
+//         leadItem.querySelector("button").addEventListener("click", function() {
+//           generateFormWithLeadData(currentFormId, lead._id);
+//           closeLeadSelectionModal();
+//         });
+        
+//         leadsList.appendChild(leadItem);
+//       });
+//     }
+    
+//     // Show modal
+//     document.getElementById("leadSelectionModal").style.display = "block";
+//   } catch (error) {
+//     console.error("Error loading leads:", error);
+//     Utils.showToast("Error: " + error.message);
+//   }
+// }
 
 async function openLeadSelectionModal() {
   try {
+    // First, close the form preview modal
+    const previewModal = document.getElementById('formPreviewModal');
+    if (previewModal) {
+      previewModal.style.display = 'none';
+    }
+    
     // Check if the current form is a template
     if (currentFormId) {
       const form = await fetchFormById(currentFormId);
@@ -1041,8 +1121,8 @@ async function openLeadSelectionModal() {
     // Show modal
     document.getElementById("leadSelectionModal").style.display = "block";
   } catch (error) {
-    console.error("Error loading leads:", error);
-    Utils.showToast("Error: " + error.message);
+    console.error('Error loading leads:', error);
+    Utils.showToast('Error: ' + error.message);
   }
 }
 
@@ -1072,6 +1152,43 @@ function closeLeadSelectionModal() {
 /**
  * Generate form with lead data
  */
+// async function generateFormWithLeadData(formId, leadId) {
+//   try {
+//     // Show loading
+//     Utils.showToast("Generating form...");
+    
+//     // Generate form
+//     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}/generate`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({ leadId })
+//     });
+    
+//     if (!response.ok) {
+//       throw new Error("Failed to generate form");
+//     }
+    
+//     const generatedForm = await response.json();
+    
+//     // Set form title
+//     document.getElementById("generatedFormTitle").textContent = generatedForm.title;
+    
+//     // Convert markdown to HTML
+//     const html = DOMPurify.sanitize(marked.parse(generatedForm.content));
+    
+//     // Set form content
+//     document.getElementById("generatedContent").innerHTML = html;
+    
+//     // Show modal
+//     document.getElementById("generatedFormModal").style.display = "block";
+//   } catch (error) {
+//     console.error("Error generating form:", error);
+//     Utils.showToast("Error: " + error.message);
+//   }
+// }
+
 async function generateFormWithLeadData(formId, leadId) {
   try {
     // Show loading
@@ -1092,19 +1209,361 @@ async function generateFormWithLeadData(formId, leadId) {
     
     const generatedForm = await response.json();
     
-    // Set form title
-    document.getElementById("generatedFormTitle").textContent = generatedForm.title;
+    // Store the generated form data in a variable to access it later for editing
+    window.currentGeneratedForm = generatedForm;
     
-    // Convert markdown to HTML
-    const html = DOMPurify.sanitize(marked.parse(generatedForm.content));
+    // Update the modal structure to include editor/preview tabs
+    const generatedModal = document.getElementById("generatedFormModal");
     
-    // Set form content
-    document.getElementById("generatedContent").innerHTML = html;
+    // Set modal content
+    generatedModal.querySelector(".modal-content").innerHTML = `
+      <span class="close-modal" id="closeGeneratedFormModal">&times;</span>
+      <div class="modal-header">
+        <h3 id="generatedFormTitle">${generatedForm.title}</h3>
+        <div class="editor-tabs">
+        <div class="editor-tab" data-tab="editor">Editor</div>
+        <div class="editor-tab active" data-tab="preview">Preview</div>
+          
+        </div>
+      </div>
+      
+      <div class="form-editor-container">
+        <div class="preview-section active">
+          <div class="markdown-content" id="generatedContent">
+            ${DOMPurify.sanitize(marked.parse(generatedForm.content))}
+          </div>
+        </div>
+        
+        <div class="editor-section inactive">
+          <textarea id="editGeneratedContent">${generatedForm.content}</textarea>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" id="saveGeneratedBtn" class="btn btn-primary">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <button type="button" id="downloadGeneratedBtn" class="btn btn-primary">
+          <i class="fas fa-download"></i> Download .md
+        </button>
+        <button type="button" id="printGeneratedBtn" class="btn btn-primary">
+          <i class="fas fa-print"></i> Print PDF
+        </button>
+      </div>
+    `;
     
     // Show modal
-    document.getElementById("generatedFormModal").style.display = "block";
+    generatedModal.style.display = "block";
+    
+    // Initialize the CodeMirror editor for the generated content
+    setTimeout(() => {
+      initializeGeneratedFormEditor();
+      
+      // Set up event handlers for the new modal structure
+      setupGeneratedFormModalEvents(leadId);
+    }, 100);
+    
   } catch (error) {
     console.error("Error generating form:", error);
+    Utils.showToast("Error: " + error.message);
+  }
+}
+
+// New function to initialize the CodeMirror editor for the generated form
+// function initializeGeneratedFormEditor() {
+//   const textarea = document.getElementById("editGeneratedContent");
+//   if (!textarea) return;
+  
+//   // Check if CodeMirror is already initialized on this textarea
+//   if (textarea.nextSibling && textarea.nextSibling.classList.contains('CodeMirror')) {
+//     return;
+//   }
+  
+//   // Initialize CodeMirror
+//   window.generatedFormEditor = CodeMirror.fromTextArea(textarea, {
+//     mode: "markdown",
+//     lineNumbers: true,
+//     lineWrapping: true,
+//     theme: "default",
+//     placeholder: "Edit your form content here in Markdown format..."
+//   });
+  
+//   // Update preview when content changes
+//   window.generatedFormEditor.on("change", function() {
+//     updateGeneratedFormPreview();
+//   });
+// }
+
+function initializeGeneratedFormEditor() {
+  const textarea = document.getElementById("editGeneratedContent");
+  if (!textarea) return;
+  
+  // Check if CodeMirror is already initialized on this textarea
+  // Fix: Safely check if nextSibling exists before accessing its properties
+  if (textarea.nextSibling && 
+      textarea.nextSibling.classList && 
+      textarea.nextSibling.classList.contains('CodeMirror')) {
+    return;
+  }
+  
+  // Initialize CodeMirror
+  try {
+    window.generatedFormEditor = CodeMirror.fromTextArea(textarea, {
+      mode: "markdown",
+      lineNumbers: true,
+      lineWrapping: true,
+      theme: "default",
+      placeholder: "Edit your form content here in Markdown format..."
+    });
+    
+    // Update preview when content changes
+    window.generatedFormEditor.on("change", function() {
+      updateGeneratedFormPreview();
+    });
+    
+    // Force a refresh to ensure proper rendering
+    setTimeout(() => {
+      if (window.generatedFormEditor) {
+        window.generatedFormEditor.refresh();
+      }
+    }, 50);
+  } catch (error) {
+    console.error("Error initializing CodeMirror editor:", error);
+    // Fallback to regular textarea if CodeMirror fails
+  }
+}
+
+// New function to update the generated form preview
+function updateGeneratedFormPreview() {
+  if (!window.generatedFormEditor) return;
+  
+  const content = window.generatedFormEditor.getValue();
+  const preview = document.getElementById("generatedContent");
+  
+  if (!content) {
+    preview.innerHTML = "<p><em>No content to preview</em></p>";
+    return;
+  }
+  
+  // Convert markdown to HTML with DOMPurify for security
+  const html = DOMPurify.sanitize(marked.parse(content));
+  preview.innerHTML = html;
+}
+
+// New function to set up event handlers for the generated form modal
+// function setupGeneratedFormModalEvents(leadId) {
+//   // Tab switching
+//   document.querySelectorAll("#generatedFormModal .editor-tab").forEach(tab => {
+//     tab.addEventListener("click", function() {
+//       // Set active tab
+//       document.querySelectorAll("#generatedFormModal .editor-tab").forEach(t => t.classList.remove("active"));
+//       this.classList.add("active");
+      
+//       const tabName = this.getAttribute("data-tab");
+      
+//       if (tabName === "editor") {
+//         document.querySelector("#generatedFormModal .editor-section").classList.remove("inactive");
+//         document.querySelector("#generatedFormModal .preview-section").classList.remove("active");
+        
+//         // Refresh CodeMirror
+//         if (window.generatedFormEditor) {
+//           setTimeout(() => {
+//             window.generatedFormEditor.refresh();
+//             window.generatedFormEditor.focus();
+//           }, 10);
+//         }
+//       } else {
+//         document.querySelector("#generatedFormModal .editor-section").classList.add("inactive");
+//         document.querySelector("#generatedFormModal .preview-section").classList.add("active");
+        
+//         // Update preview
+//         updateGeneratedFormPreview();
+//       }
+//     });
+//   });
+  
+//   // Save button
+//   document.getElementById("saveGeneratedBtn").addEventListener("click", function() {
+//     saveGeneratedForm(leadId);
+//   });
+  
+//   // Close button
+//   document.getElementById("closeGeneratedFormModal").addEventListener("click", function() {
+//     document.getElementById("generatedFormModal").style.display = "none";
+//   });
+  
+//   // Download button
+//   document.getElementById("downloadGeneratedBtn").addEventListener("click", function() {
+//     downloadGeneratedForm();
+//   });
+  
+//   // Print button
+//   document.getElementById("printGeneratedBtn").addEventListener("click", function() {
+//     printGeneratedForm();
+//   });
+// }
+
+
+function setupGeneratedFormModalEvents(leadId) {
+  // Tab switching
+  document.querySelectorAll("#generatedFormModal .editor-tab").forEach(tab => {
+    tab.addEventListener("click", function() {
+      console.log("Tab clicked:", this.getAttribute("data-tab"));
+      
+      // Set active tab
+      document.querySelectorAll("#generatedFormModal .editor-tab").forEach(t => {
+        t.classList.remove("active");
+      });
+      this.classList.add("active");
+      
+      const tabName = this.getAttribute("data-tab");
+      const editorSection = document.querySelector("#generatedFormModal .editor-section");
+      const previewSection = document.querySelector("#generatedFormModal .preview-section");
+      
+      console.log("Switching to tab:", tabName);
+      console.log("Editor section:", editorSection);
+      console.log("Preview section:", previewSection);
+      
+      if (tabName === "editor") {
+        if (editorSection) editorSection.classList.remove("inactive");
+        if (previewSection) previewSection.classList.remove("active");
+        
+        // Refresh CodeMirror
+        if (window.generatedFormEditor) {
+          setTimeout(() => {
+            window.generatedFormEditor.refresh();
+            window.generatedFormEditor.focus();
+          }, 50);
+        }
+      } else {
+        if (editorSection) editorSection.classList.add("inactive");
+        if (previewSection) previewSection.classList.add("active");
+        
+        // Update preview
+        updateGeneratedFormPreview();
+      }
+    });
+  });
+  
+  // Save button
+  document.getElementById("saveGeneratedBtn").addEventListener("click", function() {
+    saveGeneratedForm(leadId);
+  });
+  
+  // Close button
+  document.getElementById("closeGeneratedFormModal").addEventListener("click", function() {
+    document.getElementById("generatedFormModal").style.display = "none";
+  });
+  
+  // Download button
+  document.getElementById("downloadGeneratedBtn").addEventListener("click", function() {
+    downloadGeneratedForm();
+  });
+  
+  // Print button
+  document.getElementById("printGeneratedBtn").addEventListener("click", function() {
+    printGeneratedForm();
+  });
+}
+
+// New function to save the edited generated form
+// async function saveGeneratedForm(leadId) {
+//   try {
+//     if (!window.generatedFormEditor || !window.currentGeneratedForm) {
+//       Utils.showToast("Error: Form editor not initialized");
+//       return;
+//     }
+    
+//     const formId = window.currentGeneratedForm._id;
+//     const content = window.generatedFormEditor.getValue();
+    
+//     // Show loading toast
+//     Utils.showToast("Saving form...");
+    
+//     // Update the form
+//     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
+//       method: "PUT",
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({ content })
+//     });
+    
+//     if (!response.ok) {
+//       throw new Error("Failed to save form");
+//     }
+    
+//     // Show success message
+//     Utils.showToast("Form saved successfully");
+    
+//     // Update the preview
+//     updateGeneratedFormPreview();
+    
+//     // Reload lead forms to show the updated form
+//     if (leadId) {
+//       loadLeadForms(leadId);
+//     }
+    
+//   } catch (error) {
+//     console.error("Error saving form:", error);
+//     Utils.showToast("Error: " + error.message);
+//   }
+// }
+
+// Fixed function to save the edited generated form
+async function saveGeneratedForm(leadId) {
+  try {
+    if (!window.generatedFormEditor || !window.currentGeneratedForm) {
+      Utils.showToast("Error: Form editor not initialized");
+      return;
+    }
+    
+    const formId = window.currentGeneratedForm._id;
+    const content = window.generatedFormEditor.getValue();
+    
+    // Show loading toast
+    Utils.showToast("Saving form...");
+    
+    // Update the form
+    const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ content })
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to save form");
+    }
+    
+    // Show success message
+    Utils.showToast("Form saved successfully");
+    
+    // Update the preview
+    updateGeneratedFormPreview();
+    
+    // Reload lead forms - Fixed: Use the correct function name
+    if (leadId) {
+    
+      try {
+        // First check if the function exists in the global scope
+        if (typeof window.loadLeadForms === 'function') {
+          window.loadLeadForms(leadId);
+        } else if (typeof loadLeadForms === 'function') {
+          loadLeadForms(leadId);
+        } else {
+          console.log("Note: Form saved but couldn't refresh lead forms list automatically.");
+          // You might need to manually refresh the page or provide a button for the user to do so
+        }
+      } catch (err) {
+        console.log("Note: Form saved but couldn't refresh lead forms list automatically.");
+        // This catch ensures the function doesn't fail even if the refresh function isn't available
+      }
+    }
+    
+  } catch (error) {
+    console.error("Error saving form:", error);
     Utils.showToast("Error: " + error.message);
   }
 }

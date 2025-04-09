@@ -367,6 +367,66 @@ div.editor-section{
   display: none;
 }
 
+#previewFormTitle {
+  margin-top: 1rem;
+}
+
+/* Generated form modal styles */
+#generatedFormModal .form-editor-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  margin-bottom: 2rem;
+}
+
+#generatedFormModal .editor-section,
+#generatedFormModal .preview-section {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-border-radius);
+  padding: 2rem;
+  background-color: var(--background-color);
+}
+
+#generatedFormModal .editor-section.inactive {
+  display: none;
+}
+
+#generatedFormModal .preview-section:not(.active) {
+  display: none;
+}
+
+#generatedFormModal .editor-tabs {
+  display: flex;
+  margin-top: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+#generatedFormModal .editor-tab {
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  margin-right: 0.5rem;
+  background-color: var(--card-background);
+}
+
+#generatedFormModal .editor-tab.active {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+#generatedFormModal .CodeMirror {
+  height: auto;
+  min-height: 300px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-border-radius);
+}
+
 
 
 /* Responsive adjustments */
@@ -412,3 +472,4 @@ div.editor-section{
     margin-top: 1.5rem;
   }
 }
+

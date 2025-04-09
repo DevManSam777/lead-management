@@ -160,10 +160,11 @@
 
 .close-modal {
   position: absolute;
-  top: 1.5rem;
+  top: 0;
   right: 1.5rem;
-  font-size: 2.4rem;
-  color: var(--text-muted);
+  font-size: 3rem;
+  /* color: var(--text-muted); */
+  color: var(--danger);
   cursor: pointer;
 }
 
