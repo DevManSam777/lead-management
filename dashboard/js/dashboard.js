@@ -507,9 +507,7 @@ if (totalBudgetInput) {
   }
 });
 
-/**
- * Initialize date input displaysd
- */
+
 function initializeDateInputs() {
   // Set up date inputs in the lead form
   const lastContactedInput = document.getElementById("lastContactedAt");
@@ -518,7 +516,12 @@ function initializeDateInputs() {
   if (lastContactedInput && lastContactedDisplay) {
     lastContactedInput.addEventListener("change", function () {
       if (this.value) {
-        const date = new Date(this.value);
+        // Create a date object from the input value, which is in YYYY-MM-DD format
+        const [year, month, day] = this.value.split('-').map(Number);
+        
+        // Create a date object using local date components at noon
+        const date = new Date(year, month - 1, day, 12, 0, 0);
+        
         lastContactedDisplay.textContent = Utils.formatDate(
           date,
           window.dateFormat
@@ -530,7 +533,9 @@ function initializeDateInputs() {
 
     // Initial update if value exists
     if (lastContactedInput.value) {
-      const date = new Date(lastContactedInput.value);
+      const [year, month, day] = lastContactedInput.value.split('-').map(Number);
+      const date = new Date(year, month - 1, day, 12, 0, 0);
+      
       lastContactedDisplay.textContent = Utils.formatDate(
         date,
         window.dateFormat
@@ -538,14 +543,16 @@ function initializeDateInputs() {
     }
   }
 
-  // Set up date inputs in the payment form
+  // Identical changes for payment date input
   const paymentDateInput = document.getElementById("paymentDate");
   const paymentDateDisplay = document.getElementById("paymentDateDisplay");
 
   if (paymentDateInput && paymentDateDisplay) {
     paymentDateInput.addEventListener("change", function () {
       if (this.value) {
-        const date = new Date(this.value);
+        const [year, month, day] = this.value.split('-').map(Number);
+        const date = new Date(year, month - 1, day, 12, 0, 0);
+        
         paymentDateDisplay.textContent = Utils.formatDate(
           date,
           window.dateFormat
@@ -557,7 +564,9 @@ function initializeDateInputs() {
 
     // Initial update if value exists
     if (paymentDateInput.value) {
-      const date = new Date(paymentDateInput.value);
+      const [year, month, day] = paymentDateInput.value.split('-').map(Number);
+      const date = new Date(year, month - 1, day, 12, 0, 0);
+      
       paymentDateDisplay.textContent = Utils.formatDate(
         date,
         window.dateFormat
