@@ -89,6 +89,7 @@ const leadSchema = new mongoose.Schema({
   },
   budget: {
     type: Number,
+    alias: "estimatedBudget"
   },
   budgetCurrency: {
     type: String,
@@ -96,6 +97,7 @@ const leadSchema = new mongoose.Schema({
   },
   totalBudget: {
     type: Number,
+    alias: "billedAmount"
   },
   paidAmount: {
     type: Number,

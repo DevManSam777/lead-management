@@ -123,9 +123,9 @@
               <option value="other">Other</option>
             </select>
             <select id="filterTemplate">
-              <option value="true" selected>Templates Only</option>
-              <option value="false">Customer Forms Only</option>
-              <option value="">All Forms</option>
+              <option value="true" selected>Templates</option>
+              <option value="false">Generated Customer Forms</option>
+              <!-- <option value="">All Forms</option> -->
             </select>
             <button id="addFormBtn" class="btn btn-primary">
               <i class="fas fa-plus"></i> Create New Form
@@ -241,8 +241,8 @@
                   <span class="variable-tag" data-variable="estimatedBudget"
                     >estimatedBudget</span
                   >
-                  <span class="variable-tag" data-variable="totalBudget"
-                    >totalBudget</span
+                  <span class="variable-tag" data-variable="billedAmount"
+                    >billedAmount</span
                   >
                   <span class="variable-tag" data-variable="currentDate"
                     >currentDate</span
@@ -286,7 +286,7 @@
               <i class="fas fa-edit"></i> Edit
             </button>
             <button type="button" id="useWithLeadBtn" class="btn btn-outline">
-              <i class="fas fa-user"></i> Use with Lead
+              <i class="fas fa-user"></i> Use Customer Data
             </button>
           </div>
           <div>

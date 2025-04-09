@@ -759,7 +759,7 @@ async function openFormPreview(formId) {
     // Only show the "Use with Lead" button for templates
     const useWithLeadButton = form.isTemplate ? 
       `<button type="button" id="useWithLeadBtn" class="btn btn-outline">
-        <i class="fas fa-user"></i> Use with Lead
+        <i class="fas fa-user"></i> Use Customer Data
       </button>` : '';
     
     // Update the modal-actions div to conditionally include the use with lead button
