@@ -170,7 +170,6 @@ exports.cloneTemplate = async (req, res) => {
   }
 };
 
-// In server/controllers/formController.js
 exports.generateFormWithLeadData = async (req, res) => {
   try {
     const formId = req.params.id;
@@ -223,33 +222,72 @@ exports.generateFormWithLeadData = async (req, res) => {
       currentDate
     );
 
-let fullAddress;
-if (!lead.billingAddress || 
-    (!lead.billingAddress.street && 
-     !lead.billingAddress.aptUnit && 
-     !lead.billingAddress.city && 
-     !lead.billingAddress.state && 
-     !lead.billingAddress.zipCode && 
-     !lead.billingAddress.country)) {
-  fullAddress = "<span>[No Address Provided]</span>";
-} else { 
-  fullAddress = `<span>${lead.billingAddress.street || ""}${
-    lead.billingAddress.aptUnit
-      ? " #" + lead.billingAddress.aptUnit
-      : ""
-  }<br>${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${
-          lead.billingAddress.zipCode || ""
-        }<br>${lead.billingAddress.country + "<br>" || ""}</span>`.trim();
-}
+    // Handle financial variables specifically with proper formatting
+    // Format the totalBudget (billedAmount) with proper currency formatting
+    if (lead.totalBudget !== undefined) {
+      const totalBudget = lead.totalBudget || 0;
+      populatedContent = populatedContent.replace(
+        /\{\{totalBudget\}\}/g,
+        totalBudget.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+      );
+      populatedContent = populatedContent.replace(
+        /\{\{billedAmount\}\}/g,
+        totalBudget.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+      );
+    }
 
-populatedContent = populatedContent.replace(
-  /\{\{billingAddress\}\}/g,
-  fullAddress
-);
+    // Format the paidAmount with proper currency formatting
+    if (lead.paidAmount !== undefined) {
+      const paidAmount = lead.paidAmount || 0;
+      populatedContent = populatedContent.replace(
+        /\{\{paidAmount\}\}/g,
+        paidAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+      );
+    }
+
+    // Format the remainingBalance with proper currency formatting
+    if (lead.remainingBalance !== undefined) {
+      const remainingBalance = lead.remainingBalance || 0;
+      populatedContent = populatedContent.replace(
+        /\{\{remainingBalance\}\}/g,
+        remainingBalance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+      );
+    }
+
+    let fullAddress;
+    if (!lead.billingAddress || 
+        (!lead.billingAddress.street && 
+         !lead.billingAddress.aptUnit && 
+         !lead.billingAddress.city && 
+         !lead.billingAddress.state && 
+         !lead.billingAddress.zipCode && 
+         !lead.billingAddress.country)) {
+      fullAddress = "<span>[No Address Provided]</span>";
+    } else { 
+      fullAddress = `<span>${lead.billingAddress.street || ""}${
+        lead.billingAddress.aptUnit
+          ? " #" + lead.billingAddress.aptUnit
+          : ""
+      }<br>${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${
+              lead.billingAddress.zipCode || ""
+            }<br>${lead.billingAddress.country || "United States"}</span>`.trim();
+    }
+
+    populatedContent = populatedContent.replace(
+      /\{\{billingAddress\}\}/g,
+      fullAddress
+    );
 
     // Replace all other variables with lead data
     form.variables.forEach((variable) => {
-      if (variable === "currentDate") return;
+      if (variable === "currentDate" || 
+          variable === "paidAmount" || 
+          variable === "remainingBalance" ||
+          variable === "billedAmount" ||
+          variable === "totalBudget" ||
+          variable === "billingAddress") {
+        return; // Skip already processed variables
+      }
 
       const variablePattern = new RegExp(`\\{\\{${variable}\\}\\}`, "g");
 
@@ -259,6 +297,16 @@ populatedContent = populatedContent.replace(
       // Special handling for empty values
       if (value === "" || value === undefined || value === null) {
         value = `[${variable} not available]`;
+      }
+
+      // Special formatting for currency values (if needed)
+      if (variable === "budget" || variable === "estimatedBudget") {
+        if (value && !isNaN(parseFloat(value))) {
+          value = parseFloat(value).toLocaleString('en-US', { 
+            style: 'currency', 
+            currency: 'USD' 
+          });
+        }
       }
 
       // Replace in content

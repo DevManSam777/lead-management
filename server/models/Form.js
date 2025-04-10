@@ -50,7 +50,6 @@ formSchema.pre('save', function(next) {
   next();
 });
 
-// Helper method to extract variables from content
 formSchema.methods.extractVariables = function() {
   // Extract variables with pattern {{variableName}}
   const variableRegex = /\{\{([^}]+)\}\}/g;
@@ -58,6 +57,10 @@ formSchema.methods.extractVariables = function() {
   
   // Extract just the variable names
   const variableSet = new Set(matches.map(match => match[1].trim()));
+  
+  // Add our financial variables to make sure they're recognized even if not in content
+  variableSet.add('paidAmount');
+  variableSet.add('remainingBalance');
   
   // Convert Set to Array to eliminate duplicates
   this.variables = Array.from(variableSet);
