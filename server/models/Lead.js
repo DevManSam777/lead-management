@@ -120,7 +120,7 @@ const leadSchema = new mongoose.Schema({
       ref: "Form",
     },
   ],
-  // This field is only used for distinguishing form submissions from dashboard creations
+  // this field is only used for distinguishing form submissions from dashboard creations
   // It will not be stored but used in controller logic
   isFormSubmission: {
     type: Boolean,
@@ -128,22 +128,42 @@ const leadSchema = new mongoose.Schema({
   },
 });
 
+//  pre-save middleware to set business fields if they're empty
+leadSchema.pre("save", function(next) {
+  // if businessName is not set, use firstName and lastName
+  if (!this.businessName) {
+    this.businessName = `${this.firstName} ${this.lastName}`;
+  }
+  
+  // if businessPhone is not set, use phone
+  if (!this.businessPhone) {
+    this.businessPhone = this.phone;
+  }
+  
+  // if businessEmail is not set, use email
+  if (!this.businessEmail) {
+    this.businessEmail = this.email;
+  }
+  
+  next();
+});
+
 leadSchema.pre(
   "deleteOne",
   { document: false, query: true },
   async function () {
-    // Get the document that's about to be deleted
+    // get the document that's about to be deleted
     const leadId = this.getFilter()._id;
 
-    // Delete all payments for this lead
+    // delete all payments for this lead
     await mongoose.model("Payment").deleteMany({ leadId: leadId });
     console.log(`Automatically deleted payments for lead ${leadId}`);
   }
 );
 
-// Make sure we also handle remove() method if it's used anywhere
+// make sure we also handle remove() method if it's used anywhere
 leadSchema.pre("remove", async function () {
-  // Delete all payments for this lead
+  // delete all payments for this lead
   await mongoose.model("Payment").deleteMany({ leadId: this._id });
   console.log(`Automatically deleted payments for lead ${this._id}`);
 });
