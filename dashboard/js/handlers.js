@@ -349,7 +349,6 @@ async function validateAndSaveLead(event) {
   }
 }
 
-
 /**
  * Save lead data to the server
  */
@@ -393,8 +392,7 @@ async function saveLead() {
       city: document.getElementById("billingCity").value || "",
       state: document.getElementById("billingState").value || "",
       zipCode: document.getElementById("billingZipCode").value || "",
-      country:
-        document.getElementById("billingCountry").value || "United States",
+      country: document.getElementById("billingCountry").value || "",
     },
   };
 
@@ -624,7 +622,7 @@ async function openLeadModal(leadId, allLeads) {
   document.getElementById("billingZipCode").value =
     billingAddress.zipCode || "";
   document.getElementById("billingCountry").value =
-    billingAddress.country || "United States";
+    billingAddress.country || "";
   document.getElementById("preferredContact").value =
     lead.preferredContact || "";
   document.getElementById("serviceDesired").value =

@@ -223,24 +223,29 @@ exports.generateFormWithLeadData = async (req, res) => {
       currentDate
     );
 
-    // Format full billing address as a single string with proper line breaks
-    const fullAddress = lead.billingAddress
-      ? `<span>${lead.billingAddress.street || ""}<br>
-${
-  lead.billingAddress.aptUnit
-    ? "Unit " + lead.billingAddress.aptUnit + "<br>"
-    : ""
-}
-${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${
+let fullAddress;
+if (!lead.billingAddress || 
+    (!lead.billingAddress.street && 
+     !lead.billingAddress.aptUnit && 
+     !lead.billingAddress.city && 
+     !lead.billingAddress.state && 
+     !lead.billingAddress.zipCode && 
+     !lead.billingAddress.country)) {
+  fullAddress = "<span>[No Address Provided]</span>";
+} else { 
+  fullAddress = `<span>${lead.billingAddress.street || ""}${
+    lead.billingAddress.aptUnit
+      ? " #" + lead.billingAddress.aptUnit
+      : ""
+  }<br>${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${
           lead.billingAddress.zipCode || ""
-        }<br>
-${lead.billingAddress.country + "<br>" || ""}</span>`.trim()
-      : "<span>[Billing address not available]</span>";
+        }<br>${lead.billingAddress.country + "<br>" || ""}</span>`.trim();
+}
 
-    populatedContent = populatedContent.replace(
-      /\{\{billingAddress\}\}/g,
-      fullAddress
-    );
+populatedContent = populatedContent.replace(
+  /\{\{billingAddress\}\}/g,
+  fullAddress
+);
 
     // Replace all other variables with lead data
     form.variables.forEach((variable) => {
