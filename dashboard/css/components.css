@@ -839,3 +839,14 @@ select,
 .content-label {
   font-size: 1.6 rem;
 }
+
+.date-display-readonly {
+  padding: 1rem;
+  background-color: var(--input-bg);
+  border: 0.1rem solid var(--input-border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  min-height: 4.2rem;
+  display: flex;
+  align-items: center;
+}

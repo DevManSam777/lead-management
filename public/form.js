@@ -101,6 +101,43 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Function to validate individual field
+  // function validateField(field) {
+  //   if (field.required && field.value.trim() === "") {
+  //     showError(field, "This field is required");
+  //     return false;
+  //   }
+
+  //   if (field.type === "email" && field.value.trim() !== "") {
+  //     if (!isValidEmail(field.value)) {
+  //       showError(field, "Please enter a valid email address");
+  //       return false;
+  //     }
+  //   }
+
+  //   if (field.type === "tel" && field.value.trim() !== "" && field.required) {
+  //     if (!isValidPhone(field.value)) {
+  //       showError(
+  //         field,
+  //         "Please enter a valid 10-digit phone number in format: 000-000-0000"
+  //       );
+  //       return false;
+  //     }
+  //   }
+
+  //   if (field.id === "websiteAddress" && field.value.trim() !== "") {
+  //     if (!isValidUrl(field.value)) {
+  //       showError(
+  //         field,
+  //         "Please enter a valid website address (e.g., example.com)"
+  //       );
+  //       return false;
+  //     }
+  //   }
+
+  //   removeError(field);
+  //   return true;
+  // }
+
   function validateField(field) {
     if (field.required && field.value.trim() === "") {
       showError(field, "This field is required");
@@ -130,6 +167,22 @@ document.addEventListener("DOMContentLoaded", function () {
           field,
           "Please enter a valid website address (e.g., example.com)"
         );
+        return false;
+      }
+    }
+
+    // Specific validation for billing address fields
+    if (field.id === "billingZipCode" && field.value.trim() !== "") {
+      if (!/^\d{5}(-\d{4})?$/.test(field.value)) {
+        showError(field, "Please enter a valid ZIP code (e.g., 12345 or 12345-6789)");
+        return false;
+      }
+    }
+
+    // Validation for city, state, and street address
+    if ((field.id === "billingCity" || field.id === "billingState" || field.id === "billingStreet") && field.value.trim() !== "") {
+      if (field.value.length < 2) {
+        showError(field, "Please enter a valid " + field.name.replace('billing', '').toLowerCase());
         return false;
       }
     }

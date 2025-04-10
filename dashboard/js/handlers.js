@@ -696,6 +696,21 @@ async function openLeadModal(leadId, allLeads) {
     }
   }
 
+  // Handle creation date display - using UTC date to prevent off-by-one errors
+  const createdAtDisplay = document.getElementById("createdAtDisplay");
+  if (createdAtDisplay && lead.createdAt) {
+    const dateFormat = window.dateFormat || "MM/DD/YYYY";
+    
+    // Parse the ISO date string and create a UTC date
+    const createdDateStr = new Date(lead.createdAt).toISOString().split('T')[0];
+    const [year, month, day] = createdDateStr.split('-').map(Number);
+    
+    // Create date at noon to avoid timezone issues
+    const createdDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    
+    createdAtDisplay.textContent = formatDate(createdDate, dateFormat);
+  }
+
   // Fetch and display payments for this lead
   try {
     const leadPayments = await fetchLeadPayments(lead._id);
