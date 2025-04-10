@@ -668,7 +668,7 @@ async function saveFormContent(formId, content) {
 async function deleteForm(formId, leadId) {
   try {
     // Show loading toast
-    Utils.showToast('Deleting form...');
+    // Utils.showToast('Deleting form...');
     
     // Call API to delete the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {

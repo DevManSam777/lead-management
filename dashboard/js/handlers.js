@@ -1,4 +1,3 @@
-// handlers.js - Event handlers and form validation
 import {
   showInputError,
   clearInputError,
@@ -365,7 +364,7 @@ async function saveLead() {
     phone: document.getElementById("phone").value,
     phoneExt: document.getElementById("phoneExt").value || undefined,
     textNumber: document.getElementById("textNumber").value || undefined,
-    businessName: document.getElementById("businessName").value || "N/A",
+    businessName: document.getElementById("businessName").value || (firstName.value + " " + lastName.value),
     businessPhone: document.getElementById("businessPhone").value || undefined,
     businessPhoneExt:
       document.getElementById("businessPhoneExt").value || undefined,
@@ -467,13 +466,12 @@ async function saveLead() {
   }
 }
 
+
 async function deleteLeadAction(leadId) {
   try {
     // Close the modal first to avoid UI issues
     window.closeLeadModal();
-
-    // Show a toast indicating deletion is in progress
-    showToast("Deleting lead...");
+  
 
     // Delete the lead
     await deleteLead(leadId);
@@ -485,11 +483,8 @@ async function deleteLeadAction(leadId) {
       })
     );
 
-    // Refresh the dashboard
-    await window.fetchLeadsAndRender();
-
     // Show success toast
-    showToast("Lead deleted successfully");
+    showToast("Project deleted successfully");
   } catch (error) {
     console.error("Error deleting lead:", error);
     showToast("Error: " + error.message);

@@ -59,8 +59,8 @@ function renderGridView(leads) {
     // Handle name display
     const fullName = getLeadName(lead);
 
-    // Display business information with N/A as default
-    const businessName = lead.businessName || "N/A";
+   
+    const businessName = lead.businessName || (lead.firstName + " " + lead.lastName);
 
     // Format last contacted date if available
     let lastContactedText = "";
@@ -122,7 +122,7 @@ function renderListView(leads) {
     const fullName = getLeadName(lead);
 
     // Determine business info and handle empty values
-    const business = lead.businessName || "N/A";
+    const business = lead.businessName || (lead.firstName + " " + lead.lastName);
 
     // Format last contacted date if available
     let lastContactCell = "<td>Not contacted</td>";
@@ -224,7 +224,7 @@ function updateModalActionButtons(leadId) {
   deleteButton.className = "btn btn-danger";
   deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
   deleteButton.addEventListener("click", function () {
-    if (confirm("Are you sure you want to delete this lead?")) {
+    if (confirm("Are you sure you want to delete this project?")) {
       // This function will be globally available from dashboard.js
       window.deleteLeadAction(leadId);
     }

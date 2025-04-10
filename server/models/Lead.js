@@ -1,4 +1,3 @@
-// server/models/Lead.js
 const mongoose = require("mongoose");
 
 const leadSchema = new mongoose.Schema({
@@ -113,34 +112,34 @@ const leadSchema = new mongoose.Schema({
   lastContactedAt: {
     type: Date,
   },
-  // Add the associatedForms field to track forms related to this lead
+  // track forms related to lead
   associatedForms: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Form",
     },
   ],
-  // this field is only used for distinguishing form submissions from dashboard creations
-  // It will not be stored but used in controller logic
+  // field is only used for distinguishing form submissions from dashboard creations
+  // it will not be stored but used in controller logic
   isFormSubmission: {
     type: Boolean,
-    select: false, // Exclude from query results by default
+    select: false, // exclude from query results by default
   },
 });
 
-//  pre-save middleware to set business fields if they're empty
+// pre-save middleware to set business fields if they're empty
 leadSchema.pre("save", function(next) {
-  // if businessName is not set, use firstName and lastName
+  // if businessName is not set use firstName and lastName
   if (!this.businessName) {
     this.businessName = `${this.firstName} ${this.lastName}`;
   }
   
-  // if businessPhone is not set, use phone
+  // if businessPhone is not set use phone
   if (!this.businessPhone) {
     this.businessPhone = this.phone;
   }
   
-  // if businessEmail is not set, use email
+  // if businessEmail is not set use email
   if (!this.businessEmail) {
     this.businessEmail = this.email;
   }
@@ -158,14 +157,31 @@ leadSchema.pre(
     // delete all payments for this lead
     await mongoose.model("Payment").deleteMany({ leadId: leadId });
     console.log(`Automatically deleted payments for lead ${leadId}`);
+
+    //dDelete all associated forms for this lead
+    const Lead = await mongoose.model("Lead").findById(leadId);
+    if (Lead && Lead.associatedForms && Lead.associatedForms.length > 0) {
+      await mongoose.model("Form").deleteMany({ 
+        _id: { $in: Lead.associatedForms } 
+      });
+      console.log(`Automatically deleted ${Lead.associatedForms.length} forms for lead ${leadId}`);
+    }
   }
 );
 
-// make sure we also handle remove() method if it's used anywhere
+// handle remove() method if it's used anywhere
 leadSchema.pre("remove", async function () {
-  // delete all payments for this lead
+  // Delete all payments for this lead
   await mongoose.model("Payment").deleteMany({ leadId: this._id });
   console.log(`Automatically deleted payments for lead ${this._id}`);
+
+  // delete all associated forms for this lead
+  if (this.associatedForms && this.associatedForms.length > 0) {
+    await mongoose.model("Form").deleteMany({ 
+      _id: { $in: this.associatedForms } 
+    });
+    console.log(`Automatically deleted ${this.associatedForms.length} forms for lead ${this._id}`);
+  }
 });
 
 module.exports = mongoose.model("Lead", leadSchema);
