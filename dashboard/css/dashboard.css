@@ -382,7 +382,7 @@ details[open] .stats-cards {
   width: calc(100% - 3.5rem); 
   height: 100%;
   padding: 1rem;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   color: var(--input-text);
   background-color: transparent;
   pointer-events: none; 

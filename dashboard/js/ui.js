@@ -224,7 +224,7 @@ function updateModalActionButtons(leadId) {
   deleteButton.className = "btn btn-danger";
   deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
   deleteButton.addEventListener("click", function () {
-    if (confirm("Are you sure you want to delete this project?")) {
+    if (confirm("Are you sure you want to delete this ?")) {
       // This function will be globally available from dashboard.js
       window.deleteLeadAction(leadId);
     }

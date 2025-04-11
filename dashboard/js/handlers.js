@@ -696,19 +696,14 @@ async function openLeadModal(leadId, allLeads) {
     }
   }
 
-  // Handle creation date display - using UTC date to prevent off-by-one errors
-  const createdAtDisplay = document.getElementById("createdAtDisplay");
+const createdAtDisplay = document.getElementById("createdAtDisplay");
   if (createdAtDisplay && lead.createdAt) {
+    console.log("Raw created at:", lead.createdAt);
+    const createdDate = new Date(lead.createdAt);
+    console.log("Date object (local interpretation):", createdDate);
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
-    
-    // Parse the ISO date string and create a UTC date
-    const createdDateStr = new Date(lead.createdAt).toISOString().split('T')[0];
-    const [year, month, day] = createdDateStr.split('-').map(Number);
-    
-    // Create date at noon to avoid timezone issues
-    const createdDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
-    
-    createdAtDisplay.textContent = formatDate(createdDate, dateFormat);
+    const formattedDate = formatDate(createdDate, dateFormat);
+    createdAtDisplay.textContent = `${formattedDate}`;
   }
 
   // Fetch and display payments for this lead
