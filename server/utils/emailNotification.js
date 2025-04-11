@@ -53,7 +53,7 @@ async function sendLeadNotificationEmail(leadData) {
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL,
-      subject: `🔔 New ${leadData.serviceDesired} inquiry from ${leadData.businessName}🔔`,
+      subject: `🔔 New ${leadData.serviceDesired} inquiry from ${leadData.businessName} 🔔`,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.5; background-color: #f9f9f9; border-radius: 8px;">
           <div style="background-color: #2c3e50; color: white; padding: 20px; border-radius: 6px 6px 0 0; margin-bottom: 20px;">
@@ -172,12 +172,12 @@ async function sendLeadNotificationEmail(leadData) {
                 <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
                   ${
                     leadData.billingAddress
-                      ? `${leadData.billingAddress.street || ""}<br>
+                      ? `${leadData.billingAddress.street || ""}
                     ${
                       leadData.billingAddress.aptUnit
-                        ? `#${leadData.billingAddress.aptUnit}<br>`
+                        ? `, ${leadData.billingAddress.aptUnit}`
                         : ""
-                    }
+                    }<br>
                     ${leadData.billingAddress.city || ""}, ${
                           leadData.billingAddress.state || ""
                         } ${leadData.billingAddress.zipCode || ""}, ${
