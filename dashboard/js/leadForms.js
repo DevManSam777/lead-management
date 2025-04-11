@@ -430,18 +430,19 @@ function openEditContentModal(form) {
             Click a variable to insert it at the cursor position. Use format <code>{{variableName}}</code> in your content.
           </p>
           <div class="variables-list" id="variablesList">
-            <span class="variable-tag" data-variable="firstName">firstName</span>
-            <span class="variable-tag" data-variable="lastName">lastName</span>
+            <span class="variable-tag" data-variable="firstName">First Name</span>
+            <span class="variable-tag" data-variable="lastName">Last Name</span>
             <span class="variable-tag" data-variable="fullName">Full Name</span>
-            <span class="variable-tag" data-variable="email">email</span>
-            <span class="variable-tag" data-variable="phone">phone</span>
-            <span class="variable-tag" data-variable="businessName">businessName</span>
-            <span class="variable-tag" data-variable="businessEmail">businessEmail</span>
-            <span class="variable-tag" data-variable="businessPhone">businessPhone</span>
-            <span class="variable-tag" data-variable="serviceDesired">serviceDesired</span>
-            <span class="variable-tag" data-variable="estimatedBudget">estimatedBudget</span>
-            <span class="variable-tag" data-variable="totalBudget">totalBudget</span>
-            <span class="variable-tag" data-variable="currentDate">currentDate</span>
+            <span class="variable-tag" data-variable="email">Email</span>
+            <span class="variable-tag" data-variable="phone">Phone</span>
+            <span class="variable-tag" data-variable="businessName">Business Name</span>
+            <span class="variable-tag" data-variable="businessEmail">Business Email</span>
+            <span class="variable-tag" data-variable="businessPhone">Business Phone</span>
+            <span class="variable-tag" data-variable="preferredContact">Contact Preference</span>
+            <span class="variable-tag" data-variable="serviceDesired">Service Desired</span>
+            <span class="variable-tag" data-variable="estimatedBudget">Estimated Budget</span>
+            <span class="variable-tag" data-variable="totalBudget">Total Billed</span>
+            <span class="variable-tag" data-variable="currentDate">Current Date</span>
             <span class="variable-tag" data-variable="createdAt">Project Origin Date</span>
           </div>
         </div>

@@ -1,5 +1,66 @@
 const Form = require("../models/Form");
 
+// Format preferred contact values
+function formatPreferredContactValue(value) {
+  // If no value is provided, return a nice placeholder
+  if (!value) {
+    return "No contact preference specified";
+  }
+  
+  // Map of stored values to display values
+  const contactMethods = {
+    "phone": "Personal Phone",
+    "businessPhone": "Business Phone",
+    "email": "Personal Email",
+    "text": "Text Message",
+    "businessEmail": "Business Email"
+  };
+  
+  // Return the mapped value or the original if no mapping exists
+  return contactMethods[value] || value;
+}
+
+// Format all variable values consistently
+function formatVariableValue(variable, value) {
+  // Handle null, undefined, or empty string values
+  if (value === null || value === undefined || value === "") {
+    return `[No ${variable} provided]`;
+  }
+  
+  // Special case formatting for different variable types
+  switch(variable) {
+    case "preferredContact":
+      return formatPreferredContactValue(value);
+      
+    case "serviceDesired":
+      // Format service types nicely
+      const serviceTypes = {
+        "Web Development": "Website Development",
+        "App Development": "Mobile Application Development"
+      };
+      return serviceTypes[value] || value;
+      
+    case "hasWebsite":
+      // Convert yes/no to complete sentences
+      return value === "yes" ? "Client has an existing website" : "Client does not have an existing website";
+      
+    case "budget":
+    case "estimatedBudget":
+      // Format currency values
+      if (!isNaN(parseFloat(value))) {
+        return parseFloat(value).toLocaleString('en-US', { 
+          style: 'currency', 
+          currency: 'USD' 
+        });
+      }
+      return value;
+      
+    default:
+      // Return the value as-is for other variables
+      return value;
+  }
+}
+
 // Get all forms
 exports.getForms = async (req, res) => {
   try {
@@ -188,11 +249,12 @@ exports.generateFormWithLeadData = async (req, res) => {
     // Get the lead
     const Lead = require("../models/Lead");
     const lead = await Lead.findById(leadId);
-    const fullName = `${lead.firstName} ${lead.lastName}` 
 
     if (!lead) {
       return res.status(404).json({ message: "Lead not found" });
     }
+    
+    const fullName = `${lead.firstName} ${lead.lastName}`;
     
     // Create a new form based on the template with lead data
     const newForm = new Form({
@@ -256,6 +318,7 @@ exports.generateFormWithLeadData = async (req, res) => {
       );
     }
 
+    // Handle billing address which needs special formatting
     let fullAddress;
     if (!lead.billingAddress || 
         (!lead.billingAddress.street && 
@@ -280,11 +343,13 @@ exports.generateFormWithLeadData = async (req, res) => {
       fullAddress
     );
 
+    // Handle fullName
     populatedContent = populatedContent.replace(
       /\{\{fullName\}\}/g,
-      `${lead.firstName} ${lead.lastName}`
+      fullName
     );
 
+    // Handle created date
     if (lead.createdAt) {
       const createdDate = new Date(lead.createdAt);
       createdDate.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
@@ -299,10 +364,17 @@ exports.generateFormWithLeadData = async (req, res) => {
         formattedCreatedDate
       );
     }
-    
+
+    // Handle preferred contact method with special formatting
+    const formattedPreferredContact = formatVariableValue("preferredContact", lead.preferredContact);
+    populatedContent = populatedContent.replace(
+      /\{\{preferredContact\}\}/g,
+      formattedPreferredContact
+    );
 
     // Replace all other variables with lead data
     form.variables.forEach((variable) => {
+      // Skip already processed special variables
       if (variable === "currentDate" || 
           variable === "paidAmount" || 
           variable === "remainingBalance" ||
@@ -310,29 +382,18 @@ exports.generateFormWithLeadData = async (req, res) => {
           variable === "totalBudget" ||
           variable === "billingAddress" ||
           variable === "fullName" ||
+          variable === "preferredContact" ||
           variable === "createdAt") {
-        return; // Skip already processed variables
+        return;
       }
 
       const variablePattern = new RegExp(`\\{\\{${variable}\\}\\}`, "g");
 
-      // Get the value from lead object (handle nested properties)
-      let value = lead[variable] || "";
-
-      // Special handling for empty values
-      if (value === "" || value === undefined || value === null) {
-        value = `[${variable} not available]`;
-      }
-
-      // Special formatting for currency values (if needed)
-      if (variable === "budget" || variable === "estimatedBudget") {
-        if (value && !isNaN(parseFloat(value))) {
-          value = parseFloat(value).toLocaleString('en-US', { 
-            style: 'currency', 
-            currency: 'USD' 
-          });
-        }
-      }
+      // Get the value from lead object
+      let value = lead[variable];
+      
+      // Format the value with our formatter
+      value = formatVariableValue(variable, value);
 
       // Replace in content
       populatedContent = populatedContent.replace(variablePattern, value);
