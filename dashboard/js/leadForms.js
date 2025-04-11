@@ -432,6 +432,7 @@ function openEditContentModal(form) {
           <div class="variables-list" id="variablesList">
             <span class="variable-tag" data-variable="firstName">firstName</span>
             <span class="variable-tag" data-variable="lastName">lastName</span>
+            <span class="variable-tag" data-variable="fullName">Full Name</span>
             <span class="variable-tag" data-variable="email">email</span>
             <span class="variable-tag" data-variable="phone">phone</span>
             <span class="variable-tag" data-variable="businessName">businessName</span>
@@ -441,6 +442,7 @@ function openEditContentModal(form) {
             <span class="variable-tag" data-variable="estimatedBudget">estimatedBudget</span>
             <span class="variable-tag" data-variable="totalBudget">totalBudget</span>
             <span class="variable-tag" data-variable="currentDate">currentDate</span>
+            <span class="variable-tag" data-variable="createdAt">Project Origin Date</span>
           </div>
         </div>
       </div>

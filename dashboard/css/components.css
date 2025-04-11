@@ -228,7 +228,7 @@
 
 .form-section h4 {
   margin-bottom: 1.5rem;
-  color: var(--text-color);
+  color: var(--danger);
   font-size: 1.8rem;
 }
 
@@ -255,7 +255,7 @@
   display: block;
   margin-bottom: 0.8rem;
   font-weight: 500;
-  color: var(--text-color);
+  color: var(--primary);
   font-size: 1.6rem;
 }
 
@@ -605,6 +605,7 @@ select,
 .payments-list {
   margin-top: 1.5rem;
 }
+
 
 .payments-container {
   margin-bottom: 1rem;

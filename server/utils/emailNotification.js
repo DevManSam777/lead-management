@@ -109,12 +109,20 @@ async function sendLeadNotificationEmail(leadData) {
             <tr>
               <td style="padding: 10px; border: 1px solid #ddd;"><strong>Billing Address:</strong></td>
               <td style="padding: 10px; border: 1px solid #ddd;">
-                ${leadData.billingAddress ? 
-                  `${leadData.billingAddress.street || ''}<br>
-                  ${leadData.billingAddress.aptUnit ? leadData.billingAddress.aptUnit + '<br>' : ''}
-                  ${leadData.billingAddress.city || ''}, ${leadData.billingAddress.state || ''} ${leadData.billingAddress.zipCode || ''}<br>
-                  ${leadData.billingAddress.country || 'United States'}` 
-                  : 'Not provided'}
+                ${
+                  leadData.billingAddress
+                    ? `${leadData.billingAddress.street || ""}<br>
+                  #${
+                    leadData.billingAddress.aptUnit
+                      ? leadData.billingAddress.aptUnit + "<br>"
+                      : ""
+                  }
+                  ${leadData.billingAddress.city || ""}, ${
+                        leadData.billingAddress.state || ""
+                      } ${leadData.billingAddress.zipCode || ""}<br>
+                  ${leadData.billingAddress.country}`
+                    : "Not provided"
+                }
               </td>
             </tr>
             <tr>
@@ -123,6 +131,16 @@ async function sendLeadNotificationEmail(leadData) {
                 leadData.serviceDesired
               }</td>
             </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Preferred Contact Method:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${
+                leadData.preferredContact == "businessPhone"
+                  ? "Business Phone"
+                  : leadData.preferredContact === "businessEmail"
+                  ? "Business Email"
+                  : leadData.preferredContact[0].toUpperCase() +
+                      leadData.preferredContact.slice(1) || "N/A"
+              }</td>
             <tr>
               <td style="padding: 10px; border: 1px solid #ddd;"><strong>Message:</strong></td>
               <td style="padding: 10px; border: 1px solid #ddd;">${

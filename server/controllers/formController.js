@@ -188,14 +188,16 @@ exports.generateFormWithLeadData = async (req, res) => {
     // Get the lead
     const Lead = require("../models/Lead");
     const lead = await Lead.findById(leadId);
+    const fullName = `${lead.firstName} ${lead.lastName}` 
+
     if (!lead) {
       return res.status(404).json({ message: "Lead not found" });
     }
-
+    
     // Create a new form based on the template with lead data
     const newForm = new Form({
       // Keep title for organization in the database
-      title: `${form.title} - ${lead.firstName} ${lead.lastName}`,
+      title: `${form.title} - ${fullName}`,
       description: form.description,
       // Just use the original content without adding the title
       content: form.content,
@@ -278,6 +280,27 @@ exports.generateFormWithLeadData = async (req, res) => {
       fullAddress
     );
 
+    populatedContent = populatedContent.replace(
+      /\{\{fullName\}\}/g,
+      `${lead.firstName} ${lead.lastName}`
+    );
+
+    if (lead.createdAt) {
+      const createdDate = new Date(lead.createdAt);
+      createdDate.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
+      const formattedCreatedDate = createdDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+      
+      populatedContent = populatedContent.replace(
+        /\{\{createdAt\}\}/g,
+        formattedCreatedDate
+      );
+    }
+    
+
     // Replace all other variables with lead data
     form.variables.forEach((variable) => {
       if (variable === "currentDate" || 
@@ -285,7 +308,9 @@ exports.generateFormWithLeadData = async (req, res) => {
           variable === "remainingBalance" ||
           variable === "billedAmount" ||
           variable === "totalBudget" ||
-          variable === "billingAddress") {
+          variable === "billingAddress" ||
+          variable === "fullName" ||
+          variable === "createdAt") {
         return; // Skip already processed variables
       }
 

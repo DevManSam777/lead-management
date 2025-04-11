@@ -256,9 +256,12 @@
         <!-- Modal action buttons will be inserted here by JS -->
         <form id="leadForm">
           <input type="hidden" id="leadId" />
-          <div class="form-group">
-            <label>Created Date</label>
-            <div class="date-display-readonly" id="createdAtDisplay"></div>
+          <div class="form-section">
+            <h4>Origin</h4>
+            <div class="form-group">
+              <label>Date Created</label>
+              <div class="date-display-readonly" id="createdAtDisplay"></div>
+            </div>
           </div>
           <!-- Personal Information Section -->
           <div class="form-section">
@@ -327,41 +330,46 @@
               <label for="businessServices">Business Services</label>
               <textarea id="businessServices" rows="1"></textarea>
             </div>
+          </div>
+
+          <!-- Billing Address Section -->
+          <div class="form-section">
+            <h4>Billing Address</h4>
 
             <div class="form-group">
-              <label for="billingStreet">Billing Address</label>
-              <input type="text" id="billingStreet" name="billingStreet" placeholder="Street Address" />
-            </div>
-            <div class="form-group">
-              <input type="text" id="billingAptUnit" name="billingAptUnit" placeholder="Apartment/Unit Number (optional)" />
-            </div>
-            <div class="form-group" style="display: flex; gap: 1rem;">
-              <div style="flex: 1;">
-                <input type="text" id="billingCity" name="billingCity" placeholder="City" />
-              </div>
-              <div style="flex: 1;">
-                <input type="text" id="billingState" name="billingState" placeholder="State/Province" />
-              </div>
-            </div>
-            <div class="form-group" style="display: flex; gap: 1rem;">
-              <div style="flex: 1;">
-                <input type="text" id="billingZipCode" name="billingZipCode" placeholder="ZIP/Postal Code" />
-              </div>
-              <div style="flex: 1;">
-                <input type="text" id="billingCountry" name="billingCountry" placeholder="Country" />
-              </div>
+              <label for="billingStreet">Street Address</label>
+              <input type="text" id="billingStreet" name="billingStreet" />
             </div>
 
             <div class="form-group">
-              <label for="preferredContact">Preferred Contact Method</label>
-              <select id="preferredContact">
-                <option value="">-- Select Contact Method --</option>
-                <option value="phone">Personal Phone</option>
-                <option value="businessPhone">Business Phone</option>
-                <option value="email">Personal Email</option>
-                <option value="text">Text Message</option>
-                <option value="businessEmail">Business Email</option>
-              </select>
+              <label for="billingAptUnit">Apartment/Unit Number</label>
+              <input type="text" id="billingAptUnit" name="billingAptUnit" />
+            </div>
+
+            <div class="form-group">
+              <label for="billingCity">City</label>
+              <input type="text" id="billingCity" name="billingCity" />
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 1rem">
+              <div style="flex: 1">
+                <label for="billingState">State/Province</label>
+                <input type="text" id="billingState" name="billingState" />
+              </div>
+              <div style="flex: 1">
+                <label for="billingZipCode">ZIP/Postal Code</label>
+                <input type="text" id="billingZipCode" name="billingZipCode" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="billingCountry">Country</label>
+              <input
+                type="text"
+                id="billingCountry"
+                name="billingCountry"
+                value="United States"
+              />
             </div>
           </div>
 
@@ -388,6 +396,18 @@
             <div class="form-group">
               <label for="websiteAddress">Website Address</label>
               <input type="text" id="websiteAddress" />
+            </div>
+
+            <div class="form-group">
+              <label for="preferredContact">Preferred Contact Method</label>
+              <select id="preferredContact">
+                <option value="">-- Select Contact Method --</option>
+                <option value="phone">Personal Phone</option>
+                <option value="businessPhone">Business Phone</option>
+                <option value="email">Personal Email</option>
+                <option value="text">Text Message</option>
+                <option value="businessEmail">Business Email</option>
+              </select>
             </div>
 
             <div class="form-group">
