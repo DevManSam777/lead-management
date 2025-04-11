@@ -58,7 +58,9 @@ async function sendLeadNotificationEmail(leadData) {
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.5; background-color: #f9f9f9; border-radius: 8px;">
           <div style="background-color: #2c3e50; color: white; padding: 20px; border-radius: 6px 6px 0 0; margin-bottom: 20px;">
             <h2 style="margin: 0; font-weight: 600; font-size: 22px;">🚀 New Client Opportunity! 💻</h2>
-            <h3 style="margin: 10px 0 0; font-weight: 500; font-size: 18px; opacity: 0.9;">${leadData.businessName} is interested in your services!</h3>
+            <h3 style="margin: 10px 0 0; font-weight: 500; font-size: 18px; opacity: 0.9;">${
+              leadData.businessName
+            } is interested in your services!</h3>
             <p style="margin: 5px 0 0; opacity: 0.8;">${new Date().toLocaleString()}</p>
           </div>
           
@@ -72,20 +74,30 @@ async function sendLeadNotificationEmail(leadData) {
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
               <tr>
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Name:</td>
-                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.firstName} ${leadData.lastName}</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${
+                  leadData.firstName
+                } ${leadData.lastName}</td>
               </tr>
               <tr style="background-color: #f8f9fa;">
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Phone:</td>
-                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.phone}</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${
+                  leadData.phone
+                }</td>
               </tr>
               <tr>
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Phone Ext:</td>
-                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.phoneExt || "N/A"}</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${
+                  leadData.phoneExt || "N/A"
+                }</td>
               </tr>
               <tr style="background-color: #f8f9fa;">
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Email:</td>
                 <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
-                  <a href="mailto:${leadData.email}" style="color: #3498db; text-decoration: none;">${leadData.email}</a>
+                  <a href="mailto:${
+                    leadData.email
+                  }" style="color: #3498db; text-decoration: none;">${
+        leadData.email
+      }</a>
                 </td>
               </tr>
             </table>
@@ -99,20 +111,30 @@ async function sendLeadNotificationEmail(leadData) {
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
               <tr>
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business Name:</td>
-                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.businessName || "N/A"}</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${
+                  leadData.businessName || "N/A"
+                }</td>
               </tr>
               <tr style="background-color: #f8f9fa;">
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business Phone:</td>
-                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.businessPhone || "N/A"}</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${
+                  leadData.businessPhone || "N/A"
+                }</td>
               </tr>
               <tr>
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business Phone Ext:</td>
-                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.businessPhoneExt || "N/A"}</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${
+                  leadData.businessPhoneExt || "N/A"
+                }</td>
               </tr>
               <tr style="background-color: #f8f9fa;">
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business Email:</td>
                 <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
-                  ${leadData.businessEmail ? `<a href="mailto:${leadData.businessEmail}" style="color: #3498db; text-decoration: none;">${leadData.businessEmail}</a>` : "N/A"}
+                  ${
+                    leadData.businessEmail
+                      ? `<a href="mailto:${leadData.businessEmail}" style="color: #3498db; text-decoration: none;">${leadData.businessEmail}</a>`
+                      : "N/A"
+                  }
                 </td>
               </tr>
             </table>
@@ -127,7 +149,9 @@ async function sendLeadNotificationEmail(leadData) {
               <tr>
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Service Desired:</td>
                 <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
-                  <span style="display: inline-block; background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${leadData.serviceDesired}</span>
+                  <span style="display: inline-block; background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${
+                    leadData.serviceDesired
+                  }</span>
                 </td>
               </tr>
               <tr style="background-color: #f8f9fa;">
@@ -139,7 +163,7 @@ async function sendLeadNotificationEmail(leadData) {
                       : leadData.preferredContact === "businessEmail"
                       ? "Business Email"
                       : leadData.preferredContact[0].toUpperCase() +
-                        leadData.preferredContact.slice(1) || "N/A"
+                          leadData.preferredContact.slice(1) || "N/A"
                   }
                 </td>
               </tr>
@@ -156,8 +180,9 @@ async function sendLeadNotificationEmail(leadData) {
                     }
                     ${leadData.billingAddress.city || ""}, ${
                           leadData.billingAddress.state || ""
-                        } ${leadData.billingAddress.zipCode || ""}<br>
-                    ${leadData.billingAddress.country}`
+                        } ${leadData.billingAddress.zipCode || ""}, ${
+                          leadData.billingAddress.country
+                        }`
                       : "Not provided"
                   }
                 </td>
