@@ -335,7 +335,7 @@ exports.generateFormWithLeadData = async (req, res) => {
           : ""
       }<br>${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${
               lead.billingAddress.zipCode || ""
-            }<br>${lead.billingAddress.country || "United States"}</span>`.trim();
+            }, ${lead.billingAddress.country || ""}</span>`.trim();
     }
 
     populatedContent = populatedContent.replace(
