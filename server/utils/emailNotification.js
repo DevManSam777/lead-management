@@ -48,111 +48,138 @@ async function sendLeadNotificationEmail(leadData) {
   }
 
   try {
-    const fullName = `${leadData.firstName} ${leadData.lastName}`;
+    const fullName = `${leadData.businessName}`;
     // Send email
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL,
-      subject: `New Web Development Inquiry From ${fullName}`,
+      subject: `🔔 New ${leadData.serviceDesired} inquiry from ${leadData.businessName}🔔`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>New Form Submission Received</h2>
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Name:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.firstName
-              } ${leadData.lastName}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Phone:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.phone
-              }</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Phone Ext:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.phoneExt || "N/A"
-              }</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Email:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.email
-              }</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Business Name:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.businessName || "N/A"
-              }</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Business Phone:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.businessPhone || "N/A"
-              }</td>
-            </tr>
-             <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Business Phone Ext:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.businessPhoneExt || "N/A"
-              }</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Business Email:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.businessEmail || "N/A"
-              }</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Billing Address:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">
-                ${
-                  leadData.billingAddress
-                    ? `${leadData.billingAddress.street || ""}<br>
-                  #${
-                    leadData.billingAddress.aptUnit
-                      ? leadData.billingAddress.aptUnit + "<br>"
-                      : ""
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.5; background-color: #f9f9f9; border-radius: 8px;">
+          <div style="background-color: #2c3e50; color: white; padding: 20px; border-radius: 6px 6px 0 0; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-weight: 600; font-size: 22px;">🚀 New Client Opportunity! 💻</h2>
+            <h3 style="margin: 10px 0 0; font-weight: 500; font-size: 18px; opacity: 0.9;">${leadData.businessName} is interested in your services!</h3>
+            <p style="margin: 5px 0 0; opacity: 0.8;">${new Date().toLocaleString()}</p>
+          </div>
+          
+          <div style="background-color: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <!-- Client Information Section with colored left border -->
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #ff6b6b;">
+              <h3 style="margin: 0; font-size: 18px; color: #2c3e50;">Client Information</h3>
+              <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">Contact details for follow-up</p>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+              <tr>
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Name:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.firstName} ${leadData.lastName}</td>
+              </tr>
+              <tr style="background-color: #f8f9fa;">
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Phone:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.phone}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Phone Ext:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.phoneExt || "N/A"}</td>
+              </tr>
+              <tr style="background-color: #f8f9fa;">
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Email:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
+                  <a href="mailto:${leadData.email}" style="color: #3498db; text-decoration: none;">${leadData.email}</a>
+                </td>
+              </tr>
+            </table>
+            
+            <!-- Business Information Section with colored left border -->
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #4ecdc4;">
+              <h3 style="margin: 0; font-size: 18px; color: #2c3e50;">Business Information</h3>
+              <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">Business details provided</p>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+              <tr>
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business Name:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.businessName || "N/A"}</td>
+              </tr>
+              <tr style="background-color: #f8f9fa;">
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business Phone:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.businessPhone || "N/A"}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business Phone Ext:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${leadData.businessPhoneExt || "N/A"}</td>
+              </tr>
+              <tr style="background-color: #f8f9fa;">
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business Email:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
+                  ${leadData.businessEmail ? `<a href="mailto:${leadData.businessEmail}" style="color: #3498db; text-decoration: none;">${leadData.businessEmail}</a>` : "N/A"}
+                </td>
+              </tr>
+            </table>
+            
+            <!-- Inquiry Details Section with colored left border -->
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #ffbe0b;">
+              <h3 style="margin: 0; font-size: 18px; color: #2c3e50;">Inquiry Details</h3>
+              <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">Service request information</p>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+              <tr>
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Service Desired:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
+                  <span style="display: inline-block; background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${leadData.serviceDesired}</span>
+                </td>
+              </tr>
+              <tr style="background-color: #f8f9fa;">
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Preferred Contact:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
+                  ${
+                    leadData.preferredContact == "businessPhone"
+                      ? "Business Phone"
+                      : leadData.preferredContact === "businessEmail"
+                      ? "Business Email"
+                      : leadData.preferredContact[0].toUpperCase() +
+                        leadData.preferredContact.slice(1) || "N/A"
                   }
-                  ${leadData.billingAddress.city || ""}, ${
-                        leadData.billingAddress.state || ""
-                      } ${leadData.billingAddress.zipCode || ""}<br>
-                  ${leadData.billingAddress.country}`
-                    : "Not provided"
-                }
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Service Desired:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.serviceDesired
-              }</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Preferred Contact Method:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.preferredContact == "businessPhone"
-                  ? "Business Phone"
-                  : leadData.preferredContact === "businessEmail"
-                  ? "Business Email"
-                  : leadData.preferredContact[0].toUpperCase() +
-                      leadData.preferredContact.slice(1) || "N/A"
-              }</td>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Message:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${
-                leadData.message || "N/A"
-              }</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Submitted At:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${new Date().toLocaleString()}</td>
-            </tr>
-          </table>
-          <p style="margin-top: 20px;">Please log in to your dashboard to view full details.</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Billing Address:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
+                  ${
+                    leadData.billingAddress
+                      ? `${leadData.billingAddress.street || ""}<br>
+                    ${
+                      leadData.billingAddress.aptUnit
+                        ? `#${leadData.billingAddress.aptUnit}<br>`
+                        : ""
+                    }
+                    ${leadData.billingAddress.city || ""}, ${
+                          leadData.billingAddress.state || ""
+                        } ${leadData.billingAddress.zipCode || ""}<br>
+                    ${leadData.billingAddress.country}`
+                      : "Not provided"
+                  }
+                </td>
+              </tr>
+              <tr style="background-color: #f8f9fa;">
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Message:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top; line-height: 1.6; text-align: left;">
+                  <div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #ddd; font-style: italic;">
+                    "${leadData.message || "No message provided"}"
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          
+          <!-- Action Section with colored left border -->
+          <div style="margin-top: 25px; padding-left: 15px; border-left: 5px solid #9775fa; background-color: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h3 style="margin: 0; font-size: 18px; color: #2c3e50;">Next Steps</h3>
+            <p style="margin: 10px 0 0; font-size: 14px; color: #2c3e50;">
+              Please access your dashboard for more details and to manage this lead/project.
+            </p>
+          </div>
         </div>
       `,
     });

@@ -59,24 +59,6 @@ function renderLeadPayments(leadPayments, leadId) {
     // Format the payment date - FIX HERE
     let formattedDate = "Not recorded";
     
-    // if (payment.paymentDate) {
-    //   // Create a new date that preserves the correct day by forcing a fixed time
-    //   // Extract just the date parts to prevent timezone shifts
-    //   const paymentDate = new Date(payment.paymentDate);
-    //   const year = paymentDate.getFullYear();
-    //   const month = paymentDate.getMonth();
-    //   const day = paymentDate.getDate() + 1;
-      
-    //   // Recreate the date with local noon time to avoid timezone shifts
-    //   const adjustedDate = new Date(year, month, day, 12, 0, 0, 0);
-      
-    //   // Now format it using our utility
-    //   formattedDate = formatDate(adjustedDate, dateFormat);
-      
-    //   // Debug logging to identify issues
-    //   console.log(`Payment date: Original=${payment.paymentDate}, Adjusted=${adjustedDate.toISOString()}, Formatted=${formattedDate}`);
-    // }
-
     if (payment.paymentDate) {
       // Convert the date string to a local date object without timezone conversion
       const dateStr = new Date(payment.paymentDate).toISOString().split('T')[0];

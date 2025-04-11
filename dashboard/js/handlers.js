@@ -706,7 +706,7 @@ async function openLeadModal(leadId, allLeads) {
     const [year, month, day] = createdDateStr.split('-').map(Number);
     
     // Create date at noon to avoid timezone issues
-    const createdDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    const createdDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
     
     createdAtDisplay.textContent = formatDate(createdDate, dateFormat);
   }
