@@ -24,6 +24,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   
   // Load forms
   fetchAndRenderForms();
+
+  // Configure marked.js globally to preserve whitespace
+marked.setOptions({
+  gfm: true,          // GitHub Flavored Markdown
+  breaks: true,       // Convert \n to <br>
+  smartLists: true,   // Use smarter list behavior
+  xhtml: true,        // Self-close HTML tags
+  headerIds: false    // Don't add IDs to headers
+});
 });
 
 /**
@@ -304,6 +313,20 @@ function initializeMarkdownEditor() {
 /**
  * Update the markdown preview
  */
+// function updateMarkdownPreview() {
+//   const content = editor.getValue();
+//   const preview = document.getElementById("markdownPreview");
+  
+//   if (!content) {
+//     preview.innerHTML = "<p><em>No content to preview</em></p>";
+//     return;
+//   }
+  
+//   // Convert markdown to HTML with DOMPurify for security
+//   const html = DOMPurify.sanitize(marked.parse(content));
+//   preview.innerHTML = html;
+// }
+
 function updateMarkdownPreview() {
   const content = editor.getValue();
   const preview = document.getElementById("markdownPreview");
@@ -858,119 +881,292 @@ async function deleteForm(formId) {
 /**
  * Download form as markdown
  */
-function downloadForm() {
-  const title = document.getElementById("previewFormTitle").textContent;
-  const content = document.getElementById("previewContent").innerHTML;
+// function downloadForm() {
+//   const title = document.getElementById("previewFormTitle").textContent;
+//   const content = document.getElementById("previewContent").innerHTML;
   
-  // Create a temporary element to extract text content
-  const tempElement = document.createElement("div");
-  tempElement.innerHTML = content;
-  const textContent = tempElement.innerText;
+//   // Create a temporary element to extract text content
+//   const tempElement = document.createElement("div");
+//   tempElement.innerHTML = content;
+//   const textContent = tempElement.innerText;
   
-  // Create a blob with the content
-  const blob = new Blob([textContent], { type: "text/markdown" });
+//   // Create a blob with the content
+//   const blob = new Blob([textContent], { type: "text/markdown" });
   
-  // Create a download link
-  const downloadLink = document.createElement("a");
-  downloadLink.href = URL.createObjectURL(blob);
-  downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
+//   // Create a download link
+//   const downloadLink = document.createElement("a");
+//   downloadLink.href = URL.createObjectURL(blob);
+//   downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
   
-  // Trigger download
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
+//   // Trigger download
+//   document.body.appendChild(downloadLink);
+//   downloadLink.click();
+//   document.body.removeChild(downloadLink);
+// }
+
+async function downloadForm(formId) {
+  try {
+    // Get the form content directly from the server or editor
+    let formContent;
+    let title;
+    
+    if (formId) {
+      // Fetch form from server to get original content with all whitespace
+      const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch form');
+      }
+      
+      const form = await response.json();
+      formContent = form.content;
+      title = form.title;
+    } else {
+      // Use content from the preview modal
+      title = document.getElementById("previewFormTitle").textContent;
+      
+      // Get content directly from editor if available
+      if (editor) {
+        formContent = editor.getValue();
+      } else {
+        // Fallback in case editor isn't available
+        const previewContent = document.getElementById("previewContent");
+        // Create a temporary div to avoid HTML-to-text conversion issues
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = previewContent.innerHTML;
+        formContent = tempDiv.innerText;
+      }
+    }
+    
+    // Create a blob with the raw content - important to use text/markdown mime type
+    const blob = new Blob([formContent], { type: "text/markdown;charset=utf-8" });
+    
+    // Create a download link
+    const downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
+    
+    // Trigger download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  } catch (error) {
+    console.error('Error downloading form:', error);
+    Utils.showToast('Error: ' + error.message);
+  }
 }
+
 
 /**
  * Print the form
  */
-function printForm() {
-  const title = document.getElementById("previewFormTitle").textContent;
-  const content = document.getElementById("previewContent").innerHTML;
+// function printForm() {
+//   const title = document.getElementById("previewFormTitle").textContent;
+//   const content = document.getElementById("previewContent").innerHTML;
   
-  // Create a print window
-  const printWindow = window.open("", "_blank");
+//   // Create a print window
+//   const printWindow = window.open("", "_blank");
   
-  // Write content to print window
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>${title}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-          }
+//   // Write content to print window
+//   printWindow.document.write(`
+//     <!DOCTYPE html>
+//     <html>
+//       <head>
+//         <title>${title}</title>
+//         <style>
+//           body {
+//             font-family: Arial, sans-serif;
+//             line-height: 1.6;
+//             color: #333;
+//             max-width: 800px;
+//             margin: 0 auto;
+//             padding: 2rem;
+//           }
           
-          h1, h2, h3, h4, h5, h6 {
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-          }
+//           h1, h2, h3, h4, h5, h6 {
+//             margin-top: 1.5rem;
+//             margin-bottom: 1rem;
+//           }
           
-          blockquote {
-            border-left: 4px solid #ddd;
-            padding-left: 1rem;
-            margin-left: 0;
-            color: #666;
-          }
+//           blockquote {
+//             border-left: 4px solid #ddd;
+//             padding-left: 1rem;
+//             margin-left: 0;
+//             color: #666;
+//           }
           
-          pre {
-            background-color: #f5f5f5;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-          }
+//           pre {
+//             background-color: #f5f5f5;
+//             padding: 1rem;
+//             border-radius: 0.5rem;
+//             overflow-x: auto;
+//           }
           
-          code {
-            background-color: #f5f5f5;
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.3rem;
-          }
+//           code {
+//             background-color: #f5f5f5;
+//             padding: 0.2rem 0.4rem;
+//             border-radius: 0.3rem;
+//           }
           
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-          }
+//           table {
+//             width: 100%;
+//             border-collapse: collapse;
+//             margin: 1rem 0;
+//           }
           
-          th, td {
-            border: 1px solid #ddd;
-            padding: 0.5rem;
-          }
+//           th, td {
+//             border: 1px solid #ddd;
+//             padding: 0.5rem;
+//           }
           
-          th {
-            background-color: #f5f5f5;
-          }
+//           th {
+//             background-color: #f5f5f5;
+//           }
           
-          hr {
-            border: 0;
-            border-top: 1px solid #ddd;
-            margin: 2rem 0;
-          }
+//           hr {
+//             border: 0;
+//             border-top: 1px solid #ddd;
+//             margin: 2rem 0;
+//           }
           
-          @media print {
+//           @media print {
+//             body {
+//               padding: 0;
+//             }
+//           }
+//         </style>
+//       </head>
+//       <body>
+//         ${content}
+//       </body>
+//     </html>
+//   `);
+  
+//   // Print the window
+//   printWindow.document.close();
+//   printWindow.focus();
+//   printWindow.print();
+//  }
+
+async function printForm(formId) {
+  try {
+    // Fetch the form with original formatting
+    let form;
+    if (formId) {
+      const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch form');
+      }
+      
+      form = await response.json();
+    } else {
+      // Use the current form content from the preview
+      const title = document.getElementById("previewFormTitle").textContent;
+      const content = editor ? editor.getValue() : document.getElementById("previewContent").innerText;
+      form = { title, content };
+    }
+    
+    // Create print window with styles that preserve whitespace
+    const printWindow = window.open('', '_blank');
+    
+    // Convert markdown to HTML using marked with whitespace options
+    const formattedContent = marked.parse(form.content);
+    
+    // Write content to print window with special styling for whitespace
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${form.title}</title>
+          <style>
             body {
-              padding: 0;
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 2rem;
             }
-          }
-        </style>
-      </head>
-      <body>
-        ${content}
-      </body>
-    </html>
-  `);
-  
-  // Print the window
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
- }
+            
+            h1, h2, h3, h4, h5, h6 {
+              margin-top: 1.5rem;
+              margin-bottom: 1rem;
+            }
+            
+            p {
+              margin: 1em 0;
+              white-space: pre-wrap;
+            }
+            
+            blockquote {
+              border-left: 4px solid #ddd;
+              padding-left: 1rem;
+              margin-left: 0;
+              color: #666;
+            }
+            
+            pre, code {
+              white-space: pre;
+              background-color: #f5f5f5;
+              padding: 1rem;
+              border-radius: 0.5rem;
+              overflow-x: auto;
+              font-family: monospace;
+            }
+            
+            ul, ol {
+              padding-left: 2em;
+              margin: 1em 0;
+            }
+            
+            li {
+              margin-bottom: 0.5em;
+            }
+            
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 1rem 0;
+            }
+            
+            th, td {
+              border: 1px solid #ddd;
+              padding: 0.5rem;
+            }
+            
+            th {
+              background-color: #f5f5f5;
+            }
+            
+            hr {
+              border: 0;
+              border-top: 1px solid #ddd;
+              margin: 2rem 0;
+            }
+            
+            @media print {
+              body {
+                padding: 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          ${formattedContent}
+        </body>
+      </html>
+    `);
+    
+    // Print and close
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  } catch (error) {
+    console.error('Error printing form:', error);
+    Utils.showToast('Error: ' + error.message);
+  }
+}
 
 
 async function openLeadSelectionModal() {
@@ -1346,28 +1542,68 @@ function closeLeadSelectionModal() {
 /**
  * Download generated form
  */
+// function downloadGeneratedForm() {
+//   const title = document.getElementById("generatedFormTitle").textContent;
+//   const content = document.getElementById("generatedContent").innerHTML;
+  
+//   // Create a temporary element to extract text content
+//   const tempElement = document.createElement("div");
+//   tempElement.innerHTML = content;
+//   const textContent = tempElement.innerText;
+  
+//   // Create a blob with the content
+//   const blob = new Blob([textContent], { type: "text/markdown" });
+  
+//   // Create a download link
+//   const downloadLink = document.createElement("a");
+//   downloadLink.href = URL.createObjectURL(blob);
+//   downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
+  
+//   // Trigger download
+//   document.body.appendChild(downloadLink);
+//   downloadLink.click();
+//   document.body.removeChild(downloadLink);
+// }
+
 function downloadGeneratedForm() {
-  const title = document.getElementById("generatedFormTitle").textContent;
-  const content = document.getElementById("generatedContent").innerHTML;
-  
-  // Create a temporary element to extract text content
-  const tempElement = document.createElement("div");
-  tempElement.innerHTML = content;
-  const textContent = tempElement.innerText;
-  
-  // Create a blob with the content
-  const blob = new Blob([textContent], { type: "text/markdown" });
-  
-  // Create a download link
-  const downloadLink = document.createElement("a");
-  downloadLink.href = URL.createObjectURL(blob);
-  downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
-  
-  // Trigger download
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
+  try {
+    // Get the original generated form content
+    let content;
+    
+    if (window.currentGeneratedForm && window.currentGeneratedForm.content) {
+      // Use the original content from the generated form object
+      content = window.currentGeneratedForm.content;
+    } else if (window.generatedFormEditor) {
+      // If editor exists, get content from there
+      content = window.generatedFormEditor.getValue();
+    } else {
+      // Fallback to get content from the HTML
+      const generatedContent = document.getElementById("generatedContent");
+      const tempElement = document.createElement("div");
+      tempElement.innerHTML = generatedContent.innerHTML;
+      content = tempElement.innerText;
+    }
+    
+    const title = document.getElementById("generatedFormTitle").textContent;
+    
+    // Create a blob with the content - using text/markdown mime type
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    
+    // Create a download link
+    const downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
+    
+    // Trigger download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  } catch (error) {
+    console.error('Error downloading generated form:', error);
+    Utils.showToast('Error: ' + error.message);
+  }
 }
+
 
 /**
  * Print the generated form
