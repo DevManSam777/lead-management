@@ -4,7 +4,6 @@ const nodemailer = require("nodemailer");
  * Create an email transporter based on configuration
  * @returns {Object|null} Nodemailer transporter or null if not configured
  */
-
 function createEmailTransporter() {
   // Check if email configuration is complete
   if (
@@ -31,6 +30,47 @@ function createEmailTransporter() {
 }
 
 /**
+ * Get formatted preferred contact method name and corresponding value
+ * @param {Object} leadData - Details of the submitted lead
+ * @returns {Object} Object containing formatted method name and contact value
+ */
+function getPreferredContactDetails(leadData) {
+  const method = leadData.preferredContact;
+  let formattedMethod = "";
+  let contactValue = "";
+  let text = leadData.text && leadData.phone;
+
+  switch (method) {
+    case "email":
+      formattedMethod = "Email";
+      contactValue = leadData.email;
+      break;
+    case "phone":
+      formattedMethod = "Phone";
+      contactValue = leadData.phone;
+      break;
+    case "businessEmail":
+      formattedMethod = "Business Email";
+      contactValue = leadData.businessEmail;
+      break;
+    case "businessPhone":
+      formattedMethod = "Business Phone";
+      contactValue = leadData.businessPhone;
+      break;
+    case "text":
+      formattedMethod = "Text";
+      contactValue = leadData.text || leadData.phone;
+      break;
+    default:
+      // Capitalize first letter of method
+      formattedMethod = method.charAt(0).toUpperCase() + method.slice(1);
+      contactValue = "N/A";
+  }
+
+  return { formattedMethod, contactValue };
+}
+
+/**
  * Send email notification about a new lead submission
  * @param {Object} leadData - Details of the submitted lead
  */
@@ -50,6 +90,8 @@ async function sendLeadNotificationEmail(leadData) {
 
   try {
     const fullName = `${leadData.businessName}`;
+    const contactDetails = getPreferredContactDetails(leadData);
+
     // Send email
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -158,14 +200,9 @@ async function sendLeadNotificationEmail(leadData) {
               <tr style="background-color: #f8f9fa;">
                 <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Preferred Contact:</td>
                 <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
-                  ${
-                    leadData.preferredContact == "businessPhone"
-                      ? "Business Phone"
-                      : leadData.preferredContact === "businessEmail"
-                      ? "Business Email"
-                      : leadData.preferredContact[0].toUpperCase() +
-                          leadData.preferredContact.slice(1) || "N/A"
-                  }
+                  ${contactDetails.formattedMethod}: ${
+        contactDetails.contactValue
+      }
                 </td>
               </tr>
               <tr>
@@ -241,8 +278,8 @@ async function sendLeadConfirmationEmail(leadData) {
   }
 
   try {
-    
-    const fullName = `${leadData.businessName}`
+    const fullName = `${leadData.businessName}`;
+    const contactDetails = getPreferredContactDetails(leadData);
 
     // Send confirmation email to the lead
     const info = await transporter.sendMail({
@@ -253,18 +290,28 @@ async function sendLeadConfirmationEmail(leadData) {
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
           <div style="background-color: #2c3e50; color: white; padding: 20px; border-radius: 6px 6px 0 0;">
-            <h1 style="margin: 0; font-weight: 600; font-size: 24px;">Thank You, ${leadData.firstName}!</h1>
+            <h1 style="margin: 0; font-weight: 600; font-size: 24px;">Thank You, ${
+              leadData.firstName
+            }!</h1>
           </div>
           
           <div style="background-color: white; padding: 20px; border-radius: 0 0 6px 6px;">
-            <p>We've received your inquiry for <strong>${leadData.serviceDesired}</strong> and appreciate you choosing our services.</p>
+            <p>We've received your inquiry for <strong>${
+              leadData.serviceDesired
+            }</strong> and appreciate you choosing our services.</p>
             
             <div style="background-color: #f4f4f4; padding: 15px; border-radius: 6px; margin: 20px 0;">
               <h3 style="margin: 0 0 10px 0; color: #2c3e50;">Your Inquiry Details</h3>
               <p style="margin: 5px 0;"><strong>Name:</strong> ${fullName}</p>
-              <p style="margin: 5px 0;"><strong>Email:</strong> ${leadData.email || 'Not Provided'}</p>
-              <p style="margin: 5px 0;"><strong>Service:</strong> ${leadData.serviceDesired}</p>
-              <p style="margin: 5px 0;"><strong>Date:</strong> ${leadData.createdAt}</p>
+              <p style="margin: 5px 0;"><strong>Email:</strong> ${
+                leadData.email || "Not Provided"
+              }</p>
+              <p style="margin: 5px 0;"><strong>Service:</strong> ${
+                leadData.serviceDesired
+              }</p>
+              <p style="margin: 5px 0;"><strong>Date:</strong> ${
+                leadData.createdAt
+              }</p>
             </div>
             
             <p>We will review your inquiry and reach out to you soon. If you have any additional questions, please feel free to reply to this email.</p>
@@ -273,7 +320,9 @@ async function sendLeadConfirmationEmail(leadData) {
               <h3 style="margin: 0 0 10px 0; color: #2c3e50;">What Happens Next?</h3>
               <ul style="padding-left: 20px; margin: 0;">
                 <li>We'll review your project details</li>
-                <li>Reply via your preferred contact method <strong>${leadData.preferredContact}</strong></li>
+                <li>Reply via your preferred contact method <strong>${
+                  contactDetails.formattedMethod
+                }: ${contactDetails.contactValue}</strong></li>
                 <li>Please allow 1-2 business days for response</li>
               </ul>
             </div>
@@ -283,7 +332,7 @@ async function sendLeadConfirmationEmail(leadData) {
             </p>
           </div>
         </div>
-      `
+      `,
     });
 
     console.log("Lead confirmation email sent successfully");
@@ -298,10 +347,8 @@ async function sendLeadConfirmationEmail(leadData) {
   }
 }
 
-// Update the module exports to include the new function
-module.exports = { 
-  sendLeadNotificationEmail, 
-  sendLeadConfirmationEmail 
+// Exports
+module.exports = {
+  sendLeadNotificationEmail,
+  sendLeadConfirmationEmail,
 };
-
-module.exports = { sendLeadNotificationEmail, sendLeadConfirmationEmail };
