@@ -278,45 +278,121 @@ async function sendLeadConfirmationEmail(leadData) {
   }
 
   try {
-    const fullName = `${leadData.businessName}`;
     const contactDetails = getPreferredContactDetails(leadData);
 
     // Send confirmation email to the lead
     const info = await transporter.sendMail({
-      // from: process.env.EMAIL_USER,
       from: process.env.EMAIL_FROM,
       to: leadData.email,
       subject: `Thank You for Your ${leadData.serviceDesired} Inquiry`,
       html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
-          <div style="background-color: #2c3e50; color: white; padding: 20px; border-radius: 6px 6px 0 0;">
-            <h1 style="margin: 0; font-weight: 600; font-size: 24px;">Thank You, ${
-              leadData.firstName
-            }!</h1>
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.5; background-color: #f9f9f9; border-radius: 8px;">
+          <div style="background-color: #2c3e50; color: white; padding: 20px; border-radius: 6px 6px 0 0; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-weight: 600; font-size: 22px;">Thank You for Your Inquiry!</h2>
+            <h3 style="margin: 10px 0 0; font-weight: 500; font-size: 18px; opacity: 0.9;">We've received your ${
+              leadData.serviceDesired
+            } request</h3>
+            <p style="margin: 5px 0 0; opacity: 0.8;">${new Date().toLocaleString()}</p>
           </div>
           
-          <div style="background-color: white; padding: 20px; border-radius: 0 0 6px 6px;">
-            <p>We've received your inquiry for <strong>${
-              leadData.serviceDesired
-            }</strong>, and appreciate your business.</p>
-            
-            <div style="margin-top: 20px; padding: 15px; background-color: #f4f4f4; border-radius: 6px;">
-              <h3 style="margin: 0 0 10px 0; color: #2c3e50;">What Happens Next?</h3>
-              <ul style="padding-left: 20px; margin: 0;">
-                <li>We'll review your project details</li>
-                <li>Reply via your preferred contact method
-                  <ul>
-                    <li>${contactDetails.formattedMethod}: ${contactDetails.contactValue}</li>
-                  </ul>
-                </li>
-                <li>To schedule a free consultaion, please click this <a href="#">link</a>.</li>
-                <li>Please allow 1-2 business days for a response</li>
-              </ul>
+          <div style="background-color: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <!-- Greeting Section with colored left border -->
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #3498db;">
+              <h3 style="margin: 0; font-size: 18px; color: #2c3e50;">Hello, ${
+                leadData.firstName
+              }!</h3>
+              <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">Thank you for reaching out to us</p>
             </div>
-            <p>We will review your inquiry and reach out to you soon. If you have any additional questions, please feel free to reply to this email.</p>
-            <p style="margin-top: 20px; color: #666; font-size: 0.9em;">
-              This is an automated confirmation sent by Devmansam Consulting. &copy;${new Date().getFullYear()}
+            
+            <p style="color: #2c3e50; line-height: 1.6; margin-bottom: 20px;">
+              We're excited to connect with you about your <strong style="color: #3498db;">${
+                leadData.serviceDesired
+              }</strong> needs. Your inquiry has been received and is being reviewed by our team.
             </p>
+            
+            <!-- Confirmation Section with colored left border -->
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #4ecdc4;">
+              <h3 style="margin: 0; font-size: 18px; color: #2c3e50;">Your Request Details</h3>
+              <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">Summary of your submission</p>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+              <tr>
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Name:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${
+                  leadData.firstName
+                } ${leadData.lastName}</td>
+              </tr>
+              <tr style="background-color: #f8f9fa;">
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Business:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">${
+                  leadData.businessName || "N/A"
+                }</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Service Requested:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
+                  <span style="display: inline-block; background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${
+                    leadData.serviceDesired
+                  }</span>
+                </td>
+              </tr>
+              <tr style="background-color: #f8f9fa;">
+                <td style="padding: 12px; width: 30%; color: #7f8c8d; font-weight: 600; font-size: 14px; vertical-align: top;">Contact Method:</td>
+                <td style="padding: 12px; color: #2c3e50; font-size: 15px; vertical-align: top;">
+                  ${contactDetails.formattedMethod}: ${
+        contactDetails.contactValue
+      }
+                </td>
+              </tr>
+            </table>
+            
+            <!-- Next Steps Section with colored left border -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+              <div style="display: flex; margin-bottom: 15px; align-items: center;">
+                <div style="width: 30px; height: 30px; background-color: #3498db; color: white; border-radius: 50%; margin-right: 15px; text-align: center; font-weight: bold; font-size: 14px; line-height: 30px;">1</div>
+                <div>
+                  <h4 style="margin: 0; color: #2c3e50; font-size: 16px;">Review</h4>
+                  <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">Our team will carefully review your inquiry details</p>
+                </div>
+              </div>
+                
+              <div style="display: flex; margin-bottom: 15px; align-items: center;">
+                <div style="width: 30px; height: 30px; background-color: #3498db; color: white; border-radius: 50%; margin-right: 15px; text-align: center; font-weight: bold; font-size: 14px; line-height: 30px;">2</div>
+                <div>
+                  <h4 style="margin: 0; color: #2c3e50; font-size: 16px;">Contact</h4>
+                  <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">We'll reach out via your preferred contact method within 1-2 business days</p>
+                </div>
+              </div>
+                
+              <div style="display: flex; align-items: center;">
+                <div style="width: 30px; height: 30px; background-color: #3498db; color: white; border-radius: 50%; margin-right: 15px; text-align: center; font-weight: bold; font-size: 14px; line-height: 30px;">3</div>
+                <div>
+                  <h4 style="margin: 0; color: #2c3e50; font-size: 16px;">Consultation</h4>
+                  <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">Schedule your free consultation to discuss your needs in detail</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- CTA Section -->
+            <div style="background-color: #e8f4f8; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px; border-left: 5px solid #3498db;">
+              <h3 style="margin: 0 0 10px; color: #2c3e50; font-size: 18px;">Ready to get started sooner?</h3>
+              <p style="margin: 0 0 15px; color: #7f8c8d; font-size: 14px;">Skip the wait and schedule your consultation now</p>
+              <a href="https://cal.com/devmansam/consultation" style="display: inline-block; background-color: #3498db; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 16px;">Schedule Consultation</a>
+            </div>
+          </div>
+          
+          <!-- Support Section with colored left border -->
+          <div style="margin-top: 25px; padding-left: 15px; border-left: 5px solid #4ecdc4; background-color: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h3 style="margin: 0; font-size: 18px; color: #2c3e50;">Questions?</h3>
+            <p style="margin: 10px 0 0; font-size: 14px; color: #7f8c8d;">
+              If you have any questions, please reply to this email or contact us at <a href="mailto:support@example.com" style="color: #3498db; text-decoration: none;">sam@devmansam.net</a>.
+            </p>
+          </div>
+          
+          <div style="margin-top: 25px; text-align: center; color: #7f8c8d; font-size: 12px;">
+            <p>© ${new Date().getFullYear()} Devmansam Consulting. All rights reserved.</p>
+            <p>This is an automated message.</p>
           </div>
         </div>
       `,
