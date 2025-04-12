@@ -298,35 +298,22 @@ async function sendLeadConfirmationEmail(leadData) {
           <div style="background-color: white; padding: 20px; border-radius: 0 0 6px 6px;">
             <p>We've received your inquiry for <strong>${
               leadData.serviceDesired
-            }</strong> and appreciate you choosing our services.</p>
-            
-            <div style="background-color: #f4f4f4; padding: 15px; border-radius: 6px; margin: 20px 0;">
-              <h3 style="margin: 0 0 10px 0; color: #2c3e50;">Your Inquiry Details</h3>
-              <p style="margin: 5px 0;"><strong>Name:</strong> ${fullName}</p>
-              <p style="margin: 5px 0;"><strong>Email:</strong> ${
-                leadData.email || "Not Provided"
-              }</p>
-              <p style="margin: 5px 0;"><strong>Service:</strong> ${
-                leadData.serviceDesired
-              }</p>
-              <p style="margin: 5px 0;"><strong>Date:</strong> ${
-                leadData.createdAt
-              }</p>
-            </div>
-            
-            <p>We will review your inquiry and reach out to you soon. If you have any additional questions, please feel free to reply to this email.</p>
+            }</strong>, and appreciate your business.</p>
             
             <div style="margin-top: 20px; padding: 15px; background-color: #f4f4f4; border-radius: 6px;">
               <h3 style="margin: 0 0 10px 0; color: #2c3e50;">What Happens Next?</h3>
               <ul style="padding-left: 20px; margin: 0;">
                 <li>We'll review your project details</li>
-                <li>Reply via your preferred contact method <strong>${
-                  contactDetails.formattedMethod
-                }: ${contactDetails.contactValue}</strong></li>
-                <li>Please allow 1-2 business days for response</li>
+                <li>Reply via your preferred contact method
+                  <ul>
+                    <li>${contactDetails.formattedMethod}: ${contactDetails.contactValue}</li>
+                  </ul>
+                </li>
+                <li>To schedule a free consultaion, please click this <a href="#">link</a>.</li>
+                <li>Please allow 1-2 business days for a response</li>
               </ul>
             </div>
-            
+            <p>We will review your inquiry and reach out to you soon. If you have any additional questions, please feel free to reply to this email.</p>
             <p style="margin-top: 20px; color: #666; font-size: 0.9em;">
               This is an automated confirmation sent by Devmansam Consulting. &copy;${new Date().getFullYear()}
             </p>
