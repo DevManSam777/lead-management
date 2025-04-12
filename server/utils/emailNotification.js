@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
  * Create an email transporter based on configuration
  * @returns {Object|null} Nodemailer transporter or null if not configured
  */
+
 function createEmailTransporter() {
   // Check if email configuration is complete
   if (
@@ -221,4 +222,86 @@ async function sendLeadNotificationEmail(leadData) {
   }
 }
 
-module.exports = { sendLeadNotificationEmail };
+/**
+ * Send a confirmation email to the lead
+ * @param {Object} leadData - Details of the submitted lead
+ */
+async function sendLeadConfirmationEmail(leadData) {
+  // Validate required environment variables
+  if (!process.env.EMAIL_USER) {
+    console.warn("Email notification not configured. Skipping.");
+    return null;
+  }
+
+  // Create transporter
+  const transporter = createEmailTransporter();
+  if (!transporter) {
+    console.warn("Email transporter not configured. Skipping confirmation.");
+    return null;
+  }
+
+  try {
+    
+    const fullName = `${leadData.businessName}`
+
+    // Send confirmation email to the lead
+    const info = await transporter.sendMail({
+      // from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM,
+      to: leadData.email,
+      subject: `Thank You for Your ${leadData.serviceDesired} Inquiry`,
+      html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+          <div style="background-color: #2c3e50; color: white; padding: 20px; border-radius: 6px 6px 0 0;">
+            <h1 style="margin: 0; font-weight: 600; font-size: 24px;">Thank You, ${leadData.firstName}!</h1>
+          </div>
+          
+          <div style="background-color: white; padding: 20px; border-radius: 0 0 6px 6px;">
+            <p>We've received your inquiry for <strong>${leadData.serviceDesired}</strong> and appreciate you choosing our services.</p>
+            
+            <div style="background-color: #f4f4f4; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <h3 style="margin: 0 0 10px 0; color: #2c3e50;">Your Inquiry Details</h3>
+              <p style="margin: 5px 0;"><strong>Name:</strong> ${fullName}</p>
+              <p style="margin: 5px 0;"><strong>Email:</strong> ${leadData.email || 'Not Provided'}</p>
+              <p style="margin: 5px 0;"><strong>Service:</strong> ${leadData.serviceDesired}</p>
+              <p style="margin: 5px 0;"><strong>Date:</strong> ${leadData.createdAt}</p>
+            </div>
+            
+            <p>We will review your inquiry and reach out to you soon. If you have any additional questions, please feel free to reply to this email.</p>
+            
+            <div style="margin-top: 20px; padding: 15px; background-color: #f4f4f4; border-radius: 6px;">
+              <h3 style="margin: 0 0 10px 0; color: #2c3e50;">What Happens Next?</h3>
+              <ul style="padding-left: 20px; margin: 0;">
+                <li>We'll review your project details</li>
+                <li>Reply via your preferred contact method <strong>${leadData.preferredContact}</strong></li>
+                <li>Please allow 1-2 business days for response</li>
+              </ul>
+            </div>
+            
+            <p style="margin-top: 20px; color: #666; font-size: 0.9em;">
+              This is an automated confirmation sent by Devmansam Consulting. &copy;${new Date().getFullYear()}
+            </p>
+          </div>
+        </div>
+      `
+    });
+
+    console.log("Lead confirmation email sent successfully");
+    return info;
+  } catch (error) {
+    console.error("Detailed Confirmation Email Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
+    throw error;
+  }
+}
+
+// Update the module exports to include the new function
+module.exports = { 
+  sendLeadNotificationEmail, 
+  sendLeadConfirmationEmail 
+};
+
+module.exports = { sendLeadNotificationEmail, sendLeadConfirmationEmail };
