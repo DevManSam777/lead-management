@@ -161,6 +161,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
   }
+  
 
   // Initialize date input displays
   initializeDateInputs();

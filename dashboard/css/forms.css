@@ -253,35 +253,6 @@ div.editor-section {
   color: var(--text-muted);
 }
 
-.markdown-content pre {
-  background-color: var(--table-hover);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-}
-
-.markdown-content code {
-  background-color: var(--table-hover);
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.3rem;
-}
-
-.markdown-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
-}
-
-.markdown-content th,
-.markdown-content td {
-  border: 1px solid var(--border-color);
-  padding: 0.5rem;
-}
-
-.markdown-content th {
-  background-color: var(--table-hover);
-}
-
 .markdown-content hr {
   border: 0;
   border-top: 1px solid var(--border-color);
@@ -343,7 +314,7 @@ div.editor-section {
 
 .markdown-content th,
 .markdown-content td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   padding: 0.5em;
   text-align: left;
 }
@@ -351,6 +322,7 @@ div.editor-section {
 .markdown-content th {
   background-color: var(--table-hover);
 }
+
 
 /* Fix modal overflow issues */
 .modal-content {

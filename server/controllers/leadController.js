@@ -29,41 +29,8 @@ exports.getLeadById = async (req, res) => {
   }
 };
 
-// Create a new lead
-// exports.createLead = async (req, res) => {
-//   try {
-//     // Create the lead in the database
-//     const lead = new Lead(req.body);
-//     const createdLead = await lead.save();
 
-//     // Check if this is from the public form submission
-//     // We'll check for the isFormSubmission flag or refer to the referer header
-//     const isFormSubmission = req.body.isFormSubmission === true || 
-//       (req.headers.referer && req.headers.referer.includes('/form.html'));
-    
-//     // Remove the flag from the response if it exists
-//     if (createdLead.isFormSubmission) {
-//       createdLead.isFormSubmission = undefined;
-//     }
-
-//     // Attempt to send email notification only for form submissions
-//     if (isFormSubmission && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-//       console.log('Sending email notification for form submission');
-//       sendLeadNotificationEmail(createdLead)
-//         .catch(error => console.error('Background email notification failed:', error));
-//     } else {
-//       console.log('Skipping email notification - not a form submission or email not configured');
-//     }
-
-//     res.status(201).json(createdLead);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-
-// In server/controllers/leadController.js
-// Modify the createLead function
+// Create Lead 
 
 exports.createLead = async (req, res) => {
   try {
