@@ -29,65 +29,6 @@ exports.getLeadById = async (req, res) => {
   }
 };
 
-
-// Create Lead 
-// exports.createLead = async (req, res) => {
-//   try {
-//     // Create a copy of the request body to modify
-//     const trimmedData = {};
-    
-//     // Trim whitespace from string fields
-//     for (const [key, value] of Object.entries(req.body)) {
-//       if (typeof value === 'string') {
-//         trimmedData[key] = value.trim();
-//       } else if (typeof value === 'object' && value !== null) {
-//         // Handle nested objects like billingAddress
-//         if (key === 'billingAddress') {
-//           trimmedData[key] = {};
-//           for (const [addrKey, addrValue] of Object.entries(value)) {
-//             if (typeof addrValue === 'string') {
-//               trimmedData[key][addrKey] = addrValue.trim();
-//             } else {
-//               trimmedData[key][addrKey] = addrValue;
-//             }
-//           }
-//         } else {
-//           trimmedData[key] = value;
-//         }
-//       } else {
-//         trimmedData[key] = value;
-//       }
-//     }
-
-//     // Create the lead in the database using the trimmed data
-//     const lead = new Lead(trimmedData);
-//     const createdLead = await lead.save();
-
-//     // Check if this is from the public form submission
-//     const isFormSubmission = trimmedData.isFormSubmission === true || 
-//       (req.headers.referer && req.headers.referer.includes('/form.html'));
-    
-//     // Remove the flag from the response if it exists
-//     if (createdLead.isFormSubmission) {
-//       createdLead.isFormSubmission = undefined;
-//     }
-
-//     // Attempt to send email notification only for form submissions
-//     if (isFormSubmission && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-//       console.log('Sending email notification for form submission');
-//       sendLeadNotificationEmail(createdLead)
-//         .catch(error => console.error('Background email notification failed:', error));
-//     } else {
-//       console.log('Skipping email notification - not a form submission or email not configured');
-//     }
-
-//     res.status(201).json(createdLead);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-
 exports.createLead = async (req, res) => {
   try {
     // Create a copy of the request body to modify
