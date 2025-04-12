@@ -130,7 +130,8 @@
   small {
     display: inline-block;
     font-size: 1.6rem;
-    font-style: italic;
+    font-style: italic;  /*fall back*/
+    font-style: oblique;
     margin-bottom: 1rem;
   }
   
@@ -289,6 +290,11 @@
   .extension-field input {
     width: 100%;
     max-width: 10rem;
+  }
+
+  .check-spam-folder {
+    margin: 1rem auto 0;
+    font-size: 1.2rem;
   }
   
   @media (max-width: 768px) {
