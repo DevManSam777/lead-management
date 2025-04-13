@@ -49,11 +49,11 @@ function formatPhoneInput(input) {
   if (input.value.length !== originalLength) {
     // Calculate new cursor position
     let newCursorPos = cursorPos;
-    // If we added a hyphen and cursor was after it, move cursor forward
+    // If added a hyphen and cursor was after it, move cursor forward
     if (input.value.charAt(cursorPos - 1) === '-') {
       newCursorPos++;
     }
-    // If we're at a position where a hyphen was just added, move cursor forward
+    // If at a position where a hyphen was just added, move cursor forward
     if (cursorPos === 4 || cursorPos === 8) {
       newCursorPos++;
     }
@@ -130,7 +130,7 @@ function initializeMonetaryInputs() {
     document.getElementById("paymentAmount")
   ];
   
-  // Add input event listeners to each monetary input to restrict to digits
+  // Input event listeners to each monetary input to restrict to digits
   monetaryInputs.forEach(input => {
     if (input) {
       input.addEventListener('input', function() {
@@ -183,7 +183,6 @@ function formatCurrency(amount) {
 function formatDate(date, format = "MM/DD/YYYY") {
   if (!date) return "";
 
-  // Create a date object - ensure we're working with a Date object
   let dateObj;
   if (typeof date === "string") {
     // Handle both date-only strings and full ISO strings

@@ -1,4 +1,3 @@
-// server/controllers/leadController.js
 const Lead = require("../models/Lead");
 const { sendLeadNotificationEmail, sendLeadConfirmationEmail } = require('../utils/emailNotification');
 

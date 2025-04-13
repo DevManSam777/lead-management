@@ -261,14 +261,14 @@ exports.generateFormWithLeadData = async (req, res) => {
       // Keep title for organization in the database
       title: `${form.title} - ${fullName}`,
       description: form.description,
-      // Use the original content - preserve all whitespace
+      // Use the original content, preserve all whitespace
       content: form.content,
       category: form.category,
       isTemplate: false,
       variables: [...form.variables],
     });
 
-    // Replace variables in content with lead data, being careful to preserve whitespace
+    // Replace variables in content with lead data,preserve whitespace
     let populatedContent = form.content;
 
     // Add current date as a special variable
@@ -280,7 +280,7 @@ exports.generateFormWithLeadData = async (req, res) => {
       day: "numeric",
     });
 
-    // Replace currentDate variable - careful not to alter indentation or spacing
+    // Replace currentDate variable 
     populatedContent = populatedContent.replace(
       /\{\{currentDate\}\}/g,
       currentDate
@@ -394,7 +394,7 @@ ${lead.billingAddress.country || ""}`.trim();
       // Format the value with our formatter
       value = formatVariableValue(variable, value);
 
-      // Replace in content - this maintains whitespace around variables
+      // This maintains whitespace around variables
       populatedContent = populatedContent.replace(variablePattern, value);
     });
 

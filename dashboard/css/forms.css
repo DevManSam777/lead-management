@@ -122,9 +122,6 @@
   font-size: 1.2rem;
 }
 
-/* #generatedFormModal .modal-actions {
-  flex-direction: column;
-} */
 
 .btn-icon {
   width: 3.6rem;
@@ -195,7 +192,6 @@
 
 #formEditorModal .modal-content {
   width: 95%;
-  /* max-width: 1200px; */
 }
 
 #formPreviewModal .modal-actions {
@@ -213,7 +209,6 @@
 
 #generatedFormModal .modal-content {
   width: 95%;
-  /* max-width: 1000px; */
 }
 
 #leadSelectionModal .search-box {
@@ -278,10 +273,10 @@ div.editor-section {
   margin: 2rem 0;
 }
 
-/* Fix for markdown content whitespace preservation */
+/* Markdown content whitespace preservation */
 .markdown-content {
-  white-space: pre-wrap;       /* Preserve whitespace and wrap text */
-  word-wrap: break-word;       /* Break long words to prevent overflow */
+  white-space: pre-wrap;
+  word-wrap: break-word; 
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -297,14 +292,12 @@ div.editor-section {
   font-family: monospace;
 }
 
-/* Fix for list spacing */
 .markdown-content ul,
 .markdown-content ol {
   padding-left: 2em;
   margin: 1em 0;
 }
 
-/* Fix for nested lists */
 .markdown-content ul ul,
 .markdown-content ol ol,
 .markdown-content ul ol,
@@ -313,12 +306,10 @@ div.editor-section {
   margin-bottom: 0;
 }
 
-/* Fix for list item spacing */
 .markdown-content li {
   margin-bottom: 0.5em;
 }
 
-/* Preserve indentation in paragraphs */
 .markdown-content p {
   margin: 1em 0;
   white-space: pre-wrap;
@@ -343,9 +334,7 @@ div.editor-section {
 }
 
 
-/* Fix modal overflow issues */
 .modal-content {
-  /* max-height: 90vh; */
   overflow-y: auto;
 }
 
@@ -353,7 +342,7 @@ div.editor-section {
 .editor-section {
   overflow-y: auto;
   flex: 1;
-  max-height: none; /* Remove any max-height constraint */
+  max-height: none; 
   display: flex;
   flex-direction: column;
   padding-bottom: 2rem;
@@ -487,7 +476,6 @@ div.editor-section {
   border-radius: var(--card-border-radius);
 }
 
-/* Responsive adjustments */
 @media (max-width: 992px) {
   .template-cards {
     grid-template-columns: 1fr;

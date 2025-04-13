@@ -1,6 +1,3 @@
-// api.js - Handles all API interactions
-
-// API URL Configuration
 const API_URL = "http://localhost:5000/api/leads";
 const API_PAYMENTS_URL = "http://localhost:5000/api/payments";
 const SETTINGS_API_URL = "http://localhost:5000/api/settings";
@@ -11,7 +8,6 @@ function getBaseUrl() {
   return "http://localhost:5000";
 }
 
-// ===== LEAD API FUNCTIONS =====
 
 /**
  * Fetch all leads from the API
@@ -64,8 +60,8 @@ async function fetchLeadById(leadId) {
 
 /**
  * Create a new lead
- * @param {Object} leadData - Lead data to create
- * @returns {Promise<Object>} Created lead object
+ * @param {Object} leadData 
+ * @returns {Promise<Object>} 
  */
 async function createLead(leadData) {
   try {
@@ -89,9 +85,9 @@ async function createLead(leadData) {
 
 /**
  * Update an existing lead
- * @param {string} leadId - ID of the lead to update
- * @param {Object} leadData - Updated lead data
- * @returns {Promise<Object>} Updated lead object
+ * @param {string} leadId
+ * @param {Object} leadData 
+ * @returns {Promise<Object>} 
  */
 async function updateLead(leadId, leadData) {
   try {
@@ -115,8 +111,8 @@ async function updateLead(leadId, leadData) {
 
 /**
  * Delete a lead
- * @param {string} leadId - ID of the lead to delete
- * @returns {Promise<Object>} Deletion response
+ * @param {string} leadId 
+ * @returns {Promise<Object>}
  */
 async function deleteLead(leadId) {
   try {
@@ -137,8 +133,8 @@ async function deleteLead(leadId) {
 
 /**
  * Search leads by query
- * @param {string} query - Search query
- * @returns {Promise<Array>} Array of matching lead objects
+ * @param {string} query 
+ * @returns {Promise<Array>} 
  */
 async function searchLeads(query) {
   try {
@@ -159,7 +155,7 @@ async function searchLeads(query) {
 
 /**
  * Fetch all payments
- * @returns {Promise<Array>} Array of payment objects
+ * @returns {Promise<Array>}
  */
 async function fetchPayments() {
   try {
@@ -177,8 +173,8 @@ async function fetchPayments() {
 
 /**
  * Fetch payments for a specific lead
- * @param {string} leadId - ID of the lead
- * @returns {Promise<Array>} Array of payment objects for the lead
+ * @param {string} leadId 
+ * @returns {Promise<Array>}
  */
 async function fetchLeadPayments(leadId) {
   try {
@@ -219,8 +215,8 @@ async function fetchLeadPayments(leadId) {
 
 /**
  * Create a new payment
- * @param {Object} paymentData - Payment data to create
- * @returns {Promise<Object>} Created payment object
+ * @param {Object} paymentData 
+ * @returns {Promise<Object>} 
  */
 async function createPayment(paymentData) {
   try {
@@ -244,9 +240,9 @@ async function createPayment(paymentData) {
 
 /**
  * Update an existing payment
- * @param {string} paymentId - ID of the payment to update
- * @param {Object} paymentData - Updated payment data
- * @returns {Promise<Object>} Updated payment object
+ * @param {string} paymentId 
+ * @param {Object} paymentData 
+ * @returns {Promise<Object>} 
  */
 async function updatePayment(paymentId, paymentData) {
   try {
@@ -270,8 +266,8 @@ async function updatePayment(paymentId, paymentData) {
 
 /**
  * Delete a payment
- * @param {string} paymentId - ID of the payment to delete
- * @returns {Promise<Object>} Deletion response
+ * @param {string} paymentId 
+ * @returns {Promise<Object>}
  */
 async function deletePayment(paymentId) {
   try {
@@ -290,11 +286,11 @@ async function deletePayment(paymentId) {
   }
 }
 
-// ===== SETTINGS API FUNCTIONS =====
+
 
 /**
  * Fetch all settings
- * @returns {Promise<Object>} Settings object
+ * @returns {Promise<Object>} 
  */
 async function fetchAllSettings() {
   try {
@@ -322,9 +318,9 @@ async function fetchAllSettings() {
 
 /**
  * Update a specific setting
- * @param {string} key - Setting key
- * @param {*} value - Setting value
- * @returns {Promise<Object>} Updated setting object
+ * @param {string} key
+ * @param {*} value
+ * @returns {Promise<Object>} 
  */
 async function updateSetting(key, value) {
   try {
@@ -356,12 +352,11 @@ async function updateSetting(key, value) {
   }
 }
 
-// ===== FORMS API FUNCTIONS =====
 
 /**
  * Fetch all forms from the API
- * @param {Object} filters - Optional filters (category, isTemplate)
- * @returns {Promise<Array>} Array of form objects
+ * @param {Object} filters
+ * @returns {Promise<Array>} 
  */
 async function fetchForms(filters = {}) {
   try {
@@ -401,8 +396,8 @@ async function fetchForms(filters = {}) {
 
 /**
  * Fetch a specific form by ID
- * @param {string} formId - ID of the form to fetch
- * @returns {Promise<Object>} Form object
+ * @param {string} formId 
+ * @returns {Promise<Object>} 
  */
 async function fetchFormById(formId) {
   try {
@@ -421,8 +416,8 @@ async function fetchFormById(formId) {
 
 /**
  * Create a new form
- * @param {Object} formData - Form data to create
- * @returns {Promise<Object>} Created form object
+ * @param {Object} formData 
+ * @returns {Promise<Object>}
  */
 async function createForm(formData) {
   try {
@@ -446,9 +441,9 @@ async function createForm(formData) {
 
 /**
  * Update an existing form
- * @param {string} formId - ID of the form to update
- * @param {Object} formData - Updated form data
- * @returns {Promise<Object>} Updated form object
+ * @param {string} formId 
+ * @param {Object} formData
+ * @returns {Promise<Object>} 
  */
 async function updateForm(formId, formData) {
   try {
@@ -472,8 +467,8 @@ async function updateForm(formId, formData) {
 
 /**
  * Delete a form
- * @param {string} formId - ID of the form to delete
- * @returns {Promise<Object>} Deletion response
+ * @param {string} formId 
+ * @returns {Promise<Object>} 
  */
 async function deleteForm(formId) {
   try {
@@ -494,8 +489,8 @@ async function deleteForm(formId) {
 
 /**
  * Search forms by query
- * @param {string} query - Search query
- * @returns {Promise<Array>} Array of matching form objects
+ * @param {string} query
+ * @returns {Promise<Array>}  
  */
 async function searchForms(query) {
   try {
@@ -514,8 +509,8 @@ async function searchForms(query) {
 
 /**
  * Clone a template form
- * @param {string} templateId - ID of the template form to clone
- * @returns {Promise<Object>} Cloned form object
+ * @param {string} templateId
+ * @returns {Promise<Object>} 
  */
 async function cloneTemplateForm(templateId) {
   try {
@@ -536,9 +531,9 @@ async function cloneTemplateForm(templateId) {
 
 /**
  * Generate a form with lead data
- * @param {string} formId - ID of the form to generate
- * @param {string} leadId - ID of the lead to use
- * @returns {Promise<Object>} Generated form content
+ * @param {string} formId
+ * @param {string} leadId 
+ * @returns {Promise<Object>} 
  */
 async function generateFormWithLeadData(formId, leadId) {
   try {
@@ -561,8 +556,8 @@ async function generateFormWithLeadData(formId, leadId) {
 
 /**
  * Get forms for a specific lead
- * @param {string} leadId - ID of the lead
- * @returns {Promise<Array>} Array of forms
+ * @param {string} leadId
+ * @returns {Promise<Array>} 
  */
 async function getFormsByLead(leadId) {
   try {
@@ -581,9 +576,9 @@ async function getFormsByLead(leadId) {
 
 /**
  * Generate a form for a lead using a template
- * @param {string} templateId - ID of the template form
- * @param {string} leadId - ID of the lead
- * @returns {Promise<Object>} Generated form
+ * @param {string} templateId 
+ * @param {string} leadId 
+ * @returns {Promise<Object>} 
  */
 async function generateFormForLead(templateId, leadId) {
   try {

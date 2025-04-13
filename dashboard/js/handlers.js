@@ -851,7 +851,6 @@ function updateLeadModalDates(lead) {
   }
 }
 
-// Export handlers functions
 export {
   setupFormValidation,
   validateEmail,

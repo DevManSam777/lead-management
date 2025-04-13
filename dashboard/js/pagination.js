@@ -234,7 +234,7 @@ function renderPagination({
   if (container) {
     container.appendChild(pagination);
     
-    // If we had pagination before, try to maintain its position
+    // If pagination before, maintain its position
     if (paginationPosition) {
       requestAnimationFrame(() => {
         const newPagination = document.querySelector('.pagination');
@@ -250,7 +250,6 @@ function renderPagination({
   }
 }
   
-  // Export the pagination functions
   export {
     initPagination,
     getPaginatedItems,

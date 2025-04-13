@@ -2,8 +2,8 @@ const Setting = require('../models/Setting');
 
 // Default settings configuration
 const DEFAULT_SETTINGS = {
-  theme: 'light', // Default theme is light
-  dateFormat: 'MM/DD/YYYY' // Default date format
+  theme: 'light', 
+  dateFormat: 'MM/DD/YYYY' 
 };
 
 // Function to initialize default settings
@@ -58,7 +58,7 @@ exports.updateSetting = async (req, res) => {
       return res.status(400).json({ message: 'Setting value is required' });
     }
     
-    // Find and update, or create if it doesn't exist (upsert)
+    // Find and update, or create if it doesn't exist
     const setting = await Setting.findOneAndUpdate(
       { key, scope: 'global' },
       { value, updatedAt: Date.now() },

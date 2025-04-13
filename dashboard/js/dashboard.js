@@ -232,13 +232,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("gridViewBtn").addEventListener("click", function () {
     console.log("Grid view button clicked");
     window.switchView("grid");
-    // No need to save to localStorage here as switchView function does it
   });
 
   document.getElementById("listViewBtn").addEventListener("click", function () {
     console.log("List view button clicked");
     window.switchView("list");
-    // No need to save to localStorage here as switchView function does it
   });
 
   // Form conditionals
@@ -968,12 +966,12 @@ function applySorting(leadsToSort, sortField, sortOrder) {
         const dateB = new Date(b.lastContactedAt);
         comparison = dateA - dateB;
 
-        // For DESC (newest first): reverse the comparison
+        // For DESC (newest first), reverse the comparison
         if (sortOrder === "desc") {
           comparison = -comparison; // This will make newer dates come first
         }
       } else {
-        // Both don't have contact dates - they're equal
+        // Both don't have contact dates, they're equal
         comparison = 0;
       }
     } else if (sortField === "firstName") {
@@ -1138,7 +1136,7 @@ function sortLeads() {
 
 /**
  * Sort leads and render them
- * @param {Array} leadsToSort - Array of leads to sort
+ * @param {Array} leadsToSort 
  */
 function sortLeadsAndRender(leadsToSort) {
   const sortField = document.getElementById("sortField").value;
@@ -1160,7 +1158,6 @@ function sortLeadsAndRender(leadsToSort) {
   renderPaginatedLeads(sortedLeads);
 }
 
-// Export necessary functions
 export {
   fetchLeadsAndRender,
   sortLeadsAndRender,

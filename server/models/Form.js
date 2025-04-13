@@ -58,7 +58,7 @@ formSchema.methods.extractVariables = function() {
   // Extract just the variable names
   const variableSet = new Set(matches.map(match => match[1].trim()));
   
-  // Add our financial variables to make sure they're recognized even if not in content
+  // Add financial variables to make sure they're recognized even if not in content
   variableSet.add('paidAmount');
   variableSet.add('remainingBalance');
   

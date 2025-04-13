@@ -166,7 +166,7 @@ function openPaymentModal(leadId, paymentId = null) {
     dateDisplay.textContent = "";
   }
 
-  // Set the lead ID - verify it exists
+  // Set the lead ID & verify it exists
   if (!leadId) {
     showToast("Error: No lead ID provided");
     return;
@@ -232,7 +232,7 @@ function openPaymentModal(leadId, paymentId = null) {
         showToast("Error: " + error.message);
       });
   } else {
-    // New payment - set today's date with proper timezone handling
+    // New payment, set today's date with proper timezone handling
     const today = new Date();
     
     // Format for input as YYYY-MM-DD
@@ -508,7 +508,6 @@ async function deletePaymentAction(paymentId, leadId) {
   }
 }
 
-// Export payment functions
 export {
   renderLeadPayments,
   openPaymentModal,

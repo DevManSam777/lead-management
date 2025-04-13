@@ -158,7 +158,7 @@ leadSchema.pre(
     await mongoose.model("Payment").deleteMany({ leadId: leadId });
     console.log(`Automatically deleted payments for lead ${leadId}`);
 
-    //dDelete all associated forms for this lead
+    // delete all associated forms for this lead
     const Lead = await mongoose.model("Lead").findById(leadId);
     if (Lead && Lead.associatedForms && Lead.associatedForms.length > 0) {
       await mongoose.model("Form").deleteMany({ 

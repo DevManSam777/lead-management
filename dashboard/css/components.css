@@ -151,7 +151,6 @@
   border-radius: var(--card-border-radius);
   width: 90%;
   max-width: 80rem;
-  /* max-height: 95vh; */
   overflow-y: auto;
   box-shadow: var(--hover-shadow);
   position: relative;
@@ -163,7 +162,6 @@
   top: 0;
   right: 1.5rem;
   font-size: 3rem;
-  /* color: var(--text-muted); */
   color: var(--danger);
   cursor: pointer;
 }
@@ -351,14 +349,12 @@ select,
   margin: 2rem 0;
 }
 
-/* Fix for markdown content whitespace preservation */
 .markdown-content {
   white-space: pre-wrap;       /* Preserve whitespace and wrap text */
   word-wrap: break-word;       /* Break long words to prevent overflow */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Preserve formatting for code blocks and pre elements */
 .markdown-content pre,
 .markdown-content code {
   white-space: pre;            /* Preserve all whitespace */
@@ -370,14 +366,12 @@ select,
   font-family: monospace;
 }
 
-/* Fix for list spacing */
 .markdown-content ul,
 .markdown-content ol {
   padding-left: 2em;
   margin: 1em 0;
 }
 
-/* Fix for nested lists */
 .markdown-content ul ul,
 .markdown-content ol ol,
 .markdown-content ul ol,
@@ -386,18 +380,15 @@ select,
   margin-bottom: 0;
 }
 
-/* Fix for list item spacing */
 .markdown-content li {
   margin-bottom: 0.5em;
 }
 
-/* Preserve indentation in paragraphs */
 .markdown-content p {
   margin: 1em 0;
   white-space: pre-wrap;
 }
 
-/* Table formatting */
 .markdown-content table {
   border-collapse: collapse;
   width: 100%;
@@ -415,7 +406,6 @@ select,
   background-color: var(--table-hover);
 }
 
-/* Variables List */
 .variables-container {
   margin-top: 1.5rem;
 }
@@ -675,7 +665,7 @@ select,
   color: var(--text-muted);
 }
 
-/* Update the payments container to remove scrolling behavior */
+/* Payments container to remove scrolling behavior */
 .payments-container {
   margin-bottom: 1rem;
   border: 0.1rem solid var(--border-color);
@@ -802,7 +792,6 @@ select,
 
 #formTemplateModal .modal-content {
   width: 90%;
-  /* max-width: 900px; */
 }
 
 #formTemplateModal .search-box {
@@ -885,4 +874,35 @@ select,
   min-height: 4.2rem;
   display: flex;
   align-items: center;
+}
+
+/* Payment actions and form actions buttons */
+.payment-actions button, 
+.form-actions button {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--light);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin-left: 0.5rem;
+}
+
+.payment-actions button:hover, 
+.form-actions button:hover {
+  background-color: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Make delete buttons red on hover */
+.payment-actions button:last-child:hover,
+.form-actions button:last-child:hover {
+  background-color: var(--danger);
 }

@@ -74,8 +74,7 @@
   #pageSizeSelector span {
     position: relative;
   }
-  
-  /* Responsive Media Queries */
+
   @media (max-width: 768px) {
     .pagination {
       flex-wrap: wrap;

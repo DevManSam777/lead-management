@@ -1,7 +1,6 @@
 @import 'theme.css';
 @import 'components.css';
 
-/* Base Styles */
 html {
   font-size: 62.5%; 
 }
@@ -312,7 +311,6 @@ details[open] .stats-cards {
   margin-top: 2rem;
 }
 
-/* Adjust column widths in table view */
 .leads-table th:nth-child(1),
 .leads-table td:nth-child(1) {
   width: 30%; /* Name column - make it wider */
@@ -337,19 +335,16 @@ details[open] .stats-cards {
   overflow-x: visible;
 }
 
-/* Make sure the table uses these width settings */
 .leads-table {
   table-layout: fixed;
   width: 100%;
 }
 
-/* Make sure text doesn't overflow */
 .leads-table td {
   padding: 1.2rem 1rem;
   overflow: hidden;
 }
 
-/* Custom date input styling */
 .date-input-container {
   position: relative;
   width: 100%;
@@ -451,10 +446,15 @@ details[open] .stats-cards {
   gap: 0.5rem;
 }
 
+#addFormBtn:hover {
+  background-color: var(--primary);
+  color: var(--text-color);
+  transition: all .3s ease;
+}
+
 #editFormContent {
   overflow-y: auto;
 }
-
 
 .no-forms-message {
   padding: 1rem;
@@ -467,9 +467,6 @@ details[open] .stats-cards {
   overflow-y: auto;
 }
 
-/* Add these styles to dashboard.css */
-
-/* Responsive Styles */
 @media (max-width: 1200px) {
   .lead-cards {
     grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
@@ -558,7 +555,6 @@ details[open] .stats-cards {
     width: 100%;
   }
   
-  /* Toggle button positioning */
   .sidebar-toggle {
     position: fixed;
     width: 3.2rem;
@@ -584,7 +580,6 @@ details[open] .stats-cards {
     left: 1rem;
   }
   
-  /* Reset any potential highlighting or odd styling */
   .container .main-content .header h2 {
     background: none;
     box-shadow: none;
@@ -594,7 +589,7 @@ details[open] .stats-cards {
     background-color: transparent;
   }
   
- /* Adjust header positioning and spacing */
+
  .container .main-content .header {
   margin-top: 3rem;
   padding-top: 1rem;
@@ -604,8 +599,6 @@ details[open] .stats-cards {
 }
 
 
-
-/* Responsive table adjustments */
 .leads-table th,
 .leads-table td {
   font-size: 1.4rem;
@@ -714,7 +707,6 @@ fieldset {
   flex: 1 1 100%;
 }
 
-/* Smallest screen table adjustments */
 .leads-table th,
 .leads-table td {
   font-size: 1.2rem;

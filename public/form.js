@@ -217,9 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  /**
-   * Initialize auto-resizing textareas
-   */
+  /* Initialize auto-resizing textareas */
   function initializeAutoResizeTextareas() {
     // Get all textareas
     const textareas = document.querySelectorAll("textarea");
@@ -236,10 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  /**
-   * Adjust the height of a textarea to fit its content
-   * @param {HTMLElement} textarea - The textarea element to adjust
-   */
+  /* Adjust the height of a textarea to fit its content */
   function adjustTextareaHeight(textarea) {
     // Reset height to auto to get the correct scrollHeight
     textarea.style.height = "auto";

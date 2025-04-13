@@ -1,13 +1,10 @@
-/* Settings-specific styles */
 .settings-container {
   background-color: var(--card-background);
   border-radius: var(--card-border-radius);
   box-shadow: var(--box-shadow);
   padding: 2rem;
   margin-bottom: 3rem;
-  width: 100%; /* Make it take full width */
-  /* Remove or increase the max-width */
-  /* max-width: 80rem; */
+  width: 100%; 
 }
 
 .settings-card {
@@ -90,7 +87,6 @@
   color: var(--text-color);
 }
 
-/* Responsive styles for both theme and date format controls */
 @media (max-width: 600px) {
   .theme-segmented-control,
   .date-format-segmented-control {
