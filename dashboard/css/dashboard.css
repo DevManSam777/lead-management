@@ -448,7 +448,7 @@ details[open] .stats-cards {
 
 #addFormBtn:hover, #addPaymentBtn:hover {
   background-color: var(--primary);
-  color: var(--text-color);
+  color: var(--light);
   transition: all .3s ease;
 }
 

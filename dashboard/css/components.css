@@ -117,12 +117,12 @@
 
 .lead-card p {
   margin-bottom: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-color);
   word-break: break-word;
 }
 
 .lead-card p strong {
-  color: var(--text-color);
+  color: var(--text-muted);
   margin-right: 0.5rem;
 }
 
@@ -226,7 +226,8 @@
 
 .form-section h4 {
   margin-bottom: 1.5rem;
-  color: var(--danger);
+  /* color: var(--danger); */
+  color: var(--text-muted);
   font-size: 1.8rem;
 }
 
@@ -440,7 +441,6 @@ select,
 /* CodeMirror Integration */
 .CodeMirror {
   height: auto;
-  /* height: 100%; */
   font-size: 1.4rem;
   border: 1px solid var(--border-color);
   border-radius: var(--card-border-radius);
