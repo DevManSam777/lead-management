@@ -666,20 +666,20 @@ select,
 
 .payment-date,
 .payment-notes {
-  font-size: 0.85rem;
+  font-size: 1.2rem;
   color: var(--text-muted);
 }
 
 /* Payment notes to properly handle text wrapping and height */
 .payment-notes {
-  font-style: italic;
-  margin-top: 0.4rem;
+  font-style: oblique;
+  margin-top: .5rem;
   /* preserves indentation */
   white-space: pre-wrap;
   word-break: break-word;
   width: 100%;
   height: auto;
-  padding: 1rem 1rem 1rem 0;
+  padding: 0 1rem 1rem 0;
 }
 
 .payment-actions {

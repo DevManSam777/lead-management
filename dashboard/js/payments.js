@@ -92,14 +92,14 @@ function renderLeadPayments(leadPayments, leadId) {
     // Add payment date
     const dateDiv = document.createElement("div");
     dateDiv.className = "payment-date";
-    dateDiv.textContent = `Paid: ${formattedDate}`;
+    dateDiv.innerHTML = `<i class="fa-solid fa-money-bill-wave" style="opacity: 0.7"></i> Paid: ${formattedDate}`;
     paymentDetails.appendChild(dateDiv);
 
     // Add payment notes if available
     if (payment.notes) {
       const notesDiv = document.createElement("div");
       notesDiv.className = "payment-notes";
-      notesDiv.textContent = payment.notes;
+      notesDiv.innerHTML = `<i class="fa-regular fa-clipboard" style="margin-left: 0.3rem;"></i><span style="font-style: normal; padding-left: 0.5rem;">Note: </span>"<span style="padding">${payment.notes}</span>"`;
       paymentDetails.appendChild(notesDiv);
     }
 

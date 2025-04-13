@@ -79,7 +79,7 @@ async function loadLeadForms(leadId) {
         <div class="form-details">
           <div class="form-title">${form.title}</div>
           <div class="form-category">${category}</div>
-          <div class="form-dates" style="font-size: 0.8em; color: var(--text-muted); margin-top: 3px;">
+          <div class="form-dates">
             <div><i class="far fa-calendar-plus"></i> Created: ${formattedCreationDate}</div>
             <div><i class="far fa-clock"></i> Modified: ${formattedModifiedDate}</div>
           </div>
