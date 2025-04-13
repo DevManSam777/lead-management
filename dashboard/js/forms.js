@@ -463,6 +463,82 @@ async function fetchAndRenderForms() {
 /**
  * Create a form card element
  */
+// function createFormCard(form) {
+//   const card = document.createElement("div");
+//   card.className = "template-card";
+//   card.dataset.formId = form._id;
+  
+//   // Choose icon based on template status
+//   let icon = "fa-file-alt"; // Default icon
+
+//   // Choose icon based on category
+//   if (form.category === "contract") {
+//     icon = "fa-file-contract";
+//   } else if (form.category === "proposal") {
+//     icon = "fa-file-invoice";
+//   } else if (form.category === "invoice") {
+//     icon = "fa-file-invoice-dollar";
+//   } else if (form.category === "agreement") {
+//     icon = "fa-handshake";
+//   }
+  
+//   // Use the GLOBAL date format - this is the key fix!
+//   const currentDateFormat = window.dateFormat || "MM/DD/YYYY";
+  
+//   // Format date using the current format
+//   const lastModified = new Date(form.lastModified);
+//   const formattedDate = Utils.formatDateTime(lastModified, currentDateFormat);
+  
+//   // Create card content
+//   card.innerHTML = `
+//     <div class="template-icon">
+//       <i class="fas ${icon}"></i>
+//     </div>
+//     <div class="template-details">
+//       <h4>${form.title}</h4>
+//       <p>${form.description || "No description"}</p>
+//       <div class="template-meta">
+//         <span><i class="far fa-clock"></i> Last updated: ${formattedDate}</span>
+//       </div>
+//     </div>
+//     <div class="template-actions">
+//       <button class="btn-icon preview-form" title="Preview">
+//         <i class="fas fa-eye"></i>
+//       </button>
+//       <button class="btn-icon edit-form" title="Edit">
+//         <i class="fas fa-edit"></i>
+//       </button>
+//       <button class="btn-icon delete-form" title="Delete">
+//         <i class="fas fa-trash"></i>
+//       </button>
+//     </div>
+//   `;
+  
+//   // Add event listeners
+//   card.querySelector(".preview-form").addEventListener("click", function(e) {
+//     e.stopPropagation();
+//     openFormPreview(form._id);
+//   });
+  
+//   card.querySelector(".edit-form").addEventListener("click", function(e) {
+//     e.stopPropagation();
+//     openEditFormModal(form._id);
+//   });
+  
+//   card.querySelector(".delete-form").addEventListener("click", function(e) {
+//     e.stopPropagation();
+//     confirmDeleteForm(form._id);
+//   });
+  
+//   // Add click event to entire card for preview
+//   card.addEventListener("click", function() {
+//     openFormPreview(form._id);
+//   });
+  
+//   return card;
+// }
+
+// Updated createFormCard function in dashboard/js/forms.js
 function createFormCard(form) {
   const card = document.createElement("div");
   card.className = "template-card";
@@ -485,11 +561,21 @@ function createFormCard(form) {
   // Use the GLOBAL date format - this is the key fix!
   const currentDateFormat = window.dateFormat || "MM/DD/YYYY";
   
-  // Format date using the current format
-  const lastModified = new Date(form.lastModified);
-  const formattedDate = Utils.formatDateTime(lastModified, currentDateFormat);
+  // Format modified date
+  let formattedModifiedDate = "Not recorded";
+  if (form.lastModified) {
+    const modifiedDate = new Date(form.lastModified);
+    formattedModifiedDate = Utils.formatDateTime(modifiedDate, currentDateFormat);
+  }
   
-  // Create card content
+  // Format creation date
+  let formattedCreationDate = "Not recorded";
+  if (form.createdAt) {
+    const creationDate = new Date(form.createdAt);
+    formattedCreationDate = Utils.formatDateTime(creationDate, currentDateFormat);
+  }
+  
+  // Create card content with both dates
   card.innerHTML = `
     <div class="template-icon">
       <i class="fas ${icon}"></i>
@@ -498,7 +584,8 @@ function createFormCard(form) {
       <h4>${form.title}</h4>
       <p>${form.description || "No description"}</p>
       <div class="template-meta">
-        <span><i class="far fa-clock"></i> Last updated: ${formattedDate}</span>
+        <span><i class="far fa-calendar-plus"></i> Created: ${formattedCreationDate}</span>
+        <span><i class="far fa-clock"></i> Modified: ${formattedModifiedDate}</span>
       </div>
     </div>
     <div class="template-actions">
@@ -736,6 +823,90 @@ async function handleFormSubmit(event) {
 /**
  * Open form preview
  */
+// async function openFormPreview(formId) {
+//   try {
+//     // Store current form ID
+//     currentFormId = formId;
+    
+//     // Show loading
+//     Utils.showToast("Loading preview...");
+    
+//     // Fetch form details
+//     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
+    
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch form details");
+//     }
+    
+//     const form = await response.json();
+    
+//     // Set preview title
+//     document.getElementById("previewFormTitle").textContent = form.title;
+    
+//     // Convert markdown to HTML
+//     const html = DOMPurify.sanitize(marked.parse(form.content));
+    
+//     // Set preview content
+//     document.getElementById("previewContent").innerHTML = html;
+    
+//     // Only show the "Use with Lead" button for templates
+//     const useWithLeadButton = form.isTemplate ? 
+//       `<button type="button" id="useWithLeadBtn" class="btn btn-outline">
+//         <i class="fas fa-user"></i> Use Customer Data
+//       </button>` : '';
+    
+//     // Update the modal-actions div to conditionally include the use with lead button
+//     const modalActions = document.querySelector('#formPreviewModal .modal-actions');
+//     if (modalActions) {
+//       modalActions.innerHTML = `
+//         <div>
+//           <button type="button" id="editFormBtn" class="btn btn-outline">
+//             <i class="fas fa-edit"></i> Edit
+//           </button>
+//           ${useWithLeadButton}
+//         </div>
+//         <div>
+//           <button type="button" id="downloadFormBtn" class="btn btn-primary">
+//             <i class="fas fa-download"></i> Download .md
+//           </button>
+//           <button type="button" id="printFormBtn" class="btn btn-primary">
+//             <i class="fas fa-print"></i> Print PDF
+//           </button>
+//         </div>
+//       `;
+//     }
+    
+//     // Show modal
+//     document.getElementById("formPreviewModal").style.display = "block";
+    
+//     // Add event listeners to buttons
+//     document.getElementById("editFormBtn").addEventListener("click", function() {
+//       closeFormPreviewModal();
+//       openEditFormModal(formId);
+//     });
+    
+//     document.getElementById("downloadFormBtn").addEventListener("click", function() {
+//       downloadForm(formId);
+//     });
+    
+//     document.getElementById("printFormBtn").addEventListener("click", function() {
+//       printForm(formId);
+//     });
+    
+//     // Only add the Use with Lead event listener if the button exists
+//     const useWithLeadBtn = document.getElementById("useWithLeadBtn");
+//     if (useWithLeadBtn) {
+//       useWithLeadBtn.addEventListener("click", function() {
+//         openLeadSelectionModal();
+//       });
+//     }
+//   } catch (error) {
+//     console.error("Error loading form preview:", error);
+//     Utils.showToast("Error: " + error.message);
+//   }
+// }
+
+// Updated openFormPreview function in dashboard/js/forms.js
 async function openFormPreview(formId) {
   try {
     // Store current form ID
@@ -753,14 +924,40 @@ async function openFormPreview(formId) {
     
     const form = await response.json();
     
+    // Get date format from window object or use default
+    const dateFormat = window.dateFormat || "MM/DD/YYYY";
+    
+    // Format the dates
+    let formattedCreationDate = "Not recorded";
+    let formattedModifiedDate = "Not recorded";
+    
+    if (form.createdAt) {
+      const creationDate = new Date(form.createdAt);
+      formattedCreationDate = Utils.formatDateTime(creationDate, dateFormat);
+    }
+    
+    if (form.lastModified) {
+      const modifiedDate = new Date(form.lastModified);
+      formattedModifiedDate = Utils.formatDateTime(modifiedDate, dateFormat);
+    }
+    
     // Set preview title
     document.getElementById("previewFormTitle").textContent = form.title;
+    
+    // Create metadata section for dates
+    const metadataHTML = `
+      <div class="form-metadata" style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.9em;">
+        <div><strong>Created:</strong> ${formattedCreationDate}</div>
+        <div><strong>Last Modified:</strong> ${formattedModifiedDate}</div>
+      </div>
+    `;
     
     // Convert markdown to HTML
     const html = DOMPurify.sanitize(marked.parse(form.content));
     
-    // Set preview content
-    document.getElementById("previewContent").innerHTML = html;
+    // Set preview content with metadata
+    const previewContent = document.getElementById("previewContent");
+    previewContent.innerHTML = metadataHTML + html;
     
     // Only show the "Use with Lead" button for templates
     const useWithLeadButton = form.isTemplate ? 

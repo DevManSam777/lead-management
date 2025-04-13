@@ -284,7 +284,7 @@
     </div>
 
     <!-- Form Preview Modal -->
-    <div id="formPreviewModal" class="modal">
+    <!-- <div id="formPreviewModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeFormPreviewModal">&times;</span>
         <div class="modal-header">
@@ -295,6 +295,39 @@
           <div class="markdown-content" id="previewContent"></div>
         </div>
 
+        <div class="modal-actions">
+          <div>
+            <button type="button" id="editFormBtn" class="btn btn-outline">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button type="button" id="useWithLeadBtn" class="btn btn-outline">
+              <i class="fas fa-user"></i> Use Customer Data
+            </button>
+          </div>
+          <div>
+            <button type="button" id="downloadFormBtn" class="btn btn-primary">
+              <i class="fas fa-download"></i> Download .md
+            </button>
+            <button type="button" id="printFormBtn" class="btn btn-primary">
+              <i class="fas fa-print"></i> Print PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
+    <div id="formPreviewModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeFormPreviewModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="previewFormTitle">Form Preview</h3>
+        </div>
+    
+        <div class="preview-container">
+          <!-- Content will be inserted here by JavaScript -->
+          <div class="markdown-content" id="previewContent"></div>
+        </div>
+    
         <div class="modal-actions">
           <div>
             <button type="button" id="editFormBtn" class="btn btn-outline">

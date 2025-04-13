@@ -28,6 +28,16 @@
   margin-right: 1rem;
 }
 
+.form-item .form-dates {
+  margin-top: 3px;
+}
+
+/* Make form items slightly taller to accommodate dates */
+.form-item {
+  padding: 12px 15px;
+}
+
+
 .template-cards {
   padding: 2rem;
   display: grid;
@@ -62,6 +72,7 @@
   flex: 1;
 }
 
+
 .template-details h4 {
   margin: 0 0 0.5rem 0;
   font-size: 1.6rem;
@@ -76,13 +87,21 @@
 .template-meta {
   font-size: 1.2rem;
   color: var(--text-muted);
+  margin-top: 5px;
 }
 
 .template-meta span {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  margin-bottom: 3px;
 }
+
+.template-meta i {
+  margin-right: 5px;
+  color: var(--primary);
+  opacity: 0.8;
+}
+
 
 .template-actions {
   display: flex;
@@ -509,6 +528,11 @@ div.editor-section {
 
   .template-actions {
     margin-top: 1.5rem;
+  }
+
+  .form-dates {
+    flex-direction: column;
+    gap: 2px;
   }
 }
 

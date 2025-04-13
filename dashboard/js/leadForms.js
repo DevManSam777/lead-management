@@ -14,6 +14,118 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Function to load forms for a lead
+// async function loadLeadForms(leadId) {
+//   try {
+//     const formsContainer = document.getElementById("leadFormsList");
+
+//     if (!formsContainer) return;
+
+//     // Show loading
+//     formsContainer.innerHTML =
+//       '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading forms...</div>';
+
+//     // Fetch forms for this lead
+//     const response = await fetch(
+//       `${API.getBaseUrl()}/api/forms/lead/${leadId}`
+//     );
+
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch lead forms");
+//     }
+
+//     const forms = await response.json();
+
+//     // This ensures edit/delete buttons are always available
+//     let isEditMode = true;
+
+//     // Render the forms
+//     if (forms.length === 0) {
+//       formsContainer.innerHTML =
+//         '<p class="no-forms-message">No forms yet. Click "Create Form" to add one.</p>';
+//       return;
+//     }
+
+//     // Clear container
+//     formsContainer.innerHTML = "";
+
+//     // Add each form
+//     forms.forEach((form) => {
+//       const formDate = new Date(form.lastModified);
+//       const formattedDate = Utils.formatDate(
+//         formDate,
+//         window.dateFormat || "MM/DD/YYYY"
+//       );
+
+//       const formItem = document.createElement("div");
+//       formItem.className = "form-item";
+//       formItem.dataset.formId = form._id;
+
+//       // Capitalize first letter of category
+//       const category =
+//         form.category.charAt(0).toUpperCase() + form.category.slice(1);
+
+//       // Full action buttons for editing and deleting forms
+//       formItem.innerHTML = `
+//           <div class="form-details">
+//             <div class="form-title">${form.title}</div>
+//             <div class="form-category">${category} • ${formattedDate}</div>
+//           </div>
+//           <div class="form-actions">
+//             <button type="button" class="btn-icon view-form" title="View Form">
+//               <i class="fas fa-eye"></i>
+//             </button>
+//             <button type="button" class="btn-icon edit-form" title="Edit Form">
+//               <i class="fas fa-edit"></i>
+//             </button>
+//             <button type="button" class="btn-icon delete-form" title="Delete Form">
+//               <i class="fas fa-trash"></i>
+//             </button>
+//           </div>
+//         `;
+
+//       // Add event listeners
+//       formItem
+//         .querySelector(".view-form")
+//         .addEventListener("click", function (e) {
+//           e.stopPropagation();
+//           viewForm(form._id, true); // Force edit mode to true
+//         });
+
+//       formItem
+//         .querySelector(".edit-form")
+//         .addEventListener("click", function (e) {
+//           e.stopPropagation();
+//           openEditContentModal(form);
+//         });
+
+//       formItem
+//         .querySelector(".delete-form")
+//         .addEventListener("click", function (e) {
+//           e.stopPropagation();
+//           if (confirm(`Are you sure you want to delete "${form.title}"?`)) {
+//             deleteForm(form._id, leadId);
+//           }
+//         });
+
+//       formsContainer.appendChild(formItem);
+//     });
+
+//     // Set the visibility of the Add Form button
+//     const addFormBtn = document.getElementById("addFormBtn");
+//     if (addFormBtn) {
+//       addFormBtn.style.display = "block"; // Always show the Add Form button
+//     }
+//   } catch (error) {
+//     console.error("Error loading lead forms:", error);
+//     const formsContainer = document.getElementById("leadFormsList");
+//     if (formsContainer) {
+//       formsContainer.innerHTML =
+//         '<p class="no-forms-message">Error loading forms</p>';
+//     }
+//   }
+// }
+
+// Updated loadLeadForms function in dashboard/js/leadForms.js
 async function loadLeadForms(leadId) {
   try {
     const formsContainer = document.getElementById("leadFormsList");
@@ -48,13 +160,23 @@ async function loadLeadForms(leadId) {
     // Clear container
     formsContainer.innerHTML = "";
 
+    // Get date format from window object or use default
+    const dateFormat = window.dateFormat || "MM/DD/YYYY";
+
     // Add each form
     forms.forEach((form) => {
-      const formDate = new Date(form.lastModified);
-      const formattedDate = Utils.formatDate(
-        formDate,
-        window.dateFormat || "MM/DD/YYYY"
-      );
+      // Format dates
+      let formattedModifiedDate = "Not recorded";
+      if (form.lastModified) {
+        const modifiedDate = new Date(form.lastModified);
+        formattedModifiedDate = Utils.formatDateTime(modifiedDate, dateFormat);
+      }
+      
+      let formattedCreationDate = "Not recorded";
+      if (form.createdAt) {
+        const creationDate = new Date(form.createdAt);
+        formattedCreationDate = Utils.formatDateTime(creationDate, dateFormat);
+      }
 
       const formItem = document.createElement("div");
       formItem.className = "form-item";
@@ -64,24 +186,28 @@ async function loadLeadForms(leadId) {
       const category =
         form.category.charAt(0).toUpperCase() + form.category.slice(1);
 
-      // Full action buttons for editing and deleting forms
+      // Full action buttons for editing and deleting forms with date information
       formItem.innerHTML = `
-          <div class="form-details">
-            <div class="form-title">${form.title}</div>
-            <div class="form-category">${category} • ${formattedDate}</div>
+        <div class="form-details">
+          <div class="form-title">${form.title}</div>
+          <div class="form-category">${category}</div>
+          <div class="form-dates" style="font-size: 0.8em; color: var(--text-muted); margin-top: 3px;">
+            <div><i class="far fa-calendar-plus"></i> Created: ${formattedCreationDate}</div>
+            <div><i class="far fa-clock"></i> Modified: ${formattedModifiedDate}</div>
           </div>
-          <div class="form-actions">
-            <button type="button" class="btn-icon view-form" title="View Form">
-              <i class="fas fa-eye"></i>
-            </button>
-            <button type="button" class="btn-icon edit-form" title="Edit Form">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button type="button" class="btn-icon delete-form" title="Delete Form">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        `;
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-icon view-form" title="View Form">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button type="button" class="btn-icon edit-form" title="Edit Form">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button type="button" class="btn-icon delete-form" title="Delete Form">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `;
 
       // Add event listeners
       formItem
