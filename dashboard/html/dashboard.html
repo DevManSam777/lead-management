@@ -51,7 +51,6 @@
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/lib/codemirror.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/mode/markdown/markdown.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/addon/display/placeholder.js"></script>
-
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
@@ -106,7 +105,6 @@
       <main class="main-content">
         <header class="header">
           <h2>Project Management</h2>
-
           <div class="search-filter-sort">
             <div class="search-box">
               <i class="fas fa-search"></i>
@@ -136,7 +134,6 @@
               <option value="status-asc">Status (New to Closed)</option>
               <option value="status-desc">Status (Closed to New)</option>
             </select>
-
             <!-- Hidden original dropdowns that the JS code will still use -->
             <select id="sortField" style="display: none">
               <option value="createdAt">Date</option>
@@ -149,13 +146,11 @@
               <option value="desc">Newest First</option>
               <option value="asc">Oldest First</option>
             </select>
-
             <button id="addLeadBtn" class="btn btn-primary">
               <i class="fas fa-plus"></i> Add New
             </button>
           </div>
         </header>
-
         <!-- Stats Cards -->
         <!--Values are dynamically set in calculateStats() ui.js-->
         <details open>
@@ -203,7 +198,6 @@
             </div>
           </div>
         </details>
-
         <!-- View Toggle -->
         <div class="view-toggle">
           <button id="gridViewBtn" class="active">
@@ -211,23 +205,19 @@
           </button>
           <button id="listViewBtn"><i class="fas fa-list"></i> List</button>
         </div>
-
         <!-- Leads Container -->
         <div class="leads-container">
           <div class="leads-header">
             <h3>Projects</h3>
           </div>
-
           <!-- Add this loading spinner div -->
           <div id="leadsLoadingSpinner" class="loading-indicator">
             <i class="fas fa-spinner fa-spin"></i> Loading projects...
           </div>
-
           <!-- Grid View (Default) -->
           <div class="lead-cards" id="leadCards">
             <!-- Lead cards will be generated here -->
           </div>
-
           <!-- Table View - Modified to include Last Contact column -->
           <table class="leads-table" id="leadsTable" style="display: none">
             <thead>
@@ -245,7 +235,6 @@
         </div>
       </main>
     </div>
-
     <!-- Lead Modal - Consolidated version -->
     <div id="leadModal" class="modal">
       <div class="modal-content">
@@ -270,17 +259,14 @@
               <label for="firstName" class="required">First Name</label>
               <input type="text" id="firstName" required />
             </div>
-
             <div class="form-group">
               <label for="lastName" class="required">Last Name</label>
               <input type="text" id="lastName" required />
             </div>
-
             <div class="form-group">
               <label for="email" class="required">Email</label>
               <input type="email" id="email" required />
             </div>
-
             <div class="form-group">
               <label for="phone" class="required">Phone</label>
               <div class="phone-group">
@@ -291,13 +277,11 @@
                 </div>
               </div>
             </div>
-
             <div class="form-group">
               <label for="textNumber">Text Number (if different)</label>
               <input type="tel" id="textNumber" />
             </div>
           </div>
-
           <!-- Business Information Section -->
           <div class="form-section">
             <h4>Business Information</h4>
@@ -305,7 +289,6 @@
               <label for="businessName">Business Name</label>
               <input type="text" id="businessName" />
             </div>
-
             <div class="form-group">
               <label for="businessPhone">Business Phone</label>
               <div class="phone-group">
@@ -320,37 +303,30 @@
                 </div>
               </div>
             </div>
-
             <div class="form-group">
               <label for="businessEmail">Business Email</label>
               <input type="email" id="businessEmail" />
             </div>
-
             <div class="form-group">
               <label for="businessServices">Business Services</label>
               <textarea id="businessServices" rows="1"></textarea>
             </div>
           </div>
-
           <!-- Billing Address Section -->
           <div class="form-section">
             <h4>Billing Address</h4>
-
             <div class="form-group">
               <label for="billingStreet">Street Address</label>
               <input type="text" id="billingStreet" name="billingStreet" />
             </div>
-
             <div class="form-group">
               <label for="billingAptUnit">Apartment/Unit Number</label>
               <input type="text" id="billingAptUnit" name="billingAptUnit" />
             </div>
-
             <div class="form-group">
               <label for="billingCity">City</label>
               <input type="text" id="billingCity" name="billingCity" />
             </div>
-
             <div class="form-group" style="display: flex; gap: 1rem">
               <div style="flex: 1">
                 <label for="billingState">State/Province</label>
@@ -361,7 +337,6 @@
                 <input type="text" id="billingZipCode" name="billingZipCode" />
               </div>
             </div>
-
             <div class="form-group">
               <label for="billingCountry">Country</label>
               <input
@@ -371,7 +346,6 @@
               />
             </div>
           </div>
-
           <!-- Service Information Section -->
           <div class="form-section">
             <h4>Service Information</h4>
@@ -382,7 +356,6 @@
                 <option value="App Development">App Development</option>
               </select>
             </div>
-
             <div class="form-group">
               <label for="hasWebsite">Has Website</label>
               <select id="hasWebsite">
@@ -391,12 +364,10 @@
                 <option value="no">No</option>
               </select>
             </div>
-
             <div class="form-group">
               <label for="websiteAddress">Website Address</label>
               <input type="text" id="websiteAddress" />
             </div>
-
             <div class="form-group">
               <label for="preferredContact">Preferred Contact Method</label>
               <select id="preferredContact">
@@ -408,17 +379,7 @@
                 <option value="businessEmail">Business Email</option>
               </select>
             </div>
-
-            <div class="form-group">
-              <label for="budget">Estimated Budget</label>
-              <input
-                type="text"
-                id="budget"
-                placeholder="Enter estimated amount"
-              />
-            </div>
           </div>
-
           <!-- Status Information Section -->
           <div class="form-section">
             <h4>Lead Status</h4>
@@ -439,10 +400,18 @@
                 <div class="date-display" id="lastContactedDisplay"></div>
               </div>
             </div>
-
+          </div>
             <!-- Payment Information Section -->
             <div class="form-section">
               <h4>Payment Information</h4>
+              <div class="form-group">
+                <label for="budget">Estimated Budget</label>
+                <input
+                  type="text"
+                  id="budget"
+                  placeholder="Enter estimated amount"
+                />
+              </div>
               <div class="form-group">
                 <label for="totalBudget">Billed Amount</label>
                 <input
@@ -451,17 +420,14 @@
                   placeholder="Enter billed amount"
                 />
               </div>
-
               <div class="form-group">
                 <label for="paidAmount">Paid Amount</label>
                 <input type="text" id="paidAmount" readonly />
               </div>
-
               <div class="form-group">
                 <label for="remainingBalance">Remaining Balance</label>
                 <input type="text" id="remainingBalance" readonly />
               </div>
-
               <div id="paymentsList" class="payments-list">
                 <h5>Payments</h5>
                 <div class="payments-container">
@@ -476,7 +442,6 @@
                 </button>
               </div>
             </div>
-
             <div class="form-section">
               <h4>Forms</h4>
               <div id="leadFormsList" class="forms-list">
@@ -491,8 +456,6 @@
                 <i class="fas fa-plus"></i> Create Form
               </button>
             </div>
-          </div>
-
           <!-- Message and Notes Section -->
           <div class="form-section">
             <h4>Message & Notes</h4>
@@ -500,23 +463,19 @@
               <label for="message">Message</label>
               <textarea id="message" rows="1"></textarea>
             </div>
-
             <div class="form-group">
               <label for="notes">Internal Notes</label>
               <textarea id="notes" rows="1"></textarea>
             </div>
           </div>
-
           <button type="submit" class="btn btn-primary">Save Changes</button>
         </form>
       </div>
     </div>
-
     <!-- Toast Notification -->
     <div class="toast" id="toast">
       <p id="toastMessage"></p>
     </div>
-
     <!-- Payment Modal -->
     <div id="paymentModal" class="modal">
       <div class="modal-content">
@@ -527,7 +486,6 @@
         <form id="paymentForm">
           <input type="hidden" id="paymentId" />
           <input type="hidden" id="paymentLeadId" />
-
           <div class="form-group">
             <label for="paymentAmount">Amount*</label>
             <input
@@ -537,7 +495,6 @@
               placeholder="Enter amount"
             />
           </div>
-
           <div class="form-group">
             <label for="paymentDate">Payment Date*</label>
             <div class="date-input-container">
@@ -545,7 +502,6 @@
               <div class="date-display" id="paymentDateDisplay"></div>
             </div>
           </div>
-
           <div class="form-group">
             <label for="paymentNotes">Notes</label>
             <textarea
@@ -554,12 +510,10 @@
               placeholder="Add payment notes here"
             ></textarea>
           </div>
-
           <button type="submit" class="btn btn-primary">Save Payment</button>
         </form>
       </div>
     </div>
-
     <!-- Load scripts in sequence -->
     <script type="module" src="../js/utils.js"></script>
     <script type="module" src="../js/api.js"></script>

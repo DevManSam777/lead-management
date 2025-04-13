@@ -422,11 +422,14 @@ details[open] .stats-cards {
   align-items: center;
   padding: 1rem;
   border-bottom: 0.1rem solid var(--border-color);
+  border-left: 5px solid var(--primary);
+  border-radius: 8px;
+  margin-bottom: 1rem;
 }
-
+/* 
 .form-item:last-child {
   border-bottom: none;
-}
+} */
 
 .form-details {
   flex: 1;
@@ -448,7 +451,7 @@ details[open] .stats-cards {
 
 #addFormBtn:hover, #addPaymentBtn:hover {
   background-color: var(--primary);
-  color: var(--light);
+  color: var(--add-btn);
   transition: all .3s ease;
 }
 

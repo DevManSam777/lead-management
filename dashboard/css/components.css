@@ -222,6 +222,8 @@
 
 .form-section:last-of-type {
   border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .form-section h4 {
@@ -631,10 +633,9 @@ select,
   margin-top: 1.5rem;
 }
 
-
 .payments-container {
   margin-bottom: 1rem;
-  border: 0.1rem solid var(--border-color);
+  /* border: 0.1rem solid var(--border-color); */
   border-radius: 0.5rem;
   padding: 0;
 }
@@ -645,11 +646,14 @@ select,
   align-items: center;
   padding: 1rem;
   border-bottom: 0.1rem solid var(--border-color);
+  border-left: 5px solid var(--toast-bg);
+  border-radius: 8px;
+  margin-top: 10px;
 }
 
-.payment-item:last-child {
+/* .payment-item:last-child {
   border-bottom: none;
-}
+} */
 
 .payment-details {
   flex: 1;
@@ -663,14 +667,6 @@ select,
 .payment-notes {
   font-size: 0.85rem;
   color: var(--text-muted);
-}
-
-/* Payments container to remove scrolling behavior */
-.payments-container {
-  margin-bottom: 1rem;
-  border: 0.1rem solid var(--border-color);
-  border-radius: 0.5rem;
-  padding: 0;
 }
 
 /* Payment notes to properly handle text wrapping and height */
