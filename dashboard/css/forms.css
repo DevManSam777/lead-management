@@ -36,6 +36,11 @@
   padding: 12px 15px;
 }
 
+.form-metadata {
+  display: flex;
+  flex-direction: column;
+}
+
 .form-metadata div {
   line-height: 1.5;
   color: var(--text-muted); 

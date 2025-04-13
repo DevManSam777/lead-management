@@ -781,7 +781,8 @@ async function openFormPreview(formId) {
     // Create metadata section for dates
     const metadataHTML = `
       <div class="form-metadata">
-        <div><strong>Created:</strong> ${formattedCreationDate}</div><div><strong>Last Modified:</strong> ${formattedModifiedDate}</div>
+        <div><strong>Created:</strong> ${formattedCreationDate}</div>
+        <div><strong>Last Modified:</strong> ${formattedModifiedDate}</div>
       </div>
     `;
     
