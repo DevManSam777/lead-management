@@ -450,12 +450,14 @@ details[open] .stats-cards {
 }
 
 #addPaymentBtn, #addFormBtn  {
-  color: white;
-  opacity: 0.8;
+  color: var(--text-muted);
 }
 
 #addFormBtn:hover, #addPaymentBtn:hover {
   transition: all .3s ease-in-out;
+  opacity: 1;
+  color: rgba(255, 255, 255, 1);
+ 
 }
 
 #addFormBtn:hover {
