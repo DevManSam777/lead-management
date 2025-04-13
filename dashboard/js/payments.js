@@ -177,6 +177,7 @@ function openPaymentModal(leadId, paymentId = null) {
 
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
+  // edit payment   
   if (paymentId) {
     // Edit existing payment - fetch it first
     fetchLeadPayments(leadId)
@@ -185,15 +186,15 @@ function openPaymentModal(leadId, paymentId = null) {
         const payment = payments.find(
           (p) => p._id === paymentId && p.leadId === leadId
         );
-
+  
         if (!payment) {
           showToast("Payment not found or doesn't belong to this lead");
           return;
         }
-
+  
         document.getElementById("paymentId").value = payment._id;
         document.getElementById("paymentAmount").value = payment.amount;
-
+  
         // Format date for the date input - ensuring we get the correct local date
         if (payment.paymentDate) {
           // Create a date object (payments are stored with time at noon)
@@ -202,14 +203,16 @@ function openPaymentModal(leadId, paymentId = null) {
           // Format as YYYY-MM-DD for input[type="date"]
           const year = dateObj.getFullYear();
           const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-          const day = dateObj.getDate().toString().padStart(2, '0');
+          const day = (dateObj.getDate() + 1).toString().padStart(2, '0'); // Fix for cal highlighting previous day
           
           const formattedDateForInput = `${year}-${month}-${day}`;
           document.getElementById("paymentDate").value = formattedDateForInput;
-
-          // Update the display element with formatted date
+  
+          // Update the display element with formatted date using the dateFormat
           if (dateDisplay) {
-            dateDisplay.textContent = formatDate(dateObj, dateFormat);
+            // Create a new date object with the adjusted date for display
+            const displayDate = new Date(year, parseInt(month) - 1, parseInt(day), 12, 0, 0);
+            dateDisplay.textContent = formatDate(displayDate, dateFormat);
           }
         }
 
