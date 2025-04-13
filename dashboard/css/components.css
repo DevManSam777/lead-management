@@ -226,11 +226,17 @@
   padding-bottom: 0;
 }
 
-.form-section h4 {
+.form-section h4, .payments-list h5 {
   margin-bottom: 1.5rem;
   /* color: var(--danger); */
   color: var(--text-muted);
   font-size: 1.8rem;
+}
+
+.form-group.remaining-balance {
+  margin-bottom: 0;
+  padding-bottom: 3rem;
+  border-bottom: .1rem solid var(--border-color);
 }
 
 .form-row {
@@ -252,7 +258,7 @@
   margin-top: 2rem;
 }
 
-.form-group label, .payments-list h5 {
+.form-group label {
   display: block;
   margin-bottom: 0.8rem;
   font-weight: 500;
