@@ -175,10 +175,6 @@ function switchView(view) {
   }
 }
 
-/**
- * Update the modal action buttons (Edit, Delete)
- * @param {string} leadId - ID of the lead
- */
 function updateModalActionButtons(leadId) {
   // Check if modal actions container exists, create if not
   let actionsContainer = document.getElementById("modalActions");
@@ -194,6 +190,15 @@ function updateModalActionButtons(leadId) {
     }
   }
 
+  // Get the modal element
+  const modal = document.getElementById("leadModal");
+  
+  // Set the initial mode to read-only
+  if (modal) {
+    modal.classList.add("lead-modal-readonly");
+    modal.classList.remove("lead-modal-edit");
+  }
+
   // Clear existing buttons
   actionsContainer.innerHTML = "";
 
@@ -203,8 +208,16 @@ function updateModalActionButtons(leadId) {
   editButton.className = "btn btn-primary";
   editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
   editButton.addEventListener("click", function () {
+    // Toggle modal classes for CSS targeting
+    if (modal) {
+      modal.classList.remove("lead-modal-readonly");
+      modal.classList.add("lead-modal-edit");
+    }
+    
+    // Set to edit mode
     setModalReadOnly(false);
     document.getElementById("modalTitle").textContent = "Edit";
+    
     // Hide the action buttons when in edit mode
     actionsContainer.style.display = "none";
 
@@ -215,6 +228,11 @@ function updateModalActionButtons(leadId) {
       window.fetchLeadPayments(leadId).then((leadPayments) => {
         window.renderLeadPayments(leadPayments, leadId);
       });
+      
+      // Reload lead forms to ensure they have action buttons
+      if (typeof window.loadLeadForms === 'function') {
+        window.loadLeadForms(leadId);
+      }
     }
   });
 
@@ -224,7 +242,7 @@ function updateModalActionButtons(leadId) {
   deleteButton.className = "btn btn-danger";
   deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
   deleteButton.addEventListener("click", function () {
-    if (confirm("Are you sure you want to delete this ?")) {
+    if (confirm("Are you sure you want to delete this?")) {
       // This function will be globally available from dashboard.js
       window.deleteLeadAction(leadId);
     }
@@ -235,10 +253,6 @@ function updateModalActionButtons(leadId) {
   actionsContainer.appendChild(deleteButton);
 }
 
-/**
- * Set the modal to read-only or editable mode
- * @param {boolean} isReadOnly - Whether the modal should be read-only
- */
 function setModalReadOnly(isReadOnly) {
   const formElements = document.querySelectorAll(
     "#leadForm input, #leadForm select, #leadForm textarea"
@@ -288,7 +302,20 @@ function setModalReadOnly(isReadOnly) {
   if (addFormBtn) {
     addFormBtn.style.display = isReadOnly ? "none" : "block";
   }
+  
+  // Show/hide form action buttons (view, edit, delete)
+  const formActions = document.querySelectorAll(".form-actions");
+  formActions.forEach(actionButtons => {
+    actionButtons.style.display = isReadOnly ? "none" : "flex";
+  });
+  
+  // Hide/show payment action buttons
+  const paymentActions = document.querySelectorAll(".payment-actions");
+  paymentActions.forEach(actionButtons => {
+    actionButtons.style.display = isReadOnly ? "none" : "flex";
+  });
 }
+
 
 
 function calculateStats(allLeads, payments) {

@@ -162,7 +162,7 @@
   top: 0;
   right: 1.5rem;
   font-size: 3rem;
-  color: var(--danger);
+  color: var(--text-muted);
   cursor: pointer;
 }
 
@@ -191,7 +191,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: all 0.3s;
 }
 
 .modal-actions button i {
@@ -209,7 +209,7 @@
 }
 
 .modal-actions button:hover {
-  opacity: 0.9;
+  opacity: 0.8;
 }
 
 /* Forms and Inputs */
@@ -635,7 +635,6 @@ select,
 
 .payments-container {
   margin-bottom: 1rem;
-  /* border: 0.1rem solid var(--border-color); */
   border-radius: 0.5rem;
   padding: 0;
 }
@@ -650,10 +649,6 @@ select,
   border-radius: 8px;
   margin-top: 10px;
 }
-
-/* .payment-item:last-child {
-  border-bottom: none;
-} */
 
 .payment-details {
   flex: 1;
@@ -684,6 +679,43 @@ select,
 .payment-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+/* Payment actions and form actions buttons */
+.payment-actions button, 
+.form-actions button {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--light);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin-left: 0.5rem;
+}
+
+.payment-actions button:hover, 
+.form-actions button:hover {
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-actions button:hover {
+  background-color: var(--primary);
+}
+
+.payment-actions button:hover {
+  background-color: var(--toast-bg);
+}
+
+.payment-actions button:last-child:hover,
+.form-actions button:last-child:hover {
+  background-color: var(--danger);
 }
 
 /* View Toggle */
@@ -870,35 +902,4 @@ select,
   min-height: 4.2rem;
   display: flex;
   align-items: center;
-}
-
-/* Payment actions and form actions buttons */
-.payment-actions button, 
-.form-actions button {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: none;
-  background-color: var(--light);
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  margin-left: 0.5rem;
-}
-
-.payment-actions button:hover, 
-.form-actions button:hover {
-  background-color: var(--primary);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Make delete buttons red on hover */
-.payment-actions button:last-child:hover,
-.form-actions button:last-child:hover {
-  background-color: var(--danger);
 }

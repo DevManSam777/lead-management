@@ -449,10 +449,29 @@ details[open] .stats-cards {
   gap: 0.5rem;
 }
 
+#addPaymentBtn, #addFormBtn  {
+  color: white;
+  opacity: 0.8;
+}
+
 #addFormBtn:hover, #addPaymentBtn:hover {
+  transition: all .3s ease-in-out;
+}
+
+#addFormBtn:hover {
   background-color: var(--primary);
-  color: var(--add-btn);
-  transition: all .3s ease;
+}
+
+#addPaymentBtn {
+  border-color: var(--toast-bg);
+}
+
+#addPaymentBtn:hover {
+  background-color: var(--toast-bg);
+}
+
+#addFormBtn {
+  border-color: var(--primary);
 }
 
 #editFormContent {
@@ -770,4 +789,27 @@ fieldset {
   border: 0.1rem solid #ddd;
   box-shadow: none;
   }
+}
+
+/* Hide action buttons by default in read-only mode */
+.lead-modal-readonly .form-actions,
+.lead-modal-readonly .payment-actions,
+.lead-modal-readonly #addFormBtn {
+  display: none !important;
+  display: none;
+}
+
+/* Show action buttons in edit mode */
+.lead-modal-edit .form-actions,
+.lead-modal-edit .payment-actions,
+.lead-modal-edit #addFormBtn {
+  display: flex !important;
+  display: flex;
+}
+
+/* Buttons visible when the form is in edit mode */
+.lead-modal-edit .form-actions button, 
+.lead-modal-edit .payment-actions button {
+  opacity: 1;
+  visibility: visible;
 }

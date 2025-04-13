@@ -8,7 +8,7 @@ import * as Pagination from "./pagination.js";
 // Global variables
 let allLeads = [];
 let payments = [];
-let globalSettings = {}; 
+let globalSettings = {};
 
 // pagination variables
 let currentPage = 1;
@@ -161,7 +161,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
   }
-  
 
   // Initialize date input displays
   initializeDateInputs();
@@ -186,7 +185,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     .getElementById("closeModal")
     .addEventListener("click", closeLeadModal);
 
-  // Updated lead form submission handler
   document
     .getElementById("leadForm")
     .addEventListener("submit", function (event) {
@@ -198,6 +196,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       // After save, update the action buttons and set back to read-only
       const leadId = document.getElementById("leadId").value;
       if (leadId) {
+        // Update modal classes
+        const modal = document.getElementById("leadModal");
+        if (modal) {
+          modal.classList.add("lead-modal-readonly");
+          modal.classList.remove("lead-modal-edit");
+        }
+
         // Show the action buttons again
         const actionsContainer = document.getElementById("modalActions");
         if (actionsContainer) {
@@ -209,6 +214,20 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // Update modal title
         document.getElementById("modalTitle").textContent = "Client Info";
+
+        // Reload lead data to refresh the display
+        if (typeof window.fetchLeadPayments === "function") {
+          window.fetchLeadPayments(leadId).then((payments) => {
+            if (typeof window.renderLeadPayments === "function") {
+              window.renderLeadPayments(payments, leadId);
+            }
+          });
+        }
+
+        // Reload lead forms
+        if (typeof window.loadLeadForms === "function") {
+          window.loadLeadForms(leadId);
+        }
       }
     });
 
@@ -251,21 +270,24 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Currency formatting for budget input
-const totalBudgetInput = document.getElementById("totalBudget");
-if (totalBudgetInput) {
-  totalBudgetInput.addEventListener("blur", function (e) {
-    if (this.value) {
-      // Format number with 2 decimal places
-      const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
-      if (!isNaN(value)) {
-        // Add a null check for budgetCurrency
-        const budgetCurrencyElement = document.getElementById("budgetCurrency");
-        const currency = budgetCurrencyElement ? budgetCurrencyElement.value : 'USD';
-        this.value = Utils.formatCurrency(value, currency);
+  const totalBudgetInput = document.getElementById("totalBudget");
+  if (totalBudgetInput) {
+    totalBudgetInput.addEventListener("blur", function (e) {
+      if (this.value) {
+        // Format number with 2 decimal places
+        const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
+        if (!isNaN(value)) {
+          // Add a null check for budgetCurrency
+          const budgetCurrencyElement =
+            document.getElementById("budgetCurrency");
+          const currency = budgetCurrencyElement
+            ? budgetCurrencyElement.value
+            : "USD";
+          this.value = Utils.formatCurrency(value, currency);
+        }
       }
-    }
-  });
-}
+    });
+  }
 
   // Payment related listeners
   const paymentForm = document.getElementById("paymentForm");
@@ -404,20 +426,19 @@ if (totalBudgetInput) {
     UI.calculateStats(allLeads, payments);
   });
 
-  
   window.addEventListener("paymentsUpdated", async function () {
     // Refresh all payments data
     try {
       console.log("Payment update detected, refreshing data...");
       payments = await API.fetchPayments();
-      
+
       // Force recalculation of stats
       UI.calculateStats(allLeads, payments);
-      
+
       // Refresh lead list display
       const filteredLeads = getFilteredLeads();
       renderPaginatedLeads(filteredLeads);
-      
+
       console.log("Dashboard data refreshed after payment update");
     } catch (error) {
       console.error("Error updating payments:", error);
@@ -458,14 +479,14 @@ if (totalBudgetInput) {
     try {
       console.log("Payment update detected, refreshing data...");
       payments = await API.fetchPayments();
-      
+
       // Force recalculation of stats
       UI.calculateStats(allLeads, payments);
-      
+
       // Refresh lead list display
       const filteredLeads = getFilteredLeads();
       renderPaginatedLeads(filteredLeads);
-      
+
       console.log("Dashboard data refreshed after payment update");
     } catch (error) {
       console.error("Error updating payments:", error);
@@ -506,7 +527,6 @@ if (totalBudgetInput) {
   }
 });
 
-
 function initializeDateInputs() {
   // Set up date inputs in the lead form
   const lastContactedInput = document.getElementById("lastContactedAt");
@@ -516,11 +536,11 @@ function initializeDateInputs() {
     lastContactedInput.addEventListener("change", function () {
       if (this.value) {
         // Create a date object from the input value, which is in YYYY-MM-DD format
-        const [year, month, day] = this.value.split('-').map(Number);
-        
+        const [year, month, day] = this.value.split("-").map(Number);
+
         // Create a date object using local date components at noon
         const date = new Date(year, month - 1, day, 12, 0, 0);
-        
+
         lastContactedDisplay.textContent = Utils.formatDate(
           date,
           window.dateFormat
@@ -532,9 +552,11 @@ function initializeDateInputs() {
 
     // Initial update if value exists
     if (lastContactedInput.value) {
-      const [year, month, day] = lastContactedInput.value.split('-').map(Number);
+      const [year, month, day] = lastContactedInput.value
+        .split("-")
+        .map(Number);
       const date = new Date(year, month - 1, day, 12, 0, 0);
-      
+
       lastContactedDisplay.textContent = Utils.formatDate(
         date,
         window.dateFormat
@@ -549,9 +571,9 @@ function initializeDateInputs() {
   if (paymentDateInput && paymentDateDisplay) {
     paymentDateInput.addEventListener("change", function () {
       if (this.value) {
-        const [year, month, day] = this.value.split('-').map(Number);
+        const [year, month, day] = this.value.split("-").map(Number);
         const date = new Date(year, month - 1, day, 12, 0, 0);
-        
+
         paymentDateDisplay.textContent = Utils.formatDate(
           date,
           window.dateFormat
@@ -563,9 +585,9 @@ function initializeDateInputs() {
 
     // Initial update if value exists
     if (paymentDateInput.value) {
-      const [year, month, day] = paymentDateInput.value.split('-').map(Number);
+      const [year, month, day] = paymentDateInput.value.split("-").map(Number);
       const date = new Date(year, month - 1, day, 12, 0, 0);
-      
+
       paymentDateDisplay.textContent = Utils.formatDate(
         date,
         window.dateFormat
@@ -577,7 +599,7 @@ function initializeDateInputs() {
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
   const mainContent = document.querySelector(".main-content");
-  
+
   if (!sidebar || !mainContent) {
     console.error("Sidebar or main content not found");
     return;
@@ -587,26 +609,27 @@ function setupSidebarToggle() {
   // Store original transition for later restoration
   const originalSidebarTransition = sidebar.style.transition;
   const originalMainContentTransition = mainContent.style.transition;
-  
+
   // Temporarily disable transitions
-  sidebar.style.transition = 'none';
-  mainContent.style.transition = 'none';
-  
+  sidebar.style.transition = "none";
+  mainContent.style.transition = "none";
+
   // Set initial state based on localStorage preference
-  const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-  
+  const isSidebarCollapsed =
+    localStorage.getItem("sidebarCollapsed") === "true";
+
   if (isSidebarCollapsed) {
-    sidebar.classList.add('collapsed');
-    mainContent.classList.add('expanded');
+    sidebar.classList.add("collapsed");
+    mainContent.classList.add("expanded");
   } else {
-    sidebar.classList.remove('collapsed');
-    mainContent.classList.remove('expanded');
+    sidebar.classList.remove("collapsed");
+    mainContent.classList.remove("expanded");
   }
-  
+
   // Force DOM reflow to apply changes before transitions are re-enabled
   // This prevents the browser from batching the class changes and transition changes
   void sidebar.offsetWidth;
-  
+
   // Remove any existing toggle button to avoid duplicates
   const existingButton = document.querySelector(".sidebar-toggle");
   if (existingButton) {
@@ -640,14 +663,13 @@ function setupSidebarToggle() {
 }
 
 // Ensure this function runs as early as possible
-if (document.readyState === 'loading') {
+if (document.readyState === "loading") {
   // If document hasn't finished loading, wait for DOMContentLoaded
-  document.addEventListener('DOMContentLoaded', setupSidebarToggle);
+  document.addEventListener("DOMContentLoaded", setupSidebarToggle);
 } else {
   // If document is already loaded, run immediately
   setupSidebarToggle();
 }
-
 
 /**
  * Show the loading spinner for leads
@@ -676,7 +698,7 @@ async function fetchLeadsAndRender() {
   try {
     // Show loading spinner
     showLeadsLoadingSpinner();
-    
+
     // Fetch leads
     allLeads = await API.fetchLeads();
 
@@ -691,7 +713,7 @@ async function fetchLeadsAndRender() {
 
     // Calculate and update stats
     UI.calculateStats(allLeads, payments);
-    
+
     // Hide loading spinner
     hideLeadsLoadingSpinner();
   } catch (error) {
@@ -774,18 +796,18 @@ function closeLeadModal() {
     modalActions.remove();
   }
 
-  const addFormBtn = document.getElementById('addFormBtn');
-if (addFormBtn) {
-  addFormBtn.addEventListener('click', function() {
-    const leadId = document.getElementById('leadId').value;
-    if (leadId) {
-      // Open form template modal for this lead
-      window.openFormTemplateModal(leadId);
-    } else {
-      Utils.showToast('Please save the lead first before creating forms');
-    }
-  });
-}
+  const addFormBtn = document.getElementById("addFormBtn");
+  if (addFormBtn) {
+    addFormBtn.addEventListener("click", function () {
+      const leadId = document.getElementById("leadId").value;
+      if (leadId) {
+        // Open form template modal for this lead
+        window.openFormTemplateModal(leadId);
+      } else {
+        Utils.showToast("Please save the lead first before creating forms");
+      }
+    });
+  }
 }
 
 /**
@@ -1136,7 +1158,7 @@ function sortLeads() {
 
 /**
  * Sort leads and render them
- * @param {Array} leadsToSort 
+ * @param {Array} leadsToSort
  */
 function sortLeadsAndRender(leadsToSort) {
   const sortField = document.getElementById("sortField").value;
