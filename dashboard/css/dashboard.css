@@ -446,7 +446,7 @@ details[open] .stats-cards {
   gap: 0.5rem;
 }
 
-#addFormBtn:hover {
+#addFormBtn:hover, #addPaymentBtn:hover {
   background-color: var(--primary);
   color: var(--text-color);
   transition: all .3s ease;
