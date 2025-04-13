@@ -805,7 +805,6 @@ fieldset {
 .lead-modal-edit .form-actions,
 .lead-modal-edit .payment-actions,
 .lead-modal-edit #addFormBtn {
-  display: flex !important;
   display: flex;
 }
 
