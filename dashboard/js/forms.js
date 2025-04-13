@@ -166,7 +166,7 @@ function setupEventListeners() {
   document.getElementById("searchInput").addEventListener("input", applyFilters);
   
   // Add new form button
-  document.getElementById("addFormBtn").addEventListener("click", openCreateFormModal);
+  document.getElementById("addFormBtnFormsPage").addEventListener("click", openCreateFormModal);
   
   // Form editor modal close button
   document.getElementById("closeFormEditorModal").addEventListener("click", closeFormEditorModal);
@@ -780,9 +780,8 @@ async function openFormPreview(formId) {
     
     // Create metadata section for dates
     const metadataHTML = `
-      <div class="form-metadata" style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.9em;">
-        <div><strong>Created:</strong> ${formattedCreationDate}</div>
-        <div><strong>Last Modified:</strong> ${formattedModifiedDate}</div>
+      <div class="form-metadata">
+        <div><strong>Created:</strong> ${formattedCreationDate}</div><div><strong>Last Modified:</strong> ${formattedModifiedDate}</div>
       </div>
     `;
     

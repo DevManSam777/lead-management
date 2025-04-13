@@ -32,11 +32,19 @@
   margin-top: 3px;
 }
 
-/* Make form items slightly taller to accommodate dates */
 .form-item {
   padding: 12px 15px;
 }
 
+.form-metadata div {
+  line-height: 1.5;
+  color: var(--text-muted); 
+  font-size: 0.9em;
+}
+
+.template-meta {
+  line-height: 1.25;
+}
 
 .template-cards {
   padding: 2rem;
@@ -499,6 +507,10 @@ div.editor-section {
 
   .editor-section.inactive {
     display: none;
+  }
+
+  #addFormBtnFormsPage{
+    width: 100%;
   }
 }
 
