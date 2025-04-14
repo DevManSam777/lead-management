@@ -242,10 +242,10 @@
         <div class="modal-header">
           <h3 id="modalTitle">Client Info</h3>
         </div>
-
+        
         <!-- Modal action buttons will be inserted here by JS -->
         <div id="modalActions" class="modal-actions"></div>
-
+        
         <!-- Tab Navigation -->
         <div class="modal-tabs">
           <button class="modal-tab active" data-tab="basic">Basic Info</button>
@@ -255,10 +255,10 @@
           <button class="modal-tab" data-tab="finance">Finance</button>
           <button class="modal-tab" data-tab="notes">Messages</button>
         </div>
-
+        
         <form id="leadForm">
           <input type="hidden" id="leadId" />
-
+          
           <!-- Basic Info Tab -->
           <div class="tab-content active" id="basic-tab">
             <div class="form-section">
@@ -268,7 +268,7 @@
                 <div class="date-display-readonly" id="createdAtDisplay"></div>
               </div>
             </div>
-
+            
             <!-- Personal Information Section -->
             <div class="form-section">
               <h4>Personal Information</h4>
@@ -300,7 +300,7 @@
               </div>
             </div>
           </div>
-
+          
           <!-- Business Tab -->
           <div class="tab-content" id="business-tab">
             <div class="form-section">
@@ -329,7 +329,7 @@
               </div>
             </div>
           </div>
-
+          
           <!-- Billing Tab -->
           <div class="tab-content" id="billing-tab">
             <div class="form-section">
@@ -353,11 +353,7 @@
                 </div>
                 <div style="flex: 1">
                   <label for="billingZipCode">ZIP/Postal Code</label>
-                  <input
-                    type="text"
-                    id="billingZipCode"
-                    name="billingZipCode"
-                  />
+                  <input type="text" id="billingZipCode" name="billingZipCode" />
                 </div>
               </div>
               <div class="form-group">
@@ -366,7 +362,7 @@
               </div>
             </div>
           </div>
-
+          
           <!-- Service Tab -->
           <div class="tab-content" id="service-tab">
             <div class="form-section">
@@ -403,7 +399,7 @@
                 </select>
               </div>
             </div>
-
+            
             <div class="form-section">
               <h4>Lead Status</h4>
               <div class="form-group">
@@ -425,7 +421,7 @@
               </div>
             </div>
           </div>
-
+          
           <!-- Finance Tab -->
           <div class="tab-content" id="finance-tab">
             <div class="form-section">
@@ -451,11 +447,7 @@
                 <div class="payments-container">
                   <!-- Payments will be loaded here -->
                 </div>
-                <button
-                  type="button"
-                  id="addPaymentBtn"
-                  class="btn btn-outline"
-                >
+                <button type="button" id="addPaymentBtn" class="btn btn-outline">
                   <i class="fas fa-plus"></i> Add Payment
                 </button>
               </div>
@@ -465,17 +457,12 @@
               <div id="leadFormsList" class="forms-list">
                 <!-- Forms will be loaded here -->
               </div>
-              <button
-                type="button"
-                id="addFormBtn"
-                class="btn btn-outline"
-                style="display: none"
-              >
+              <button type="button" id="addFormBtn" class="btn btn-outline" style="display: none">
                 <i class="fas fa-plus"></i> Create Form
               </button>
             </div>
           </div>
-
+          
           <!-- Notes Tab -->
           <div class="tab-content" id="notes-tab">
             <div class="form-section">
@@ -490,7 +477,7 @@
               </div>
             </div>
           </div>
-
+          
           <button type="submit" class="btn btn-primary">Save Changes</button>
         </form>
       </div>
@@ -500,8 +487,8 @@
       <p id="toastMessage"></p>
     </div>
     <!-- Payment Modal -->
-    <!-- <div id="paymentModal" class="modal"> -->
-    <!-- <div class="modal-content">
+    <div id="paymentModal" class="modal">
+      <div class="modal-content">
         <span class="close-modal" id="closePaymentModal">&times;</span>
         <div class="modal-header">
           <h3 id="paymentModalTitle">Add Payment</h3>
@@ -533,111 +520,6 @@
           </div>
           <button type="submit" class="btn btn-primary">Save Payment</button>
         </form>
-      </div> -->
-    <!-- </div> -->
-    <div id="paymentModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3 id="paymentModalTitle">Add Payment</h3>
-          <span class="close-modal" onclick="closePaymentModal()">&times;</span>
-        </div>
-
-        <div class="modal-content-wrapper">
-          <!-- Vertical tabs navigation -->
-          <div class="modal-tabs">
-            <div class="modal-tab active" data-tab="payment-details">
-              Payment Details
-            </div>
-            <div class="modal-tab" data-tab="payment-history">
-              Payment History
-            </div>
-            <div class="modal-tab" data-tab="payment-settings">Settings</div>
-          </div>
-
-          <!-- Tab content container -->
-          <div class="tab-content-container">
-            <!-- Payment Details Tab -->
-            <div id="payment-details-tab" class="tab-content active">
-              <form id="paymentForm">
-                <input type="hidden" id="paymentId" />
-                <input type="hidden" id="paymentLeadId" />
-
-                <div class="form-group">
-                  <label for="paymentAmount">Payment Amount</label>
-                  <input
-                    type="text"
-                    id="paymentAmount"
-                    required
-                    class="monetary-input"
-                  />
-                  <div class="error-message" id="paymentAmount-error"></div>
-                </div>
-
-                <div class="form-group">
-                  <label for="paymentDate">Payment Date</label>
-                  <input type="date" id="paymentDate" required />
-                  <div class="error-message" id="paymentDate-error"></div>
-                </div>
-
-                <div class="form-group">
-                  <label for="paymentMethod">Payment Method</label>
-                  <select id="paymentMethod" required>
-                    <option value="">Select payment method</option>
-                    <option value="creditCard">Credit Card</option>
-                    <option value="bankTransfer">Bank Transfer</option>
-                    <option value="cash">Cash</option>
-                    <option value="check">Check</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="venmo">Venmo</option>
-                    <option value="other">Other</option>
-                  </select>
-                  <div class="error-message" id="paymentMethod-error"></div>
-                </div>
-
-                <div class="form-group">
-                  <label for="paymentNotes">Notes</label>
-                  <textarea id="paymentNotes" rows="3"></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                  Save Payment
-                </button>
-              </form>
-            </div>
-
-            <!-- Payment History Tab -->
-            <div id="payment-history-tab" class="tab-content">
-              <div class="payments-container">
-                <!-- Payment history will be loaded here -->
-                <div class="loading-indicator">
-                  <i class="fas fa-spinner fa-spin"></i> Loading payment
-                  history...
-                </div>
-              </div>
-            </div>
-
-            <!-- Payment Settings Tab -->
-            <div id="payment-settings-tab" class="tab-content">
-              <div class="form-group">
-                <label for="invoiceSettings">Invoice Settings</label>
-                <select id="invoiceSettings">
-                  <option value="auto">Auto-generate invoices</option>
-                  <option value="manual">Manual invoices only</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="paymentReminders">Payment Reminders</label>
-                <select id="paymentReminders">
-                  <option value="enabled">Enabled</option>
-                  <option value="disabled">Disabled</option>
-                </select>
-              </div>
-
-              <button class="btn btn-primary">Save Settings</button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
     <!-- Load scripts in sequence -->

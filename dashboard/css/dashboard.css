@@ -315,6 +315,7 @@ details[open] .stats-cards {
 #leadForm button[type="submit"] {
   margin: 2rem 0 1rem;
   padding: 0.9rem 2rem;
+  width: 100%;
 }
 
 .leads-table th:nth-child(1),
@@ -565,8 +566,7 @@ details[open] .stats-cards {
   /* Full width elements on mobile */
   .search-box,
   select,
-  #addLeadBtn,
-  #leadForm button[type="submit"] {
+  #addLeadBtn {
     width: 100%;
   }
 
