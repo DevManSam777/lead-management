@@ -499,6 +499,14 @@ function openAddLeadModal() {
   document.getElementById("leadId").value = "";
   document.getElementById("modalTitle").textContent = "Add New";
 
+  // Reset the created at display to today's date
+  const createdAtDisplay = document.getElementById("createdAtDisplay");
+  if (createdAtDisplay) {
+    const today = new Date();
+    const dateFormat = window.dateFormat || "MM/DD/YYYY";
+    createdAtDisplay.textContent = formatDate(today, dateFormat);
+  }
+
   // Hide website address field initially
   const websiteAddressField =
     document.getElementById("websiteAddress").parentNode;
