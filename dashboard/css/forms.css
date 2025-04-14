@@ -287,7 +287,7 @@ div.editor-section {
 
 /* Markdown content whitespace preservation */
 .markdown-content {
-  white-space: pre-wrap;
+  /* white-space: pre-wrap; */
   word-wrap: break-word; 
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
