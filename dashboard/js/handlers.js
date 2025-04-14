@@ -274,16 +274,15 @@ async function validateAndSaveLead(event) {
 
   function updatedFormSubmission(event) {
     event.preventDefault();
-    
+
     // Validate all tabs first
     if (!validateAllTabs()) {
       return; // Stop if validation fails
     }
-    
+
     // Continue with existing save logic
     // saveLead();
   }
-  
 
   // Validate required fields
   const isEmailValid = validateEmail(document.getElementById("email"));
@@ -481,37 +480,40 @@ async function saveLead() {
   }
 }
 
-
-/**
- * Initialize tab functionality for the lead modal
- * @param {boolean} forceFirstTab - Whether to force the first tab
- */
 function initializeModalTabs(forceFirstTab = false) {
-  const tabs = document.querySelectorAll('.modal-tab');
-  const tabContents = document.querySelectorAll('.tab-content');
-  
+  const tabs = document.querySelectorAll(".modal-tab");
+  const tabContents = document.querySelectorAll(".tab-content");
+
   // Add click event to each tab
-  tabs.forEach(tab => {
-    tab.addEventListener('click', function() {
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", function () {
       // Get the tab name from data-tab attribute
-      const tabName = this.getAttribute('data-tab');
-      
+      const tabName = this.getAttribute("data-tab");
+
       // Remove active class from all tabs and contents
-      tabs.forEach(t => t.classList.remove('active'));
-      tabContents.forEach(content => content.classList.remove('active'));
-      
+      tabs.forEach((t) => t.classList.remove("active"));
+      tabContents.forEach((content) => content.classList.remove("active"));
+
       // Add active class to current tab and corresponding content
-      this.classList.add('active');
-      document.getElementById(`${tabName}-tab`).classList.add('active');
+      this.classList.add("active");
+      document.getElementById(`${tabName}-tab`).classList.add("active");
+
+      // Refresh textarea heights after tab switch
+      setTimeout(refreshTextareaHeights, 10);
     });
   });
-  
+
   // Just activate the first tab by default
-  if (tabs.length > 0) {
+  if (
+    tabs.length > 0 &&
+    (forceFirstTab || !document.querySelector(".modal-tab.active"))
+  ) {
     tabs[0].click();
+  } else {
+    // If not forcing first tab but tabs exist, refresh textarea heights anyway
+    setTimeout(refreshTextareaHeights, 10);
   }
 }
-
 
 /**
  * Highlight specific tab programmatically
@@ -532,38 +534,37 @@ function activateTab(tabName) {
  */
 function validateAllTabs() {
   // Get all required fields
-  const requiredFields = document.querySelectorAll('#leadForm [required]');
+  const requiredFields = document.querySelectorAll("#leadForm [required]");
   let isValid = true;
   let firstInvalidTab = null;
-  
+
   // Check each required field
-  requiredFields.forEach(field => {
+  requiredFields.forEach((field) => {
     if (!field.value.trim()) {
       isValid = false;
-      
+
       // Find which tab contains this field
-      const tabContent = field.closest('.tab-content');
+      const tabContent = field.closest(".tab-content");
       if (tabContent && !firstInvalidTab) {
         const tabId = tabContent.id;
-        const tabName = tabId.replace('-tab', '');
+        const tabName = tabId.replace("-tab", "");
         firstInvalidTab = tabName;
       }
-      
+
       // Add invalid styling
-      field.classList.add('invalid');
+      field.classList.add("invalid");
     } else {
-      field.classList.remove('invalid');
+      field.classList.remove("invalid");
     }
   });
-  
+
   // If validation fails, switch to the first tab with invalid fields
   if (!isValid && firstInvalidTab) {
     activateTab(firstInvalidTab);
   }
-  
+
   return isValid;
 }
-
 
 async function deleteLeadAction(leadId) {
   try {
@@ -976,6 +977,18 @@ function updateLeadModalDates(lead) {
   }
 }
 
+// Add this function to your handlers.js file
+function refreshTextareaHeights() {
+  const textareas = document.querySelectorAll("#leadModal textarea");
+
+  textareas.forEach((textarea) => {
+    // Reset height to auto first to properly calculate scrollHeight
+    textarea.style.height = "auto";
+    // Set height to scrollHeight to accommodate all content
+    textarea.style.height = textarea.scrollHeight + "px";
+  });
+}
+
 export {
   setupFormValidation,
   validateEmail,
@@ -991,5 +1004,5 @@ export {
   updateLeadModalDates,
   initializeModalTabs,
   activateTab,
-  validateAllTabs
+  validateAllTabs,
 };

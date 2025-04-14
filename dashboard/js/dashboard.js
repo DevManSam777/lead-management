@@ -190,45 +190,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     .addEventListener("submit", function (event) {
       event.preventDefault();
 
+      // Hide the action buttons container immediately to prevent flashing
+      const actionsContainer = document.getElementById("modalActions");
+      if (actionsContainer) {
+        actionsContainer.style.display = "none";
+      }
+
       // Validate and save the lead
       Handlers.validateAndSaveLead(event);
 
-      // After save, update the action buttons and set back to read-only
-      const leadId = document.getElementById("leadId").value;
-      if (leadId) {
-        // Update modal classes
-        const modal = document.getElementById("leadModal");
-        if (modal) {
-          modal.classList.add("lead-modal-readonly");
-          modal.classList.remove("lead-modal-edit");
-        }
+      // Close the modal with a short delay to avoid UI flashing
+      setTimeout(() => {
+        window.closeLeadModal();
+      }, 100);
 
-        // Show the action buttons again
-        const actionsContainer = document.getElementById("modalActions");
-        if (actionsContainer) {
-          actionsContainer.style.display = "block";
-        }
-
-        // Set modal back to read-only mode
-        UI.setModalReadOnly(true);
-
-        // Update modal title
-        document.getElementById("modalTitle").textContent = "Client Info";
-
-        // Reload lead data to refresh the display
-        if (typeof window.fetchLeadPayments === "function") {
-          window.fetchLeadPayments(leadId).then((payments) => {
-            if (typeof window.renderLeadPayments === "function") {
-              window.renderLeadPayments(payments, leadId);
-            }
-          });
-        }
-
-        // Reload lead forms
-        if (typeof window.loadLeadForms === "function") {
-          window.loadLeadForms(leadId);
-        }
-      }
+      // Prevent any default close behavior
+      return false;
     });
 
   document.getElementById("searchInput").addEventListener("input", searchLeads);
