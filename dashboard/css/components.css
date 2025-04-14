@@ -643,10 +643,13 @@ select,
   margin-top: 1.5rem;
 }
 
-.payments-container {
+.payments-container, #leadFormsList {
   margin-bottom: 1rem;
   border-radius: 0.5rem;
   padding: 0;
+  max-height: 30.5rem;
+  overflow-y:scroll;
+  cursor: ns-resize;
 }
 
 .payment-item {
