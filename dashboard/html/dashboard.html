@@ -273,7 +273,7 @@
                 <input type="tel" id="phone" required />
                 <div class="extension-field">
                   <label for="phoneExt">Ext:</label>
-                  <input type="text" id="phoneExt" placeholder="Extension" />
+                  <input type="text" id="phoneExt" />
                 </div>
               </div>
             </div>
@@ -298,7 +298,6 @@
                   <input
                     type="text"
                     id="businessPhoneExt"
-                    placeholder="Extension"
                   />
                 </div>
               </div>
@@ -352,6 +351,7 @@
             <div class="form-group">
               <label for="serviceDesired">Service Desired*</label>
               <select id="serviceDesired" required>
+                <option value="">-- Select Service --</option>
                 <option value="Web Development">Web Development</option>
                 <option value="App Development">App Development</option>
               </select>
@@ -409,7 +409,6 @@
                 <input
                   type="text"
                   id="budget"
-                  placeholder="Enter estimated amount"
                 />
               </div>
               <div class="form-group">
@@ -417,7 +416,6 @@
                 <input
                   type="text"
                   id="totalBudget"
-                  placeholder="Enter billed amount"
                 />
               </div>
               <div class="form-group">
@@ -492,7 +490,6 @@
               type="text"
               id="paymentAmount"
               required
-              placeholder="Enter amount"
             />
           </div>
           <div class="form-group">
@@ -507,7 +504,6 @@
             <textarea
               id="paymentNotes"
               rows="5"
-              placeholder="Add payment notes here"
             ></textarea>
           </div>
           <button type="submit" class="btn btn-primary">Save Payment</button>
