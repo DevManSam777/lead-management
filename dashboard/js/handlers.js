@@ -364,7 +364,9 @@ async function saveLead() {
     phone: document.getElementById("phone").value,
     phoneExt: document.getElementById("phoneExt").value || undefined,
     textNumber: document.getElementById("textNumber").value || undefined,
-    businessName: document.getElementById("businessName").value || (firstName.value + " " + lastName.value),
+    businessName:
+      document.getElementById("businessName").value ||
+      firstName.value + " " + lastName.value,
     businessPhone: document.getElementById("businessPhone").value || undefined,
     businessPhoneExt:
       document.getElementById("businessPhoneExt").value || undefined,
@@ -466,12 +468,10 @@ async function saveLead() {
   }
 }
 
-
 async function deleteLeadAction(leadId) {
   try {
     // Close the modal first to avoid UI issues
     window.closeLeadModal();
-  
 
     // Delete the lead
     await deleteLead(leadId);
@@ -491,97 +491,6 @@ async function deleteLeadAction(leadId) {
   }
 }
 
-// function openAddLeadModal() {
-//   const leadForm = document.getElementById("leadForm");
-//   leadForm.reset();
-
-//   // Clear the lead ID to ensure we're creating a new lead
-//   document.getElementById("leadId").value = "";
-//   document.getElementById("modalTitle").textContent = "Add New";
-
-//   // Reset the created at display to today's date
-//   const createdAtDisplay = document.getElementById("createdAtDisplay");
-//   if (createdAtDisplay) {
-//     const today = new Date();
-//     const dateFormat = window.dateFormat || "MM/DD/YYYY";
-//     createdAtDisplay.textContent = formatDate(today, dateFormat);
-//   }
-
-//   // Hide website address field initially
-//   const websiteAddressField =
-//     document.getElementById("websiteAddress").parentNode;
-//   websiteAddressField.style.display = "none";
-
-//   // Make sure form elements are editable
-//   const formElements = document.querySelectorAll(
-//     "#leadForm input, #leadForm select, #leadForm textarea"
-//   );
-//   formElements.forEach((element) => {
-//     element.removeAttribute("readonly");
-//     if (element.tagName === "SELECT") {
-//       element.removeAttribute("disabled");
-//     }
-//   });
-
-//   // Clear any error messages
-//   document.querySelectorAll(".error-message").forEach((el) => {
-//     el.style.display = "none";
-//   });
-
-//   // Show submit button
-//   document.querySelector('#leadForm button[type="submit"]').style.display =
-//     "block";
-
-//   // Clear the payments container
-//   const paymentsContainer = document.querySelector(".payments-container");
-//   if (paymentsContainer) {
-//     paymentsContainer.innerHTML = '<p class="payment-item">No payments yet</p>';
-//   }
-
-//   // Ensure Add Payment button is visible
-//   const addPaymentBtn = document.getElementById("addPaymentBtn");
-//   if (addPaymentBtn) {
-//     addPaymentBtn.style.display = "block";
-//   }
-
-//   // Set Paid Amount and Remaining Balance to readonly with zero value
-//   const paidAmountField = document.getElementById("paidAmount");
-//   if (paidAmountField) {
-//     paidAmountField.value = formatCurrency(0);
-//     paidAmountField.setAttribute("readonly", true);
-//   }
-
-//   const remainingBalanceField = document.getElementById("remainingBalance");
-//   if (remainingBalanceField) {
-//     remainingBalanceField.value = formatCurrency(0);
-//     remainingBalanceField.setAttribute("readonly", true);
-//   }
-
-//   // Display the modal first so elements are in the DOM
-//   document.getElementById("leadModal").style.display = "block";
-
-//   // Then setup the auto-resize for textareas
-//   const textareas = document.querySelectorAll("#leadModal textarea");
-//   textareas.forEach((textarea) => {
-//     // Set initial height based on content
-//     textarea.style.height = "auto";
-//     textarea.style.height = textarea.scrollHeight + "px";
-
-//     // Make sure we don't add duplicate listeners
-//     textarea.removeEventListener("input", handleTextareaResize);
-//     textarea.addEventListener("input", handleTextareaResize);
-//   });
-
-//   // Initialize any monetary inputs in the modal
-//   initializeMonetaryInputs();
-
-//   // Show the "Create Form" button since we're in edit mode
-//   const addFormBtn = document.getElementById("addFormBtn");
-//   if (addFormBtn) {
-//     addFormBtn.style.display = "block";
-//   }
-// }
-
 function openAddLeadModal() {
   const leadForm = document.getElementById("leadForm");
   leadForm.reset();
@@ -594,10 +503,10 @@ function openAddLeadModal() {
   const lastContactedInput = document.getElementById("lastContactedAt");
   const lastContactedDisplay = document.getElementById("lastContactedDisplay");
   if (lastContactedInput) {
-    lastContactedInput.value = ''; // Clear the date input
+    lastContactedInput.value = ""; // Clear the date input
   }
   if (lastContactedDisplay) {
-    lastContactedDisplay.textContent = ''; // Clear the display
+    lastContactedDisplay.textContent = ""; // Clear the display
   }
 
   // Reset the created at display to today's date
@@ -611,13 +520,13 @@ function openAddLeadModal() {
   // Thoroughly clear forms list
   const leadFormsList = document.getElementById("leadFormsList");
   if (leadFormsList) {
-    leadFormsList.innerHTML = '';
+    leadFormsList.innerHTML = "";
   }
 
   // Thoroughly clear payments list
   const paymentsContainer = document.querySelector(".payments-container");
   if (paymentsContainer) {
-    paymentsContainer.innerHTML = '';
+    paymentsContainer.innerHTML = "";
   }
 
   // Hide website address field initially
@@ -811,7 +720,7 @@ async function openLeadModal(leadId, allLeads) {
     }
   }
 
-const createdAtDisplay = document.getElementById("createdAtDisplay");
+  const createdAtDisplay = document.getElementById("createdAtDisplay");
   if (createdAtDisplay && lead.createdAt) {
     console.log("Raw created at:", lead.createdAt);
     const createdDate = new Date(lead.createdAt);
