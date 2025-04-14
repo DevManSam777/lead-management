@@ -38,11 +38,11 @@ function renderLeadPayments(leadPayments, leadId) {
     return payment && payment.leadId === leadId;
   });
 
-  // If no payments for this lead
-  if (filteredPayments.length === 0) {
-    paymentsContainer.innerHTML = '<p class="payment-item">No payments found</p>';
-    return;
-  }
+  // // If no payments for this lead
+  // if (filteredPayments.length === 0) {
+  //   paymentsContainer.innerHTML = '<p class="payment-item">No payments found</p>';
+  //   return;
+  // }
 
   // Sort payments by date (newest first)
   const sortedPayments = [...filteredPayments].sort((a, b) => {

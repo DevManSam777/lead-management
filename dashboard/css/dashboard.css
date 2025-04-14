@@ -508,7 +508,6 @@ details[open] .stats-cards {
 }
 
 .no-forms-message {
-  padding: 1rem;
   text-align: center;
   color: var(--text-muted);
   font-style: italic;
