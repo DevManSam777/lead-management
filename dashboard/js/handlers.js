@@ -557,7 +557,7 @@ function openAddLeadModal() {
   // Ensure Add Payment button is visible
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
-    addPaymentBtn.style.display = "block";
+    addPaymentBtn.style.display = "none";
   }
 
   // Set Paid Amount and Remaining Balance to readonly with zero value
@@ -594,7 +594,7 @@ function openAddLeadModal() {
   // Show the "Create Form" button since we're in edit mode
   const addFormBtn = document.getElementById("addFormBtn");
   if (addFormBtn) {
-    addFormBtn.style.display = "block";
+    addFormBtn.style.display = "none";
   }
 }
 
