@@ -11,27 +11,27 @@ let globalSettings = {}; // Store global settings
 document.addEventListener("DOMContentLoaded", async function () {
   // Initialize global settings first (important!)
   await initializeSettings();
-  
+
   // Setup sidebar toggle
   setupSidebarToggle();
-  
+
   // Initialize markdown editor
   initializeMarkdownEditor();
-  
+
   // Setup event listeners
   setupEventListeners();
-  
+
   // Load forms
   fetchAndRenderForms();
 
   // Configure marked.js globally to preserve whitespace
-marked.setOptions({
-  gfm: true,          // GitHub Flavored Markdown
-  breaks: true,       // Convert \n to <br>
-  smartLists: true,   // Use smarter list behavior
-  xhtml: true,        // Self-close HTML tags
-  headerIds: false    // Don't add IDs to headers
-});
+  marked.setOptions({
+    gfm: true, // GitHub Flavored Markdown
+    breaks: true, // Convert \n to <br>
+    smartLists: true, // Use smarter list behavior
+    xhtml: true, // Self-close HTML tags
+    headerIds: false, // Don't add IDs to headers
+  });
 });
 
 /**
@@ -42,44 +42,48 @@ async function initializeSettings() {
     // Fetch all settings
     const settings = await API.fetchAllSettings();
     globalSettings = settings;
-    
+
     // Set date format in window object for global access
     window.dateFormat = settings.dateFormat || "MM/DD/YYYY";
-    
+
     // Apply theme from settings
     if (settings.theme) {
       document.documentElement.setAttribute("data-theme", settings.theme);
     } else {
       // Use system preference as fallback
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
         ? "dark"
         : "light";
       document.documentElement.setAttribute("data-theme", systemTheme);
       // Save it back to the server
       await API.updateSetting("theme", systemTheme);
     }
-    
+
     // Log settings for debugging
-    console.log("Initialized settings:", { 
+    console.log("Initialized settings:", {
       theme: settings.theme,
-      dateFormat: window.dateFormat
+      dateFormat: window.dateFormat,
     });
-    
+
     return settings;
   } catch (error) {
     console.error("Error initializing settings:", error);
-    
+
     // Use fallbacks from localStorage if API fails
-    const savedTheme = localStorage.getItem("theme") ||
-      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const savedTheme =
+      localStorage.getItem("theme") ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
     document.documentElement.setAttribute("data-theme", savedTheme);
-    
+
     // Set fallback date format
     window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
-    
+
     return {
       theme: savedTheme,
-      dateFormat: window.dateFormat
+      dateFormat: window.dateFormat,
     };
   }
 }
@@ -90,7 +94,7 @@ async function initializeSettings() {
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
   const mainContent = document.querySelector(".main-content");
-  
+
   if (!sidebar || !mainContent) {
     console.error("Sidebar or main content not found");
     return;
@@ -99,25 +103,26 @@ function setupSidebarToggle() {
   // Store original transition for later restoration
   const originalSidebarTransition = sidebar.style.transition;
   const originalMainContentTransition = mainContent.style.transition;
-  
+
   // Temporarily disable transitions
-  sidebar.style.transition = 'none';
-  mainContent.style.transition = 'none';
-  
+  sidebar.style.transition = "none";
+  mainContent.style.transition = "none";
+
   // Set initial state based on localStorage preference
-  const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-  
+  const isSidebarCollapsed =
+    localStorage.getItem("sidebarCollapsed") === "true";
+
   if (isSidebarCollapsed) {
-    sidebar.classList.add('collapsed');
-    mainContent.classList.add('expanded');
+    sidebar.classList.add("collapsed");
+    mainContent.classList.add("expanded");
   } else {
-    sidebar.classList.remove('collapsed');
-    mainContent.classList.remove('expanded');
+    sidebar.classList.remove("collapsed");
+    mainContent.classList.remove("expanded");
   }
-  
+
   // Force DOM reflow to apply changes before transitions are re-enabled
   void sidebar.offsetWidth;
-  
+
   // Remove any existing toggle button to avoid duplicates
   const existingButton = document.querySelector(".sidebar-toggle");
   if (existingButton) {
@@ -148,7 +153,7 @@ function setupSidebarToggle() {
       sidebar.classList.contains("collapsed")
     );
   });
-  
+
   // Restore transitions
   setTimeout(() => {
     sidebar.style.transition = originalSidebarTransition;
@@ -161,40 +166,62 @@ function setupSidebarToggle() {
  */
 function setupEventListeners() {
   // Filter and search listeners
-  document.getElementById("filterCategory").addEventListener("change", applyFilters);
-  document.getElementById("filterTemplate").addEventListener("change", applyFilters);
-  document.getElementById("searchInput").addEventListener("input", applyFilters);
-  
+  document
+    .getElementById("filterCategory")
+    .addEventListener("change", applyFilters);
+  document
+    .getElementById("filterTemplate")
+    .addEventListener("change", applyFilters);
+  document
+    .getElementById("searchInput")
+    .addEventListener("input", applyFilters);
+
   // Add new form button
-  document.getElementById("addFormBtnFormsPage").addEventListener("click", openCreateFormModal);
-  
+  document
+    .getElementById("addFormBtnFormsPage")
+    .addEventListener("click", openCreateFormModal);
+
   // Form editor modal close button
-  document.getElementById("closeFormEditorModal").addEventListener("click", closeFormEditorModal);
-  
+  document
+    .getElementById("closeFormEditorModal")
+    .addEventListener("click", closeFormEditorModal);
+
   // Preview modal close button
-  document.getElementById("closeFormPreviewModal").addEventListener("click", closeFormPreviewModal);
-  
+  document
+    .getElementById("closeFormPreviewModal")
+    .addEventListener("click", closeFormPreviewModal);
+
   // Lead selection modal close button
-  document.getElementById("closeLeadSelectionModal").addEventListener("click", closeLeadSelectionModal);
-  
+  document
+    .getElementById("closeLeadSelectionModal")
+    .addEventListener("click", closeLeadSelectionModal);
+
   // Generated form modal close button
-  document.getElementById("closeGeneratedFormModal").addEventListener("click", closeGeneratedFormModal);
-  
+  document
+    .getElementById("closeGeneratedFormModal")
+    .addEventListener("click", closeGeneratedFormModal);
+
   // Form cancel button
-  document.getElementById("cancelFormBtn").addEventListener("click", closeFormEditorModal);
-  
+  document
+    .getElementById("cancelFormBtn")
+    .addEventListener("click", closeFormEditorModal);
+
   // Form editor form submission
-  document.getElementById("formEditorForm").addEventListener("submit", handleFormSubmit);
-  
+  document
+    .getElementById("formEditorForm")
+    .addEventListener("submit", handleFormSubmit);
+
   // Mobile tabs for editor/preview
-  document.querySelectorAll(".editor-tab").forEach(tab => {
-    tab.addEventListener("click", function() {
+  document.querySelectorAll(".editor-tab").forEach((tab) => {
+    tab.addEventListener("click", function () {
       // Set active tab
-      document.querySelectorAll(".editor-tab").forEach(t => t.classList.remove("active"));
+      document
+        .querySelectorAll(".editor-tab")
+        .forEach((t) => t.classList.remove("active"));
       this.classList.add("active");
-      
+
       const tabName = this.getAttribute("data-tab");
-      
+
       if (tabName === "editor") {
         document.querySelector(".editor-section").classList.remove("inactive");
         document.querySelector(".preview-section").classList.remove("active");
@@ -206,70 +233,85 @@ function setupEventListeners() {
       }
     });
   });
-  
+
   // Variable click handlers
-  document.querySelectorAll(".variable-tag").forEach(tag => {
-    tag.addEventListener("click", function() {
+  document.querySelectorAll(".variable-tag").forEach((tag) => {
+    tag.addEventListener("click", function () {
       const variable = this.getAttribute("data-variable");
       insertVariable(variable);
     });
   });
-  
+
   // Preview modal buttons
-  document.getElementById("editFormBtn").addEventListener("click", function() {
+  document.getElementById("editFormBtn").addEventListener("click", function () {
     // Close preview modal
     closeFormPreviewModal();
-    
+
     // Open editor modal with current form
     openEditFormModal(currentFormId);
   });
-  
-  document.getElementById("useWithLeadBtn").addEventListener("click", function() {
-    openLeadSelectionModal();
-  });
-  
-  document.getElementById("downloadFormBtn").addEventListener("click", function() {
-    downloadForm();
-  });
-  
-  document.getElementById("printFormBtn").addEventListener("click", function() {
-    printForm();
-  });
-  
-  // Generated form buttons
-  document.getElementById("downloadGeneratedBtn").addEventListener("click", function() {
-    downloadGeneratedForm();
-  });
-  
-  document.getElementById("printGeneratedBtn").addEventListener("click", function() {
-    printGeneratedForm();
-  });
-  
-  // Search leads in the lead selection modal
-  document.getElementById("leadSearchInput").addEventListener("input", function() {
-    const searchTerm = this.value.toLowerCase();
-    const leadItems = document.querySelectorAll("#leadsList .lead-item");
-    
-    leadItems.forEach(item => {
-      const leadName = item.querySelector("h4").textContent.toLowerCase();
-      const leadBusiness = item.querySelector("p").textContent.toLowerCase();
-      
-      if (leadName.includes(searchTerm) || leadBusiness.includes(searchTerm)) {
-        item.style.display = "flex";
-      } else {
-        item.style.display = "none";
-      }
+
+  document
+    .getElementById("useWithLeadBtn")
+    .addEventListener("click", function () {
+      openLeadSelectionModal();
     });
-  });
-  
+
+  document
+    .getElementById("downloadFormBtn")
+    .addEventListener("click", function () {
+      downloadForm();
+    });
+
+  document
+    .getElementById("printFormBtn")
+    .addEventListener("click", function () {
+      printForm();
+    });
+
+  // Generated form buttons
+  document
+    .getElementById("downloadGeneratedBtn")
+    .addEventListener("click", function () {
+      downloadGeneratedForm();
+    });
+
+  document
+    .getElementById("printGeneratedBtn")
+    .addEventListener("click", function () {
+      printGeneratedForm();
+    });
+
+  // Search leads in the lead selection modal
+  document
+    .getElementById("leadSearchInput")
+    .addEventListener("input", function () {
+      const searchTerm = this.value.toLowerCase();
+      const leadItems = document.querySelectorAll("#leadsList .lead-item");
+
+      leadItems.forEach((item) => {
+        const leadName = item.querySelector("h4").textContent.toLowerCase();
+        const leadBusiness = item.querySelector("p").textContent.toLowerCase();
+
+        if (
+          leadName.includes(searchTerm) ||
+          leadBusiness.includes(searchTerm)
+        ) {
+          item.style.display = "flex";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    });
+
   // Listen for settings updates from other pages
-  window.addEventListener("settingsUpdated", function(event) {
+  window.addEventListener("settingsUpdated", function (event) {
     const { key, value } = event.detail;
-    
+
     if (key === "dateFormat") {
       console.log("Date format updated to:", value);
       window.dateFormat = value;
-      
+
       // Refresh forms list to update date displays
       fetchAndRenderForms();
     } else if (key === "theme") {
@@ -283,10 +325,10 @@ function setupEventListeners() {
  */
 function initializeMarkdownEditor() {
   const contentTextarea = document.getElementById("formContent");
-  
+
   // Make sure the textarea is visible while CodeMirror initializes
   contentTextarea.style.display = "block";
-  
+
   // Initialize CodeMirror
   editor = CodeMirror.fromTextArea(contentTextarea, {
     mode: "markdown",
@@ -295,16 +337,16 @@ function initializeMarkdownEditor() {
     theme: "default",
     placeholder: "Write your form content here in Markdown format...",
   });
-  
+
   // Sync content back to textarea when needed
-  editor.on("change", function() {
+  editor.on("change", function () {
     // Update the underlying textarea value
     editor.save();
-    
+
     // Update preview
     updateMarkdownPreview();
   });
-  
+
   // Initial preview update
   updateMarkdownPreview();
 }
@@ -312,12 +354,12 @@ function initializeMarkdownEditor() {
 function updateMarkdownPreview() {
   const content = editor.getValue();
   const preview = document.getElementById("markdownPreview");
-  
+
   if (!content) {
     preview.innerHTML = "<p><em>No content to preview</em></p>";
     return;
   }
-  
+
   // Convert markdown to HTML with DOMPurify for security
   const html = DOMPurify.sanitize(marked.parse(content));
   preview.innerHTML = html;
@@ -338,40 +380,41 @@ function insertVariable(variable) {
 async function fetchAndRenderForms() {
   try {
     const formsList = document.getElementById("formsList");
-    formsList.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading forms...</div>';
-    
+    formsList.innerHTML =
+      '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading forms...</div>';
+
     // Get filter values
     const categoryFilter = document.getElementById("filterCategory").value;
     const isTemplate = document.getElementById("filterTemplate").value;
     const searchTerm = document.getElementById("searchInput").value;
-    
+
     // Build query parameters
     let queryParams = new URLSearchParams();
     if (categoryFilter) queryParams.append("category", categoryFilter);
     if (isTemplate) queryParams.append("isTemplate", isTemplate);
-    
+
     // If search term exists, use search endpoint instead
     let apiUrl = `${API.getBaseUrl()}/api/forms`;
     if (searchTerm) {
       apiUrl = `${API.getBaseUrl()}/api/forms/search`;
       queryParams.append("query", searchTerm);
     }
-    
+
     // Add query parameters to URL
     if (queryParams.toString()) {
       apiUrl += `?${queryParams.toString()}`;
     }
-    
+
     // Fetch forms
     const response = await fetch(apiUrl);
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch forms");
     }
-    
+
     allForms = await response.json();
     console.log(`Fetched ${allForms.length} forms`);
-    
+
     // Handle empty state
     if (allForms.length === 0) {
       formsList.innerHTML = `
@@ -383,68 +426,80 @@ async function fetchAndRenderForms() {
       `;
       return;
     }
-    
+
     // Clear previous content
-    formsList.innerHTML = '';
-    
+    formsList.innerHTML = "";
+
     // Group forms by category
     const groupedForms = {};
-    allForms.forEach(form => {
+    allForms.forEach((form) => {
       if (!groupedForms[form.category]) {
         groupedForms[form.category] = [];
       }
       groupedForms[form.category].push(form);
     });
-    
+
     // Create a container for all categories
-    const allCategoriesContainer = document.createElement('div');
-    
+    const allCategoriesContainer = document.createElement("div");
+
     // Process each category
     Object.entries(groupedForms).forEach(([category, forms]) => {
       // Create category container
       const categoryDiv = document.createElement("div");
       categoryDiv.className = "forms-category";
       categoryDiv.style.marginBottom = "30px"; // Add spacing between categories
-      
+
       // Create category header
       const header = document.createElement("h3");
       let icon = "fa-file-alt"; // Default icon
-      
+
       // Set icon based on category
-      switch(category) {
-        case "contract": icon = "fa-file-contract"; break;
-        case "proposal": icon = "fa-file-invoice"; break;
-        case "invoice": icon = "fa-file-invoice-dollar"; break;
-        case "agreement": icon = "fa-handshake"; break;
+      switch (category) {
+        case "contract":
+          icon = "fa-file-contract";
+          break;
+        case "proposal":
+          icon = "fa-file-invoice";
+          break;
+        case "invoice":
+          icon = "fa-file-invoice-dollar";
+          break;
+        case "agreement":
+          icon = "fa-handshake";
+          break;
       }
-      
+
       // Format category name
-      const categoryName = category.charAt(0).toUpperCase() + category.slice(1) + "s";
-      
+      const categoryName =
+        category.charAt(0).toUpperCase() + category.slice(1) + "s";
+
       header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
       categoryDiv.appendChild(header);
-      
+
       // Create template cards container
       const cardsDiv = document.createElement("div");
       cardsDiv.className = "template-cards";
       cardsDiv.style.display = "grid"; // Force grid display
-      
+
       // Add form cards
-      forms.forEach(form => {
+      forms.forEach((form) => {
         const card = createFormCard(form);
         card.style.display = "flex"; // Force display
         cardsDiv.appendChild(card);
       });
-      
+
       categoryDiv.appendChild(cardsDiv);
       allCategoriesContainer.appendChild(categoryDiv);
     });
-    
+
     // Add all categories to the forms list
     formsList.appendChild(allCategoriesContainer);
-    
-    console.log(`Rendered ${allForms.length} forms across ${Object.keys(groupedForms).length} categories`);
-    
+
+    console.log(
+      `Rendered ${allForms.length} forms across ${
+        Object.keys(groupedForms).length
+      } categories`
+    );
   } catch (error) {
     console.error("Error fetching forms:", error);
     const formsList = document.getElementById("formsList");
@@ -464,7 +519,7 @@ function createFormCard(form) {
   const card = document.createElement("div");
   card.className = "template-card";
   card.dataset.formId = form._id;
-  
+
   // Choose icon based on template status
   let icon = "fa-file-alt"; // Default icon
 
@@ -478,24 +533,30 @@ function createFormCard(form) {
   } else if (form.category === "agreement") {
     icon = "fa-handshake";
   }
-  
+
   // Use the GLOBAL date format - this is the key fix!
   const currentDateFormat = window.dateFormat || "MM/DD/YYYY";
-  
+
   // Format modified date
   let formattedModifiedDate = "Not recorded";
   if (form.lastModified) {
     const modifiedDate = new Date(form.lastModified);
-    formattedModifiedDate = Utils.formatDateTime(modifiedDate, currentDateFormat);
+    formattedModifiedDate = Utils.formatDateTime(
+      modifiedDate,
+      currentDateFormat
+    );
   }
-  
+
   // Format creation date
   let formattedCreationDate = "Not recorded";
   if (form.createdAt) {
     const creationDate = new Date(form.createdAt);
-    formattedCreationDate = Utils.formatDateTime(creationDate, currentDateFormat);
+    formattedCreationDate = Utils.formatDateTime(
+      creationDate,
+      currentDateFormat
+    );
   }
-  
+
   // Create card content with both dates
   card.innerHTML = `
     <div class="template-icon">
@@ -521,28 +582,28 @@ function createFormCard(form) {
       </button>
     </div>
   `;
-  
+
   // Add event listeners
-  card.querySelector(".preview-form").addEventListener("click", function(e) {
+  card.querySelector(".preview-form").addEventListener("click", function (e) {
     e.stopPropagation();
     openFormPreview(form._id);
   });
-  
-  card.querySelector(".edit-form").addEventListener("click", function(e) {
+
+  card.querySelector(".edit-form").addEventListener("click", function (e) {
     e.stopPropagation();
     openEditFormModal(form._id);
   });
-  
-  card.querySelector(".delete-form").addEventListener("click", function(e) {
+
+  card.querySelector(".delete-form").addEventListener("click", function (e) {
     e.stopPropagation();
     confirmDeleteForm(form._id);
   });
-  
+
   // Add click event to entire card for preview
-  card.addEventListener("click", function() {
+  card.addEventListener("click", function () {
     openFormPreview(form._id);
   });
-  
+
   return card;
 }
 
@@ -563,12 +624,12 @@ function openCreateFormModal() {
   document.getElementById("formDescription").value = "";
   document.getElementById("formCategory").value = "contract";
   document.getElementById("isTemplate").value = "false";
-  
+
   // Clear editor content properly and update preview
   if (editor) {
     // Set to empty string
     editor.setValue("");
-    
+
     // Force editor refresh to update display
     setTimeout(() => {
       editor.refresh();
@@ -577,57 +638,56 @@ function openCreateFormModal() {
       updateMarkdownPreview();
     }, 50);
   }
-  
+
   // Update modal title
   document.getElementById("formEditorTitle").textContent = "Create New Form";
-  
+
   // Show modal
   document.getElementById("formEditorModal").style.display = "block";
 }
-
 
 async function openEditFormModal(formId) {
   try {
     // Show loading
     Utils.showToast("Loading form...");
-    
+
     // Fetch form details
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch form details");
     }
-    
+
     const form = await response.json();
-    
+
     // Populate form fields
     document.getElementById("formId").value = form._id;
     document.getElementById("formTitle").value = form.title;
     document.getElementById("formDescription").value = form.description || "";
     document.getElementById("formCategory").value = form.category;
     document.getElementById("isTemplate").value = form.isTemplate.toString();
-    
+
     // Set editor content
     editor.setValue(form.content);
-    
+
     // This is the important part - refresh the editor after setting content
     setTimeout(() => {
       editor.refresh();
       // Also force focus on the editor to ensure it's visible
       editor.focus();
     }, 10);
-    
+
     // Update modal title
     document.getElementById("formEditorTitle").textContent = "Edit Form";
-    
+
     // Show/hide variables section based on template status
-    const variablesContainer = document.querySelector('.variables-container');
+    const variablesContainer = document.querySelector(".variables-container");
     const isTemplate = form.isTemplate;
-    
+
     if (variablesContainer) {
-      variablesContainer.style.display = isTemplate ? 'block' : 'none';
+      variablesContainer.style.display = isTemplate ? "block" : "none";
     }
-    
+
     // Show modal
     document.getElementById("formEditorModal").style.display = "block";
   } catch (error) {
@@ -648,96 +708,104 @@ function closeFormEditorModal() {
  */
 async function handleFormSubmit(event) {
   event.preventDefault();
-  
+
   // Show loading indicator
   Utils.showToast("Saving form...");
-  
+
   // Get form data
   const formId = document.getElementById("formId").value;
   const title = document.getElementById("formTitle").value;
   const description = document.getElementById("formDescription").value;
   const category = document.getElementById("formCategory").value;
   const isTemplate = document.getElementById("isTemplate").value === "true";
-  
+
   // Important: Get content from CodeMirror editor instead of the hidden textarea
   const content = editor.getValue();
-  
+
   console.log("Form data gathered:", {
     formId,
     title,
-    description, 
+    description,
     category,
     isTemplate,
-    contentLength: content.length
+    contentLength: content.length,
   });
-  
+
   // Validate required fields
   if (!title) {
     Utils.showToast("Title is required");
     document.getElementById("formTitle").focus();
     return;
   }
-  
+
   if (!content) {
     Utils.showToast("Content is required");
     editor.focus();
     return;
   }
-  
+
   // Prepare form data
   const formData = {
     title,
     description,
     category,
     isTemplate,
-    content
+    content,
   };
-  
+
   try {
     console.log("Attempting to save form...");
     const baseUrl = API.getBaseUrl() + "/api/forms";
-    
+
     let response;
     if (formId) {
       console.log(`Updating form ID: ${formId}`);
       response = await fetch(`${baseUrl}/${formId}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
     } else {
       console.log("Creating new form");
       response = await fetch(baseUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
     }
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("Error response:", errorData);
-      throw new Error(errorData.message || `Server returned ${response.status}`);
+      throw new Error(
+        errorData.message || `Server returned ${response.status}`
+      );
     }
-    
+
     const savedForm = await response.json();
     console.log("Form saved successfully:", savedForm);
-    
+
     // Close modal
     closeFormEditorModal();
-    
+
     // Show success message
-    Utils.showToast(formId ? "Form updated successfully" : "Form created successfully");
-    
+    Utils.showToast(
+      formId ? "Form updated successfully" : "Form created successfully"
+    );
+
     // Refresh forms list
     fetchAndRenderForms();
   } catch (error) {
     console.error("Error saving form:", error);
-    Utils.showToast(`Error: ${error.message || "Failed to save form"}. Check console for details.`);
+    Utils.showToast(
+      `Error: ${
+        error.message || "Failed to save form"
+      }. Check console for details.`
+    );
   }
 }
 
@@ -745,62 +813,68 @@ async function openFormPreview(formId) {
   try {
     // Store current form ID
     currentFormId = formId;
-    
+
     // Show loading
     Utils.showToast("Loading preview...");
-    
+
     // Fetch form details
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch form details");
     }
-    
+
     const form = await response.json();
-    
+
     // Get date format from window object or use default
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
-    
+
     // Format the dates
     let formattedCreationDate = "Not recorded";
     let formattedModifiedDate = "Not recorded";
-    
+
     if (form.createdAt) {
       const creationDate = new Date(form.createdAt);
       formattedCreationDate = Utils.formatDateTime(creationDate, dateFormat);
     }
-    
+
     if (form.lastModified) {
       const modifiedDate = new Date(form.lastModified);
       formattedModifiedDate = Utils.formatDateTime(modifiedDate, dateFormat);
     }
-    
+
     // Set preview title
     document.getElementById("previewFormTitle").textContent = form.title;
-    
+
     // Create metadata section for dates
     const metadataHTML = `
-      <div class="form-metadata">
-        <div><strong>Created:</strong> ${formattedCreationDate}</div>
-        <div><strong>Last Modified:</strong> ${formattedModifiedDate}</div>
-      </div>
+       <div class="form-metadata">
+          <div><strong>Form Id: ${formId}</strong></div>
+          <div><strong>Created:</strong> ${formattedCreationDate}</div>
+          <div><strong>Last Modified:</strong> ${formattedModifiedDate}</div>
+          <small>(Form Metadata will not be visible outside of this preview)</small>
+          <hr>
+        </div> 
     `;
-    
+
     // Convert markdown to HTML
     const html = DOMPurify.sanitize(marked.parse(form.content));
-    
+
     // Set preview content with metadata
     const previewContent = document.getElementById("previewContent");
     previewContent.innerHTML = metadataHTML + html;
-    
+
     // Only show the "Use with Lead" button for templates
-    const useWithLeadButton = form.isTemplate ? 
-      `<button type="button" id="useWithLeadBtn" class="btn btn-outline">
+    const useWithLeadButton = form.isTemplate
+      ? `<button type="button" id="useWithLeadBtn" class="btn btn-outline">
         <i class="fas fa-user"></i> Use Customer Data
-      </button>` : '';
-    
+      </button>`
+      : "";
+
     // Update the modal-actions div to conditionally include the use with lead button
-    const modalActions = document.querySelector('#formPreviewModal .modal-actions');
+    const modalActions = document.querySelector(
+      "#formPreviewModal .modal-actions"
+    );
     if (modalActions) {
       modalActions.innerHTML = `
         <div>
@@ -819,28 +893,34 @@ async function openFormPreview(formId) {
         </div>
       `;
     }
-    
+
     // Show modal
     document.getElementById("formPreviewModal").style.display = "block";
-    
+
     // Add event listeners to buttons
-    document.getElementById("editFormBtn").addEventListener("click", function() {
-      closeFormPreviewModal();
-      openEditFormModal(formId);
-    });
-    
-    document.getElementById("downloadFormBtn").addEventListener("click", function() {
-      downloadForm(formId);
-    });
-    
-    document.getElementById("printFormBtn").addEventListener("click", function() {
-      printForm(formId);
-    });
-    
+    document
+      .getElementById("editFormBtn")
+      .addEventListener("click", function () {
+        closeFormPreviewModal();
+        openEditFormModal(formId);
+      });
+
+    document
+      .getElementById("downloadFormBtn")
+      .addEventListener("click", function () {
+        downloadForm(formId);
+      });
+
+    document
+      .getElementById("printFormBtn")
+      .addEventListener("click", function () {
+        printForm(formId);
+      });
+
     // Only add the Use with Lead event listener if the button exists
     const useWithLeadBtn = document.getElementById("useWithLeadBtn");
     if (useWithLeadBtn) {
-      useWithLeadBtn.addEventListener("click", function() {
+      useWithLeadBtn.addEventListener("click", function () {
         openLeadSelectionModal();
       });
     }
@@ -861,7 +941,11 @@ function closeFormPreviewModal() {
  * Confirm delete form
  */
 function confirmDeleteForm(formId) {
-  if (confirm("Are you sure you want to delete this form? This action cannot be undone.")) {
+  if (
+    confirm(
+      "Are you sure you want to delete this form? This action cannot be undone."
+    )
+  ) {
     deleteForm(formId);
   }
 }
@@ -871,19 +955,18 @@ function confirmDeleteForm(formId) {
  */
 async function deleteForm(formId) {
   try {
-    
     // Delete form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
-      method: "DELETE"
+      method: "DELETE",
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to delete form");
     }
-    
+
     // Show success message
     Utils.showToast("Form deleted successfully");
-    
+
     // Refresh forms list
     fetchAndRenderForms();
   } catch (error) {
@@ -897,22 +980,22 @@ async function downloadForm(formId) {
     // Get the form content directly from the server or editor
     let formContent;
     let title;
-    
+
     if (formId) {
       // Fetch form from server to get original content with all whitespace
       const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch form');
+        throw new Error("Failed to fetch form");
       }
-      
+
       const form = await response.json();
       formContent = form.content;
       title = form.title;
     } else {
       // Use content from the preview modal
       title = document.getElementById("previewFormTitle").textContent;
-      
+
       // Get content directly from editor if available
       if (editor) {
         formContent = editor.getValue();
@@ -925,25 +1008,26 @@ async function downloadForm(formId) {
         formContent = tempDiv.innerText;
       }
     }
-    
+
     // Create a blob with the raw content - important to use text/markdown mime type
-    const blob = new Blob([formContent], { type: "text/markdown;charset=utf-8" });
-    
+    const blob = new Blob([formContent], {
+      type: "text/markdown;charset=utf-8",
+    });
+
     // Create a download link
     const downloadLink = document.createElement("a");
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
-    
+
     // Trigger download
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
   } catch (error) {
-    console.error('Error downloading form:', error);
-    Utils.showToast('Error: ' + error.message);
+    console.error("Error downloading form:", error);
+    Utils.showToast("Error: " + error.message);
   }
 }
-
 
 async function printForm(formId) {
   try {
@@ -951,25 +1035,27 @@ async function printForm(formId) {
     let form;
     if (formId) {
       const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch form');
+        throw new Error("Failed to fetch form");
       }
-      
+
       form = await response.json();
     } else {
       // Use the current form content from the preview
       const title = document.getElementById("previewFormTitle").textContent;
-      const content = editor ? editor.getValue() : document.getElementById("previewContent").innerText;
+      const content = editor
+        ? editor.getValue()
+        : document.getElementById("previewContent").innerText;
       form = { title, content };
     }
-    
+
     // Create print window with styles that preserve whitespace
-    const printWindow = window.open('', '_blank');
-    
+    const printWindow = window.open("", "_blank");
+
     // Convert markdown to HTML using marked with whitespace options
     const formattedContent = marked.parse(form.content);
-    
+
     // Write content to print window with special styling for whitespace
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -1054,59 +1140,60 @@ async function printForm(formId) {
         </body>
       </html>
     `);
-    
+
     // Print and close
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
   } catch (error) {
-    console.error('Error printing form:', error);
-    Utils.showToast('Error: ' + error.message);
+    console.error("Error printing form:", error);
+    Utils.showToast("Error: " + error.message);
   }
 }
-
 
 async function openLeadSelectionModal() {
   try {
     // First, close the form preview modal
-    const previewModal = document.getElementById('formPreviewModal');
+    const previewModal = document.getElementById("formPreviewModal");
     if (previewModal) {
-      previewModal.style.display = 'none';
+      previewModal.style.display = "none";
     }
-    
+
     // Check if the current form is a template
     if (currentFormId) {
       const form = await fetchFormById(currentFormId);
-      
+
       if (!form.isTemplate) {
-        Utils.showToast('Only templates can be used with leads. This is a regular form.');
+        Utils.showToast(
+          "Only templates can be used with leads. This is a regular form."
+        );
         return;
       }
     } else {
-      Utils.showToast('Form not found');
+      Utils.showToast("Form not found");
       return;
     }
-    
+
     // Show loading
     Utils.showToast("Loading leads...");
-    
+
     // Fetch leads
     const response = await fetch(`${API.getBaseUrl()}/api/leads`);
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch leads");
     }
-    
+
     const leads = await response.json();
-    
+
     // Build leads list
     const leadsList = document.getElementById("leadsList");
     leadsList.innerHTML = "";
-    
+
     if (leads.length === 0) {
       leadsList.innerHTML = "<p>No leads found</p>";
     } else {
-      leads.forEach(lead => {
+      leads.forEach((lead) => {
         const leadItem = document.createElement("div");
         leadItem.className = "lead-item";
         leadItem.style.display = "flex";
@@ -1115,11 +1202,11 @@ async function openLeadSelectionModal() {
         leadItem.style.padding = "1rem";
         leadItem.style.borderBottom = "1px solid var(--border-color)";
         leadItem.style.cursor = "pointer";
-        
+
         // Format lead name
         const fullName = `${lead.firstName} ${lead.lastName}`;
         const businessName = lead.businessName || "N/A";
-        
+
         leadItem.innerHTML = `
           <div>
             <h4 style="margin: 0 0 0.5rem 0;">${fullName}</h4>
@@ -1127,22 +1214,22 @@ async function openLeadSelectionModal() {
           </div>
           <button class="btn btn-primary">Use</button>
         `;
-        
+
         // Add click event to button
-        leadItem.querySelector("button").addEventListener("click", function() {
+        leadItem.querySelector("button").addEventListener("click", function () {
           generateFormWithLeadData(currentFormId, lead._id);
           closeLeadSelectionModal();
         });
-        
+
         leadsList.appendChild(leadItem);
       });
     }
-    
+
     // Show modal
     document.getElementById("leadSelectionModal").style.display = "block";
   } catch (error) {
-    console.error('Error loading leads:', error);
-    Utils.showToast('Error: ' + error.message);
+    console.error("Error loading leads:", error);
+    Utils.showToast("Error: " + error.message);
   }
 }
 
@@ -1150,11 +1237,11 @@ async function openLeadSelectionModal() {
 async function fetchFormById(formId) {
   try {
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch form");
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error("Error fetching form:", error);
@@ -1162,33 +1249,35 @@ async function fetchFormById(formId) {
   }
 }
 
-
 async function generateFormWithLeadData(formId, leadId) {
   try {
     // Show loading
     Utils.showToast("Generating form...");
-    
+
     // Generate form
-    const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}/generate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ leadId })
-    });
-    
+    const response = await fetch(
+      `${API.getBaseUrl()}/api/forms/${formId}/generate`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ leadId }),
+      }
+    );
+
     if (!response.ok) {
       throw new Error("Failed to generate form");
     }
-    
+
     const generatedForm = await response.json();
-    
+
     // Store the generated form data in a variable to access it later for editing
     window.currentGeneratedForm = generatedForm;
-    
+
     // Update the modal structure to include editor/preview tabs
     const generatedModal = document.getElementById("generatedFormModal");
-    
+
     // Set modal content
     generatedModal.querySelector(".modal-content").innerHTML = `
       <span class="close-modal" id="closeGeneratedFormModal">&times;</span>
@@ -1209,7 +1298,9 @@ async function generateFormWithLeadData(formId, leadId) {
         </div>
         
         <div class="editor-section inactive">
-          <textarea id="editGeneratedContent">${generatedForm.content}</textarea>
+          <textarea id="editGeneratedContent">${
+            generatedForm.content
+          }</textarea>
         </div>
       </div>
       
@@ -1225,37 +1316,37 @@ async function generateFormWithLeadData(formId, leadId) {
         </button>
       </div>
     `;
-    
+
     // Show modal
     generatedModal.style.display = "block";
-    
+
     // Initialize the CodeMirror editor for the generated content
     setTimeout(() => {
       initializeGeneratedFormEditor();
-      
+
       // Set up event handlers for the new modal structure
       setupGeneratedFormModalEvents(leadId);
     }, 100);
-    
   } catch (error) {
     console.error("Error generating form:", error);
     Utils.showToast("Error: " + error.message);
   }
 }
 
-
 function initializeGeneratedFormEditor() {
   const textarea = document.getElementById("editGeneratedContent");
   if (!textarea) return;
-  
+
   // Check if CodeMirror is already initialized on this textarea
   // Fix: Safely check if nextSibling exists before accessing its properties
-  if (textarea.nextSibling && 
-      textarea.nextSibling.classList && 
-      textarea.nextSibling.classList.contains('CodeMirror')) {
+  if (
+    textarea.nextSibling &&
+    textarea.nextSibling.classList &&
+    textarea.nextSibling.classList.contains("CodeMirror")
+  ) {
     return;
   }
-  
+
   // Initialize CodeMirror
   try {
     window.generatedFormEditor = CodeMirror.fromTextArea(textarea, {
@@ -1263,14 +1354,14 @@ function initializeGeneratedFormEditor() {
       lineNumbers: true,
       lineWrapping: true,
       theme: "default",
-      placeholder: "Edit your form content here in Markdown format..."
+      placeholder: "Edit your form content here in Markdown format...",
     });
-    
+
     // Update preview when content changes
-    window.generatedFormEditor.on("change", function() {
+    window.generatedFormEditor.on("change", function () {
       updateGeneratedFormPreview();
     });
-    
+
     // Force a refresh to ensure proper rendering
     setTimeout(() => {
       if (window.generatedFormEditor) {
@@ -1286,83 +1377,97 @@ function initializeGeneratedFormEditor() {
 // New function to update the generated form preview
 function updateGeneratedFormPreview() {
   if (!window.generatedFormEditor) return;
-  
+
   const content = window.generatedFormEditor.getValue();
   const preview = document.getElementById("generatedContent");
-  
+
   if (!content) {
     preview.innerHTML = "<p><em>No content to preview</em></p>";
     return;
   }
-  
+
   // Convert markdown to HTML with DOMPurify for security
   const html = DOMPurify.sanitize(marked.parse(content));
   preview.innerHTML = html;
 }
 
-
 function setupGeneratedFormModalEvents(leadId) {
   // Tab switching
-  document.querySelectorAll("#generatedFormModal .editor-tab").forEach(tab => {
-    tab.addEventListener("click", function() {
-      console.log("Tab clicked:", this.getAttribute("data-tab"));
-      
-      // Set active tab
-      document.querySelectorAll("#generatedFormModal .editor-tab").forEach(t => {
-        t.classList.remove("active");
-      });
-      this.classList.add("active");
-      
-      const tabName = this.getAttribute("data-tab");
-      const editorSection = document.querySelector("#generatedFormModal .editor-section");
-      const previewSection = document.querySelector("#generatedFormModal .preview-section");
-      
-      console.log("Switching to tab:", tabName);
-      console.log("Editor section:", editorSection);
-      console.log("Preview section:", previewSection);
-      
-      if (tabName === "editor") {
-        if (editorSection) editorSection.classList.remove("inactive");
-        if (previewSection) previewSection.classList.remove("active");
-        
-        // Refresh CodeMirror
-        if (window.generatedFormEditor) {
-          setTimeout(() => {
-            window.generatedFormEditor.refresh();
-            window.generatedFormEditor.focus();
-          }, 50);
-        }
-      } else {
-        if (editorSection) editorSection.classList.add("inactive");
-        if (previewSection) previewSection.classList.add("active");
-        
-        // Update preview
-        updateGeneratedFormPreview();
-      }
-    });
-  });
-  
-  // Save button
-  document.getElementById("saveGeneratedBtn").addEventListener("click", function() {
-    saveGeneratedForm(leadId);
-  });
-  
-  // Close button
-  document.getElementById("closeGeneratedFormModal").addEventListener("click", function() {
-    document.getElementById("generatedFormModal").style.display = "none";
-  });
-  
-  // Download button
-  document.getElementById("downloadGeneratedBtn").addEventListener("click", function() {
-    downloadGeneratedForm();
-  });
-  
-  // Print button
-  document.getElementById("printGeneratedBtn").addEventListener("click", function() {
-    printGeneratedForm();
-  });
-}
+  document
+    .querySelectorAll("#generatedFormModal .editor-tab")
+    .forEach((tab) => {
+      tab.addEventListener("click", function () {
+        console.log("Tab clicked:", this.getAttribute("data-tab"));
 
+        // Set active tab
+        document
+          .querySelectorAll("#generatedFormModal .editor-tab")
+          .forEach((t) => {
+            t.classList.remove("active");
+          });
+        this.classList.add("active");
+
+        const tabName = this.getAttribute("data-tab");
+        const editorSection = document.querySelector(
+          "#generatedFormModal .editor-section"
+        );
+        const previewSection = document.querySelector(
+          "#generatedFormModal .preview-section"
+        );
+
+        console.log("Switching to tab:", tabName);
+        console.log("Editor section:", editorSection);
+        console.log("Preview section:", previewSection);
+
+        if (tabName === "editor") {
+          if (editorSection) editorSection.classList.remove("inactive");
+          if (previewSection) previewSection.classList.remove("active");
+
+          // Refresh CodeMirror
+          if (window.generatedFormEditor) {
+            setTimeout(() => {
+              window.generatedFormEditor.refresh();
+              window.generatedFormEditor.focus();
+            }, 50);
+          }
+        } else {
+          if (editorSection) editorSection.classList.add("inactive");
+          if (previewSection) previewSection.classList.add("active");
+
+          // Update preview
+          updateGeneratedFormPreview();
+        }
+      });
+    });
+
+  // Save button
+  document
+    .getElementById("saveGeneratedBtn")
+    .addEventListener("click", function () {
+      saveGeneratedForm(leadId);
+    });
+
+  // Close button
+  document
+    .getElementById("closeGeneratedFormModal")
+    .addEventListener("click", function () {
+      document.getElementById("generatedFormModal").style.display = "none";
+    });
+
+  // Download button
+  document
+    .getElementById("downloadGeneratedBtn")
+    .addEventListener("click", function () {
+      downloadGeneratedForm();
+    });
+
+  // Print button
+  document
+    .getElementById("printGeneratedBtn")
+    .addEventListener("click", function () {
+      printGeneratedForm();
+    });
+}
 
 // Fixed function to save the edited generated form
 async function saveGeneratedForm(leadId) {
@@ -1371,51 +1476,53 @@ async function saveGeneratedForm(leadId) {
       Utils.showToast("Error: Form editor not initialized");
       return;
     }
-    
+
     const formId = window.currentGeneratedForm._id;
     const content = window.generatedFormEditor.getValue();
-    
+
     // Show loading toast
     Utils.showToast("Saving form...");
-    
+
     // Update the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ content })
+      body: JSON.stringify({ content }),
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to save form");
     }
-    
+
     // Show success message
     Utils.showToast("Form saved successfully");
-    
+
     // Update the preview
     updateGeneratedFormPreview();
-    
+
     // Reload lead forms - Fixed: Use the correct function name
     if (leadId) {
-    
       try {
         // First check if the function exists in the global scope
-        if (typeof window.loadLeadForms === 'function') {
+        if (typeof window.loadLeadForms === "function") {
           window.loadLeadForms(leadId);
-        } else if (typeof loadLeadForms === 'function') {
+        } else if (typeof loadLeadForms === "function") {
           loadLeadForms(leadId);
         } else {
-          console.log("Note: Form saved but couldn't refresh lead forms list automatically.");
+          console.log(
+            "Note: Form saved but couldn't refresh lead forms list automatically."
+          );
           // You might need to manually refresh the page or provide a button for the user to do so
         }
       } catch (err) {
-        console.log("Note: Form saved but couldn't refresh lead forms list automatically.");
+        console.log(
+          "Note: Form saved but couldn't refresh lead forms list automatically."
+        );
         // This catch ensures the function doesn't fail even if the refresh function isn't available
       }
     }
-    
   } catch (error) {
     console.error("Error saving form:", error);
     Utils.showToast("Error: " + error.message);
@@ -1430,9 +1537,9 @@ function closeGeneratedFormModal() {
 }
 
 function closeLeadSelectionModal() {
-  const modal = document.getElementById('leadSelectionModal');
+  const modal = document.getElementById("leadSelectionModal");
   if (modal) {
-    modal.style.display = 'none';
+    modal.style.display = "none";
   }
 }
 
@@ -1440,7 +1547,7 @@ function downloadGeneratedForm() {
   try {
     // Get the original generated form content
     let content;
-    
+
     if (window.currentGeneratedForm && window.currentGeneratedForm.content) {
       // Use the original content from the generated form object
       content = window.currentGeneratedForm.content;
@@ -1454,27 +1561,26 @@ function downloadGeneratedForm() {
       tempElement.innerHTML = generatedContent.innerHTML;
       content = tempElement.innerText;
     }
-    
+
     const title = document.getElementById("generatedFormTitle").textContent;
-    
+
     // Create a blob with the content - using text/markdown mime type
     const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
-    
+
     // Create a download link
     const downloadLink = document.createElement("a");
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
-    
+
     // Trigger download
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
   } catch (error) {
-    console.error('Error downloading generated form:', error);
-    Utils.showToast('Error: ' + error.message);
+    console.error("Error downloading generated form:", error);
+    Utils.showToast("Error: " + error.message);
   }
 }
-
 
 /**
  * Print the generated form
@@ -1482,10 +1588,10 @@ function downloadGeneratedForm() {
 function printGeneratedForm() {
   const title = document.getElementById("generatedFormTitle").textContent;
   const content = document.getElementById("generatedContent").innerHTML;
-  
+
   // Create a print window
   const printWindow = window.open("", "_blank");
-  
+
   // Write content to print window
   printWindow.document.write(`
     <!DOCTYPE html>
@@ -1560,7 +1666,7 @@ function printGeneratedForm() {
       </body>
     </html>
   `);
-  
+
   // Print the window
   printWindow.document.close();
   printWindow.focus();

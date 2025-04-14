@@ -489,6 +489,24 @@ details[open] .stats-cards {
   overflow-y: auto;
 }
 
+.form-metadata {
+  padding: 1rem 0;
+}
+
+.form-metadata hr {
+  margin: 2rem 0 0;
+}
+
+.form-metadata, .preview-section h4 {
+  color: var(--text-muted);
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.form-metadata div {
+  line-height: 1.5;
+}
+
 .no-forms-message {
   padding: 1rem;
   text-align: center;

@@ -41,7 +41,6 @@ async function loadLeadForms(leadId) {
         '<p class="no-forms-message">No forms yet. Click "Create Form" to add one.</p>';
       return;
     }
-    
 
     // Clear container
     formsContainer.innerHTML = "";
@@ -57,7 +56,7 @@ async function loadLeadForms(leadId) {
         const modifiedDate = new Date(form.lastModified);
         formattedModifiedDate = Utils.formatDateTime(modifiedDate, dateFormat);
       }
-      
+
       let formattedCreationDate = "Not recorded";
       if (form.createdAt) {
         const creationDate = new Date(form.createdAt);
@@ -392,6 +391,22 @@ async function viewForm(formId, isEditMode) {
     // CRITICAL FIX: Always consider edit mode true when viewing from lead modal
     isEditMode = true;
 
+    // Get date format from window object or use default
+    const dateFormat = window.dateFormat || "MM/DD/YYYY";
+
+    // Format dates for display
+    let formattedCreationDate = "Not recorded";
+    if (form.createdAt) {
+      const creationDate = new Date(form.createdAt);
+      formattedCreationDate = Utils.formatDateTime(creationDate, dateFormat);
+    }
+
+    let formattedModifiedDate = "Not recorded";
+    if (form.lastModified) {
+      const modifiedDate = new Date(form.lastModified);
+      formattedModifiedDate = Utils.formatDateTime(modifiedDate, dateFormat);
+    }
+
     // Use marked with specific options to preserve whitespace
     marked.setOptions({
       breaks: true, // Convert \n to <br>
@@ -410,6 +425,14 @@ async function viewForm(formId, isEditMode) {
           <h3>${form.title}</h3>
         </div>
         <div class="preview-container">
+          <!-- Add the date display at the top of the form preview -->
+          <div class="form-metadata">
+            <div><strong>Form Id: ${formId}</strong></div>
+            <div><strong>Created:</strong> ${formattedCreationDate}</div>
+            <div><strong>Last Modified:</strong> ${formattedModifiedDate}</div>
+            <small>(Form Metadata will not be visible outside of this preview)</small>
+             <hr>
+          </div>
           <div class="markdown-content">${formattedContent}</div>
         </div>
         <div id="lead-modal-form-actions" class="modal-actions">
