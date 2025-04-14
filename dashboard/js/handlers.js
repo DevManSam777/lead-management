@@ -481,10 +481,12 @@ async function saveLead() {
   }
 }
 
+
 /**
  * Initialize tab functionality for the lead modal
+ * @param {boolean} forceFirstTab - Whether to force the first tab
  */
-function initializeModalTabs() {
+function initializeModalTabs(forceFirstTab = false) {
   const tabs = document.querySelectorAll('.modal-tab');
   const tabContents = document.querySelectorAll('.tab-content');
   
@@ -501,34 +503,15 @@ function initializeModalTabs() {
       // Add active class to current tab and corresponding content
       this.classList.add('active');
       document.getElementById(`${tabName}-tab`).classList.add('active');
-      
-      // Store the active tab in localStorage
-      localStorage.setItem('activeLeadModalTab', tabName);
     });
   });
   
-  // When opening the modal, set the active tab (either from localStorage or default to first tab)
-  function setInitialActiveTab() {
-    // If there's a saved tab preference and that tab exists, use it
-    const savedTab = localStorage.getItem('activeLeadModalTab');
-    
-    if (savedTab) {
-      const targetTab = document.querySelector(`.modal-tab[data-tab="${savedTab}"]`);
-      if (targetTab) {
-        targetTab.click();
-        return;
-      }
-    }
-    
-    // Default to the first tab
-    const firstTab = document.querySelector('.modal-tab');
-    if (firstTab) {
-      firstTab.click();
-    }
+  // Just activate the first tab by default
+  if (tabs.length > 0) {
+    tabs[0].click();
   }
-  
-  setInitialActiveTab();
 }
+
 
 /**
  * Highlight specific tab programmatically
@@ -704,6 +687,8 @@ function openAddLeadModal() {
 
   // Initialize any monetary inputs in the modal
   initializeMonetaryInputs();
+
+  initializeModalTabs(true);
 
   // Show the "Create Form" button since we're in edit mode
   const addFormBtn = document.getElementById("addFormBtn");
@@ -923,7 +908,6 @@ async function openLeadModal(leadId, allLeads) {
 
   // Initialize any monetary inputs in the modal
   initializeMonetaryInputs();
-  setInitialActiveTab();
   initializeModalTabs();
 }
 
