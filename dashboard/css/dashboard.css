@@ -527,6 +527,113 @@ details[open] .stats-cards {
   overflow-y: auto;
 }
 
+.modal-tab {
+  flex: 1 0 auto; /* Allow tabs to grow and shrink */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 0.5rem;
+  background-color: var(--card-background);
+  border: none;
+  border-bottom: 0.3rem solid transparent;
+  cursor: pointer;
+  /* transition: all 0.3s ease; */
+  white-space: nowrap;
+  min-width: 0; /* Allows flex to work properly */
+
+  color: var(--text-muted);
+  border-radius:  0 .8rem 0 .8rem;
+}
+
+
+.modal-tab i {
+  margin-bottom: 0.3rem;
+  font-size: 1.2rem;
+}
+
+.modal-tab span {
+  font-size: 0.9rem;
+}
+
+.modal-tab:hover {
+  background-color: var(--table-hover);
+}
+
+.modal-tab.active {
+  /* border-bottom-color: var(--primary); */
+  color: var(--primary);
+  background-color: var(--table-hover);
+}
+
+.modal-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  border-bottom: 0.1rem solid var(--border-color);
+  margin-bottom: 2rem;
+  gap: 0.5rem;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.modal-tabs::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+.modal-tab:hover {
+  background-color: var(--table-hover);
+  color: var(--text-color);
+}
+
+.modal-tab.active {
+  border-top: 0.3rem solid var(--primary);
+  color: var(--primary);
+  background-color: var(--table-hover);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+* Hide action buttons by default in read-only mode */
+.lead-modal-readonly .form-actions,
+.lead-modal-readonly .payment-actions,
+.lead-modal-readonly #addFormBtn {
+  display: none !important;
+  display: none;
+}
+
+.lead-modal-readonly .no-payments-message,
+.lead-modal-readonly .no-forms-message {
+  display: none;
+}
+
+/* Show the messages only in edit mode */
+.lead-modal-edit .no-payments-message,
+.lead-modal-edit .no-forms-message {
+  display: block;
+}
+
+/* Show action buttons in edit mode */
+.lead-modal-edit .form-actions,
+.lead-modal-edit .payment-actions,
+.lead-modal-edit #addFormBtn {
+  display: flex;
+}
+
+/* Buttons visible when the form is in edit mode */
+.lead-modal-edit .form-actions button,
+.lead-modal-edit .payment-actions button {
+  opacity: 1;
+  visibility: visible;
+}
+
 @media (max-width: 1200px) {
   .lead-cards {
     grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
@@ -675,6 +782,14 @@ details[open] .stats-cards {
   .stats-cards {
     grid-template-columns: 1fr 1fr; /* Two columns */
   }
+
+  .modal-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @media (max-width: 768px) {
@@ -789,6 +904,24 @@ details[open] .stats-cards {
     flex-direction: column;
     width: 100%;
   }
+
+  .modal-tabs {
+    justify-content: space-between;
+  }
+
+  .modal-tab {
+    flex: 1;
+    padding: 0.6rem 0.2rem;
+  }
+
+  .modal-tab i {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .modal-tab span {
+    display: none; /* Hide text on very small screens */
+    } 
 }
 
 /* Print Styles */
@@ -817,107 +950,5 @@ details[open] .stats-cards {
     break-inside: avoid;
     border: 0.1rem solid #ddd;
     box-shadow: none;
-  }
-}
-
-/* Hide action buttons by default in read-only mode */
-.lead-modal-readonly .form-actions,
-.lead-modal-readonly .payment-actions,
-.lead-modal-readonly #addFormBtn {
-  display: none !important;
-  display: none;
-}
-
-.lead-modal-readonly .no-payments-message,
-.lead-modal-readonly .no-forms-message {
-  display: none;
-}
-
-/* Show the messages only in edit mode */
-.lead-modal-edit .no-payments-message,
-.lead-modal-edit .no-forms-message {
-  display: block;
-}
-
-/* Show action buttons in edit mode */
-.lead-modal-edit .form-actions,
-.lead-modal-edit .payment-actions,
-.lead-modal-edit #addFormBtn {
-  display: flex;
-}
-
-/* Buttons visible when the form is in edit mode */
-.lead-modal-edit .form-actions button,
-.lead-modal-edit .payment-actions button {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Modal Tabs Styling */
-.modal-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  border-bottom: 0.1rem solid var(--border-color);
-  margin-bottom: 2rem;
-  gap: 0.5rem;
-}
-
-.modal-tab {
-  padding: 1rem 1.5rem;
-  background-color: var(--card-background);
-  border: none;
-  border-bottom: 0.3rem solid transparent;
-  border-radius:  0 .8rem 0 .8rem;
-  cursor: pointer;
-  font-size: 1.4rem;
-  font-weight: 500;
-  color: var(--text-muted);
-}
-
-.modal-tab:hover {
-  background-color: var(--table-hover);
-  color: var(--text-color);
-}
-
-.modal-tab.active {
-  border-top: 0.3rem solid var(--primary);
-  color: var(--primary);
-  background-color: var(--table-hover);
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
-}
-
-/* Responsive adjustments for tabs */
-@media (max-width: 992px) {
-  .modal-tabs {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .modal-tab {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    padding: 0.8rem 1.2rem;
-    font-size: 1.3rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .modal-tab {
-    padding: 0.7rem 1rem;
-    font-size: 1.2rem;
-  }
-
-  .modal-tabs {
-    gap: 0.2rem;
   }
 }

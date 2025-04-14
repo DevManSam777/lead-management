@@ -33,6 +33,9 @@
           if (isSidebarCollapsed) {
             sidebar.classList.add("collapsed");
             mainContent.classList.add("expanded");
+          } else {
+            sidebar.classList.remove("collapsed");
+            mainContent.classList.remove("expanded");
           }
 
           // Give a short delay to ensure all layout calculations are done
@@ -63,7 +66,6 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.4/dist/purify.min.js"></script>
   </head>
   <body>
-    <!-- Rest of the HTML remains the same -->
     <div class="container">
       <!-- Sidebar -->
       <aside class="sidebar">
@@ -242,23 +244,45 @@
         <div class="modal-header">
           <h3 id="modalTitle">Client Info</h3>
         </div>
-        
+
         <!-- Modal action buttons will be inserted here by JS -->
         <div id="modalActions" class="modal-actions"></div>
-        
-        <!-- Tab Navigation -->
+
+        <!-- Modal Tabs -->
         <div class="modal-tabs">
-          <button class="modal-tab active" data-tab="basic">Basic Info</button>
-          <button class="modal-tab" data-tab="business">Business</button>
-          <button class="modal-tab" data-tab="billing">Billing</button>
-          <button class="modal-tab" data-tab="service">Service</button>
-          <button class="modal-tab" data-tab="finance">Finance</button>
-          <button class="modal-tab" data-tab="notes">Messages</button>
+          <button class="modal-tab active" data-tab="basic">
+            <i class="fas fa-user"></i>
+            <span>Basic</span>
+          </button>
+          <button class="modal-tab" data-tab="business">
+            <i class="fas fa-briefcase"></i>
+            <span>Business</span>
+          </button>
+          <button class="modal-tab" data-tab="billing">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Billing</span>
+          </button>
+          <button class="modal-tab" data-tab="service">
+            <i class="fas fa-tools"></i>
+            <span>Service</span>
+          </button>
+          <button class="modal-tab" data-tab="finance">
+            <i class="fas fa-chart-line"></i>
+            <span>Finance</span>
+          </button>
+          <button class="modal-tab" data-tab="forms">
+            <i class="fas fa-file-alt"></i>
+            <span>Forms</span>
+          </button>
+          <button class="modal-tab" data-tab="notes">
+            <i class="fas fa-sticky-note"></i>
+            <span>Notes</span>
+          </button>
         </div>
-        
+
         <form id="leadForm">
           <input type="hidden" id="leadId" />
-          
+
           <!-- Basic Info Tab -->
           <div class="tab-content active" id="basic-tab">
             <div class="form-section">
@@ -268,7 +292,7 @@
                 <div class="date-display-readonly" id="createdAtDisplay"></div>
               </div>
             </div>
-            
+
             <!-- Personal Information Section -->
             <div class="form-section">
               <h4>Personal Information</h4>
@@ -300,7 +324,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Business Tab -->
           <div class="tab-content" id="business-tab">
             <div class="form-section">
@@ -329,7 +353,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Billing Tab -->
           <div class="tab-content" id="billing-tab">
             <div class="form-section">
@@ -353,7 +377,11 @@
                 </div>
                 <div style="flex: 1">
                   <label for="billingZipCode">ZIP/Postal Code</label>
-                  <input type="text" id="billingZipCode" name="billingZipCode" />
+                  <input
+                    type="text"
+                    id="billingZipCode"
+                    name="billingZipCode"
+                  />
                 </div>
               </div>
               <div class="form-group">
@@ -362,7 +390,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Service Tab -->
           <div class="tab-content" id="service-tab">
             <div class="form-section">
@@ -399,7 +427,7 @@
                 </select>
               </div>
             </div>
-            
+
             <div class="form-section">
               <h4>Lead Status</h4>
               <div class="form-group">
@@ -421,7 +449,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Finance Tab -->
           <div class="tab-content" id="finance-tab">
             <div class="form-section">
@@ -447,22 +475,30 @@
                 <div class="payments-container">
                   <!-- Payments will be loaded here -->
                 </div>
-                <button type="button" id="addPaymentBtn" class="btn btn-outline">
+                <button
+                  type="button"
+                  id="addPaymentBtn"
+                  class="btn btn-outline"
+                >
                   <i class="fas fa-plus"></i> Add Payment
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- Forms Tab  -->
+          <div class="tab-content" id="forms-tab">
             <div class="form-section">
-              <h4>Forms</h4>
+              <h4>Associated Forms</h4>
               <div id="leadFormsList" class="forms-list">
                 <!-- Forms will be loaded here -->
               </div>
-              <button type="button" id="addFormBtn" class="btn btn-outline" style="display: none">
+              <button type="button" id="addFormBtn" class="btn btn-outline">
                 <i class="fas fa-plus"></i> Create Form
               </button>
             </div>
           </div>
-          
+
           <!-- Notes Tab -->
           <div class="tab-content" id="notes-tab">
             <div class="form-section">
@@ -477,7 +513,7 @@
               </div>
             </div>
           </div>
-          
+
           <button type="submit" class="btn btn-primary">Save Changes</button>
         </form>
       </div>
@@ -498,11 +534,7 @@
           <input type="hidden" id="paymentLeadId" />
           <div class="form-group">
             <label for="paymentAmount">Amount*</label>
-            <input
-              type="text"
-              id="paymentAmount"
-              required
-            />
+            <input type="text" id="paymentAmount" required />
           </div>
           <div class="form-group">
             <label for="paymentDate">Payment Date*</label>
@@ -513,10 +545,7 @@
           </div>
           <div class="form-group">
             <label for="paymentNotes">Notes</label>
-            <textarea
-              id="paymentNotes"
-              rows="5"
-            ></textarea>
+            <textarea id="paymentNotes" rows="5"></textarea>
           </div>
           <button type="submit" class="btn btn-primary">Save Payment</button>
         </form>
