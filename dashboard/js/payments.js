@@ -27,7 +27,8 @@ function renderLeadPayments(leadPayments, leadId) {
 
   // Make sure we have valid payments
   if (!leadPayments || !Array.isArray(leadPayments) || leadPayments.length === 0) {
-    paymentsContainer.innerHTML = '<p class="payment-item">No payments found</p>';
+    // CHANGE THIS LINE to use the no-payments-message class instead of payment-item
+    paymentsContainer.innerHTML = '<p class="no-payments-message">No payments found.  Click "Add Payment" to add one.</p>';
     return;
   }
 

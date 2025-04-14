@@ -724,6 +724,15 @@ select,
   background-color: var(--danger);
 }
 
+.no-payments-message,
+.no-forms-message {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+
 /* View Toggle */
 .view-toggle {
   margin-bottom: 2rem;

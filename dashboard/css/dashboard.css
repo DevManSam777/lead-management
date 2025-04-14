@@ -810,6 +810,17 @@ fieldset {
   display: none;
 }
 
+.lead-modal-readonly .no-payments-message,
+.lead-modal-readonly .no-forms-message {
+  display: none;
+}
+
+/* Show the messages only in edit mode */
+.lead-modal-edit .no-payments-message,
+.lead-modal-edit .no-forms-message {
+  display: block;
+}
+
 /* Show action buttons in edit mode */
 .lead-modal-edit .form-actions,
 .lead-modal-edit .payment-actions,

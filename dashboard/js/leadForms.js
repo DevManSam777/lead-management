@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// Updated loadLeadForms function in dashboard/js/leadForms.js
 async function loadLeadForms(leadId) {
   try {
     const formsContainer = document.getElementById("leadFormsList");
@@ -35,15 +34,14 @@ async function loadLeadForms(leadId) {
 
     const forms = await response.json();
 
-    // This ensures edit/delete buttons are always available
-    let isEditMode = true;
-
     // Render the forms
     if (forms.length === 0) {
+      // CHANGE THIS LINE to use the no-forms-message class
       formsContainer.innerHTML =
         '<p class="no-forms-message">No forms yet. Click "Create Form" to add one.</p>';
       return;
     }
+    
 
     // Clear container
     formsContainer.innerHTML = "";
