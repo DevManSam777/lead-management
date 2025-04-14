@@ -286,11 +286,16 @@ select,
   font-size: 1.6rem;
 }
 
+
 .form-group textarea {
   resize: none;
-  min-height: 2.4rem;
+  min-height: 4.2rem; 
   overflow-y: hidden;
   transition: height 0.2s ease;
+}
+
+.form-group input {
+  min-height: 4.2rem; 
 }
 
 .form-group input:focus,

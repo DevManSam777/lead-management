@@ -272,6 +272,19 @@ function validateBudget(input) {
 async function validateAndSaveLead(event) {
   event.preventDefault();
 
+  function updatedFormSubmission(event) {
+    event.preventDefault();
+    
+    // Validate all tabs first
+    if (!validateAllTabs()) {
+      return; // Stop if validation fails
+    }
+    
+    // Continue with existing save logic
+    // saveLead();
+  }
+  
+
   // Validate required fields
   const isEmailValid = validateEmail(document.getElementById("email"));
   const isPhoneValid = validatePhone(document.getElementById("phone"));
@@ -467,6 +480,107 @@ async function saveLead() {
     showToast("Error: " + error.message);
   }
 }
+
+/**
+ * Initialize tab functionality for the lead modal
+ */
+function initializeModalTabs() {
+  const tabs = document.querySelectorAll('.modal-tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  // Add click event to each tab
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      // Get the tab name from data-tab attribute
+      const tabName = this.getAttribute('data-tab');
+      
+      // Remove active class from all tabs and contents
+      tabs.forEach(t => t.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Add active class to current tab and corresponding content
+      this.classList.add('active');
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+      
+      // Store the active tab in localStorage
+      localStorage.setItem('activeLeadModalTab', tabName);
+    });
+  });
+  
+  // When opening the modal, set the active tab (either from localStorage or default to first tab)
+  function setInitialActiveTab() {
+    // If there's a saved tab preference and that tab exists, use it
+    const savedTab = localStorage.getItem('activeLeadModalTab');
+    
+    if (savedTab) {
+      const targetTab = document.querySelector(`.modal-tab[data-tab="${savedTab}"]`);
+      if (targetTab) {
+        targetTab.click();
+        return;
+      }
+    }
+    
+    // Default to the first tab
+    const firstTab = document.querySelector('.modal-tab');
+    if (firstTab) {
+      firstTab.click();
+    }
+  }
+  
+  setInitialActiveTab();
+}
+
+/**
+ * Highlight specific tab programmatically
+ * Useful when you want to direct users to a specific tab
+ * @param {string} tabName - Name of tab to activate (e.g., 'finance', 'notes')
+ */
+function activateTab(tabName) {
+  const targetTab = document.querySelector(`.modal-tab[data-tab="${tabName}"]`);
+  if (targetTab) {
+    targetTab.click();
+  }
+}
+
+/**
+ * Handle form validation across tabs
+ * Call this before form submission
+ * @returns {boolean} Whether all required fields across all tabs are valid
+ */
+function validateAllTabs() {
+  // Get all required fields
+  const requiredFields = document.querySelectorAll('#leadForm [required]');
+  let isValid = true;
+  let firstInvalidTab = null;
+  
+  // Check each required field
+  requiredFields.forEach(field => {
+    if (!field.value.trim()) {
+      isValid = false;
+      
+      // Find which tab contains this field
+      const tabContent = field.closest('.tab-content');
+      if (tabContent && !firstInvalidTab) {
+        const tabId = tabContent.id;
+        const tabName = tabId.replace('-tab', '');
+        firstInvalidTab = tabName;
+      }
+      
+      // Add invalid styling
+      field.classList.add('invalid');
+    } else {
+      field.classList.remove('invalid');
+    }
+  });
+  
+  // If validation fails, switch to the first tab with invalid fields
+  if (!isValid && firstInvalidTab) {
+    activateTab(firstInvalidTab);
+  }
+  
+  return isValid;
+}
+
 
 async function deleteLeadAction(leadId) {
   try {
@@ -788,6 +902,7 @@ async function openLeadModal(leadId, allLeads) {
   // Display the modal first so elements are in the DOM
   document.getElementById("leadModal").style.display = "block";
 
+  initializeModalTabs();
   // Then setup the auto-resize for textareas
   // Important: This needs to be after setting the display to "block" to work properly
   const textareas = document.querySelectorAll("#leadModal textarea");
@@ -808,6 +923,8 @@ async function openLeadModal(leadId, allLeads) {
 
   // Initialize any monetary inputs in the modal
   initializeMonetaryInputs();
+  setInitialActiveTab();
+  initializeModalTabs();
 }
 
 /**
@@ -888,4 +1005,7 @@ export {
   openAddLeadModal,
   openLeadModal,
   updateLeadModalDates,
+  initializeModalTabs,
+  activateTab,
+  validateAllTabs
 };
