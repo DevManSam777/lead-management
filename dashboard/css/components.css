@@ -920,3 +920,41 @@ select,
   display: flex;
   align-items: center;
 }
+
+/* Dark Mode Form Metadata Visibility Fix */
+[data-theme="dark"] .form-metadata,
+[data-theme="dark"] .preview-section .form-metadata,
+.dark .form-metadata, 
+.dark-theme .form-metadata {
+    color: rgba(255, 255, 255, 0.75) !important;
+    background-color: transparent !important;
+}
+
+[data-theme="dark"] .form-metadata div,
+[data-theme="dark"] .preview-section .form-metadata div,
+.dark .form-metadata div,
+.dark-theme .form-metadata div {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+[data-theme="dark"] .form-metadata small,
+[data-theme="dark"] .preview-section .form-metadata small,
+.dark .form-metadata small,
+.dark-theme .form-metadata small {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+[data-theme="dark"] .form-metadata hr,
+[data-theme="dark"] .preview-section .form-metadata hr,
+.dark .form-metadata hr,
+.dark-theme .form-metadata hr {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Fix for preview section h4 in dark mode */
+[data-theme="dark"] .preview-section h4,
+.dark-theme .preview-section h4 {
+    color: var(--text-muted) !important;
+    opacity: 1 !important;
+    background-color: transparent;
+}
