@@ -323,12 +323,15 @@ async function sendLeadConfirmationEmail(leadData) {
                   leadData.firstName
                 } ${leadData.lastName}</td>
               </tr>
-              <tr style="background-color: #f8f9fa;">
-                <td style="padding: 12px; width: 30%; color: #7f8c8d !important; font-weight: 600; font-size: 14px; vertical-align: top;">Business:</td>
-                <td style="padding: 12px; color: #2c3e50 !important; font-size: 15px; vertical-align: top;">${
-                  leadData.businessName || "N/A"
-                }</td>
-              </tr>
+              ${`${leadData.firstName} ${leadData.lastName}` === leadData.businessName ? 
+                '' : 
+                `<tr style="background-color: #f8f9fa;">
+                  <td style="padding: 12px; width: 30%; color: #7f8c8d !important; font-weight: 600; font-size: 14px; vertical-align: top;">Business:</td>
+                  <td style="padding: 12px; color: #2c3e50 !important; font-size: 15px; vertical-align: top;">${
+                    leadData.businessName || "N/A"
+                  }</td>
+                </tr>`
+              }
               <tr>
                 <td style="padding: 12px; width: 30%; color: #7f8c8d !important; font-weight: 600; font-size: 14px; vertical-align: top;">Service Requested:</td>
                 <td style="padding: 12px; color: #2c3e50 !important; font-size: 15px; vertical-align: top;">
