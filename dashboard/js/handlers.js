@@ -387,7 +387,7 @@ async function saveLead() {
       document.getElementById("businessServices").value || undefined,
     preferredContact:
       document.getElementById("preferredContact").value || undefined,
-    serviceDesired: document.getElementById("serviceDesired").value,
+    serviceDesired: document.getElementById("serviceDesired").value || undefined,
     hasWebsite: document.getElementById("hasWebsite").value || undefined,
     websiteAddress:
       document.getElementById("websiteAddress").value || undefined,
