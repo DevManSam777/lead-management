@@ -36,7 +36,7 @@ function formatVariableValue(variable, value) {
       // Format service types nicely
       const serviceTypes = {
         "Web Development": "Website Development",
-        "App Development": "Mobile Application Development"
+        "App Development": "Application Development"
       };
       return serviceTypes[value] || value;
       
@@ -333,8 +333,7 @@ exports.generateFormWithLeadData = async (req, res) => {
       // Format with line breaks that preserve markdown formatting
       fullAddress = 
 `${lead.billingAddress.street || ""}${lead.billingAddress.aptUnit ? " #" + lead.billingAddress.aptUnit : ""}
-${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.billingAddress.zipCode || ""}
-${lead.billingAddress.country || ""}`.trim();
+${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.billingAddress.zipCode || ""}, ${lead.billingAddress.country || ""}`.trim();
     }
 
     populatedContent = populatedContent.replace(
