@@ -481,7 +481,8 @@ async function saveLead() {
   }
 }
 
-function initializeModalTabs(forceFirstTab = false) {
+// TRUE causes first tab to be active when modal opens
+function initializeModalTabs(forceFirstTab = true) {
   const tabs = document.querySelectorAll(".modal-tab");
   const tabContents = document.querySelectorAll(".tab-content");
 
