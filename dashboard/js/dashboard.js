@@ -724,66 +724,92 @@ async function fetchLeadsAndRender() {
   }
 }
 
-/**
- * Close the lead modal and reset form
- */
 function closeLeadModal() {
-  document.getElementById("leadModal").style.display = "none";
+  // Check if we're in edit mode
+  const submitButton = document.querySelector('#leadForm button[type="submit"]');
+  const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
 
-  // Reset the form completely
-  document.getElementById("leadForm").reset();
+  // Function to perform standard modal closing operations
+  function performStandardClose() {
+    document.getElementById("leadModal").style.display = "none";
 
-  // Clear hidden fields too
-  document.getElementById("leadId").value = "";
+    // Reset the form completely
+    document.getElementById("leadForm").reset();
 
-  // Reset readonly attributes
-  const formElements = document.querySelectorAll(
-    "#leadForm input, #leadForm select, #leadForm textarea"
-  );
-  formElements.forEach((element) => {
-    element.removeAttribute("readonly");
-    if (element.tagName === "SELECT") {
-      element.removeAttribute("disabled");
-    }
-    element.classList.remove("invalid");
-  });
+    // Clear hidden fields too
+    document.getElementById("leadId").value = "";
 
-  // Clear error messages
-  document.querySelectorAll(".error-message").forEach((el) => {
-    el.style.display = "none";
-  });
-
-  // Clear any payment fields that weren't part of the original form
-  const remainingBalanceField = document.getElementById("remainingBalance");
-  if (remainingBalanceField && remainingBalanceField.parentNode) {
-    remainingBalanceField.value = "";
-  }
-
-  // Show the submit button again
-  const submitButton = document.querySelector(
-    '#leadForm button[type="submit"]'
-  );
-  if (submitButton) {
-    submitButton.style.display = "block";
-  }
-
-  // Remove the modal actions container
-  const modalActions = document.getElementById("modalActions");
-  if (modalActions) {
-    modalActions.remove();
-  }
-
-  const addFormBtn = document.getElementById("addFormBtn");
-  if (addFormBtn) {
-    addFormBtn.addEventListener("click", function () {
-      const leadId = document.getElementById("leadId").value;
-      if (leadId) {
-        // Open form template modal for this lead
-        window.openFormTemplateModal(leadId);
-      } else {
-        Utils.showToast("Please save the lead first before creating forms");
+    // Reset readonly attributes
+    const formElements = document.querySelectorAll(
+      "#leadForm input, #leadForm select, #leadForm textarea"
+    );
+    formElements.forEach((element) => {
+      element.removeAttribute("readonly");
+      if (element.tagName === "SELECT") {
+        element.removeAttribute("disabled");
       }
+      element.classList.remove("invalid");
     });
+
+    // Clear error messages
+    document.querySelectorAll(".error-message").forEach((el) => {
+      el.style.display = "none";
+    });
+
+    // Clear any payment fields that weren't part of the original form
+    const remainingBalanceField = document.getElementById("remainingBalance");
+    if (remainingBalanceField && remainingBalanceField.parentNode) {
+      remainingBalanceField.value = "";
+    }
+
+    // Show the submit button again
+    const submitButton = document.querySelector(
+      '#leadForm button[type="submit"]'
+    );
+    if (submitButton) {
+      submitButton.style.display = "block";
+    }
+
+    // Remove the modal actions container
+    const modalActions = document.getElementById("modalActions");
+    if (modalActions) {
+      modalActions.remove();
+    }
+
+    const addFormBtn = document.getElementById("addFormBtn");
+    if (addFormBtn) {
+      addFormBtn.addEventListener("click", function () {
+        const leadId = document.getElementById("leadId").value;
+        if (leadId) {
+          // Open form template modal for this lead
+          window.openFormTemplateModal(leadId);
+        } else {
+          Utils.showToast("Please save the lead first before creating forms");
+        }
+      });
+    }
+  }
+
+  // If in edit mode, attempt to save before closing
+  if (isEditMode) {
+    // Create a mock event for save function
+    const mockEvent = new Event('submit');
+    mockEvent.preventDefault = () => {};
+
+    // Call save lead function and handle the promise
+    Handlers.validateAndSaveLead(mockEvent)
+      .then(() => {
+        // Close modal after successful save
+        performStandardClose();
+      })
+      .catch((error) => {
+        console.error("Error saving lead:", error);
+        // Still close the modal even if save fails
+        performStandardClose();
+      });
+  } else {
+    // If not in edit mode, just close normally
+    performStandardClose();
   }
 }
 
