@@ -65,7 +65,7 @@ const leadSchema = new mongoose.Schema({
   serviceDesired: {
     type: String,
     enum: ["Web Development", "App Development"],
-    default: "Web Development",
+    // default: "Web Development",
   },
   hasWebsite: {
     type: String,

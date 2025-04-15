@@ -147,11 +147,16 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: all 0.3s ease-in-out;
 }
 
 .btn-icon:hover {
   background-color: var(--primary);
+  color: white;
+}
+
+.btn-icon:last-of-type:hover {
+  background-color: var(--danger);
   color: white;
 }
 
