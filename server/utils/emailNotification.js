@@ -297,7 +297,7 @@ async function sendLeadConfirmationEmail(leadData) {
           
           <div style="background-color: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             <!-- Greeting Section with colored left border -->
-            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #3498db;">
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #3498db; border-radius: 6px;">
               <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Hello, ${
                 leadData.firstName
               }!</h3>
@@ -311,7 +311,7 @@ async function sendLeadConfirmationEmail(leadData) {
             </p>
             
             <!-- Confirmation Section with colored left border -->
-            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #4ecdc4;">
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #4ecdc4; border-radius: 6px;">
               <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Your Request Details</h3>
               <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px;">Summary of your submission</p>
             </div>
@@ -323,9 +323,11 @@ async function sendLeadConfirmationEmail(leadData) {
                   leadData.firstName
                 } ${leadData.lastName}</td>
               </tr>
-              ${`${leadData.firstName} ${leadData.lastName}` === leadData.businessName ? 
-                '' : 
-                `<tr style="background-color: #f8f9fa;">
+              ${
+                `${leadData.firstName} ${leadData.lastName}` ===
+                leadData.businessName
+                  ? ""
+                  : `<tr style="background-color: #f8f9fa;">
                   <td style="padding: 12px; width: 30%; color: #7f8c8d !important; font-weight: 600; font-size: 14px; vertical-align: top;">Business:</td>
                   <td style="padding: 12px; color: #2c3e50 !important; font-size: 15px; vertical-align: top;">${
                     leadData.businessName || "N/A"
@@ -349,42 +351,73 @@ async function sendLeadConfirmationEmail(leadData) {
                 </td>
               </tr>
             </table>
-            
-            <!-- Next Steps Section with colored left border -->
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
-              <div style="display: flex; margin-bottom: 15px; align-items: center;">
-                <div style="width: 30px; height: 30px; background-color: #3498db; color: white !important; border-radius: 50%; margin-right: 15px; text-align: center; font-weight: bold; font-size: 14px; line-height: 30px; text-decoration: none !important;">1</div>
-                <div>
-                  <h4 style="margin: 0; color: #2c3e50 !important; font-size: 16px; text-decoration: none !important;">Review</h4>
-                  <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px; text-decoration: none !important;">Our team will carefully review your inquiry details</p>
-                </div>
-              </div>
-                
-              <div style="display: flex; margin-bottom: 15px; align-items: center;">
-                <div style="width: 30px; height: 30px; background-color: #3498db; color: white !important; border-radius: 50%; margin-right: 15px; text-align: center; font-weight: bold; font-size: 14px; line-height: 30px; text-decoration: none !important;">2</div>
-                <div>
-                  <h4 style="margin: 0; color: #2c3e50 !important; font-size: 16px; text-decoration: none !important;">Contact</h4>
-                  <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px; text-decoration: none !important;">We'll reach out via your preferred contact method within 1-2 business days</p>
-                </div>
-              </div>
-                
-              <div style="display: flex; align-items: center;">
-                <div style="width: 30px; height: 30px; background-color: #3498db; color: white !important; border-radius: 50%; margin-right: 15px; text-align: center; font-weight: bold; font-size: 14px; line-height: 30px; text-decoration: none !important;">3</div>
-                <div>
-                  <h4 style="margin: 0; color: #2c3e50 !important; font-size: 16px; text-decoration: none !important;">Consultation</h4>
-                  <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px; text-decoration: none !important;">Schedule your free consultation to discuss your needs in detail</p>
-                </div>
-              </div>
-            </div>
-            
-            <!-- CTA Section -->
-            <div style="background-color: #e8f4f8; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px; border-left: 5px solid #3498db;">
-              <h3 style="margin: 0 0 10px; color: #2c3e50 !important; font-size: 18px; text-decoration: none !important;">Ready to get started sooner?</h3>
-              <p style="margin: 0 0 15px; color: #7f8c8d !important; font-size: 14px;">Skip the wait and schedule your consultation now</p>
-              <a href="https://cal.com/devmansam/consultation" style="display: inline-block; background-color: #3498db; color: white !important; padding: 12px 24px; border-radius: 4px; text-decoration: none !important; font-weight: 600; font-size: 16px;">Schedule Consultation</a>
-            </div>
+          <!-- Next Steps Section with no left border -->
+          <div style="background-color: #f9f9f9; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+            <!-- Item 1 -->
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 15px;">
+              <tr>
+                <td width="40" valign="top">
+                  <table cellpadding="0" cellspacing="0" border="0" width="30" height="30" style="border-radius: 50%; background-color: #3498db;">
+                    <tr>
+                      <td align="center" valign="middle" style="color: white; font-weight: bold; font-size: 16px;">
+                        1
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td valign="top" style="padding-left: 10px;">
+                  <h4 style="margin: 0; padding: 0; color: #2c3e50; font-size: 16px;">Review</h4>
+                  <p style="margin: 5px 0 0; padding: 0; color: #7f8c8d; font-size: 14px;">Our team will carefully review your inquiry details</p>
+                </td>
+              </tr>
+            </table>
+              
+            <!-- Item 2 -->
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 15px;">
+              <tr>
+                <td width="40" valign="top">
+                  <table cellpadding="0" cellspacing="0" border="0" width="30" height="30" style="border-radius: 50%; background-color: #3498db;">
+                    <tr>
+                      <td align="center" valign="middle" style="color: white; font-weight: bold; font-size: 16px;">
+                        2
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td valign="top" style="padding-left: 10px;">
+                  <h4 style="margin: 0; padding: 0; color: #2c3e50; font-size: 16px;">Contact</h4>
+                  <p style="margin: 5px 0 0; padding: 0; color: #7f8c8d; font-size: 14px;">We'll reach out via your preferred contact method within 1-2 business days</p>
+                </td>
+              </tr>
+            </table>
+              
+            <!-- Item 3 -->
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td width="40" valign="top">
+                  <table cellpadding="0" cellspacing="0" border="0" width="30" height="30" style="border-radius: 50%; background-color: #3498db;">
+                    <tr>
+                      <td align="center" valign="middle" style="color: white; font-weight: bold; font-size: 16px;">
+                        3
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td valign="top" style="padding-left: 10px;">
+                  <h4 style="margin: 0; padding: 0; color: #2c3e50; font-size: 16px;">Consultation</h4>
+                  <p style="margin: 5px 0 0; padding: 0; color: #7f8c8d; font-size: 14px;">Schedule your free consultation to discuss your needs in detail</p>
+                </td>
+              </tr>
+            </table>
           </div>
-          
+              
+          <!-- CTA Section with dark blue left border -->
+          <div style="background-color: #e8f4f8; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px; border-left: 5px solid #3498db;">
+            <h3 style="margin: 0 0 10px; color: #2c3e50 !important; font-size: 18px; text-decoration: none !important;">Ready to get started sooner?</h3>
+            <p style="margin: 0 0 15px; color: #7f8c8d !important; font-size: 14px;">Skip the wait and schedule your consultation now</p>
+            <a href="https://cal.com/devmansam/consultation" style="display: inline-block; background-color: #3498db; color: white !important; padding: 12px 24px; border-radius: 4px; text-decoration: none !important; font-weight: 600; font-size: 16px;">Schedule Consultation</a>
+          </div>
+                   
           <!-- Support Section with colored left border -->
           <div style="margin-top: 25px; padding-left: 15px; border-left: 5px solid #4ecdc4; background-color: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Questions?</h3>
