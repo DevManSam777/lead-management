@@ -239,7 +239,7 @@
     <!-- Lead Modal - Consolidated version -->
     <div id="leadModal" class="modal">
       <div class="modal-content">
-        <span class="close-modal" id="closeModal">&times;</span>
+        <span class="close-modal" id="closeModal" title="Close">&times;</span>
         <div class="modal-header">
           <h3 id="modalTitle">Client Info</h3>
         </div>
@@ -249,31 +249,31 @@
 
         <!-- Modal Tabs -->
         <div class="modal-tabs">
-          <button class="modal-tab active" data-tab="basic">
+          <button class="modal-tab active" data-tab="personal" title="Personal">
             <i class="fas fa-user"></i>
             <span>Personal</span>
           </button>
-          <button class="modal-tab" data-tab="business">
+          <button class="modal-tab" data-tab="business" title="Business">
             <i class="fa-regular fa-building"></i>
             <span>Business</span>
           </button>
-          <button class="modal-tab" data-tab="billing">
+          <button class="modal-tab" data-tab="address" title="Address">
             <i class="fa-solid fa-house"></i>
             <span>Address</span>
           </button>
-          <button class="modal-tab" data-tab="service">
+          <button class="modal-tab" data-tab="service" title="Service">
             <i class="fa-solid fa-laptop"></i>
             <span>Service</span>
           </button>
-          <button class="modal-tab" data-tab="finance">
+          <button class="modal-tab" data-tab="payments" title="Payments">
             <i class="fa-solid fa-money-bill-wave"></i>
             <span>Payments</span>
           </button>
-          <button class="modal-tab" data-tab="forms">
+          <button class="modal-tab" data-tab="forms" title="Forms">
             <i class="fas fa-file-alt"></i>
             <span>Forms</span>
           </button>
-          <button class="modal-tab" data-tab="notes">
+          <button class="modal-tab" data-tab="notes" title="Notes">
             <i class="fas fa-sticky-note"></i>
             <span>Notes</span>
           </button>
@@ -281,8 +281,8 @@
 
         <form id="leadForm">
           <input type="hidden" id="leadId" />
-          <!-- Basic Info Tab -->
-          <div class="tab-content active" id="basic-tab">
+          <!-- Personal Info Tab -->
+          <div class="tab-content active" id="personal-tab">
             <!-- Personal Information Section -->
             <div class="form-section">
               <h4>Personal Information</h4>
@@ -352,8 +352,8 @@
             </div>
           </div>
 
-          <!-- Billing Tab -->
-          <div class="tab-content" id="billing-tab">
+          <!-- Address Tab -->
+          <div class="tab-content" id="address-tab">
             <div class="form-section">
               <h4>Billing Address</h4>
               <div class="form-group">
@@ -448,8 +448,8 @@
             </div>
           </div>
 
-          <!-- Finance Tab -->
-          <div class="tab-content" id="finance-tab">
+          <!-- Payments Tab -->
+          <div class="tab-content" id="payments-tab">
             <div class="form-section">
               <h4>Payment Information</h4>
               <div class="form-group">
