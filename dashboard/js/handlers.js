@@ -387,7 +387,8 @@ async function saveLead() {
       document.getElementById("businessServices").value || undefined,
     preferredContact:
       document.getElementById("preferredContact").value || undefined,
-    serviceDesired: document.getElementById("serviceDesired").value || undefined,
+    serviceDesired:
+      document.getElementById("serviceDesired").value || undefined,
     hasWebsite: document.getElementById("hasWebsite").value || undefined,
     websiteAddress:
       document.getElementById("websiteAddress").value || undefined,
@@ -744,8 +745,7 @@ async function openLeadModal(leadId, allLeads) {
     billingAddress.country || "";
   document.getElementById("preferredContact").value =
     lead.preferredContact || "";
-  document.getElementById("serviceDesired").value =
-    lead.serviceDesired || "website";
+  document.getElementById("serviceDesired").value = lead.serviceDesired || "";
   document.getElementById("hasWebsite").value = lead.hasWebsite || "";
   document.getElementById("websiteAddress").value = lead.websiteAddress || "";
   document.getElementById("message").value = lead.message || "";
@@ -864,10 +864,10 @@ async function openLeadModal(leadId, allLeads) {
     addPaymentBtn.style.display = "none";
   }
 
-  // Show the Add Form button
+  // // Show the Add Form button
   const addFormBtn = document.getElementById("addFormBtn");
   if (addFormBtn) {
-    addFormBtn.style.display = "block";
+    addFormBtn.style.display = "none";
   }
 
   // First, check if the action buttons container exists and remove it
