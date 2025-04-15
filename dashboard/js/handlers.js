@@ -978,7 +978,6 @@ function updateLeadModalDates(lead) {
   }
 }
 
-// Add this function to your handlers.js file
 function refreshTextareaHeights() {
   const textareas = document.querySelectorAll("#leadModal textarea");
 
