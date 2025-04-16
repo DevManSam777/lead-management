@@ -109,7 +109,7 @@ async function sendLeadNotificationEmail(leadData) {
           
           <div style="background-color: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             <!-- Client Information Section with colored left border -->
-            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #ff6b6b;">
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #ff6b6b; border-radius: 6px";>
               <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Client Information</h3>
               <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px;">Contact details for follow-up</p>
             </div>
@@ -146,7 +146,7 @@ async function sendLeadNotificationEmail(leadData) {
             </table>
             
             <!-- Business Information Section with colored left border -->
-            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #4ecdc4;">
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #4ecdc4; border-radius: 6px";">
               <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Business Information</h3>
               <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px;">Business details provided</p>
             </div>
@@ -183,7 +183,7 @@ async function sendLeadNotificationEmail(leadData) {
             </table>
             
             <!-- Inquiry Details Section with colored left border -->
-            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #ffbe0b;">
+            <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #ffbe0b; border-radius: 6px";">
               <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Inquiry Details</h3>
               <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px;">Service request information</p>
             </div>
