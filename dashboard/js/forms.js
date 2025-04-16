@@ -38,6 +38,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     xhtml: true, // Self-close HTML tags
     headerIds: false, // Don't add IDs to headers
   });
+
+  const templateFilter = document.getElementById("filterTemplate");
+  if (templateFilter) {
+    templateFilter.value = "template";
+  }
 });
 
 /**
@@ -433,15 +438,18 @@ async function fetchAndRenderForms() {
     // Create a container for all categories
     const allCategoriesContainer = document.createElement("div");
 
-    // Initialize pagination for each category
+    // Initialize pagination for each category with custom page sizes
+    const categoryPageSizes = {
+      'drafts': 3,  // Sets number of drafts per category
+      'templates': 2  // Sets number of templates per category
+    };
+
+    // Ensure pagination is initialized for each category
     Object.keys(groupedForms).forEach((category) => {
       if (!categoryPagination[category]) {
         categoryPagination[category] = { currentPage: 1 };
       }
     });
-
-    // Reduced page size for testing - makes pagination show up with fewer items
-    const pageSize = 3; // Show only 3 items per category
 
     // Process each category
     Object.entries(groupedForms).forEach(([category, forms]) => {
@@ -468,11 +476,14 @@ async function fetchAndRenderForms() {
         case "agreement":
           icon = "fa-handshake";
           break;
+        case "drafts":
+          icon = "fa-file-alt";
+          break;
       }
 
       // Format category name
       const categoryName =
-        category.charAt(0).toUpperCase() + category.slice(1) + "s";
+        category.charAt(0).toUpperCase() + category.slice(1);
 
       header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
       categoryDiv.appendChild(header);
@@ -481,6 +492,13 @@ async function fetchAndRenderForms() {
       const cardsDiv = document.createElement("div");
       cardsDiv.className = "template-cards";
       cardsDiv.style.display = "grid"; // Force grid display
+
+      // Determine page size for this category
+      // Check if the template filter is set to 'draft'
+      const isDraftsCategory = templateFilter === 'draft';
+      const pageSize = isDraftsCategory 
+        ? categoryPageSizes['drafts'] 
+        : categoryPageSizes['templates'];
 
       // Set up pagination for this category
       const totalItems = forms.length;
@@ -500,7 +518,7 @@ async function fetchAndRenderForms() {
       const paginatedForms = forms.slice(startIndex, endIndex);
 
       console.log(
-        `Category ${category}: ${forms.length} forms, ${totalPages} pages, current page: ${categoryPagination[category].currentPage}`
+        `Category ${category}: ${forms.length} forms, ${totalPages} pages, current page size: ${pageSize}, current page: ${categoryPagination[category].currentPage}`
       );
       console.log(`Showing items ${startIndex} to ${endIndex}`);
 
@@ -513,70 +531,79 @@ async function fetchAndRenderForms() {
 
       categoryDiv.appendChild(cardsDiv);
 
-      // ALWAYS show pagination controls for testing
-      const paginationContainer = document.createElement("div");
-      paginationContainer.className = "pagination";
-      paginationContainer.style.margin = "0 0 1rem";
-      // Add a bright border for visibility during testing
-      paginationContainer.style.padding = "0 1rem 1rem";
+      // Only show pagination if total forms exceed page size
+      if (totalItems > pageSize) {
+        const paginationContainer = document.createElement("div");
+        paginationContainer.className = "pagination";
+        paginationContainer.style.margin = "0 0 1rem";
 
-      // Previous button
-      const prevButton = document.createElement("button");
-      prevButton.className = "pagination-button";
-      prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-      prevButton.disabled = categoryPagination[category].currentPage === 1;
-      prevButton.addEventListener("click", () => {
-        if (categoryPagination[category].currentPage > 1) {
-          categoryPagination[category].currentPage--;
-          fetchAndRenderForms();
-        }
-      });
-      paginationContainer.appendChild(prevButton);
-
-      // Page indicators
-      for (let i = 1; i <= Math.max(totalPages, 1); i++) {
-        const pageButton = document.createElement("button");
-        pageButton.className = "pagination-button";
-        if (i === categoryPagination[category].currentPage) {
-          pageButton.classList.add("active");
-        }
-        pageButton.textContent = i;
-        pageButton.addEventListener("click", () => {
-          categoryPagination[category].currentPage = i;
-          fetchAndRenderForms();
+        // Previous button
+        const prevButton = document.createElement("button");
+        prevButton.className = "pagination-button";
+        prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevButton.disabled = categoryPagination[category].currentPage === 1;
+        prevButton.addEventListener("click", () => {
+          if (categoryPagination[category].currentPage > 1) {
+            categoryPagination[category].currentPage--;
+            fetchAndRenderForms();
+          }
         });
-        paginationContainer.appendChild(pageButton);
-      }
+        paginationContainer.appendChild(prevButton);
 
-      // Next button
-      const nextButton = document.createElement("button");
-      nextButton.className = "pagination-button";
-      nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-      nextButton.disabled =
-        categoryPagination[category].currentPage === totalPages ||
-        totalPages === 0;
-      nextButton.addEventListener("click", () => {
-        if (categoryPagination[category].currentPage < totalPages) {
-          categoryPagination[category].currentPage++;
-          fetchAndRenderForms();
+        // Page indicators
+        for (let i = 1; i <= Math.max(totalPages, 1); i++) {
+          const pageButton = document.createElement("button");
+          pageButton.className = "pagination-button";
+          if (i === categoryPagination[category].currentPage) {
+            pageButton.classList.add("active");
+          }
+          pageButton.textContent = i;
+          pageButton.addEventListener("click", () => {
+            categoryPagination[category].currentPage = i;
+            fetchAndRenderForms();
+          });
+          paginationContainer.appendChild(pageButton);
         }
-      });
-      paginationContainer.appendChild(nextButton);
 
-      const pageInfo = document.createElement("div");
-      pageInfo.className = "pagination-info";
+        // Next button
+        const nextButton = document.createElement("button");
+        nextButton.className = "pagination-button";
+        nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextButton.disabled =
+          categoryPagination[category].currentPage === totalPages ||
+          totalPages === 0;
+        nextButton.addEventListener("click", () => {
+          if (categoryPagination[category].currentPage < totalPages) {
+            categoryPagination[category].currentPage++;
+            fetchAndRenderForms();
+          }
+        });
+        paginationContainer.appendChild(nextButton);
 
-      // Calculate the item range
-      const firstItemNumber = startIndex + 1;
-      const lastItemNumber = Math.min(endIndex, totalItems);
+        const pageInfo = document.createElement("div");
+        pageInfo.className = "pagination-info";
 
-      // Display item range 
-      pageInfo.textContent = `Showing ${firstItemNumber}-${lastItemNumber} of ${totalItems} forms`;
-      paginationContainer.appendChild(pageInfo);
+        // Calculate the item range
+        const firstItemNumber = startIndex + 1;
+        const lastItemNumber = Math.min(endIndex, totalItems);
 
-      categoryDiv.appendChild(paginationContainer);
+        // Display item range 
+        pageInfo.textContent = `Showing ${firstItemNumber}-${lastItemNumber} of ${totalItems} forms`;
+        paginationContainer.appendChild(pageInfo);
 
-      console.log("Pagination container added:", paginationContainer);
+        categoryDiv.appendChild(paginationContainer);
+
+        console.log("Pagination container added:", paginationContainer);
+      } else {
+        // If fewer forms than page size, center the item count with padding
+        const pageInfo = document.createElement("div");
+        pageInfo.className = "pagination-info";
+        pageInfo.style.textAlign = "center";
+        pageInfo.style.padding = "1rem";
+        pageInfo.style.color = "var(--text-muted)";
+        pageInfo.textContent = `Showing ${totalItems} of ${totalItems} forms`;
+        categoryDiv.appendChild(pageInfo);
+      }
 
       allCategoriesContainer.appendChild(categoryDiv);
     });
