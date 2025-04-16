@@ -38,11 +38,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     xhtml: true, // Self-close HTML tags
     headerIds: false, // Don't add IDs to headers
   });
-
-  const templateFilter = document.getElementById("filterTemplate");
-  if (templateFilter) {
-    templateFilter.value = "template";
-  }
 });
 
 /**
@@ -746,7 +741,7 @@ function openCreateFormModal() {
   document.getElementById("formTitle").value = "";
   document.getElementById("formDescription").value = "";
   document.getElementById("formCategory").value = "contract";
-  document.getElementById("isTemplate").value = "false";
+  document.getElementById("isTemplate").value = "true";
 
   // Clear editor content properly and update preview
   if (editor) {
