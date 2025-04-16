@@ -636,13 +636,13 @@ details[open] .stats-cards {
   background-color: var(--card-background);
   border-radius: 0 0 0.5rem 0.5rem;
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  transition: max-height var(--transition-speed) ease, border var(--transition-speed) ease;
+  z-index: 1;
+  transition: max-height 0.5s ease;
   border: 0;
 }
 
 .tabs-dropdown-menu.open {
-  max-height: 30rem;
+  max-height: 32rem;
   border: 0.1rem solid var(--border-color);
   border-top: none;
 }
@@ -653,7 +653,7 @@ details[open] .stats-cards {
   padding: 1.2rem 1.5rem;
   cursor: pointer;
   border-bottom: 0.1rem solid var(--border-color);
-  transition: background-color 0.2s ease;
+  transition: all var(--transition-speed) ease-in-out;
   color: var(--text-muted)
 }
 
