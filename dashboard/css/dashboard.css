@@ -48,7 +48,7 @@ details summary::before {
   content: "▶";
   display: inline-block;
   margin-right: 0.8rem;
-  transition: transform 0.3s;
+  transition: transform var(--transition-speed);
   font-size: 1.2rem;
   color: var(--primary);
 }
@@ -473,7 +473,7 @@ details[open] .stats-cards {
 
 #addFormBtn:hover,
 #addPaymentBtn:hover {
-  transition: all 0.3s ease-in-out;
+  transition: all var(--transition-speed) ease-in-out;
   opacity: 1;
   color: rgba(255, 255, 255, 1);
 }
@@ -619,7 +619,7 @@ details[open] .stats-cards {
 }
 
 .tabs-dropdown-button i.fa-chevron-down {
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-speed) ease;
 }
 
 .tabs-dropdown-button.open i.fa-chevron-down {
@@ -637,7 +637,7 @@ details[open] .stats-cards {
   border-radius: 0 0 0.5rem 0.5rem;
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
   z-index: 100;
-  transition: max-height 0.3s ease, border 0.3s ease;
+  transition: max-height var(--transition-speed) ease, border var(--transition-speed) ease;
   border: 0;
 }
 
@@ -821,7 +821,7 @@ details[open] .stats-cards {
     background-color: var(--primary);
     color: white;
     top: 1rem;
-    transition: left 0.3s;
+    transition: left var(--transition-speed);
   }
 
   /* Position when sidebar is visible */
