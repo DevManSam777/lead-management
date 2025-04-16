@@ -645,6 +645,7 @@ details[open] .stats-cards {
   max-height: 32rem;
   border: 0.1rem solid var(--border-color);
   border-top: none;
+  box-shadow: 5px 5px 12px rgba(35, 35, 35, 0.7);
 }
 
 .dropdown-tab-item {
