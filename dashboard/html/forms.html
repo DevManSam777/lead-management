@@ -122,10 +122,10 @@
               <option value="agreement">Agreements</option>
               <option value="other">Other</option>
             </select>
+            <!-- Updated filter with template/draft options -->
             <select id="filterTemplate">
-              <option value="true" selected>Templates</option>
-              <option value="false">Generated Customer Forms</option>
-              <!-- <option value="">All Forms</option> -->
+              <option value="template" selected>Templates</option>
+              <option value="draft">Drafts</option>
             </select>
             <button id="addFormBtnFormsPage" class="btn btn-primary">
               <i class="fas fa-plus"></i> Create New Form
@@ -141,9 +141,6 @@
               <i class="fas fa-spinner fa-spin"></i> Loading forms...
             </div>
           </div>
-
-          <!-- Pagination -->
-          <div id="paginationContainer" class="pagination"></div>
         </div>
       </main>
     </div>
@@ -191,10 +188,10 @@
             </div>
 
             <div class="form-group">
-              <label for="isTemplate">Template?</label>
+              <label for="isTemplate">Save as</label>
               <select id="isTemplate">
-                <option value="false">No</option>
-                <option value="true">Yes</option>
+                <option value="false">Draft</option>
+                <option value="true">Template</option>
               </select>
             </div>
           </div>
@@ -251,7 +248,7 @@
                   <span class="variable-tag" data-variable="billedAmount"
                     >Billed Amount</span
                   >
-                  <!-- New financial variables -->
+                  <!-- Financial variables -->
                   <span class="variable-tag" data-variable="paidAmount"
                     >Paid Amount</span
                   >
@@ -272,7 +269,6 @@
             </div>
           </div>
 
-          <!-- <div class="form-actions"> -->
           <div class="modal-actions">
             <button type="button" id="cancelFormBtn" class="btn btn-outline">
               Cancel
@@ -284,38 +280,6 @@
     </div>
 
     <!-- Form Preview Modal -->
-    <!-- <div id="formPreviewModal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal" id="closeFormPreviewModal">&times;</span>
-        <div class="modal-header">
-          <h3 id="previewFormTitle">Form Preview</h3>
-        </div>
-
-        <div class="preview-container">
-          <div class="markdown-content" id="previewContent"></div>
-        </div>
-
-        <div class="modal-actions">
-          <div>
-            <button type="button" id="editFormBtn" class="btn btn-outline">
-              <i class="fas fa-edit"></i> Edit
-            </button>
-            <button type="button" id="useWithLeadBtn" class="btn btn-outline">
-              <i class="fas fa-user"></i> Use Customer Data
-            </button>
-          </div>
-          <div>
-            <button type="button" id="downloadFormBtn" class="btn btn-primary">
-              <i class="fas fa-download"></i> Download .md
-            </button>
-            <button type="button" id="printFormBtn" class="btn btn-primary">
-              <i class="fas fa-print"></i> Print PDF
-            </button>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
     <div id="formPreviewModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeFormPreviewModal">&times;</span>
@@ -407,6 +371,7 @@
     <!-- Load scripts in sequence -->
     <script type="module" src="../js/utils.js"></script>
     <script type="module" src="../js/api.js"></script>
+    <script type="module" src="../js/pagination.js"></script>
     <script type="module" src="../js/forms.js"></script>
   </body>
 </html>

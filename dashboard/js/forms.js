@@ -1,11 +1,17 @@
 import * as API from "./api.js";
 import * as Utils from "./utils.js";
+import * as Pagination from "./pagination.js"; // Import pagination module
 
 // Global variables
 let allForms = [];
 let editor;
 let currentFormId = null;
 let globalSettings = {}; // Store global settings
+
+// Pagination state
+let currentPage = 1;
+let pageSize = 6; // Show 6 items per category
+let categoryPagination = {}; // Track pagination for each category
 
 // Initialize everything when the document is ready
 document.addEventListener("DOMContentLoaded", async function () {
@@ -153,12 +159,6 @@ function setupSidebarToggle() {
       sidebar.classList.contains("collapsed")
     );
   });
-
-  // Restore transitions
-  setTimeout(() => {
-    sidebar.style.transition = originalSidebarTransition;
-    mainContent.style.transition = originalMainContentTransition;
-  }, 50);
 }
 
 /**
@@ -385,41 +385,32 @@ async function fetchAndRenderForms() {
 
     // Get filter values
     const categoryFilter = document.getElementById("filterCategory").value;
-    const isTemplate = document.getElementById("filterTemplate").value;
+    const templateFilter = document.getElementById("filterTemplate").value;
     const searchTerm = document.getElementById("searchInput").value;
 
     // Build query parameters
-    let queryParams = new URLSearchParams();
-    if (categoryFilter) queryParams.append("category", categoryFilter);
-    if (isTemplate) queryParams.append("isTemplate", isTemplate);
+    let queryParams = {};
+    if (categoryFilter) queryParams.category = categoryFilter;
+
+    // Use the new templateType parameter
+    queryParams.templateType = templateFilter;
 
     // If search term exists, use search endpoint instead
-    let apiUrl = `${API.getBaseUrl()}/api/forms`;
     if (searchTerm) {
-      apiUrl = `${API.getBaseUrl()}/api/forms/search`;
-      queryParams.append("query", searchTerm);
+      // Pass the templateType to search as well
+      allForms = await API.searchForms(searchTerm, queryParams);
+    } else {
+      // Fetch forms with filters
+      allForms = await API.fetchForms(queryParams);
     }
 
-    // Add query parameters to URL
-    if (queryParams.toString()) {
-      apiUrl += `?${queryParams.toString()}`;
-    }
-
-    // Fetch forms
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch forms");
-    }
-
-    allForms = await response.json();
     console.log(`Fetched ${allForms.length} forms`);
 
     // Handle empty state
     if (allForms.length === 0) {
       formsList.innerHTML = `
-        <div class="empty-state" style="text-align: center; padding: 3rem; color: var(--text-muted);">
-          <i class="fas fa-file-alt" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+        <div class="empty-state">
+          <i class="fas fa-file-alt"></i>
           <h3>No forms found</h3>
           <p>Create your first form by clicking the "Create New Form" button.</p>
         </div>
@@ -441,6 +432,16 @@ async function fetchAndRenderForms() {
 
     // Create a container for all categories
     const allCategoriesContainer = document.createElement("div");
+
+    // Initialize pagination for each category
+    Object.keys(groupedForms).forEach((category) => {
+      if (!categoryPagination[category]) {
+        categoryPagination[category] = { currentPage: 1 };
+      }
+    });
+
+    // Reduced page size for testing - makes pagination show up with fewer items
+    const pageSize = 3; // Show only 3 items per category
 
     // Process each category
     Object.entries(groupedForms).forEach(([category, forms]) => {
@@ -481,14 +482,102 @@ async function fetchAndRenderForms() {
       cardsDiv.className = "template-cards";
       cardsDiv.style.display = "grid"; // Force grid display
 
-      // Add form cards
-      forms.forEach((form) => {
+      // Set up pagination for this category
+      const totalItems = forms.length;
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const currentPageForCategory =
+        categoryPagination[category].currentPage || 1;
+
+      // Make sure current page is valid
+      if (currentPageForCategory > totalPages) {
+        categoryPagination[category].currentPage = 1;
+      }
+
+      // Get items for current page
+      const startIndex =
+        (categoryPagination[category].currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, totalItems);
+      const paginatedForms = forms.slice(startIndex, endIndex);
+
+      console.log(
+        `Category ${category}: ${forms.length} forms, ${totalPages} pages, current page: ${categoryPagination[category].currentPage}`
+      );
+      console.log(`Showing items ${startIndex} to ${endIndex}`);
+
+      // Add form cards for current page
+      paginatedForms.forEach((form) => {
         const card = createFormCard(form);
         card.style.display = "flex"; // Force display
         cardsDiv.appendChild(card);
       });
 
       categoryDiv.appendChild(cardsDiv);
+
+      // ALWAYS show pagination controls for testing
+      const paginationContainer = document.createElement("div");
+      paginationContainer.className = "pagination";
+      paginationContainer.style.margin = "0 0 1rem";
+      // Add a bright border for visibility during testing
+      paginationContainer.style.padding = "0 1rem 1rem";
+
+      // Previous button
+      const prevButton = document.createElement("button");
+      prevButton.className = "pagination-button";
+      prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevButton.disabled = categoryPagination[category].currentPage === 1;
+      prevButton.addEventListener("click", () => {
+        if (categoryPagination[category].currentPage > 1) {
+          categoryPagination[category].currentPage--;
+          fetchAndRenderForms();
+        }
+      });
+      paginationContainer.appendChild(prevButton);
+
+      // Page indicators
+      for (let i = 1; i <= Math.max(totalPages, 1); i++) {
+        const pageButton = document.createElement("button");
+        pageButton.className = "pagination-button";
+        if (i === categoryPagination[category].currentPage) {
+          pageButton.classList.add("active");
+        }
+        pageButton.textContent = i;
+        pageButton.addEventListener("click", () => {
+          categoryPagination[category].currentPage = i;
+          fetchAndRenderForms();
+        });
+        paginationContainer.appendChild(pageButton);
+      }
+
+      // Next button
+      const nextButton = document.createElement("button");
+      nextButton.className = "pagination-button";
+      nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextButton.disabled =
+        categoryPagination[category].currentPage === totalPages ||
+        totalPages === 0;
+      nextButton.addEventListener("click", () => {
+        if (categoryPagination[category].currentPage < totalPages) {
+          categoryPagination[category].currentPage++;
+          fetchAndRenderForms();
+        }
+      });
+      paginationContainer.appendChild(nextButton);
+
+      const pageInfo = document.createElement("div");
+      pageInfo.className = "pagination-info";
+
+      // Calculate the item range
+      const firstItemNumber = startIndex + 1;
+      const lastItemNumber = Math.min(endIndex, totalItems);
+
+      // Display item range 
+      pageInfo.textContent = `Showing ${firstItemNumber}-${lastItemNumber} of ${totalItems} forms`;
+      paginationContainer.appendChild(pageInfo);
+
+      categoryDiv.appendChild(paginationContainer);
+
+      console.log("Pagination container added:", paginationContainer);
+
       allCategoriesContainer.appendChild(categoryDiv);
     });
 
@@ -504,8 +593,8 @@ async function fetchAndRenderForms() {
     console.error("Error fetching forms:", error);
     const formsList = document.getElementById("formsList");
     formsList.innerHTML = `
-      <div class="error-state" style="text-align: center; padding: 3rem; color: var(--danger);">
-        <i class="fas fa-exclamation-circle" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+      <div class="error-state">
+        <i class="fas fa-exclamation-circle"></i>
         <h3>Error Loading Forms</h3>
         <p>${error.message}</p>
         <button class="btn btn-primary" onclick="fetchAndRenderForms()">Try Again</button>
@@ -514,13 +603,13 @@ async function fetchAndRenderForms() {
   }
 }
 
-// Updated createFormCard function in dashboard/js/forms.js
+// Updated createFormCard function
 function createFormCard(form) {
   const card = document.createElement("div");
   card.className = "template-card";
   card.dataset.formId = form._id;
 
-  // Choose icon based on template status
+  // Choose icon based on category
   let icon = "fa-file-alt"; // Default icon
 
   // Choose icon based on category
@@ -557,13 +646,18 @@ function createFormCard(form) {
     );
   }
 
-  // Create card content with both dates
+  // Add a label for template or draft
+  const typeLabel = form.isTemplate
+    ? '<span class="type-label template">Template</span>'
+    : '<span class="type-label draft">Draft</span>';
+
+  // Create card content with both dates and type label
   card.innerHTML = `
     <div class="template-icon">
       <i class="fas ${icon}"></i>
     </div>
     <div class="template-details">
-      <h4>${form.title}</h4>
+      <h4>${form.title} ${typeLabel}</h4>
       <p>${form.description || "No description"}</p>
       <div class="template-meta">
         <span><i class="far fa-calendar-plus"></i> Created: ${formattedCreationDate}</span>
@@ -611,6 +705,8 @@ function createFormCard(form) {
  * Apply filters and search
  */
 function applyFilters() {
+  // Reset category pagination when filters change
+  categoryPagination = {};
   fetchAndRenderForms();
 }
 
@@ -829,7 +925,7 @@ async function openFormPreview(formId) {
     // Get date format from window object or use default
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
-    // Format the dates
+    // Format dates for display
     let formattedCreationDate = "Not recorded";
     let formattedModifiedDate = "Not recorded";
 
@@ -1058,88 +1154,88 @@ async function printForm(formId) {
 
     // Write content to print window with special styling for whitespace
     printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${form.title}</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              line-height: 1.6;
-              color: #333;
-              max-width: 800px;
-              margin: 0 auto;
-              padding: 2rem;
-            }
-            
-            h1, h2, h3, h4, h5, h6 {
-              margin-top: 1.5rem;
-              margin-bottom: 1rem;
-            }
-            
-            p {
-              margin: 1em 0;
-              white-space: pre-wrap;
-            }
-            
-            blockquote {
-              border-left: 4px solid #ddd;
-              padding-left: 1rem;
-              margin-left: 0;
-              color: #666;
-            }
-            
-            pre, code {
-              white-space: pre;
-              background-color: #f5f5f5;
-              padding: 1rem;
-              border-radius: 0.5rem;
-              overflow-x: auto;
-              font-family: monospace;
-            }
-            
-            ul, ol {
-              padding-left: 2em;
-              margin: 1em 0;
-            }
-            
-            li {
-              margin-bottom: 0.5em;
-            }
-            
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin: 1rem 0;
-            }
-            
-            th, td {
-              border: 1px solid #ddd;
-              padding: 0.5rem;
-            }
-            
-            th {
-              background-color: #f5f5f5;
-            }
-            
-            hr {
-              border: 0;
-              border-top: 1px solid #ddd;
-              margin: 2rem 0;
-            }
-            
-            @media print {
-              body {
-                padding: 0;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${formattedContent}
-        </body>
-      </html>
-    `);
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>${form.title}</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 2rem;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+          margin-top: 1.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        p {
+          margin: 1em 0;
+          white-space: pre-wrap;
+        }
+        
+        blockquote {
+          border-left: 4px solid #ddd;
+          padding-left: 1rem;
+          margin-left: 0;
+          color: #666;
+        }
+        
+        pre, code {
+          white-space: pre;
+          background-color: #f5f5f5;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          overflow-x: auto;
+          font-family: monospace;
+        }
+        
+        ul, ol {
+          padding-left: 2em;
+          margin: 1em 0;
+        }
+        
+        li {
+          margin-bottom: 0.5em;
+        }
+        
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 1rem 0;
+        }
+        
+        th, td {
+          border: 1px solid #ddd;
+          padding: 0.5rem;
+        }
+        
+        th {
+          background-color: #f5f5f5;
+        }
+        
+        hr {
+          border: 0;
+          border-top: 1px solid #ddd;
+          margin: 2rem 0;
+        }
+        
+        @media print {
+          body {
+            padding: 0;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      ${formattedContent}
+    </body>
+  </html>
+`);
 
     // Print and close
     printWindow.document.close();
@@ -1208,12 +1304,12 @@ async function openLeadSelectionModal() {
         const businessName = lead.businessName || "N/A";
 
         leadItem.innerHTML = `
-          <div>
-            <h4 style="margin: 0 0 0.5rem 0;">${fullName}</h4>
-            <p style="margin: 0; color: var(--text-muted);">${businessName}</p>
-          </div>
-          <button class="btn btn-primary">Use</button>
-        `;
+      <div>
+        <h4 style="margin: 0 0 0.5rem 0;">${fullName}</h4>
+        <p style="margin: 0; color: var(--text-muted);">${businessName}</p>
+      </div>
+      <button class="btn btn-primary">Use</button>
+    `;
 
         // Add click event to button
         leadItem.querySelector("button").addEventListener("click", function () {
@@ -1280,42 +1376,40 @@ async function generateFormWithLeadData(formId, leadId) {
 
     // Set modal content
     generatedModal.querySelector(".modal-content").innerHTML = `
-      <span class="close-modal" id="closeGeneratedFormModal">&times;</span>
-      <div class="modal-header">
-        <h3 id="generatedFormTitle">${generatedForm.title}</h3>
-        <div class="editor-tabs">
-        <div class="editor-tab" data-tab="editor">Editor</div>
-        <div class="editor-tab active" data-tab="preview">Preview</div>
-          
-        </div>
-      </div>
+  <span class="close-modal" id="closeGeneratedFormModal">&times;</span>
+  <div class="modal-header">
+    <h3 id="generatedFormTitle">${generatedForm.title}</h3>
+    <div class="editor-tabs">
+    <div class="editor-tab" data-tab="editor">Editor</div>
+    <div class="editor-tab active" data-tab="preview">Preview</div>
       
-      <div class="form-editor-container">
-        <div class="preview-section active">
-          <div class="markdown-content" id="generatedContent">
-            ${DOMPurify.sanitize(marked.parse(generatedForm.content))}
-          </div>
-        </div>
-        
-        <div class="editor-section inactive">
-          <textarea id="editGeneratedContent">${
-            generatedForm.content
-          }</textarea>
-        </div>
+    </div>
+  </div>
+  
+  <div class="form-editor-container">
+    <div class="preview-section active">
+      <div class="markdown-content" id="generatedContent">
+        ${DOMPurify.sanitize(marked.parse(generatedForm.content))}
       </div>
-      
-      <div class="modal-actions">
-        <button type="button" id="saveGeneratedBtn" class="btn btn-primary">
-          <i class="fas fa-save"></i> Save Changes
-        </button>
-        <button type="button" id="downloadGeneratedBtn" class="btn btn-primary">
-          <i class="fas fa-download"></i> Download .md
-        </button>
-        <button type="button" id="printGeneratedBtn" class="btn btn-primary">
-          <i class="fas fa-print"></i> Print PDF
-        </button>
-      </div>
-    `;
+    </div>
+    
+    <div class="editor-section inactive">
+      <textarea id="editGeneratedContent">${generatedForm.content}</textarea>
+    </div>
+  </div>
+  
+  <div class="modal-actions">
+    <button type="button" id="saveGeneratedBtn" class="btn btn-primary">
+      <i class="fas fa-save"></i> Save Changes
+    </button>
+    <button type="button" id="downloadGeneratedBtn" class="btn btn-primary">
+      <i class="fas fa-download"></i> Download .md
+    </button>
+    <button type="button" id="printGeneratedBtn" class="btn btn-primary">
+      <i class="fas fa-print"></i> Print PDF
+    </button>
+  </div>
+`;
 
     // Show modal
     generatedModal.style.display = "block";
@@ -1594,81 +1688,89 @@ function printGeneratedForm() {
 
   // Write content to print window
   printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>${title}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-          }
-          
-          h1, h2, h3, h4, h5, h6 {
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-          }
-          
-          blockquote {
-            border-left: 4px solid #ddd;
-            padding-left: 1rem;
-            margin-left: 0;
-            color: #666;
-          }
-          
-          pre {
-            background-color: #f5f5f5;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-          }
-          
-          code {
-            background-color: #f5f5f5;
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.3rem;
-          }
-          
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-          }
-          
-          th, td {
-            border: 1px solid #ddd;
-            padding: 0.5rem;
-          }
-          
-          th {
-            background-color: #f5f5f5;
-          }
-          
-          hr {
-            border: 0;
-            border-top: 1px solid #ddd;
-            margin: 2rem 0;
-          }
-          
-          @media print {
-            body {
-              padding: 0;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        ${content}
-      </body>
-    </html>
-  `);
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>${title}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      
+      blockquote {
+        border-left: 4px solid #ddd;
+        padding-left: 1rem;
+        margin-left: 0;
+        color: #666;
+      }
+      
+      pre {
+        background-color: #f5f5f5;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+      }
+      
+      code {
+        background-color: #f5f5f5;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.3rem;
+      }
+      
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+      
+      th, td {
+        border: 1px solid #ddd;
+        padding: 0.5rem;
+      }
+      
+      th {
+        background-color: #f5f5f5;
+      }
+      
+      hr {
+        border: 0;
+        border-top: 1px solid #ddd;
+        margin: 2rem 0;
+      }
+      
+      @media print {
+        body {
+          padding: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    ${content}
+  </body>
+</html>
+`);
 
   // Print the window
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
 }
+
+export {
+  openFormPreview,
+  downloadForm,
+  printForm,
+  openEditFormModal,
+  deleteForm,
+};

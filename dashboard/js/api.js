@@ -353,6 +353,48 @@ async function updateSetting(key, value) {
 }
 
 
+// /**
+//  * Fetch all forms from the API
+//  * @param {Object} filters
+//  * @returns {Promise<Array>} 
+//  */
+// async function fetchForms(filters = {}) {
+//   try {
+//     // Build query string from filters
+//     const queryParams = new URLSearchParams();
+    
+//     if (filters.category) {
+//       queryParams.append("category", filters.category);
+//     }
+    
+//     if (filters.isTemplate !== undefined) {
+//       queryParams.append("isTemplate", filters.isTemplate);
+//     }
+    
+//     const queryString = queryParams.toString();
+//     const url = queryString ? `${FORMS_API_URL}?${queryString}` : FORMS_API_URL;
+    
+//     const response = await fetch(url);
+    
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch forms");
+//     }
+    
+//     const data = await response.json();
+    
+//     // Make sure data is an array
+//     if (!Array.isArray(data)) {
+//       throw new Error("Invalid data format received");
+//     }
+    
+//     return data;
+//   } catch (error) {
+//     console.error("Error fetching forms:", error);
+//     throw error;
+//   }
+// }
+
+
 /**
  * Fetch all forms from the API
  * @param {Object} filters
@@ -367,8 +409,11 @@ async function fetchForms(filters = {}) {
       queryParams.append("category", filters.category);
     }
     
-    if (filters.isTemplate !== undefined) {
-      queryParams.append("isTemplate", filters.isTemplate);
+    // Handle the new template/draft filter
+    if (filters.templateType === "template") {
+      queryParams.append("isTemplate", "true");
+    } else if (filters.templateType === "draft") {
+      queryParams.append("isTemplate", "false");
     }
     
     const queryString = queryParams.toString();
@@ -394,6 +439,7 @@ async function fetchForms(filters = {}) {
   }
 }
 
+
 /**
  * Fetch a specific form by ID
  * @param {string} formId 
@@ -413,6 +459,8 @@ async function fetchFormById(formId) {
     throw error;
   }
 }
+
+
 
 /**
  * Create a new form

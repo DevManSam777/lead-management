@@ -61,24 +61,56 @@ function formatVariableValue(variable, value) {
   }
 }
 
-// Get all forms
 exports.getForms = async (req, res) => {
   try {
     const category = req.query.category;
-    const isTemplate = req.query.isTemplate === "true";
+    const isTemplate = req.query.isTemplate;
 
     // Build query object
     const query = {};
-    if (category) query.category = category;
-    if (req.query.isTemplate !== undefined) query.isTemplate = isTemplate;
+    
+    // Add category filter if provided
+    if (category) {
+      query.category = category;
+    }
+    
+    // Add template filter if provided
+    if (isTemplate !== undefined) {
+      // Convert string "true"/"false" to boolean
+      query.isTemplate = isTemplate === "true";
+    }
 
+    // Exclude forms that are associated with leads (customer forms) from the forms page
+    // when viewing drafts, unless we're explicitly looking for them
+    if (isTemplate === "false" && !req.query.includeCustomerForms) {
+      // Find all leads to get their associated form IDs
+      const Lead = require("../models/Lead");
+      const leads = await Lead.find({}, 'associatedForms');
+      
+      // Extract all form IDs associated with leads
+      const associatedFormIds = leads.reduce((ids, lead) => {
+        if (lead.associatedForms && lead.associatedForms.length > 0) {
+          return [...ids, ...lead.associatedForms];
+        }
+        return ids;
+      }, []);
+      
+      // Exclude these forms from results if they're not templates
+      if (associatedFormIds.length > 0) {
+        query._id = { $nin: associatedFormIds };
+      }
+    }
+
+    // Get forms sorted by creation date (newest first)
     const forms = await Form.find(query).sort({ lastModified: -1 });
+    
     res.json(forms);
   } catch (error) {
     console.error("Error fetching forms:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
+
 
 // Get form by ID
 exports.getFormById = async (req, res) => {
@@ -179,22 +211,51 @@ exports.deleteForm = async (req, res) => {
   }
 };
 
-// Search forms
+
 exports.searchForms = async (req, res) => {
   try {
     const { query } = req.query;
+    const isTemplate = req.query.isTemplate;
 
     if (!query) {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const forms = await Form.find({
+    // Build the base query
+    const searchQuery = {
       $or: [
         { title: { $regex: query, $options: "i" } },
         { description: { $regex: query, $options: "i" } },
         { content: { $regex: query, $options: "i" } },
       ],
-    }).sort({ lastModified: -1 });
+    };
+
+    // Add template filter if provided
+    if (isTemplate !== undefined) {
+      searchQuery.isTemplate = isTemplate === "true";
+    }
+
+    // Exclude customer forms when searching drafts
+    if (isTemplate === "false" && !req.query.includeCustomerForms) {
+      // Find all leads to get their associated form IDs
+      const Lead = require("../models/Lead");
+      const leads = await Lead.find({}, 'associatedForms');
+      
+      // Extract all form IDs associated with leads
+      const associatedFormIds = leads.reduce((ids, lead) => {
+        if (lead.associatedForms && lead.associatedForms.length > 0) {
+          return [...ids, ...lead.associatedForms];
+        }
+        return ids;
+      }, []);
+      
+      // Exclude these forms from results if they're not templates
+      if (associatedFormIds.length > 0) {
+        searchQuery._id = { $nin: associatedFormIds };
+      }
+    }
+
+    const forms = await Form.find(searchQuery).sort({ lastModified: -1 });
 
     res.json(forms);
   } catch (error) {

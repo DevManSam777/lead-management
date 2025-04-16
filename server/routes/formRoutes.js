@@ -3,9 +3,11 @@ const router = express.Router();
 const formController = require('../controllers/formController');
 
 // GET /api/forms - Get all forms (with optional filters)
+// Can now handle new template/draft filtering
 router.get('/', formController.getForms);
 
 // GET /api/forms/search - Search forms
+// Updated to support template/draft filter
 router.get('/search', formController.searchForms);
 
 // GET /api/forms/:id - Get specific form
@@ -26,8 +28,7 @@ router.post('/:id/clone', formController.cloneTemplate);
 // POST /api/forms/:id/generate - Generate form with lead data
 router.post('/:id/generate', formController.generateFormWithLeadData);
 
-// Get /api/forms/:leadId/generate - Get Lead's forms
+// GET /api/forms/lead/:leadId - Get Lead's forms
 router.get('/lead/:leadId', formController.getFormsByLead);
-
 
 module.exports = router;
