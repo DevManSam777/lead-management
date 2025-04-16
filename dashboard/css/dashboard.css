@@ -692,11 +692,17 @@ details[open] .stats-cards {
 }
 
 /* Hide action buttons by default in read-only mode */
-.lead-modal-readonly .form-actions,
-.lead-modal-readonly .payment-actions,
+.lead-modal-readonly .form-actions button,
+.lead-modal-readonly .payment-actions button {  
+ display: none;
+}
+
+.lead-modal-readonly .form-actions .view-form {
+  display: block;
+}
+
 .lead-modal-readonly #addFormBtn {
   display: none !important;
-  display: none;
 }
 
 .lead-modal-readonly .no-payments-message,
