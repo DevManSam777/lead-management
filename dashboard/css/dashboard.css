@@ -663,7 +663,8 @@ details[open] .stats-cards {
 
 .dropdown-tab-item:hover {
   background-color: var(--table-hover);
-  color: var(--text-color)
+  color: var(--text-color);
+  box-shadow: 0 5px 12px rgba(35, 35, 35, 0.7);
 }
 
 .dropdown-tab-item.active {
