@@ -1,362 +1,138 @@
 import * as API from "./api.js";
 import * as Utils from "./utils.js";
 
-// Advanced Document Upload Module
-class DocumentUploader {
-  constructor(leadId) {
-    // Singleton pattern to prevent multiple instances
-    if (DocumentUploader.instance) {
-      DocumentUploader.destroyInstance();
-    }
-    DocumentUploader.instance = this;
+function initDocumentUpload(leadId) {
+  const fileInput = document.getElementById('fileInput');
+  const selectFilesBtn = document.getElementById('selectFilesBtn');
+  const uploadArea = document.getElementById('documentUploadArea');
 
-    // Core properties
-    this.leadId = leadId;
-    this.fileInput = null;
-    this.selectFilesBtn = null;
-    this.uploadArea = null;
-    this.isUploading = false;
-    this.uploadQueue = []; // Queue to manage file uploads
-    
-    // Initialize references
-    this.initializeReferences();
-    
-    // Bind methods to preserve context
-    this.handleFileSelect = this.handleFileSelect.bind(this);
-    this.handleDragOver = this.handleDragOver.bind(this);
-    this.handleDragLeave = this.handleDragLeave.bind(this);
-    this.handleDrop = this.handleDrop.bind(this);
-    
-    // Bind events
-    this.bindEvents();
-  }
+  // Remove any existing listeners first
+  selectFilesBtn.onclick = null;
+  fileInput.onchange = null;
 
-  // Static method to destroy the current instance
-  static destroyInstance() {
-    if (DocumentUploader.instance) {
-      DocumentUploader.instance.unbindEvents();
-      DocumentUploader.instance = null;
-    }
-  }
-
-  // Initialize DOM references
-  initializeReferences() {
-    this.fileInput = document.getElementById('fileInput');
-    this.selectFilesBtn = document.getElementById('selectFilesBtn');
-    this.uploadArea = document.getElementById('documentUploadArea');
-
-    // Validate references
-    if (!this.fileInput || !this.selectFilesBtn || !this.uploadArea) {
-      console.error('Document upload elements not found');
-      return false;
-    }
-
-    return true;
-  }
-
-  // Bind event listeners with advanced prevention
-  bindEvents() {
-    // Remove any existing listeners first
-    this.unbindEvents();
-
-    // Add new listeners with unique handler references
-    this.selectFilesBtn.addEventListener('click', this.handleSelectFiles.bind(this));
-    this.fileInput.addEventListener('change', this.handleFileSelect);
-    this.uploadArea.addEventListener('dragover', this.handleDragOver);
-    this.uploadArea.addEventListener('dragleave', this.handleDragLeave);
-    this.uploadArea.addEventListener('drop', this.handleDrop);
-  }
-
-  // Unbind all event listeners
-  unbindEvents() {
-    const handlers = [
-      { el: this.selectFilesBtn, event: 'click', handler: this.handleSelectFiles },
-      { el: this.fileInput, event: 'change', handler: this.handleFileSelect },
-      { el: this.uploadArea, event: 'dragover', handler: this.handleDragOver },
-      { el: this.uploadArea, event: 'dragleave', handler: this.handleDragLeave },
-      { el: this.uploadArea, event: 'drop', handler: this.handleDrop }
-    ];
-
-    handlers.forEach(({ el, event, handler }) => {
-      if (el) {
-        el.removeEventListener(event, handler);
-      }
-    });
-  }
-
-  // Handle select files button click
-  handleSelectFiles() {
-    if (this.fileInput) {
-      this.fileInput.click();
-    }
-  }
-
-  // Drag and drop handlers
-  handleDragOver(e) {
+  // Drag and drop event handlers
+  uploadArea.ondragover = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    this.uploadArea.classList.add('highlight');
-  }
+    uploadArea.classList.add('highlight');
+  };
 
-  handleDragLeave(e) {
+  uploadArea.ondragleave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    this.uploadArea.classList.remove('highlight');
-  }
+    uploadArea.classList.remove('highlight');
+  };
 
-  handleDrop(e) {
+  uploadArea.ondrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    this.uploadArea.classList.remove('highlight');
+    uploadArea.classList.remove('highlight');
+
+    // Process dropped files
+    await processFiles(e.dataTransfer.files, leadId);
+  };
+
+  // Simple, direct event handlers
+  selectFilesBtn.onclick = (e) => {
+    e.preventDefault();
+    fileInput.click();
+  };
+
+  fileInput.onchange = async (e) => {
+    // Process selected files
+    await processFiles(e.target.files, leadId);
     
-    const files = e.dataTransfer.files;
-    this.processFileUpload(files);
+    // Reset file input
+    e.target.value = '';
+  };
+
+  // Update UI mode for documents
+  updateDocumentUiForMode();
+}
+
+// Separate function to process files
+async function processFiles(files, leadId) {
+  // Validate edit mode
+  const submitButton = document.querySelector('#leadForm button[type="submit"]');
+  const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
+  
+  if (!isEditMode) {
+    Utils.showToast("Please switch to edit mode to upload documents");
+    return;
   }
 
-  // Handle file input change
-  handleFileSelect(e) {
-    const files = this.fileInput.files;
-    this.processFileUpload(files);
+  // Validate lead ID
+  if (!leadId) {
+    Utils.showToast("Error: No lead selected for document upload");
+    return;
+  }
+
+  // Get existing document list
+  const documentsContainer = document.getElementById("signedDocumentsList");
+  const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
+    .map(el => el.querySelector(".document-title").textContent);
+
+  // Process each file
+  for (let file of files) {
+    // Check if file already exists
+    if (existingDocuments.includes(file.name)) {
+      Utils.showToast(`${file.name} is already uploaded to this lead`);
+      continue;
+    }
     
-    // Reset file input to allow re-uploading same files
-    this.fileInput.value = '';
-  }
-
-  // Validate upload conditions
-  validateUploadConditions() {
-    // Check edit mode
-    const submitButton = document.querySelector('#leadForm button[type="submit"]');
-    const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      Utils.showToast(`${file.name} is not a PDF file`);
+      continue;
+    }
     
-    if (!isEditMode) {
-      Utils.showToast("Please switch to edit mode to upload documents");
-      return false;
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      Utils.showToast(`${file.name} is too large (max 10MB)`);
+      continue;
     }
-
-    // Validate lead ID
-    if (!this.leadId) {
-      Utils.showToast("Error: No lead selected for document upload");
-      return false;
-    }
-
-    return true;
-  }
-
-  // Process file upload
-  // processFileUpload(files) {
-  //   // Validate upload conditions
-  //   if (!this.validateUploadConditions()) {
-  //     return;
-  //   }
-
-  //   // Get existing document list
-  //   const documentsContainer = document.getElementById("signedDocumentsList");
-  //   const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
-  //     .map(el => el.querySelector(".document-title").textContent);
-
-  //   // Filter and validate files
-  //   const filesToUpload = Array.from(files).filter(file => {
-  //     // Check if file already exists
-  //     if (existingDocuments.includes(file.name)) {
-  //       Utils.showToast(`${file.name} is already uploaded`);
-  //       return false;
-  //     }
-      
-  //     // Validate file type
-  //     if (file.type !== 'application/pdf') {
-  //       Utils.showToast(`${file.name} is not a PDF file`);
-  //       return false;
-  //     }
-      
-  //     // Validate file size (10MB limit)
-  //     if (file.size > 10 * 1024 * 1024) {
-  //       Utils.showToast(`${file.name} is too large (max 10MB)`);
-  //       return false;
-  //     }
-      
-  //     return true;
-  //   });
-
-  //   // If no valid files, return
-  //   if (filesToUpload.length === 0) {
-  //     return;
-  //   }
-
-  //   // Add files to the upload queue
-  //   this.uploadQueue.push(...filesToUpload);
-
-  //   // Start processing the queue if not already uploading
-  //   if (!this.isUploading) {
-  //     this.processUploadQueue();
-  //   }
-  // }
-
-  // Process file upload
-  processFileUpload(files) {
-    // Validate upload conditions
-    if (!this.validateUploadConditions()) {
-      return;
-    }
-
-    // Get existing document list
-    const documentsContainer = document.getElementById("signedDocumentsList");
-    const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
-      .map(el => el.querySelector(".document-title").textContent);
-
-    // Filter and validate files
-    const filesToUpload = Array.from(files).filter(file => {
-      // Check if file already exists
-      if (existingDocuments.includes(file.name)) {
-        // Use existing showToast function
-        Utils.showToast(`${file.name} is already uploaded to this lead`);
-        return false;
-      }
-      
-      // Validate file type
-      if (file.type !== 'application/pdf') {
-        Utils.showToast(`${file.name} is not a PDF file`);
-        return false;
-      }
-      
-      // Validate file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
-        Utils.showToast(`${file.name} is too large (max 10MB)`);
-        return false;
-      }
-      
-      return true;
-    });
-
-    // If no valid files, return
-    if (filesToUpload.length === 0) {
-      return;
-    }
-
-    // Add files to the upload queue
-    this.uploadQueue.push(...filesToUpload);
-
-    // Start processing the queue if not already uploading
-    if (!this.isUploading) {
-      this.processUploadQueue();
-    }
-  }
-
-  // Process the upload queue
-  async processUploadQueue() {
-    // If queue is empty, reset uploading status
-    if (this.uploadQueue.length === 0) {
-      this.isUploading = false;
-      return;
-    }
-
-    // Set uploading flag
-    this.isUploading = true;
-
-    // Take the first file from the queue
-    const file = this.uploadQueue.shift();
 
     try {
-      await this.uploadSingleFile(file);
-      
-      // Reload documents list
-      loadLeadDocuments(this.leadId);
-      
-      // Process next file in queue
-      this.processUploadQueue();
+      // Read file
+      const fileData = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Prepare file data
+      const documentData = {
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        fileData: fileData
+      };
+
+      // Upload document
+      const response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${leadId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(documentData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      // Show success and reload documents
+      Utils.showToast(`${file.name} uploaded successfully`);
+      await loadLeadDocuments(leadId);
     } catch (error) {
-      console.error('Upload error:', error);
-      
-      // Show error and continue with next file
+      console.error('Document upload error:', error);
       Utils.showToast(`Error uploading ${file.name}: ${error.message}`);
-      this.processUploadQueue();
     }
-  }
-
-  // Upload single file
-  uploadSingleFile(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        try {
-          // Verify file was read correctly
-          if (!e.target.result) {
-            throw new Error('Failed to read file data');
-          }
-
-          // Prepare file data
-          const fileData = {
-            fileName: file.name,
-            fileType: file.type,
-            fileSize: file.size,
-            fileData: e.target.result
-          };
-          
-          // Upload file
-          const response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${this.leadId}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(fileData)
-          });
-          
-          // Check response status
-          if (!response.ok) {
-            let errorDetails = '';
-            try {
-              const errorBody = await response.json();
-              errorDetails = errorBody.message || '';
-            } catch {
-              errorDetails = `Status: ${response.status}`;
-            }
-            
-            console.error('Document upload failed:', errorDetails);
-            Utils.showToast(`Failed to upload ${file.name}: ${errorDetails}`);
-            reject(new Error(errorDetails));
-            return;
-          }
-          
-          // Successful upload
-          Utils.showToast(`${file.name} uploaded successfully`);
-          resolve();
-        } catch (error) {
-          console.error('Unexpected error uploading document:', error);
-          Utils.showToast(`Unexpected error uploading ${file.name}: ${error.message}`);
-          reject(error);
-        }
-      };
-      
-      reader.onerror = (error) => {
-        console.error('File reading error:', error);
-        Utils.showToast(`Error reading ${file.name}`);
-        reject(new Error('File read error'));
-      };
-      
-      // Start reading the file
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // Update UI mode
-  updateUiForMode() {
-    const submitButton = document.querySelector('#leadForm button[type="submit"]');
-    const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
-    
-    // Update upload area visibility
-    if (this.uploadArea) {
-      this.uploadArea.style.display = isEditMode ? "flex" : "none";
-    }
-    
-    // Update delete button visibility
-    const deleteButtons = document.querySelectorAll(".document-actions .delete-document");
-    deleteButtons.forEach(button => {
-      button.style.display = isEditMode ? "flex" : "none";
-    });
   }
 }
 
-// Load documents for a specific lead
+// Reuse existing functions from previous implementation
 async function loadLeadDocuments(leadId) {
   try {
     const documentsContainer = document.getElementById("signedDocumentsList");
@@ -447,7 +223,6 @@ async function loadLeadDocuments(leadId) {
   }
 }
 
-// View document
 async function viewDocument(documentId, fileName) {
   try {
     // Open the document in a new tab
@@ -459,7 +234,6 @@ async function viewDocument(documentId, fileName) {
   }
 }
 
-// Delete document
 async function deleteDocument(documentId, leadId) {
   try {
     // Delete the document
@@ -482,7 +256,6 @@ async function deleteDocument(documentId, leadId) {
   }
 }
 
-// Update UI mode
 function updateDocumentUiForMode() {
   const submitButton = document.querySelector('#leadForm button[type="submit"]');
   const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
@@ -498,17 +271,6 @@ function updateDocumentUiForMode() {
   deleteButtons.forEach(button => {
     button.style.display = isEditMode ? "flex" : "none";
   });
-}
-
-// Initialize document upload
-function initDocumentUpload(leadId) {
-  // Create or retrieve singleton instance
-  const uploader = new DocumentUploader(leadId);
-  
-  // Update UI mode
-  uploader.updateUiForMode();
-  
-  return uploader;
 }
 
 export {
