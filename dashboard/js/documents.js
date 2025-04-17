@@ -6,7 +6,7 @@ class DocumentUploader {
   constructor(leadId) {
     // Singleton pattern to prevent multiple instances
     if (DocumentUploader.instance) {
-      return DocumentUploader.instance;
+      DocumentUploader.destroyInstance();
     }
     DocumentUploader.instance = this;
 
@@ -16,6 +16,7 @@ class DocumentUploader {
     this.selectFilesBtn = null;
     this.uploadArea = null;
     this.isUploading = false;
+    this.uploadQueue = []; // Queue to manage file uploads
     
     // Initialize references
     this.initializeReferences();
@@ -28,6 +29,14 @@ class DocumentUploader {
     
     // Bind events
     this.bindEvents();
+  }
+
+  // Static method to destroy the current instance
+  static destroyInstance() {
+    if (DocumentUploader.instance) {
+      DocumentUploader.instance.unbindEvents();
+      DocumentUploader.instance = null;
+    }
   }
 
   // Initialize DOM references
@@ -130,14 +139,57 @@ class DocumentUploader {
       return false;
     }
 
-    // Prevent concurrent uploads
-    if (this.isUploading) {
-      Utils.showToast("Document upload already in progress");
-      return false;
-    }
-
     return true;
   }
+
+  // Process file upload
+  // processFileUpload(files) {
+  //   // Validate upload conditions
+  //   if (!this.validateUploadConditions()) {
+  //     return;
+  //   }
+
+  //   // Get existing document list
+  //   const documentsContainer = document.getElementById("signedDocumentsList");
+  //   const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
+  //     .map(el => el.querySelector(".document-title").textContent);
+
+  //   // Filter and validate files
+  //   const filesToUpload = Array.from(files).filter(file => {
+  //     // Check if file already exists
+  //     if (existingDocuments.includes(file.name)) {
+  //       Utils.showToast(`${file.name} is already uploaded`);
+  //       return false;
+  //     }
+      
+  //     // Validate file type
+  //     if (file.type !== 'application/pdf') {
+  //       Utils.showToast(`${file.name} is not a PDF file`);
+  //       return false;
+  //     }
+      
+  //     // Validate file size (10MB limit)
+  //     if (file.size > 10 * 1024 * 1024) {
+  //       Utils.showToast(`${file.name} is too large (max 10MB)`);
+  //       return false;
+  //     }
+      
+  //     return true;
+  //   });
+
+  //   // If no valid files, return
+  //   if (filesToUpload.length === 0) {
+  //     return;
+  //   }
+
+  //   // Add files to the upload queue
+  //   this.uploadQueue.push(...filesToUpload);
+
+  //   // Start processing the queue if not already uploading
+  //   if (!this.isUploading) {
+  //     this.processUploadQueue();
+  //   }
+  // }
 
   // Process file upload
   processFileUpload(files) {
@@ -155,7 +207,8 @@ class DocumentUploader {
     const filesToUpload = Array.from(files).filter(file => {
       // Check if file already exists
       if (existingDocuments.includes(file.name)) {
-        Utils.showToast(`${file.name} is already uploaded`);
+        // Use existing showToast function
+        Utils.showToast(`${file.name} is already uploaded to this lead`);
         return false;
       }
       
@@ -179,27 +232,44 @@ class DocumentUploader {
       return;
     }
 
-    // Set upload flag
+    // Add files to the upload queue
+    this.uploadQueue.push(...filesToUpload);
+
+    // Start processing the queue if not already uploading
+    if (!this.isUploading) {
+      this.processUploadQueue();
+    }
+  }
+
+  // Process the upload queue
+  async processUploadQueue() {
+    // If queue is empty, reset uploading status
+    if (this.uploadQueue.length === 0) {
+      this.isUploading = false;
+      return;
+    }
+
+    // Set uploading flag
     this.isUploading = true;
 
-    // Upload files
-    const uploadPromises = filesToUpload.map(file => this.uploadSingleFile(file));
+    // Take the first file from the queue
+    const file = this.uploadQueue.shift();
 
-    // Handle upload completion
-    Promise.all(uploadPromises)
-      .then(() => {
-        // Reload documents list
-        loadLeadDocuments(this.leadId);
-      })
-      .catch(errors => {
-        console.error('Upload errors:', errors);
-        // Attempt to reload documents
-        loadLeadDocuments(this.leadId);
-      })
-      .finally(() => {
-        // Reset upload flag
-        this.isUploading = false;
-      });
+    try {
+      await this.uploadSingleFile(file);
+      
+      // Reload documents list
+      loadLeadDocuments(this.leadId);
+      
+      // Process next file in queue
+      this.processUploadQueue();
+    } catch (error) {
+      console.error('Upload error:', error);
+      
+      // Show error and continue with next file
+      Utils.showToast(`Error uploading ${file.name}: ${error.message}`);
+      this.processUploadQueue();
+    }
   }
 
   // Upload single file
@@ -445,4 +515,4 @@ export {
   initDocumentUpload,
   loadLeadDocuments, 
   updateDocumentUiForMode
-}
+};
