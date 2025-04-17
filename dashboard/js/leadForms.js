@@ -36,7 +36,7 @@ async function loadLeadForms(leadId) {
 
     // Render the forms
     if (forms.length === 0) {
-      // CHANGE THIS LINE to use the no-forms-message class
+      // use the no-forms-message class
       formsContainer.innerHTML =
         '<p class="no-forms-message">No forms yet. Click "Create Form" to add one.</p>';
       return;
@@ -124,7 +124,7 @@ async function loadLeadForms(leadId) {
     // Set the visibility of the Add Form button
     const addFormBtn = document.getElementById("addFormBtn");
     if (addFormBtn) {
-      addFormBtn.style.display = "block"; // Always show the Add Form button
+      addFormBtn.style.display = "block"; // Show the Add Form button
     }
   } catch (error) {
     console.error("Error loading lead forms:", error);
@@ -220,7 +220,7 @@ function openFormTemplateModal(leadId) {
     }
   });
 
-  // Optional: Add keyboard support for closing the modal
+  // Add keyboard support for closing the modal
   modal.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       modal.style.display = "none";
@@ -388,7 +388,7 @@ async function viewForm(formId, isEditMode) {
     modal.id = "formPreviewModal";
     modal.className = "modal";
 
-    // CRITICAL FIX: Always consider edit mode true when viewing from lead modal
+    // Always consider edit mode true when viewing from lead modal
     isEditMode = true;
 
     // Get date format from window object or use default
@@ -769,9 +769,7 @@ async function saveFormContent(formId, content) {
 // Function to delete a form
 async function deleteForm(formId, leadId) {
   try {
-    // Show loading toast
-    // Utils.showToast('Deleting form...');
-
+    
     // Call API to delete the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
       method: "DELETE",

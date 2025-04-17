@@ -125,7 +125,7 @@ exports.deleteDocument = async (req, res) => {
     // Delete document from Document collection
     await Document.deleteOne({ _id: req.params.id });
     
-    // Also remove reference from Lead document - THIS FIXES THE ISSUE
+    // Also remove reference from Lead document
     await Lead.findByIdAndUpdate(leadId, {
       $pull: { documents: req.params.id }
     });
