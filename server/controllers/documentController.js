@@ -49,11 +49,16 @@ exports.uploadDocument = async (req, res) => {
     const { leadId } = req.params;
     const { fileName, fileType, fileSize, fileData } = req.body;
     
+    console.log(`Attempting to upload document ${fileName} for lead ${leadId}`);
+    
     // Verify lead exists
     const lead = await Lead.findById(leadId);
     if (!lead) {
+      console.log(`Lead ${leadId} not found`);
       return res.status(404).json({ message: 'Lead not found' });
     }
+    
+    console.log(`Found lead: ${lead._id}, current documents: ${JSON.stringify(lead.documents || [])}`);
     
     // Convert base64 string to buffer
     const buffer = Buffer.from(fileData.split(',')[1], 'base64');
@@ -69,6 +74,18 @@ exports.uploadDocument = async (req, res) => {
     
     // Save document
     const savedDocument = await document.save();
+    console.log(`Document saved with ID: ${savedDocument._id}`);
+    
+    // Update lead with document reference
+    console.log(`Updating lead ${leadId} with document reference ${savedDocument._id}`);
+    
+    await Lead.findByIdAndUpdate(leadId, {
+      $push: { documents: savedDocument._id }
+    });
+    
+    // Verify the update worked
+    const updatedLead = await Lead.findById(leadId);
+    console.log(`Updated lead documents: ${JSON.stringify(updatedLead.documents || [])}`);
     
     // Return document info without file data
     const documentInfo = {
@@ -82,7 +99,8 @@ exports.uploadDocument = async (req, res) => {
     
     res.status(201).json(documentInfo);
   } catch (error) {
-    console.error('Error uploading document:', error);
+    console.error(`Error uploading document: ${error.message}`);
+    console.error(error.stack);
     
     // Handle size limit errors
     if (error.name === 'PayloadTooLargeError') {
@@ -102,7 +120,15 @@ exports.deleteDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
     
+    const leadId = document.leadId;
+    
+    // Delete document from Document collection
     await Document.deleteOne({ _id: req.params.id });
+    
+    // Also remove reference from Lead document - THIS FIXES THE ISSUE
+    await Lead.findByIdAndUpdate(leadId, {
+      $pull: { documents: req.params.id }
+    });
     
     res.json({ message: 'Document removed' });
   } catch (error) {
