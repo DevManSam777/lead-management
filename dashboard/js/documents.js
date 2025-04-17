@@ -23,7 +23,6 @@ async function loadLeadDocuments(leadId) {
 
     const documents = await response.json();
 
- 
     // Clear container
     documentsContainer.innerHTML = "";
 
@@ -179,7 +178,7 @@ function initDocumentUpload(leadId) {
   updateDocumentUiForMode();
 }
 
-// Handle file upload
+// Handle file upload with deduplication
 function handleFileUpload(files, leadId) {
   // Check if we're in edit mode
   const submitButton = document.querySelector('#leadForm button[type="submit"]');
@@ -190,65 +189,88 @@ function handleFileUpload(files, leadId) {
     return;
   }
 
-  // Process each file
-  Array.from(files).forEach(file => {
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      Utils.showToast(`${file.name} is not a PDF file`);
-      return;
-    }
-    
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
-      Utils.showToast(`${file.name} is too large (max 10MB)`);
-      return;
-    }
-    
-    // Show loading message
-    Utils.showToast(`Uploading ${file.name}...`);
-    
-    // Read file as data URL
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-      try {
-        // Prepare file data
-        const fileData = {
-          fileName: file.name,
-          fileType: file.type,
-          fileSize: file.size,
-          fileData: e.target.result
+  // Get existing document list
+  const documentsContainer = document.getElementById("signedDocumentsList");
+  const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
+    .map(el => el.querySelector(".document-title").textContent);
+
+  // Process each file with deduplication
+  const filePromises = Array.from(files)
+    .filter(file => {
+      // Check if file already exists
+      if (existingDocuments.includes(file.name)) {
+        Utils.showToast(`${file.name} is already uploaded`);
+        return false;
+      }
+      
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        Utils.showToast(`${file.name} is not a PDF file`);
+        return false;
+      }
+      
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        Utils.showToast(`${file.name} is too large (max 10MB)`);
+        return false;
+      }
+      
+      return true;
+    })
+    .map(file => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          try {
+            // Prepare file data
+            const fileData = {
+              fileName: file.name,
+              fileType: file.type,
+              fileSize: file.size,
+              fileData: e.target.result
+            };
+            
+            // Upload file
+            const response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${leadId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(fileData)
+            });
+            
+            if (!response.ok) {
+              throw new Error('Failed to upload document');
+            }
+            
+            // Show success message
+            Utils.showToast(`${file.name} uploaded successfully`);
+            
+            resolve();
+          } catch (error) {
+            console.error('Error uploading document:', error);
+            Utils.showToast(`Error uploading ${file.name}: ${error.message}`);
+            reject(error);
+          }
         };
         
-        // Upload file
-        const response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${leadId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(fileData)
-        });
+        reader.onerror = function() {
+          Utils.showToast(`Error reading ${file.name}`);
+          reject(new Error('File read error'));
+        };
         
-        if (!response.ok) {
-          throw new Error('Failed to upload document');
-        }
-        
-        // Show success message
-        Utils.showToast(`${file.name} uploaded successfully`);
-        
-        // Reload documents list
-        loadLeadDocuments(leadId);
-      } catch (error) {
-        console.error('Error uploading document:', error);
-        Utils.showToast(`Error uploading ${file.name}: ${error.message}`);
-      }
-    };
-    
-    reader.onerror = function() {
-      Utils.showToast(`Error reading ${file.name}`);
-    };
-    
-    reader.readAsDataURL(file);
-  });
+        reader.readAsDataURL(file);
+      });
+    });
+
+  // Reload documents list after all uploads complete
+  Promise.all(filePromises)
+    .then(() => {
+      loadLeadDocuments(leadId);
+    })
+    .catch(error => {
+      console.error('Upload errors:', error);
+    });
 }
 
 // Update document UI based on mode (read-only or edit)
