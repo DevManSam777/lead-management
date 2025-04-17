@@ -575,6 +575,10 @@ select,
   border-bottom: none;
 }
 
+.leads-table tr {
+  transition: all 0.2s ease;
+}
+
 .leads-table tbody tr:hover,
 .leads-table tr.clickable:hover {
   background-color: var(--table-hover);
