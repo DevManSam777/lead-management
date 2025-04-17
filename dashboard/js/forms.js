@@ -815,9 +815,9 @@ async function openEditFormModal(formId) {
     const variablesContainer = document.querySelector(".variables-container");
     const isTemplate = form.isTemplate;
 
-    if (variablesContainer) {
-      variablesContainer.style.display = isTemplate ? "block" : "none";
-    }
+    // if (variablesContainer) {
+    //   variablesContainer.style.display = isTemplate ? "block" : "none";
+    // }
 
     // Show modal
     document.getElementById("formEditorModal").style.display = "block";

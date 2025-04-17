@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevLeads Form Manager</title>
+    <title>DevLeads Form Template Manager</title>
     <style>
       .sidebar,
       .main-content {
@@ -208,61 +208,65 @@
               <div class="variables-container">
                 <h4>Available Variables</h4>
                 <p class="variable-hint">
-                  Click a variable to insert it at the cursor position. Use
-                  format <code>{{variableName}}</code> in your content.
+                  Click a variable to insert it at the cursor position. Use format
+                  <code>{{variableName}}</code> in your content.
                 </p>
                 <div class="variables-list" id="variablesList">
-                  <!-- Existing variables -->
-                  <span class="variable-tag" data-variable="firstName"
+                  <span class="variable-tag" data-variable="firstName" title="{{firstName}}"
                     >First Name</span
                   >
-                  <span class="variable-tag" data-variable="lastName"
+                  <span class="variable-tag" data-variable="lastName" title="{{lastName}}"
                     >Last Name</span
                   >
-                  <span class="variable-tag" data-variable="fullName"
+                  <span class="variable-tag" data-variable="fullName" title="{{fullName}}"
                     >Full Name</span
                   >
-                  <span class="variable-tag" data-variable="email">Personal Email</span>
-                  <span class="variable-tag" data-variable="phone">Personal Phone</span>
-                  <span class="variable-tag" data-variable="businessName"
+                  <span class="variable-tag" data-variable="email" title="{{email}}"
+                    >Personal Email</span
+                  >
+                  <span class="variable-tag" data-variable="phone" title="{{phone}}"
+                    >Personal Phone</span
+                  >
+                  <span class="variable-tag" data-variable="businessName" title="{{businessName}}"
                     >Business Name</span
                   >
-                  <span class="variable-tag" data-variable="businessEmail"
+                  <span class="variable-tag" data-variable="businessEmail" title="{{businessEmail}}"
                     >Business Email</span
                   >
-                  <span class="variable-tag" data-variable="businessPhone"
+                  <span class="variable-tag" data-variable="businessPhone" title="{{businessPhone}}"
                     >Business Phone</span
                   >
-                  <span class="variable-tag" data-variable="preferredContact"
+                  <span class="variable-tag" data-variable="preferredContact" title="{{preferredContact}}"
                     >Contact Preference</span
                   >
-                  <span class="variable-tag" data-variable="billingAddress"
+                  <span class="variable-tag" data-variable="billingAddress" title="{{billingAddress}}"
                     >Billing Address</span
                   >
-                  <span class="variable-tag" data-variable="serviceDesired"
+                  <span class="variable-tag" data-variable="serviceDesired" title="{{serviceDesired}}"
                     >Service Desired</span
                   >
-                  <span class="variable-tag" data-variable="estimatedBudget"
+                  <span class="variable-tag" data-variable="estimatedBudget" title="{{estimatedBudget}}"
                     >Estimated Budget</span
                   >
-                  <span class="variable-tag" data-variable="billedAmount"
+                  <span class="variable-tag" data-variable="billedAmount" title="{{billedAmount}}"
                     >Billed Amount</span
                   >
-                  <!-- Financial variables -->
-                  <span class="variable-tag" data-variable="paidAmount"
+                  <span class="variable-tag" data-variable="paidAmount" title="{{paidAmount}}"
                     >Paid Amount</span
                   >
-                  <span class="variable-tag" data-variable="remainingBalance"
+                  <span class="variable-tag" data-variable="remainingBalance" title="{{remainingBalance}}"
                     >Remaining Balance</span
                   >
-                  <span class="variable-tag" data-variable="currentDate"
+                  <span class="variable-tag" data-variable="currentDate" title="{{currentDate}}"
                     >Current Date</span
                   >
-                  <span class="variable-tag" data-variable="createdAt">Project Origin Date</span>
+                  <span class="variable-tag" data-variable="createdAt" title="{{createdAt}}"
+                    >Project Origin Date</span
+                  >
                 </div>
               </div>
             </div>
-
+          </div>
             <div class="preview-section">
               <h4>Preview</h4>
               <div class="markdown-content" id="markdownPreview"></div>

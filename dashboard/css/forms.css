@@ -493,6 +493,13 @@ div.editor-section {
   border-radius: var(--card-border-radius);
 }
 
+.empty-state {
+  border: 2px dashed var(--text-muted);
+  border-radius: 5px;
+  padding: 4rem;
+  text-align: center;
+}
+
 @media (max-width: 992px) {
   .template-cards {
     grid-template-columns: 1fr;
