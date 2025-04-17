@@ -6,11 +6,11 @@ const leadRoutes = require("./routes/leadRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const settingRoutes = require("./routes/settingRoutes");
 const formRoutes = require("./routes/formRoutes");
-const documentRoutes = require('./routes/documentRoutes');
+const documentRoutes = require("./routes/documentRoutes");
 
 // Load environment variables
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 // Connect to database
 connectDB();
@@ -18,19 +18,21 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: '*', // Allow all origins during development
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: "*", // Allow all origins during development
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: "50mb" }));
 
 app.use((req, res, next) => {
   // For PDF and document endpoints, add specific headers
-  if (req.path.startsWith('/api/documents/')) {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  if (req.path.startsWith("/api/documents/")) {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
   }
   next();
 });
@@ -90,11 +92,30 @@ app.get("/", (req, res) => {
           path: "/api/leads",
           description: "Get all leads (with optional filters and pagination)",
           parameters: [
-            { name: "page", type: "integer", description: "Page number for pagination", required: false },
-            { name: "limit", type: "integer", description: "Number of leads per page", required: false },
-            { name: "sort", type: "string", description: "Sort order (e.g., 'createdAt', '-name')", required: false },
-            { name: "status", type: "string", description: "Filter by lead status", required: false },
-            // Add other potential query parameters for filtering
+            {
+              name: "page",
+              type: "integer",
+              description: "Page number for pagination",
+              required: false,
+            },
+            {
+              name: "limit",
+              type: "integer",
+              description: "Number of leads per page",
+              required: false,
+            },
+            {
+              name: "sort",
+              type: "string",
+              description: "Sort order (e.g., 'createdAt', '-name')",
+              required: false,
+            },
+            {
+              name: "status",
+              type: "string",
+              description: "Filter by lead status",
+              required: false,
+            },
           ],
           response: "Array of lead objects",
         },
@@ -103,7 +124,12 @@ app.get("/", (req, res) => {
           path: "/api/leads/:id",
           description: "Get lead by ID",
           parameters: [
-            { name: "id", type: "string", description: "ID of the lead", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the lead",
+              required: true,
+            },
           ],
           response: "Lead object",
         },
@@ -119,7 +145,12 @@ app.get("/", (req, res) => {
           path: "/api/leads/:id",
           description: "Update a lead",
           parameters: [
-            { name: "id", type: "string", description: "ID of the lead to update", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the lead to update",
+              required: true,
+            },
           ],
           requestBody: "Updated lead object in JSON format",
           response: "Updated lead object",
@@ -129,7 +160,12 @@ app.get("/", (req, res) => {
           path: "/api/leads/:id",
           description: "Delete a lead",
           parameters: [
-            { name: "id", type: "string", description: "ID of the lead to delete", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the lead to delete",
+              required: true,
+            },
           ],
           response: "Success message or error",
         },
@@ -138,7 +174,12 @@ app.get("/", (req, res) => {
           path: "/api/leads/search?query=term",
           description: "Search leads by keyword",
           parameters: [
-            { name: "query", type: "string", description: "Search term", required: true },
+            {
+              name: "query",
+              type: "string",
+              description: "Search term",
+              required: true,
+            },
           ],
           response: "Array of matching lead objects",
         },
@@ -147,13 +188,33 @@ app.get("/", (req, res) => {
         {
           method: "GET",
           path: "/api/payments",
-          description: "Get all payments (with optional filters and pagination)",
+          description:
+            "Get all payments (with optional filters and pagination)",
           parameters: [
-            { name: "page", type: "integer", description: "Page number for pagination", required: false },
-            { name: "limit", type: "integer", description: "Number of payments per page", required: false },
-            { name: "sort", type: "string", description: "Sort order (e.g., 'createdAt', '-amount')", required: false },
-            { name: "status", type: "string", description: "Filter by payment status", required: false },
-            // Add other potential query parameters for filtering
+            {
+              name: "page",
+              type: "integer",
+              description: "Page number for pagination",
+              required: false,
+            },
+            {
+              name: "limit",
+              type: "integer",
+              description: "Number of payments per page",
+              required: false,
+            },
+            {
+              name: "sort",
+              type: "string",
+              description: "Sort order (e.g., 'createdAt', '-amount')",
+              required: false,
+            },
+            {
+              name: "status",
+              type: "string",
+              description: "Filter by payment status",
+              required: false,
+            },
           ],
           response: "Array of payment objects",
         },
@@ -162,7 +223,12 @@ app.get("/", (req, res) => {
           path: "/api/payments/lead/:leadId",
           description: "Get payments for a specific lead",
           parameters: [
-            { name: "leadId", type: "string", description: "ID of the lead", required: true },
+            {
+              name: "leadId",
+              type: "string",
+              description: "ID of the lead",
+              required: true,
+            },
           ],
           response: "Array of payment objects for the lead",
         },
@@ -178,7 +244,12 @@ app.get("/", (req, res) => {
           path: "/api/payments/:id",
           description: "Update a payment",
           parameters: [
-            { name: "id", type: "string", description: "ID of the payment to update", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the payment to update",
+              required: true,
+            },
           ],
           requestBody: "Updated payment object in JSON format",
           response: "Updated payment object",
@@ -188,7 +259,12 @@ app.get("/", (req, res) => {
           path: "/api/payments/:id",
           description: "Delete a payment",
           parameters: [
-            { name: "id", type: "string", description: "ID of the payment to delete", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the payment to delete",
+              required: true,
+            },
           ],
           response: "Success message or error",
         },
@@ -205,7 +281,12 @@ app.get("/", (req, res) => {
           path: "/api/settings/:key",
           description: "Get setting by key",
           parameters: [
-            { name: "key", type: "string", description: "Key of the setting", required: true },
+            {
+              name: "key",
+              type: "string",
+              description: "Key of the setting",
+              required: true,
+            },
           ],
           response: "Setting object",
         },
@@ -214,22 +295,41 @@ app.get("/", (req, res) => {
           path: "/api/settings/:key",
           description: "Update a setting",
           parameters: [
-            { name: "key", type: "string", description: "Key of the setting to update", required: true },
+            {
+              name: "key",
+              type: "string",
+              description: "Key of the setting to update",
+              required: true,
+            },
           ],
-          requestBody: "Updated setting value in JSON format (e.g., { value: 'new value' })",
+          requestBody:
+            "Updated setting value in JSON format (e.g., { value: 'new value' })",
           response: "Updated setting object",
         },
-
         // Form Endpoints
         {
           method: "GET",
           path: "/api/forms",
           description: "Get all forms (with optional filters and pagination)",
           parameters: [
-            { name: "page", type: "integer", description: "Page number for pagination", required: false },
-            { name: "limit", type: "integer", description: "Number of forms per page", required: false },
-            { name: "sort", type: "string", description: "Sort order (e.g., 'createdAt', '-name')", required: false },
-            // Add other potential query parameters for filtering
+            {
+              name: "page",
+              type: "integer",
+              description: "Page number for pagination",
+              required: false,
+            },
+            {
+              name: "limit",
+              type: "integer",
+              description: "Number of forms per page",
+              required: false,
+            },
+            {
+              name: "sort",
+              type: "string",
+              description: "Sort order (e.g., 'createdAt', '-name')",
+              required: false,
+            },
           ],
           response: "Array of form objects",
         },
@@ -238,7 +338,12 @@ app.get("/", (req, res) => {
           path: "/api/forms/:id",
           description: "Get form by ID",
           parameters: [
-            { name: "id", type: "string", description: "ID of the form", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the form",
+              required: true,
+            },
           ],
           response: "Form object",
         },
@@ -254,7 +359,12 @@ app.get("/", (req, res) => {
           path: "/api/forms/:id",
           description: "Update a form",
           parameters: [
-            { name: "id", type: "string", description: "ID of the form to update", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the form to update",
+              required: true,
+            },
           ],
           requestBody: "Updated form object in JSON format",
           response: "Updated form object",
@@ -264,7 +374,12 @@ app.get("/", (req, res) => {
           path: "/api/forms/:id",
           description: "Delete a form",
           parameters: [
-            { name: "id", type: "string", description: "ID of the form to delete", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the form to delete",
+              required: true,
+            },
           ],
           response: "Success message or error",
         },
@@ -273,7 +388,12 @@ app.get("/", (req, res) => {
           path: "/api/forms/search?query=term",
           description: "Search forms by keyword",
           parameters: [
-            { name: "query", type: "string", description: "Search term", required: true },
+            {
+              name: "query",
+              type: "string",
+              description: "Search term",
+              required: true,
+            },
           ],
           response: "Array of matching form objects",
         },
@@ -282,7 +402,12 @@ app.get("/", (req, res) => {
           path: "/api/forms/:id/clone",
           description: "Clone a template form",
           parameters: [
-            { name: "id", type: "string", description: "ID of the template form to clone", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the template form to clone",
+              required: true,
+            },
           ],
           response: "Cloned form object",
         },
@@ -291,10 +416,88 @@ app.get("/", (req, res) => {
           path: "/api/forms/:id/generate",
           description: "Generate form with lead data",
           parameters: [
-            { name: "id", type: "string", description: "ID of the form to generate", required: true },
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the form to generate",
+              required: true,
+            },
           ],
           requestBody: "Lead data object in JSON format",
           response: "Generated form data object",
+        },
+        // documents (pdf uploads) endpoints
+        {
+          method: "GET",
+          path: "/api/documents/lead/:leadId",
+          description: "Get all documents associated with a specific lead.",
+          parameters: [
+            {
+              name: "leadId",
+              type: "string",
+              description: "Unique ID of the lead",
+              required: true,
+            },
+          ],
+          response: "JSON array of document metadata objects.",
+          exampleResponse:
+            "[{ _id: '...', lead: ':leadId', filename: '...', uploadDate: '...', size: '...', mimetype: '...', url: '...' }]", // Example placeholder
+        },
+        {
+          method: "GET",
+          path: "/api/documents/:id",
+          description:
+            "Retrieve or download a specific document by its unique ID.",
+          parameters: [
+            {
+              name: "id",
+              type: "string",
+              description: "Unique ID of the document",
+              required: true,
+            },
+          ],
+          response:
+            "File content or a redirect to the file's storage location.",
+          exampleResponse: "Binary file data (e.g., PDF, image) or a redirect.", 
+        },
+        {
+          method: "POST",
+          path: "/api/documents/lead/:leadId",
+          description: "Upload a new document for a specific lead.",
+          parameters: [
+            {
+              name: "leadId",
+              type: "string",
+              description:
+                "Unique ID of the lead to associate the document with",
+              required: true,
+            },
+          ],
+          requestBody: {
+            type: "multipart/form-data", // File uploads typically use multipart/form-data
+            description: "Form data containing the file to upload.",
+            schema:
+              "File data under a specific form field name (e.g., 'document')", // Example field name
+          },
+          response:
+            "JSON object confirming the upload and returning document metadata.",
+          exampleResponse:
+            "{ message: 'Document uploaded successfully', document: { _id: '...', filename: '...', ... } }", // Example placeholder
+        },
+        {
+          method: "DELETE",
+          path: "/api/documents/:id",
+          description: "Delete a specific document by its unique ID.",
+          parameters: [
+            {
+              name: "id",
+              type: "string",
+              description: "Unique ID of the document to delete",
+              required: true,
+            },
+          ],
+          response: "JSON success message or error.",
+          exampleResponse: "{ message: 'Document deleted successfully' }", // Example placeholder
         },
       ],
     },
