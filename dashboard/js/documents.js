@@ -1,6 +1,291 @@
 import * as API from "./api.js";
 import * as Utils from "./utils.js";
 
+// Advanced Document Upload Module
+class DocumentUploader {
+  constructor(leadId) {
+    // Singleton pattern to prevent multiple instances
+    if (DocumentUploader.instance) {
+      return DocumentUploader.instance;
+    }
+    DocumentUploader.instance = this;
+
+    // Core properties
+    this.leadId = leadId;
+    this.fileInput = null;
+    this.selectFilesBtn = null;
+    this.uploadArea = null;
+    this.isUploading = false;
+    
+    // Initialize references
+    this.initializeReferences();
+    
+    // Bind methods to preserve context
+    this.handleFileSelect = this.handleFileSelect.bind(this);
+    this.handleDragOver = this.handleDragOver.bind(this);
+    this.handleDragLeave = this.handleDragLeave.bind(this);
+    this.handleDrop = this.handleDrop.bind(this);
+    
+    // Bind events
+    this.bindEvents();
+  }
+
+  // Initialize DOM references
+  initializeReferences() {
+    this.fileInput = document.getElementById('fileInput');
+    this.selectFilesBtn = document.getElementById('selectFilesBtn');
+    this.uploadArea = document.getElementById('documentUploadArea');
+
+    // Validate references
+    if (!this.fileInput || !this.selectFilesBtn || !this.uploadArea) {
+      console.error('Document upload elements not found');
+      return false;
+    }
+
+    return true;
+  }
+
+  // Bind event listeners with advanced prevention
+  bindEvents() {
+    // Remove any existing listeners first
+    this.unbindEvents();
+
+    // Add new listeners with unique handler references
+    this.selectFilesBtn.addEventListener('click', this.handleSelectFiles.bind(this));
+    this.fileInput.addEventListener('change', this.handleFileSelect);
+    this.uploadArea.addEventListener('dragover', this.handleDragOver);
+    this.uploadArea.addEventListener('dragleave', this.handleDragLeave);
+    this.uploadArea.addEventListener('drop', this.handleDrop);
+  }
+
+  // Unbind all event listeners
+  unbindEvents() {
+    const handlers = [
+      { el: this.selectFilesBtn, event: 'click', handler: this.handleSelectFiles },
+      { el: this.fileInput, event: 'change', handler: this.handleFileSelect },
+      { el: this.uploadArea, event: 'dragover', handler: this.handleDragOver },
+      { el: this.uploadArea, event: 'dragleave', handler: this.handleDragLeave },
+      { el: this.uploadArea, event: 'drop', handler: this.handleDrop }
+    ];
+
+    handlers.forEach(({ el, event, handler }) => {
+      if (el) {
+        el.removeEventListener(event, handler);
+      }
+    });
+  }
+
+  // Handle select files button click
+  handleSelectFiles() {
+    if (this.fileInput) {
+      this.fileInput.click();
+    }
+  }
+
+  // Drag and drop handlers
+  handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.uploadArea.classList.add('highlight');
+  }
+
+  handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.uploadArea.classList.remove('highlight');
+  }
+
+  handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.uploadArea.classList.remove('highlight');
+    
+    const files = e.dataTransfer.files;
+    this.processFileUpload(files);
+  }
+
+  // Handle file input change
+  handleFileSelect(e) {
+    const files = this.fileInput.files;
+    this.processFileUpload(files);
+    
+    // Reset file input to allow re-uploading same files
+    this.fileInput.value = '';
+  }
+
+  // Validate upload conditions
+  validateUploadConditions() {
+    // Check edit mode
+    const submitButton = document.querySelector('#leadForm button[type="submit"]');
+    const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
+    
+    if (!isEditMode) {
+      Utils.showToast("Please switch to edit mode to upload documents");
+      return false;
+    }
+
+    // Validate lead ID
+    if (!this.leadId) {
+      Utils.showToast("Error: No lead selected for document upload");
+      return false;
+    }
+
+    // Prevent concurrent uploads
+    if (this.isUploading) {
+      Utils.showToast("Document upload already in progress");
+      return false;
+    }
+
+    return true;
+  }
+
+  // Process file upload
+  processFileUpload(files) {
+    // Validate upload conditions
+    if (!this.validateUploadConditions()) {
+      return;
+    }
+
+    // Get existing document list
+    const documentsContainer = document.getElementById("signedDocumentsList");
+    const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
+      .map(el => el.querySelector(".document-title").textContent);
+
+    // Filter and validate files
+    const filesToUpload = Array.from(files).filter(file => {
+      // Check if file already exists
+      if (existingDocuments.includes(file.name)) {
+        Utils.showToast(`${file.name} is already uploaded`);
+        return false;
+      }
+      
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        Utils.showToast(`${file.name} is not a PDF file`);
+        return false;
+      }
+      
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        Utils.showToast(`${file.name} is too large (max 10MB)`);
+        return false;
+      }
+      
+      return true;
+    });
+
+    // If no valid files, return
+    if (filesToUpload.length === 0) {
+      return;
+    }
+
+    // Set upload flag
+    this.isUploading = true;
+
+    // Upload files
+    const uploadPromises = filesToUpload.map(file => this.uploadSingleFile(file));
+
+    // Handle upload completion
+    Promise.all(uploadPromises)
+      .then(() => {
+        // Reload documents list
+        loadLeadDocuments(this.leadId);
+      })
+      .catch(errors => {
+        console.error('Upload errors:', errors);
+        // Attempt to reload documents
+        loadLeadDocuments(this.leadId);
+      })
+      .finally(() => {
+        // Reset upload flag
+        this.isUploading = false;
+      });
+  }
+
+  // Upload single file
+  uploadSingleFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        try {
+          // Verify file was read correctly
+          if (!e.target.result) {
+            throw new Error('Failed to read file data');
+          }
+
+          // Prepare file data
+          const fileData = {
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+            fileData: e.target.result
+          };
+          
+          // Upload file
+          const response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${this.leadId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(fileData)
+          });
+          
+          // Check response status
+          if (!response.ok) {
+            let errorDetails = '';
+            try {
+              const errorBody = await response.json();
+              errorDetails = errorBody.message || '';
+            } catch {
+              errorDetails = `Status: ${response.status}`;
+            }
+            
+            console.error('Document upload failed:', errorDetails);
+            Utils.showToast(`Failed to upload ${file.name}: ${errorDetails}`);
+            reject(new Error(errorDetails));
+            return;
+          }
+          
+          // Successful upload
+          Utils.showToast(`${file.name} uploaded successfully`);
+          resolve();
+        } catch (error) {
+          console.error('Unexpected error uploading document:', error);
+          Utils.showToast(`Unexpected error uploading ${file.name}: ${error.message}`);
+          reject(error);
+        }
+      };
+      
+      reader.onerror = (error) => {
+        console.error('File reading error:', error);
+        Utils.showToast(`Error reading ${file.name}`);
+        reject(new Error('File read error'));
+      };
+      
+      // Start reading the file
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Update UI mode
+  updateUiForMode() {
+    const submitButton = document.querySelector('#leadForm button[type="submit"]');
+    const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
+    
+    // Update upload area visibility
+    if (this.uploadArea) {
+      this.uploadArea.style.display = isEditMode ? "flex" : "none";
+    }
+    
+    // Update delete button visibility
+    const deleteButtons = document.querySelectorAll(".document-actions .delete-document");
+    deleteButtons.forEach(button => {
+      button.style.display = isEditMode ? "flex" : "none";
+    });
+  }
+}
+
 // Load documents for a specific lead
 async function loadLeadDocuments(leadId) {
   try {
@@ -62,14 +347,14 @@ async function loadLeadDocuments(leadId) {
       // Add event listeners
       documentItem
         .querySelector(".view-document")
-        .addEventListener("click", function (e) {
+        .addEventListener("click", (e) => {
           e.stopPropagation();
           viewDocument(doc._id, doc.fileName);
         });
 
       documentItem
         .querySelector(".delete-document")
-        .addEventListener("click", function (e) {
+        .addEventListener("click", (e) => {
           e.stopPropagation();
           if (confirm(`Are you sure you want to delete "${doc.fileName}"?`)) {
             deleteDocument(doc._id, leadId);
@@ -80,7 +365,7 @@ async function loadLeadDocuments(leadId) {
       documentsContainer.appendChild(documentItem);
     });
 
-    // Setup upload area visibility based on edit mode
+    // Update UI mode
     updateDocumentUiForMode();
   } catch (error) {
     console.error("Error loading lead documents:", error);
@@ -92,12 +377,11 @@ async function loadLeadDocuments(leadId) {
   }
 }
 
+// View document
 async function viewDocument(documentId, fileName) {
   try {
-    // Instead of using an iframe, open the document in a new tab
+    // Open the document in a new tab
     const documentUrl = `${API.getBaseUrl()}/api/documents/${documentId}`;
-    
-    // Open document in a new tab
     window.open(documentUrl, '_blank');
   } catch (error) {
     console.error("Error viewing document:", error);
@@ -105,7 +389,7 @@ async function viewDocument(documentId, fileName) {
   }
 }
 
-// Delete a document
+// Delete document
 async function deleteDocument(documentId, leadId) {
   try {
     // Delete the document
@@ -128,225 +412,37 @@ async function deleteDocument(documentId, leadId) {
   }
 }
 
-// Initialize document upload functionality
-function initDocumentUpload(leadId) {
-  const fileInput = document.getElementById("fileInput");
-  const selectFilesBtn = document.getElementById("selectFilesBtn");
-  const uploadArea = document.getElementById("documentUploadArea");
-
-  if (!fileInput || !selectFilesBtn || !uploadArea) {
-    console.error("Document upload elements not found");
-    return;
-  }
-
-  // Remove any existing event listeners first
-  selectFilesBtn.removeEventListener("click", selectFilesBtnHandler);
-  fileInput.removeEventListener("change", fileInputChangeHandler);
-  uploadArea.removeEventListener("dragover", dragOverHandler);
-  uploadArea.removeEventListener("dragleave", dragLeaveHandler);
-  uploadArea.removeEventListener("drop", dropHandler);
-
-  // Define handlers to prevent duplicate event listeners
-  function selectFilesBtnHandler() {
-    fileInput.click();
-  }
-
-  function fileInputChangeHandler() {
-    if (this.files.length > 0) {
-      handleFileUpload(this.files, leadId);
-    }
-  }
-
-  function dragOverHandler(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.classList.add("highlight");
-  }
-
-  function dragLeaveHandler(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.classList.remove("highlight");
-  }
-
-  function dropHandler(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.classList.remove("highlight");
-    
-    if (e.dataTransfer.files.length > 0) {
-      handleFileUpload(e.dataTransfer.files, leadId);
-    }
-  }
-
-  // Add new event listeners
-  selectFilesBtn.addEventListener("click", selectFilesBtnHandler);
-  fileInput.addEventListener("change", fileInputChangeHandler);
-  uploadArea.addEventListener("dragover", dragOverHandler);
-  uploadArea.addEventListener("dragleave", dragLeaveHandler);
-  uploadArea.addEventListener("drop", dropHandler);
-
-  // Update UI based on read-only mode
-  updateDocumentUiForMode();
-}
-
-// Handle file upload with deduplication and enhanced error handling
-function handleFileUpload(files, leadId) {
-  // Check if we're in edit mode
-  const submitButton = document.querySelector('#leadForm button[type="submit"]');
-  const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
-  
-  if (!isEditMode) {
-    Utils.showToast("Please switch to edit mode to upload documents");
-    return;
-  }
-
-  // Validate lead ID
-  if (!leadId) {
-    Utils.showToast("Error: No lead selected for document upload");
-    return;
-  }
-
-  // Get existing document list
-  const documentsContainer = document.getElementById("signedDocumentsList");
-  const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
-    .map(el => el.querySelector(".document-title").textContent);
-
-  // Process each file with deduplication
-  const filePromises = Array.from(files)
-    .filter(file => {
-      // Check if file already exists
-      if (existingDocuments.includes(file.name)) {
-        Utils.showToast(`${file.name} is already uploaded`);
-        return false;
-      }
-      
-      // Validate file type
-      if (file.type !== 'application/pdf') {
-        Utils.showToast(`${file.name} is not a PDF file`);
-        return false;
-      }
-      
-      // Validate file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
-        Utils.showToast(`${file.name} is too large (max 10MB)`);
-        return false;
-      }
-      
-      return true;
-    })
-    .map(file => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-          try {
-            // Verify file was read correctly
-            if (!e.target.result) {
-              throw new Error('Failed to read file data');
-            }
-
-            // Prepare file data
-            const fileData = {
-              fileName: file.name,
-              fileType: file.type,
-              fileSize: file.size,
-              fileData: e.target.result
-            };
-            
-            // Upload file with detailed error handling
-            let response;
-            try {
-              response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${leadId}`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(fileData)
-              });
-            } catch (networkError) {
-              console.error('Network error uploading document:', networkError);
-              Utils.showToast(`Network error uploading ${file.name}`);
-              reject(networkError);
-              return;
-            }
-            
-            // Check response status
-            if (!response.ok) {
-              // Try to get more detailed error message
-              let errorDetails = '';
-              try {
-                const errorBody = await response.json();
-                errorDetails = errorBody.message || '';
-              } catch {
-                errorDetails = `Status: ${response.status}`;
-              }
-              
-              console.error('Document upload failed:', errorDetails);
-              Utils.showToast(`Failed to upload ${file.name}: ${errorDetails}`);
-              reject(new Error(errorDetails));
-              return;
-            }
-            
-            // Successful upload
-            Utils.showToast(`${file.name} uploaded successfully`);
-            resolve();
-          } catch (error) {
-            console.error('Unexpected error uploading document:', error);
-            Utils.showToast(`Unexpected error uploading ${file.name}: ${error.message}`);
-            reject(error);
-          }
-        };
-        
-        reader.onerror = function(error) {
-          console.error('File reading error:', error);
-          Utils.showToast(`Error reading ${file.name}`);
-          reject(new Error('File read error'));
-        };
-        
-        // Initiate file reading
-        try {
-          reader.readAsDataURL(file);
-        } catch (readError) {
-          console.error('Error starting file read:', readError);
-          Utils.showToast(`Failed to start reading ${file.name}`);
-          reject(readError);
-        }
-      });
-    });
-
-  // Reload documents list after all uploads complete
-  Promise.all(filePromises)
-    .then(() => {
-      loadLeadDocuments(leadId);
-    })
-    .catch(errors => {
-      console.error('One or more file uploads failed:', errors);
-      // Attempt to reload documents even if some uploads failed
-      loadLeadDocuments(leadId);
-    });
-}
-
-// Update document UI based on mode (read-only or edit)
+// Update UI mode
 function updateDocumentUiForMode() {
-  // Check if we're in edit mode
   const submitButton = document.querySelector('#leadForm button[type="submit"]');
   const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
   
-  // Get document UI elements
+  // Update upload area visibility
   const uploadArea = document.getElementById("documentUploadArea");
-  const deleteButtons = document.querySelectorAll(".document-actions .delete-document");
-  
   if (uploadArea) {
     uploadArea.style.display = isEditMode ? "flex" : "none";
   }
   
+  // Update delete button visibility
+  const deleteButtons = document.querySelectorAll(".document-actions .delete-document");
   deleteButtons.forEach(button => {
     button.style.display = isEditMode ? "flex" : "none";
   });
 }
 
+// Initialize document upload
+function initDocumentUpload(leadId) {
+  // Create or retrieve singleton instance
+  const uploader = new DocumentUploader(leadId);
+  
+  // Update UI mode
+  uploader.updateUiForMode();
+  
+  return uploader;
+}
+
 export {
-  loadLeadDocuments,
   initDocumentUpload,
+  loadLeadDocuments, 
   updateDocumentUiForMode
-};
+}
