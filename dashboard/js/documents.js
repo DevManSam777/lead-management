@@ -139,32 +139,37 @@ function initDocumentUpload(leadId) {
     return;
   }
 
-  // Click select files button to trigger file input
-  selectFilesBtn.addEventListener("click", function() {
-    fileInput.click();
-  });
+  // Remove any existing event listeners first
+  selectFilesBtn.removeEventListener("click", selectFilesBtnHandler);
+  fileInput.removeEventListener("change", fileInputChangeHandler);
+  uploadArea.removeEventListener("dragover", dragOverHandler);
+  uploadArea.removeEventListener("dragleave", dragLeaveHandler);
+  uploadArea.removeEventListener("drop", dropHandler);
 
-  // Handle file selection
-  fileInput.addEventListener("change", function() {
+  // Define handlers to prevent duplicate event listeners
+  function selectFilesBtnHandler() {
+    fileInput.click();
+  }
+
+  function fileInputChangeHandler() {
     if (this.files.length > 0) {
       handleFileUpload(this.files, leadId);
     }
-  });
+  }
 
-  // Setup drag and drop
-  uploadArea.addEventListener("dragover", function(e) {
+  function dragOverHandler(e) {
     e.preventDefault();
     e.stopPropagation();
     this.classList.add("highlight");
-  });
+  }
 
-  uploadArea.addEventListener("dragleave", function(e) {
+  function dragLeaveHandler(e) {
     e.preventDefault();
     e.stopPropagation();
     this.classList.remove("highlight");
-  });
+  }
 
-  uploadArea.addEventListener("drop", function(e) {
+  function dropHandler(e) {
     e.preventDefault();
     e.stopPropagation();
     this.classList.remove("highlight");
@@ -172,13 +177,20 @@ function initDocumentUpload(leadId) {
     if (e.dataTransfer.files.length > 0) {
       handleFileUpload(e.dataTransfer.files, leadId);
     }
-  });
+  }
+
+  // Add new event listeners
+  selectFilesBtn.addEventListener("click", selectFilesBtnHandler);
+  fileInput.addEventListener("change", fileInputChangeHandler);
+  uploadArea.addEventListener("dragover", dragOverHandler);
+  uploadArea.addEventListener("dragleave", dragLeaveHandler);
+  uploadArea.addEventListener("drop", dropHandler);
 
   // Update UI based on read-only mode
   updateDocumentUiForMode();
 }
 
-// Handle file upload with deduplication
+// Handle file upload with deduplication and enhanced error handling
 function handleFileUpload(files, leadId) {
   // Check if we're in edit mode
   const submitButton = document.querySelector('#leadForm button[type="submit"]');
@@ -186,6 +198,12 @@ function handleFileUpload(files, leadId) {
   
   if (!isEditMode) {
     Utils.showToast("Please switch to edit mode to upload documents");
+    return;
+  }
+
+  // Validate lead ID
+  if (!leadId) {
+    Utils.showToast("Error: No lead selected for document upload");
     return;
   }
 
@@ -222,6 +240,11 @@ function handleFileUpload(files, leadId) {
         const reader = new FileReader();
         reader.onload = async function(e) {
           try {
+            // Verify file was read correctly
+            if (!e.target.result) {
+              throw new Error('Failed to read file data');
+            }
+
             // Prepare file data
             const fileData = {
               fileName: file.name,
@@ -230,36 +253,64 @@ function handleFileUpload(files, leadId) {
               fileData: e.target.result
             };
             
-            // Upload file
-            const response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${leadId}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(fileData)
-            });
-            
-            if (!response.ok) {
-              throw new Error('Failed to upload document');
+            // Upload file with detailed error handling
+            let response;
+            try {
+              response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${leadId}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(fileData)
+              });
+            } catch (networkError) {
+              console.error('Network error uploading document:', networkError);
+              Utils.showToast(`Network error uploading ${file.name}`);
+              reject(networkError);
+              return;
             }
             
-            // Show success message
-            Utils.showToast(`${file.name} uploaded successfully`);
+            // Check response status
+            if (!response.ok) {
+              // Try to get more detailed error message
+              let errorDetails = '';
+              try {
+                const errorBody = await response.json();
+                errorDetails = errorBody.message || '';
+              } catch {
+                errorDetails = `Status: ${response.status}`;
+              }
+              
+              console.error('Document upload failed:', errorDetails);
+              Utils.showToast(`Failed to upload ${file.name}: ${errorDetails}`);
+              reject(new Error(errorDetails));
+              return;
+            }
             
+            // Successful upload
+            Utils.showToast(`${file.name} uploaded successfully`);
             resolve();
           } catch (error) {
-            console.error('Error uploading document:', error);
-            Utils.showToast(`Error uploading ${file.name}: ${error.message}`);
+            console.error('Unexpected error uploading document:', error);
+            Utils.showToast(`Unexpected error uploading ${file.name}: ${error.message}`);
             reject(error);
           }
         };
         
-        reader.onerror = function() {
+        reader.onerror = function(error) {
+          console.error('File reading error:', error);
           Utils.showToast(`Error reading ${file.name}`);
           reject(new Error('File read error'));
         };
         
-        reader.readAsDataURL(file);
+        // Initiate file reading
+        try {
+          reader.readAsDataURL(file);
+        } catch (readError) {
+          console.error('Error starting file read:', readError);
+          Utils.showToast(`Failed to start reading ${file.name}`);
+          reject(readError);
+        }
       });
     });
 
@@ -268,8 +319,10 @@ function handleFileUpload(files, leadId) {
     .then(() => {
       loadLeadDocuments(leadId);
     })
-    .catch(error => {
-      console.error('Upload errors:', error);
+    .catch(errors => {
+      console.error('One or more file uploads failed:', errors);
+      // Attempt to reload documents even if some uploads failed
+      loadLeadDocuments(leadId);
     });
 }
 
