@@ -494,6 +494,7 @@ div.editor-section {
 }
 
 .empty-state {
+  color: var(--text-muted);
   border: 2px dashed var(--text-muted);
   border-radius: 5px;
   padding: 4rem;
