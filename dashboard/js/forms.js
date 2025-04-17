@@ -409,7 +409,7 @@ async function fetchAndRenderForms() {
         <div class="empty-state">
           <i class="fas fa-file-alt"></i>
           <h3>No forms found</h3>
-          <p>Create your first form by clicking the "Create New Form" button.</p>
+          <p>Create a form by clicking the "Create New Form" button above</p>
         </div>
       `;
       return;
