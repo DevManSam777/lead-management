@@ -834,6 +834,7 @@ details[open] .stats-cards {
   position: relative;
   margin-top: 1rem;
   font-size: 1.4rem;
+  border: 0.1rem solid var(--primary);
   transform: all var(--transition-speed) ease;
 }
 
