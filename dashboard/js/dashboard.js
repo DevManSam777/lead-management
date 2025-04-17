@@ -4,6 +4,7 @@ import * as Utils from "./utils.js";
 import * as Handlers from "./handlers.js";
 import * as Payments from "./payments.js";
 import * as Pagination from "./pagination.js";
+import * as Documents from "./documents.js";
 
 // Global variables
 let allLeads = [];
@@ -163,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Initialize dropdown for smaller screens
-  initResponsiveTabs('#leadModal');
+  initResponsiveTabs("#leadModal");
 
   // Initialize date input displays
   initializeDateInputs();
@@ -480,6 +481,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   window.updateModalActionButtons = UI.updateModalActionButtons;
   window.fetchLeadPayments = API.fetchLeadPayments;
   window.renderLeadPayments = Payments.renderLeadPayments;
+  window.loadLeadDocuments = Documents.loadLeadDocuments;
+  window.initDocumentUpload = Documents.initDocumentUpload;
+  window.updateDocumentUiForMode = Documents.updateDocumentUiForMode;
 
   // Set up the combined sort dropdown
   const combinedSort = document.getElementById("combinedSort");
@@ -514,26 +518,27 @@ document.addEventListener("DOMContentLoaded", async function () {
 function initResponsiveTabs(modalSelector) {
   const modal = document.querySelector(modalSelector);
   if (!modal) return;
-  
+
   // Get the horizontal tabs container
-  const tabsContainer = modal.querySelector('.modal-tabs');
+  const tabsContainer = modal.querySelector(".modal-tabs");
   if (!tabsContainer) return;
-  
+
   // Get all tab buttons
-  const tabButtons = tabsContainer.querySelectorAll('.modal-tab');
+  const tabButtons = tabsContainer.querySelectorAll(".modal-tab");
   if (!tabButtons.length) return;
-  
+
   // Create dropdown container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.className = 'modal-tabs-dropdown';
-  
+  const dropdownContainer = document.createElement("div");
+  dropdownContainer.className = "modal-tabs-dropdown";
+
   // Create dropdown button with the currently active tab
-  const activeTab = tabsContainer.querySelector('.modal-tab.active') || tabButtons[0];
-  const activeTabIcon = activeTab.querySelector('i').cloneNode(true);
-  const activeTabText = activeTab.querySelector('span').textContent;
-  
-  const dropdownButton = document.createElement('div');
-  dropdownButton.className = 'tabs-dropdown-button';
+  const activeTab =
+    tabsContainer.querySelector(".modal-tab.active") || tabButtons[0];
+  const activeTabIcon = activeTab.querySelector("i").cloneNode(true);
+  const activeTabText = activeTab.querySelector("span").textContent;
+
+  const dropdownButton = document.createElement("div");
+  dropdownButton.className = "tabs-dropdown-button";
   dropdownButton.innerHTML = `
     <div>
       <i class="tab-icon ${activeTabIcon.className}"></i>
@@ -541,109 +546,124 @@ function initResponsiveTabs(modalSelector) {
     </div>
     <i class="fas fa-chevron-down"></i>
   `;
-  
+
   // Create dropdown menu
-  const dropdownMenu = document.createElement('div');
-  dropdownMenu.className = 'tabs-dropdown-menu';
-  
+  const dropdownMenu = document.createElement("div");
+  dropdownMenu.className = "tabs-dropdown-menu";
+
   // Add tabs to the dropdown menu
-  tabButtons.forEach(tab => {
-    const icon = tab.querySelector('i');
-    const text = tab.querySelector('span');
-    
+  tabButtons.forEach((tab) => {
+    const icon = tab.querySelector("i");
+    const text = tab.querySelector("span");
+
     if (!icon || !text) return;
-    
-    const dropdownItem = document.createElement('div');
-    dropdownItem.className = 'dropdown-tab-item';
+
+    const dropdownItem = document.createElement("div");
+    dropdownItem.className = "dropdown-tab-item";
     dropdownItem.dataset.tab = tab.dataset.tab;
-    
-    if (tab.classList.contains('active')) {
-      dropdownItem.classList.add('active');
+
+    if (tab.classList.contains("active")) {
+      dropdownItem.classList.add("active");
     }
-    
+
     dropdownItem.innerHTML = `
       <i class="${icon.className}"></i>
       <span>${text.textContent}</span>
     `;
-    
+
     // Add click event to dropdown item
-    dropdownItem.addEventListener('click', function() {
+    dropdownItem.addEventListener("click", function () {
       // Find and trigger click on corresponding original tab
-      const originalTab = modal.querySelector(`.modal-tab[data-tab="${this.dataset.tab}"]`);
+      const originalTab = modal.querySelector(
+        `.modal-tab[data-tab="${this.dataset.tab}"]`
+      );
       if (originalTab) {
         originalTab.click();
       }
-      
+
       // Update dropdown button text and icon
-      const buttonIcon = dropdownButton.querySelector('.tab-icon');
-      const buttonText = dropdownButton.querySelector('span');
-      
+      const buttonIcon = dropdownButton.querySelector(".tab-icon");
+      const buttonText = dropdownButton.querySelector("span");
+
       if (buttonIcon && buttonText) {
-        buttonIcon.className = icon.className + ' tab-icon';
+        buttonIcon.className = icon.className + " tab-icon";
         buttonText.textContent = text.textContent;
       }
-      
+
       // Update active state in dropdown items
-      dropdownMenu.querySelectorAll('.dropdown-tab-item').forEach(item => {
-        item.classList.remove('active');
+      dropdownMenu.querySelectorAll(".dropdown-tab-item").forEach((item) => {
+        item.classList.remove("active");
       });
-      this.classList.add('active');
-      
+      this.classList.add("active");
+
       // Close dropdown menu
-      dropdownMenu.classList.remove('open');
-      dropdownButton.classList.remove('open');
+      dropdownMenu.classList.remove("open");
+      dropdownButton.classList.remove("open");
     });
-    
+
     dropdownMenu.appendChild(dropdownItem);
   });
-  
+
   // Add dropdown button click event
-  dropdownButton.addEventListener('click', function() {
-    dropdownMenu.classList.toggle('open');
-    this.classList.toggle('open');
+  dropdownButton.addEventListener("click", function () {
+    dropdownMenu.classList.toggle("open");
+    this.classList.toggle("open");
   });
-  
+
   // Close dropdown when clicking outside
-  document.addEventListener('click', function(event) {
-    if (!dropdownContainer.contains(event.target) && dropdownMenu.classList.contains('open')) {
-      dropdownMenu.classList.remove('open');
-      dropdownButton.classList.remove('open');
+  document.addEventListener("click", function (event) {
+    if (
+      !dropdownContainer.contains(event.target) &&
+      dropdownMenu.classList.contains("open")
+    ) {
+      dropdownMenu.classList.remove("open");
+      dropdownButton.classList.remove("open");
     }
   });
-  
+
   // Add components to dropdown container
   dropdownContainer.appendChild(dropdownButton);
   dropdownContainer.appendChild(dropdownMenu);
-  
+
   // Insert dropdown before the tabs container
   tabsContainer.parentNode.insertBefore(dropdownContainer, tabsContainer);
-  
+
   // Monitor tab changes to update dropdown
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+  const observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      if (
+        mutation.type === "attributes" &&
+        mutation.attributeName === "class"
+      ) {
         const target = mutation.target;
-        if (target.classList.contains('active') && target.classList.contains('modal-tab')) {
+        if (
+          target.classList.contains("active") &&
+          target.classList.contains("modal-tab")
+        ) {
           const tabName = target.dataset.tab;
-          const dropdownItem = dropdownMenu.querySelector(`.dropdown-tab-item[data-tab="${tabName}"]`);
-          
+          const dropdownItem = dropdownMenu.querySelector(
+            `.dropdown-tab-item[data-tab="${tabName}"]`
+          );
+
           if (dropdownItem) {
             // Update active state in dropdown items
-            dropdownMenu.querySelectorAll('.dropdown-tab-item').forEach(item => {
-              item.classList.remove('active');
-            });
-            dropdownItem.classList.add('active');
-            
+            dropdownMenu
+              .querySelectorAll(".dropdown-tab-item")
+              .forEach((item) => {
+                item.classList.remove("active");
+              });
+            dropdownItem.classList.add("active");
+
             // Update dropdown button text and icon
-            const icon = target.querySelector('i');
-            const text = target.querySelector('span');
-            
+            const icon = target.querySelector("i");
+            const text = target.querySelector("span");
+
             if (icon && text) {
-              const buttonIcon = dropdownButton.querySelector('.tab-icon');
-              const buttonText = dropdownButton.querySelector('span');
-              
+              const buttonIcon = dropdownButton.querySelector(".tab-icon");
+              const buttonText = dropdownButton.querySelector("span");
+
               if (buttonIcon && buttonText) {
-                buttonIcon.className = icon.className + ' tab-icon';
+                buttonIcon.className = icon.className + " tab-icon";
                 buttonText.textContent = text.textContent;
               }
             }
@@ -652,13 +672,12 @@ function initResponsiveTabs(modalSelector) {
       }
     });
   });
-  
+
   // Start observing tab changes
-  tabButtons.forEach(tab => {
+  tabButtons.forEach((tab) => {
     observer.observe(tab, { attributes: true });
   });
 }
-
 
 /**
  * This function refreshes the tabs when a modal is opened
@@ -667,15 +686,15 @@ function initResponsiveTabs(modalSelector) {
  */
 function refreshResponsiveTabs(modalSelector) {
   const modal = document.querySelector(modalSelector);
-  
+
   if (!modal) return;
-  
+
   // Remove existing dropdown
-  const existingDropdown = modal.querySelector('.modal-tabs-dropdown');
+  const existingDropdown = modal.querySelector(".modal-tabs-dropdown");
   if (existingDropdown) {
     existingDropdown.remove();
   }
-  
+
   // Re-initialize tabs
   initResponsiveTabs(modalSelector);
 }
@@ -685,16 +704,16 @@ window.refreshResponsiveTabs = refreshResponsiveTabs;
 
 // Patch the existing openLeadModal function to refresh tabs
 const originalOpenLeadModal = window.openLeadModal;
-if (typeof originalOpenLeadModal === 'function') {
-  window.openLeadModal = function(leadId, allLeads) {
+if (typeof originalOpenLeadModal === "function") {
+  window.openLeadModal = function (leadId, allLeads) {
     // Call the original function first
     const result = originalOpenLeadModal(leadId, allLeads);
-    
+
     // Then refresh the tabs
     setTimeout(() => {
-      refreshResponsiveTabs('#leadModal');
+      refreshResponsiveTabs("#leadModal");
     }, 100);
-    
+
     return result;
   };
 }
@@ -921,8 +940,11 @@ async function fetchLeadsAndRender() {
 
 function closeLeadModal() {
   // Check if we're in edit mode
-  const submitButton = document.querySelector('#leadForm button[type="submit"]');
-  const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
+  const submitButton = document.querySelector(
+    '#leadForm button[type="submit"]'
+  );
+  const isEditMode =
+    submitButton && getComputedStyle(submitButton).display !== "none";
 
   // Function to perform standard modal closing operations
   function performStandardClose() {
@@ -988,7 +1010,7 @@ function closeLeadModal() {
   // If in edit mode, attempt to save before closing
   if (isEditMode) {
     // Create a mock event for save function
-    const mockEvent = new Event('submit');
+    const mockEvent = new Event("submit");
     mockEvent.preventDefault = () => {};
 
     // Call save lead function and handle the promise

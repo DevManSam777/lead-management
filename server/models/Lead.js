@@ -87,7 +87,7 @@ const leadSchema = new mongoose.Schema({
   },
   budget: {
     type: Number,
-    alias: "estimatedBudget"
+    alias: "estimatedBudget",
   },
   budgetCurrency: {
     type: String,
@@ -95,7 +95,7 @@ const leadSchema = new mongoose.Schema({
   },
   totalBudget: {
     type: Number,
-    alias: "billedAmount"
+    alias: "billedAmount",
   },
   paidAmount: {
     type: Number,
@@ -119,6 +119,12 @@ const leadSchema = new mongoose.Schema({
       ref: "Form",
     },
   ],
+  documents: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Document",
+    },
+  ],
   // field is only used for distinguishing form submissions from dashboard creations
   // it will not be stored but used in controller logic
   isFormSubmission: {
@@ -128,22 +134,22 @@ const leadSchema = new mongoose.Schema({
 });
 
 // pre-save middleware to set business fields if they're empty
-leadSchema.pre("save", function(next) {
+leadSchema.pre("save", function (next) {
   // if businessName is not set use firstName and lastName
   if (!this.businessName) {
     this.businessName = `${this.firstName} ${this.lastName}`;
   }
-  
+
   // if businessPhone is not set use phone
   if (!this.businessPhone) {
     this.businessPhone = this.phone;
   }
-  
+
   // if businessEmail is not set use email
   if (!this.businessEmail) {
     this.businessEmail = this.email;
   }
-  
+
   next();
 });
 
@@ -161,11 +167,17 @@ leadSchema.pre(
     // delete all associated forms for this lead
     const Lead = await mongoose.model("Lead").findById(leadId);
     if (Lead && Lead.associatedForms && Lead.associatedForms.length > 0) {
-      await mongoose.model("Form").deleteMany({ 
-        _id: { $in: Lead.associatedForms } 
+      await mongoose.model("Form").deleteMany({
+        _id: { $in: Lead.associatedForms },
       });
-      console.log(`Automatically deleted ${Lead.associatedForms.length} forms for lead ${leadId}`);
+      console.log(
+        `Automatically deleted ${Lead.associatedForms.length} forms for lead ${leadId}`
+      );
     }
+
+    // delete all documents for this lead
+    await mongoose.model("Document").deleteMany({ leadId: leadId });
+    console.log(`Automatically deleted documents for lead ${leadId}`);
   }
 );
 
@@ -177,11 +189,17 @@ leadSchema.pre("remove", async function () {
 
   // delete all associated forms for this lead
   if (this.associatedForms && this.associatedForms.length > 0) {
-    await mongoose.model("Form").deleteMany({ 
-      _id: { $in: this.associatedForms } 
+    await mongoose.model("Form").deleteMany({
+      _id: { $in: this.associatedForms },
     });
-    console.log(`Automatically deleted ${this.associatedForms.length} forms for lead ${this._id}`);
+    console.log(
+      `Automatically deleted ${this.associatedForms.length} forms for lead ${this._id}`
+    );
   }
+
+  // delete all documents for this lead
+  await mongoose.model("Document").deleteMany({ leadId: this._id });
+  console.log(`Automatically deleted documents for lead ${this._id}`);
 });
 
 module.exports = mongoose.model("Lead", leadSchema);

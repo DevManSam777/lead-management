@@ -314,9 +314,12 @@ function setModalReadOnly(isReadOnly) {
   paymentActions.forEach(actionButtons => {
     actionButtons.style.display = isReadOnly ? "none" : "flex";
   });
+  
+  // Update document UI elements based on mode
+  if (typeof window.updateDocumentUiForMode === 'function') {
+    window.updateDocumentUiForMode();
+  }
 }
-
-
 
 function calculateStats(allLeads, payments) {
   try {

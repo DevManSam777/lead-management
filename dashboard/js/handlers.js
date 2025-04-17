@@ -699,7 +699,6 @@ function openAddLeadModal() {
     addFormBtn.style.display = "none";
   }
 }
-
 /**
  * Open the lead modal to view/edit a lead
  * @param {string} leadId - ID of the lead to open
@@ -788,56 +787,28 @@ async function openLeadModal(leadId, allLeads) {
   const remainingBalanceField = document.getElementById("remainingBalance");
   if (remainingBalanceField) {
     remainingBalanceField.value = formatCurrency(remainingBalance);
-  } else {
-    // Create the field if it doesn't exist
-    const paidAmountField = document.getElementById("paidAmount");
-    if (paidAmountField && paidAmountField.parentNode) {
-      const parentDiv = paidAmountField.parentNode.parentNode;
-      const newGroup = document.createElement("div");
-      newGroup.className = "form-group";
-
-      const label = document.createElement("label");
-      label.setAttribute("for", "remainingBalance");
-      label.textContent = "Remaining Balance";
-
-      const input = document.createElement("input");
-      input.type = "text";
-      input.id = "remainingBalance";
-      input.setAttribute("readonly", true);
-      input.value = formatCurrency(remainingBalance);
-
-      newGroup.appendChild(label);
-      newGroup.appendChild(input);
-
-      // Insert after paid amount field
-      if (paidAmountField.parentNode.nextSibling) {
-        parentDiv.insertBefore(
-          newGroup,
-          paidAmountField.parentNode.nextSibling
-        );
-      } else {
-        parentDiv.appendChild(newGroup);
-      }
-    }
   }
 
+  // Set lead creation date
   const createdAtDisplay = document.getElementById("createdAtDisplay");
   if (createdAtDisplay && lead.createdAt) {
-    console.log("Raw created at:", lead.createdAt);
     const createdDate = new Date(lead.createdAt);
-    console.log("Date object (local interpretation):", createdDate);
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
     const formattedDate = formatDate(createdDate, dateFormat);
     createdAtDisplay.textContent = `${formattedDate}`;
   }
 
-  // Fetch and display payments for this lead
   try {
+    // Fetch and display payments for this lead
     const leadPayments = await fetchLeadPayments(lead._id);
     renderLeadPayments(leadPayments, lead._id);
 
     // Load forms for this lead
     loadLeadForms(lead._id);
+    
+    // Load documents for this lead
+    loadLeadDocuments(lead._id);
+    initDocumentUpload(lead._id);
   } catch (error) {
     console.error("Error fetching data:", error);
     const paymentsContainer = document.querySelector(".payments-container");
@@ -859,18 +830,6 @@ async function openLeadModal(leadId, allLeads) {
   // Update modal title
   document.getElementById("modalTitle").textContent = "Client Info";
 
-  // Hide Add Payment button in read-only mode
-  const addPaymentBtn = document.getElementById("addPaymentBtn");
-  if (addPaymentBtn) {
-    addPaymentBtn.style.display = "none";
-  }
-
-  // // Show the Add Form button
-  const addFormBtn = document.getElementById("addFormBtn");
-  if (addFormBtn) {
-    addFormBtn.style.display = "none";
-  }
-
   // First, check if the action buttons container exists and remove it
   const existingActions = document.getElementById("modalActions");
   if (existingActions) {
@@ -890,6 +849,7 @@ async function openLeadModal(leadId, allLeads) {
   document.getElementById("leadModal").style.display = "block";
 
   initializeModalTabs();
+  
   // Then setup the auto-resize for textareas
   // Important: This needs to be after setting the display to "block" to work properly
   const textareas = document.querySelectorAll("#leadModal textarea");
@@ -910,7 +870,6 @@ async function openLeadModal(leadId, allLeads) {
 
   // Initialize any monetary inputs in the modal
   initializeMonetaryInputs();
-  initializeModalTabs();
 }
 
 /**
@@ -1005,4 +964,4 @@ export {
   initializeModalTabs,
   activateTab,
   validateAllTabs,
-};
+}

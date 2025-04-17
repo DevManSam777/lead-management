@@ -76,7 +76,8 @@
         <div class="sidebar-menu">
           <ul>
             <li>
-              <a href="dashboard.html"
+              <a
+                href="dashboard.html"
                 id="dashboard-link"
                 title="Dashboard"
                 class="active"
@@ -91,7 +92,8 @@
             </li>
             <li>
               <a href="forms.html" id="forms-link" title="Form Templates">
-                <i class="fa-solid fa-file-signature"></i><span>Form Templates</span>
+                <i class="fa-solid fa-file-signature"></i
+                ><span>Form Templates</span>
               </a>
             </li>
             <li>
@@ -320,7 +322,6 @@
                 <div class="date-display-readonly" id="createdAtDisplay"></div>
               </div>
             </div>
-
           </div>
 
           <!-- Business Tab -->
@@ -495,6 +496,55 @@
                 <i class="fas fa-plus"></i> Create Form
               </button>
             </div>
+
+            <!-- New Signed Documents Section -->
+            <div class="form-section" id="signedDocumentsSection">
+              <h4>Signed Documents</h4>
+              <div class="signed-documents-container">
+                <div id="signedDocumentsList" class="signed-documents-list">
+                  <!-- Documents will be loaded here -->
+                </div>
+                <div id="documentUploadArea" class="document-upload-area">
+                  <div class="upload-message">
+                    <i class="fas fa-file-pdf"></i>
+                    <p>Drag & drop PDF files here</p>
+                    <p>or</p>
+                    <button
+                      type="button"
+                      id="selectFilesBtn"
+                      class="btn btn-outline"
+                    >
+                      <i class="fas fa-plus"></i> Select Files
+                    </button>
+                  </div>
+                  <input
+                    type="file"
+                    id="fileInput"
+                    accept=".pdf"
+                    style="display: none"
+                    multiple
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Preview Modal -->
+          <div id="documentPreviewModal" class="modal">
+            <div class="modal-content">
+              <span class="close-modal" id="closeDocumentPreviewModal"
+                >&times;</span
+              >
+              <div class="modal-header">
+                <h3 id="documentPreviewTitle">Document Preview</h3>
+              </div>
+              <div id="documentPreviewContainer">
+                <iframe
+                  id="documentPreviewFrame"
+                  sandbox="allow-scripts"
+                ></iframe>
+              </div>
+            </div>
           </div>
 
           <!-- Notes Tab -->
@@ -556,6 +606,7 @@
     <script type="module" src="../js/handlers.js"></script>
     <script type="module" src="../js/payments.js"></script>
     <script type="module" src="../js/leadForms.js"></script>
+    <script type="module" src="../js/documents.js"></script>
     <script type="module" src="../js/dashboard.js"></script>
   </body>
 </html>

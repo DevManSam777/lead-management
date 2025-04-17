@@ -2,6 +2,7 @@ const API_URL = "http://localhost:5000/api/leads";
 const API_PAYMENTS_URL = "http://localhost:5000/api/payments";
 const SETTINGS_API_URL = "http://localhost:5000/api/settings";
 const FORMS_API_URL = "http://localhost:5000/api/forms";
+const API_DOCUMENTS_URL = "http://localhost:5000/api/documents";
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -352,49 +353,6 @@ async function updateSetting(key, value) {
   }
 }
 
-
-// /**
-//  * Fetch all forms from the API
-//  * @param {Object} filters
-//  * @returns {Promise<Array>} 
-//  */
-// async function fetchForms(filters = {}) {
-//   try {
-//     // Build query string from filters
-//     const queryParams = new URLSearchParams();
-    
-//     if (filters.category) {
-//       queryParams.append("category", filters.category);
-//     }
-    
-//     if (filters.isTemplate !== undefined) {
-//       queryParams.append("isTemplate", filters.isTemplate);
-//     }
-    
-//     const queryString = queryParams.toString();
-//     const url = queryString ? `${FORMS_API_URL}?${queryString}` : FORMS_API_URL;
-    
-//     const response = await fetch(url);
-    
-//     if (!response.ok) {
-//       throw new Error("Failed to fetch forms");
-//     }
-    
-//     const data = await response.json();
-    
-//     // Make sure data is an array
-//     if (!Array.isArray(data)) {
-//       throw new Error("Invalid data format received");
-//     }
-    
-//     return data;
-//   } catch (error) {
-//     console.error("Error fetching forms:", error);
-//     throw error;
-//   }
-// }
-
-
 /**
  * Fetch all forms from the API
  * @param {Object} filters
@@ -650,6 +608,76 @@ async function generateFormForLead(templateId, leadId) {
 }
 
 
+/**
+ * Get documents for a specific lead
+ * @param {string} leadId
+ * @returns {Promise<Array>} 
+ */
+async function getDocumentsByLead(leadId) {
+  try {
+    const response = await fetch(`${API_DOCUMENTS_URL}/lead/${leadId}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch documents for lead');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching documents for lead ${leadId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Upload a document for a lead
+ * @param {string} leadId 
+ * @param {Object} documentData 
+ * @returns {Promise<Object>}
+ */
+async function uploadDocument(leadId, documentData) {
+  try {
+    const response = await fetch(`${API_DOCUMENTS_URL}/lead/${leadId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(documentData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to upload document');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a document
+ * @param {string} documentId 
+ * @returns {Promise<Object>}
+ */
+async function deleteDocument(documentId) {
+  try {
+    const response = await fetch(`${API_DOCUMENTS_URL}/${documentId}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete document');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    throw error;
+  }
+}
+
+
 export {
   getBaseUrl,
   fetchLeads,
@@ -674,5 +702,8 @@ export {
   cloneTemplateForm,
   generateFormWithLeadData,
   getFormsByLead,
-  generateFormForLead
+  generateFormForLead,
+  getDocumentsByLead,
+  uploadDocument,
+  deleteDocument
 };

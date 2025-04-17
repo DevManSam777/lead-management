@@ -6,6 +6,7 @@ const leadRoutes = require("./routes/leadRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const settingRoutes = require("./routes/settingRoutes");
 const formRoutes = require("./routes/formRoutes");
+const documentRoutes = require('./routes/documentRoutes');
 
 // Load environment variables
 const path = require('path');
@@ -22,7 +23,17 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json({ limit: '5mb' })); // Increased limit for larger form content
+
+app.use(express.json({ limit: '50mb' }));
+
+app.use((req, res, next) => {
+  // For PDF and document endpoints, add specific headers
+  if (req.path.startsWith('/api/documents/')) {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  }
+  next();
+});
 
 // Port configuration
 const PORT = process.env.PORT || 5000;
@@ -63,6 +74,12 @@ app.get("/", (req, res) => {
       deleteForm: `http://localhost:${PORT}/api/forms/:id`,
       cloneTemplate: `http://localhost:${PORT}/api/forms/:id/clone`,
       generateForm: `http://localhost:${PORT}/api/forms/:id/generate`,
+    },
+    documentEndpoints: {
+      allDocumentsByLead: `http://localhost:${PORT}/api/documents/lead/:leadId`,
+      documentById: `http://localhost:${PORT}/api/documents/:id`,
+      uploadDocument: `http://localhost:${PORT}/api/documents/lead/:leadId`,
+      deleteDocument: `http://localhost:${PORT}/api/documents/:id`,
     },
     documentation: {
       description: "LEADS REST API",
@@ -289,6 +306,7 @@ app.use("/api/leads", leadRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/settings", settingRoutes);
 app.use("/api/forms", formRoutes);
+app.use("/api/documents", documentRoutes);
 
 // Start the server
 app.listen(PORT, () => {
