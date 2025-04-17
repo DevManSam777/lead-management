@@ -374,9 +374,6 @@ function insertVariable(variable) {
   editor.focus();
 }
 
-/**
- * Fetch forms from the API and render them
- */
 async function fetchAndRenderForms() {
   try {
     const formsList = document.getElementById("formsList");
@@ -435,8 +432,8 @@ async function fetchAndRenderForms() {
 
     // Initialize pagination for each category with custom page sizes
     const categoryPageSizes = {
-      'drafts': 3,  // Sets number of drafts per category
-      'templates': 2  // Sets number of templates per category
+      'drafts': 12,  // Sets number of drafts per category
+      'templates': 12  // Sets number of templates per category
     };
 
     // Ensure pagination is initialized for each category
@@ -545,8 +542,23 @@ async function fetchAndRenderForms() {
         });
         paginationContainer.appendChild(prevButton);
 
-        // Page indicators
-        for (let i = 1; i <= Math.max(totalPages, 1); i++) {
+        // Determine start and end pages to show
+        let startPage = categoryPagination[category].currentPage - 1;
+        let endPage = categoryPagination[category].currentPage + 1;
+
+        // Adjust start and end pages to always show 3 pages
+        if (startPage < 1) {
+          startPage = 1;
+          endPage = Math.min(3, totalPages);
+        }
+        
+        if (endPage > totalPages) {
+          endPage = totalPages;
+          startPage = Math.max(1, totalPages - 2);
+        }
+
+        // Add page number buttons
+        for (let i = startPage; i <= endPage; i++) {
           const pageButton = document.createElement("button");
           pageButton.className = "pagination-button";
           if (i === categoryPagination[category].currentPage) {
@@ -564,8 +576,8 @@ async function fetchAndRenderForms() {
         const nextButton = document.createElement("button");
         nextButton.className = "pagination-button";
         nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        nextButton.disabled =
-          categoryPagination[category].currentPage === totalPages ||
+        nextButton.disabled = 
+          categoryPagination[category].currentPage === totalPages || 
           totalPages === 0;
         nextButton.addEventListener("click", () => {
           if (categoryPagination[category].currentPage < totalPages) {
@@ -575,20 +587,21 @@ async function fetchAndRenderForms() {
         });
         paginationContainer.appendChild(nextButton);
 
+        // Pagination info
         const pageInfo = document.createElement("div");
         pageInfo.className = "pagination-info";
 
         // Calculate the item range
-        const firstItemNumber = startIndex + 1;
-        const lastItemNumber = Math.min(endIndex, totalItems);
+        const startIndex = (categoryPagination[category].currentPage - 1) * pageSize + 1;
+        const endIndex = Math.min(
+          categoryPagination[category].currentPage * pageSize, 
+          totalItems
+        );
 
-        // Display item range 
-        pageInfo.textContent = `Showing ${firstItemNumber}-${lastItemNumber} of ${totalItems} forms`;
+        pageInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalItems}`;
         paginationContainer.appendChild(pageInfo);
 
         categoryDiv.appendChild(paginationContainer);
-
-        console.log("Pagination container added:", paginationContainer);
       } else {
         // If fewer forms than page size, center the item count with padding
         const pageInfo = document.createElement("div");

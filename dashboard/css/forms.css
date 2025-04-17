@@ -558,4 +558,11 @@ div.editor-section {
   #generatedFormModal .modal-actions button:first-of-type {
     margin-bottom: 0;
   }
+
+  .pagination {
+    flex-direction: row;
+  }
+  .pagination-info {
+    width: 100%;
+  }
 }
