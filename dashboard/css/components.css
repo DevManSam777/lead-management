@@ -753,7 +753,7 @@ select,
   padding: 4rem;
   text-align: center;
   color: var(--text-muted);
-  font-style: italic;
+  font-style: oblique;
   border: 0.2rem dashed var(--border-color);
   border-radius: 5px;
 }

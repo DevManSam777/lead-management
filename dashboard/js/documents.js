@@ -23,14 +23,7 @@ async function loadLeadDocuments(leadId) {
 
     const documents = await response.json();
 
-    // Render the documents
-    if (documents.length === 0) {
-      // Use the no-documents-message class
-      documentsContainer.innerHTML =
-        '<p class="no-documents-message">No signed documents yet. Upload a document using the area below.</p>';
-      return;
-    }
-
+ 
     // Clear container
     documentsContainer.innerHTML = "";
 
