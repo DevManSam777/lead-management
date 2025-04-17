@@ -578,6 +578,7 @@ select,
 .leads-table tbody tr:hover,
 .leads-table tr.clickable:hover {
   background-color: var(--table-hover);
+  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
 }
 
 /* Status Badges */
