@@ -196,6 +196,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     .addEventListener("submit", function (event) {
       event.preventDefault();
 
+      // If a submission is already in progress, ignore this submission
+      if (window.leadSubmissionInProgress) {
+        console.log(
+          "Submission already in progress, ignoring duplicate submit"
+        );
+        return false;
+      }
+
       // Hide the action buttons container immediately to prevent flashing
       const actionsContainer = document.getElementById("modalActions");
       if (actionsContainer) {
@@ -252,23 +260,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // Currency formatting for budget input
   const totalBudgetInput = document.getElementById("totalBudget");
   if (totalBudgetInput) {
-    totalBudgetInput.addEventListener("blur", function (e) {
-      if (this.value) {
-        // Format number with 2 decimal places
-        const value = parseFloat(this.value.replace(/[^\d.-]/g, ""));
-        if (!isNaN(value)) {
-          // Add a null check for budgetCurrency
-          const budgetCurrencyElement =
-            document.getElementById("budgetCurrency");
-          const currency = budgetCurrencyElement
-            ? budgetCurrencyElement.value
-            : "USD";
-          this.value = Utils.formatCurrency(value, currency);
-        }
-      }
+    totalBudgetInput.addEventListener("input", function () {
+      // Get the total budget and paid amount values
+      const totalBudget = parseFloat(this.value.replace(/[^\d.-]/g, "")) || 0;
+      const paidAmount =
+        parseFloat(
+          document.getElementById("paidAmount").value.replace(/[^\d.-]/g, "")
+        ) || 0;
+
+      // Calculate remaining balance
+      const remainingBalance = Math.max(0, totalBudget - paidAmount);
+
+      // Update the remaining balance field with formatting
+      // Use the Utils.formatCurrency if it's imported that way
+      document.getElementById("remainingBalance").value =
+        Utils.formatCurrency(remainingBalance);
     });
   }
 
@@ -943,15 +951,21 @@ async function fetchLeadsAndRender() {
 function closeLeadModal() {
   // Check if a submission is already in progress
   if (window.leadSubmissionInProgress) {
-    console.log("Lead submission already in progress, waiting for completion before closing modal");
-    
+    console.log(
+      "Lead submission already in progress, waiting for completion before closing modal"
+    );
+
     // Set up a one-time event listener to close the modal after submission completes
-    window.addEventListener("leadSaved", function closeAfterSave() {
-      console.log("Lead saved, now closing modal");
-      window.removeEventListener("leadSaved", closeAfterSave);
-      performCleanupAndCloseModal();
-    }, { once: true });
-    
+    window.addEventListener(
+      "leadSaved",
+      function closeAfterSave() {
+        console.log("Lead saved, now closing modal");
+        window.removeEventListener("leadSaved", closeAfterSave);
+        performCleanupAndCloseModal();
+      },
+      { once: true }
+    );
+
     // Also handle the case where submission might fail
     setTimeout(() => {
       if (window.leadSubmissionInProgress) {
@@ -959,8 +973,8 @@ function closeLeadModal() {
         window.leadSubmissionInProgress = false;
         performCleanupAndCloseModal();
       }
-    }, 5000); // 5 second timeout as a safety measure
-    
+    }, 100); // 5 second timeout as a safety measure
+
     return;
   }
 
@@ -976,7 +990,7 @@ function closeLeadModal() {
     try {
       // Set the submission flag to prevent duplicates
       window.leadSubmissionInProgress = true;
-      
+
       // Create a mock event for save function
       const mockEvent = new Event("submit");
       mockEvent.preventDefault = () => {};
@@ -1007,7 +1021,7 @@ function closeLeadModal() {
 function performCleanupAndCloseModal() {
   const modal = document.getElementById("leadModal");
   if (!modal) return;
-  
+
   modal.style.display = "none";
 
   // Reset the form completely
@@ -1059,13 +1073,13 @@ function performCleanupAndCloseModal() {
       const leadId = document.getElementById("leadId").value;
       if (leadId) {
         // Open form template modal for this lead
-        window.openFormTemplateModal(leadId); 
+        window.openFormTemplateModal(leadId);
       } else {
         Utils.showToast("Please save the lead first before creating forms");
       }
     });
   }
-  
+
   // Reset the submission flag just in case
   window.leadSubmissionInProgress = false;
 }

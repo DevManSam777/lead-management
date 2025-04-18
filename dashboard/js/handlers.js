@@ -269,20 +269,103 @@ function validateBudget(input) {
  * Validate and save lead
  * @param {Event} event - Form submission event
  */
+// async function validateAndSaveLead(event) {
+//   event.preventDefault();
+
+//   function updatedFormSubmission(event) {
+//     event.preventDefault();
+
+//     // Validate all tabs first
+//     if (!validateAllTabs()) {
+//       return; // Stop if validation fails
+//     }
+
+//     // Continue with existing save logic
+//     // saveLead();
+//   }
+
+//   // Validate required fields
+//   const isEmailValid = validateEmail(document.getElementById("email"));
+//   const isPhoneValid = validatePhone(document.getElementById("phone"));
+
+//   // Modified name validation to allow single characters
+//   const isFirstNameValid = validateName(
+//     document.getElementById("firstName"),
+//     "First name",
+//     1 // Minimum length changed to 1
+//   );
+//   const isLastNameValid = validateName(
+//     document.getElementById("lastName"),
+//     "Last name",
+//     1 // Minimum length changed to 1
+//   );
+
+//   // Validate optional fields that have values
+//   let isBusinessEmailValid = true;
+//   const businessEmailInput = document.getElementById("businessEmail");
+//   if (businessEmailInput && businessEmailInput.value) {
+//     isBusinessEmailValid = validateEmail(businessEmailInput);
+//   }
+
+//   let isBusinessPhoneValid = true;
+//   const businessPhoneInput = document.getElementById("businessPhone");
+//   if (businessPhoneInput && businessPhoneInput.value) {
+//     isBusinessPhoneValid = validatePhone(businessPhoneInput);
+//   }
+
+//   let isTextNumberValid = true;
+//   const textNumberInput = document.getElementById("textNumber");
+//   if (textNumberInput && textNumberInput.value) {
+//     isTextNumberValid = validatePhone(textNumberInput);
+//   }
+
+//   let isWebsiteValid = true;
+//   const hasWebsiteSelect = document.getElementById("hasWebsite");
+//   const websiteAddressInput = document.getElementById("websiteAddress");
+//   if (
+//     hasWebsiteSelect &&
+//     hasWebsiteSelect.value === "yes" &&
+//     websiteAddressInput &&
+//     websiteAddressInput.value
+//   ) {
+//     isWebsiteValid = validateUrl(websiteAddressInput);
+//   }
+
+//   let isBudgetValid = true;
+//   const budgetInput = document.getElementById("budget");
+//   if (budgetInput && budgetInput.value) {
+//     isBudgetValid = validateBudget(budgetInput);
+//   }
+
+//   let isTotalBudgetValid = true;
+//   const totalBudgetInput = document.getElementById("totalBudget");
+//   if (totalBudgetInput && totalBudgetInput.value) {
+//     isTotalBudgetValid = validateBudget(totalBudgetInput);
+//   }
+
+//   // If all validations pass, save the lead
+//   if (
+//     isEmailValid &&
+//     isPhoneValid &&
+//     isFirstNameValid &&
+//     isLastNameValid &&
+//     isBusinessEmailValid &&
+//     isBusinessPhoneValid &&
+//     isTextNumberValid &&
+//     isWebsiteValid &&
+//     isBudgetValid &&
+//     isTotalBudgetValid
+//   ) {
+//     await saveLead();
+//   }
+// }
+
+// Update validateAndSaveLead to return a Promise
 async function validateAndSaveLead(event) {
   event.preventDefault();
 
-  function updatedFormSubmission(event) {
-    event.preventDefault();
-
-    // Validate all tabs first
-    if (!validateAllTabs()) {
-      return; // Stop if validation fails
-    }
-
-    // Continue with existing save logic
-    // saveLead();
-  }
+  // Set the submission flag to prevent duplicates
+  window.leadSubmissionInProgress = true;
 
   // Validate required fields
   const isEmailValid = validateEmail(document.getElementById("email"));
@@ -356,7 +439,18 @@ async function validateAndSaveLead(event) {
     isBudgetValid &&
     isTotalBudgetValid
   ) {
-    await saveLead();
+    try {
+      await saveLead();
+      return true; // Return success
+    } catch (error) {
+      console.error("Error in validateAndSaveLead:", error);
+      window.leadSubmissionInProgress = false; // Reset flag on error
+      throw error; // Propagate the error
+    }
+  } else {
+    // Validation failed
+    window.leadSubmissionInProgress = false; // Reset flag
+    return false;
   }
 }
 
@@ -693,11 +787,17 @@ function openAddLeadModal() {
 
   initializeModalTabs(true);
 
-  // Show the "Create Form" button since we're in edit mode
+  // Hide create form since we are making a new lead
   const addFormBtn = document.getElementById("addFormBtn");
   if (addFormBtn) {
     addFormBtn.style.display = "none";
   }
+   // Hide upload pdf since we are making a new lead
+  const docUploadArea = document.querySelector(".document-upload-area");
+  if (docUploadArea) {
+    docUploadArea.style.display = "none";
+  }
+
 }
 /**
  * Open the lead modal to view/edit a lead
