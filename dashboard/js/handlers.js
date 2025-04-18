@@ -693,18 +693,11 @@ function openAddLeadModal() {
 
   initializeModalTabs(true);
 
-  // Hide "Create Form" when creating new lead
+  // Show the "Create Form" button since we're in edit mode
   const addFormBtn = document.getElementById("addFormBtn");
   if (addFormBtn) {
     addFormBtn.style.display = "none";
   }
-
-  // Hide document upload when creating new lead
-    const uploadDocArea = document.querySelector(".document-upload-area");
-    if (uploadDocArea) {
-      uploadDocArea.style.display = "none";
-    }
-
 }
 /**
  * Open the lead modal to view/edit a lead
