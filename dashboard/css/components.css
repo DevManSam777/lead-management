@@ -469,6 +469,45 @@ select,
   padding-top: 0;
 }
 
+/* Details and Summary Elements */
+details {
+  margin-bottom: 2rem;
+}
+
+details summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+
+details summary::before {
+  content: "▶";
+  display: inline-block;
+  margin-right: 0.8rem;
+  transition: transform var(--transition-speed);
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+details summary::marker,
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+details summary:focus {
+  outline: none;
+}
+
+details[open] .stats-cards {
+  margin-top: 1.5rem;
+}
+
+
 /* Editor Tabs (for Mobile) */
 .editor-tabs {
   display: none;

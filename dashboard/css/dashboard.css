@@ -32,7 +32,7 @@ body {
   cursor: pointer;
 }
 
-/* Details and Summary Elements */
+/* Details and Summary Elements
 details {
   margin-bottom: 2rem;
 }
@@ -68,7 +68,7 @@ details summary:focus {
 
 details[open] .stats-cards {
   margin-top: 1.5rem;
-}
+} */
 
 /* Sidebar */
 .sidebar {
