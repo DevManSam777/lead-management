@@ -973,7 +973,7 @@ function closeLeadModal() {
         window.leadSubmissionInProgress = false;
         performCleanupAndCloseModal();
       }
-    }, 100); // 5 second timeout as a safety measure
+    }, 200); // timeout as a safety measure
 
     return;
   }
