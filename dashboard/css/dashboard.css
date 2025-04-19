@@ -87,7 +87,7 @@ body {
 
 .sidebar.collapsed .sidebar-toggle {
   top: 1rem;
-  right: 1rem;
+  right: 0;
   left: 0;
 }
 
@@ -1098,7 +1098,6 @@ body {
   }
 
   .btn {
-    padding: 0.6rem 1.2rem;
     font-size: 1.3rem;
   }
 

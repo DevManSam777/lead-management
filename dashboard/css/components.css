@@ -1,6 +1,6 @@
 /* Buttons */
 .btn {
-  padding: 0.8rem 1.5rem;
+  padding: 1rem 1.5rem;
   border: none;
   border-radius: 0.5rem;
   font-size: 1.4rem;
@@ -35,6 +35,10 @@
 
 .btn-danger:hover {
   background-color: #d11149;
+}
+
+.blue-border {
+  border: 0.1rem solid var(--primary);
 }
 
 /* Cards */
