@@ -82,7 +82,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* z-index: 1001; */
 }
 
 .sidebar.collapsed .sidebar-toggle {
@@ -948,8 +947,8 @@ body {
 
   .sidebar-toggle {
     position: fixed;
-    width: 3.2rem;
-    height: 3.2rem;
+    width: 3.6rem;
+    height: 3.6rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -981,8 +980,6 @@ body {
   }
 
   .container .main-content .header {
-    margin-top: 3rem;
-    padding-top: 1rem;
     border-top: none;
     position: relative;
     background: var(--background-color);
@@ -1157,6 +1154,10 @@ body {
   #lead-modal-form-actions {
     flex-direction: column;
     width: 100%;
+  }
+
+  .header h2 {
+    font-size: 2rem;
   }
 }
 
