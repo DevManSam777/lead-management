@@ -87,7 +87,7 @@ body {
 
 .sidebar.collapsed .sidebar-toggle {
   top: 1rem;
-  right: 0;
+  right: 1rem;
   left: 0;
 }
 
@@ -943,7 +943,6 @@ body {
 
   /* Hide sidebar completely when collapsed on mobile */
   .sidebar.collapsed + .main-content {
-    margin-left: 1rem;
     width: 100%;
   }
 
@@ -969,7 +968,6 @@ body {
 
   /* Position when sidebar is collapsed */
   .sidebar.collapsed .sidebar-toggle {
-    left: 2rem;
     top: 2rem;
   }
 
