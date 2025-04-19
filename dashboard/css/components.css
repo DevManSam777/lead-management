@@ -103,9 +103,13 @@
   padding: 2rem;
   box-shadow: var(--box-shadow);
   border-top: 0.3rem solid var(--primary);
-  transition: transform 0.2s, box-shadow 0.2s, background-color var(--transition-speed);
+  transition: transform 0.2s, box-shadow 0.2s, box-shadow var(--transition-speed);
   display: flex;
   flex-direction: column;
+}
+
+.lead-card:hover {
+  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
 }
 
 .lead-card h3 {
@@ -128,7 +132,7 @@
 
 .lead-card.clickable:hover {
   transform: translateY(-0.5rem);
-  box-shadow: var(--hover-shadow);
+  /* box-shadow: var(--hover-shadow); */
 }
 
 /* Modals */
