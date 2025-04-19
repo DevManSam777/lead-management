@@ -53,7 +53,7 @@ body {
 
 .sidebar-header {
   padding: 0 2rem 2rem;
-  /* border-bottom: 0.1rem solid rgba(255, 255, 255, 0.1); */
+  border-bottom: 0.1rem solid rgba(255, 255, 255, 0.1);
   text-align: center;
 }
 
@@ -72,18 +72,23 @@ body {
 /* Sidebar Toggle Button */
 .sidebar-toggle {
   position: absolute;
-  top: 1rem;
+  top: 3.5rem;
   right: 1rem;
   background: transparent;
   border: none;
   color: var(--sidebar-text);
-  font-size: 1.6rem;
+  font-size: 2rem;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1001;
+  /* z-index: 1001; */
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  top: 1rem;
+  right: 2.5rem;
 }
 
 .sidebar .sidebar-toggle .fa-angles-right {
