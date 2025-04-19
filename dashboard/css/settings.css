@@ -71,7 +71,7 @@
   border-radius: 0.8rem;
   overflow: hidden;
   width: fit-content;
-  /* border: 0.1rem solid var(--border-color); */
+  border: 0.1rem solid var(--border-color);
   box-shadow: inset 0 0.1rem 0.3rem rgba(0, 0, 0, 0.1);
 }
 
@@ -104,7 +104,7 @@
 .theme-segment.active {
   background-color: var(--primary); 
   color: white; 
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1); /* Active shadow */
 }
 
 [data-theme="dark"] .theme-segment:hover:not(.active) {
@@ -118,7 +118,7 @@
   border-radius: 0.8rem;
   overflow: hidden; 
   width: fit-content;
-  /* border: 0.1rem solid var(--border-color); */
+  border: 0.1rem solid var(--border-color);
   box-shadow: inset 0 0.1rem 0.3rem rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
 }
@@ -137,6 +137,12 @@
   gap: 0.8rem;
 }
 
+.date-format-segment:nth-last-of-type(2) {
+  border: 0.1rem solid var(--border-color);
+  border-top: none;
+  border-bottom: none;
+}
+
 .date-format-segment i {
   font-size: 1.6rem;
 }
@@ -148,7 +154,7 @@
 .date-format-segment.active {
   background-color: var(--primary); 
   color: white; 
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="dark"] .date-format-segment:hover:not(.active) {
@@ -192,6 +198,12 @@
     flex: 1;
     justify-content: center;
     padding: 1rem 1.5rem;
+  }
+
+  .date-format-segment:nth-last-of-type(2) {
+    border: 0.1rem solid var(--border-color);
+    border-left: none;
+    border-right: none;
   }
 }
 
