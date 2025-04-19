@@ -4,7 +4,7 @@
   box-shadow: var(--box-shadow);
   padding: 2rem;
   margin-bottom: 3rem;
-  width: 100%; 
+  width: 100%;
 }
 
 .settings-card {
@@ -71,17 +71,17 @@
   border-radius: 0.8rem;
   overflow: hidden;
   width: fit-content;
-  border: 0.1rem solid var(--border-color);
+  /* border: 0.1rem solid var(--border-color); */
   box-shadow: inset 0 0.1rem 0.3rem rgba(0, 0, 0, 0.1);
 }
 
 .theme-segment {
   padding: 1.2rem 2.5rem;
   border: none;
-  background: none;
+  background: none; 
   font-size: 1.5rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-muted); 
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -97,29 +97,28 @@
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Fix for the issue with text color discrepency. Keep this above in the cascade from .theme-segment.active rule */
 .theme-segment[data-theme="dark"] {
   color: #6c757d; 
 }
 
 .theme-segment.active {
-  background-color: var(--primary);
-  color: white;
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
+  background-color: var(--primary); 
+  color: white; 
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1); 
 }
 
 [data-theme="dark"] .theme-segment:hover:not(.active) {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.05); 
 }
 
-/* Date Format Segmented Control (based on theme segmented control) */
+/* Date format segmented control based on theme segmented control */
 .date-format-segmented-control {
   display: flex;
   background-color: var(--background-color);
   border-radius: 0.8rem;
-  overflow: hidden;
+  overflow: hidden; 
   width: fit-content;
-  border: 0.1rem solid var(--border-color);
+  /* border: 0.1rem solid var(--border-color); */
   box-shadow: inset 0 0.1rem 0.3rem rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
 }
@@ -127,7 +126,7 @@
 .date-format-segment {
   padding: 1.2rem 2.5rem;
   border: none;
-  background: none;
+  background: none; 
   font-size: 1.5rem;
   font-weight: 500;
   color: var(--text-muted);
@@ -143,17 +142,17 @@
 }
 
 .date-format-segment:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.05); 
 }
 
 .date-format-segment.active {
-  background-color: var(--primary);
-  color: white;
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
+  background-color: var(--primary); 
+  color: white; 
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1); 
 }
 
 [data-theme="dark"] .date-format-segment:hover:not(.active) {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.05); 
 }
 
 .format-example {
@@ -179,16 +178,16 @@
   .theme-toggle::after {
     content: none;
   }
-  
+
   .theme-toggle i {
     margin-right: 0;
   }
-  
+
   .theme-segmented-control {
     width: 100%;
     max-width: 30rem;
   }
-  
+
   .theme-segment {
     flex: 1;
     justify-content: center;
@@ -203,16 +202,10 @@
     max-width: 30rem;
     flex-direction: column;
   }
-  
+
   .theme-segment,
   .date-format-segment {
     width: 100%;
     justify-content: center;
-    border-bottom: 0.1rem solid var(--border-color);
-  }
-  
-  .theme-segment:last-child,
-  .date-format-segment:last-child {
-    border-bottom: none;
   }
 }
