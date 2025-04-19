@@ -969,7 +969,7 @@ body {
 
   /* Position when sidebar is collapsed */
   .sidebar.collapsed .sidebar-toggle {
-    left: 3rem;
+    left: 2rem;
     top: 2rem;
   }
 

@@ -103,12 +103,13 @@
   padding: 2rem;
   box-shadow: var(--box-shadow);
   border-top: 0.3rem solid var(--primary);
-  transition: transform 0.2s, box-shadow 0.2s, box-shadow var(--transition-speed);
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
 .lead-card:hover {
+  background-color: var(--table-hover);
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
 }
 
@@ -600,7 +601,6 @@ details[open] .stats-cards {
   padding: 1.2rem 1.5rem;
   text-align: left;
   border-bottom: 0.1rem solid var(--border-color);
-  transition: border-color var(--transition-speed);
 }
 
 .leads-table th {
