@@ -224,7 +224,7 @@ function setupSidebarToggle() {
   
     // Include both icons - CSS will handle which one is visible
     toggleButton.innerHTML =
-      '<i class="fas fa-chevron-left"></i><i class="fas fa-chevron-right"></i>';
+      '<i class="fas fa-angles-left"></i><i class="fas fa-angles-right"></i>';
   
     // Add the button to the sidebar
     sidebar.appendChild(toggleButton);

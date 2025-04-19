@@ -32,43 +32,6 @@ body {
   cursor: pointer;
 }
 
-/* Details and Summary Elements
-details {
-  margin-bottom: 2rem;
-}
-
-details summary {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  list-style: none;
-}
-
-details summary::before {
-  content: "▶";
-  display: inline-block;
-  margin-right: 0.8rem;
-  transition: transform var(--transition-speed);
-  font-size: 1.2rem;
-  color: var(--primary);
-}
-
-details summary::marker,
-details summary::-webkit-details-marker {
-  display: none;
-}
-
-details[open] summary::before {
-  transform: rotate(90deg);
-}
-
-details summary:focus {
-  outline: none;
-}
-
-details[open] .stats-cards {
-  margin-top: 1.5rem;
-} */
 
 /* Sidebar */
 .sidebar {
@@ -90,7 +53,7 @@ details[open] .stats-cards {
 
 .sidebar-header {
   padding: 0 2rem 2rem;
-  border-bottom: 0.1rem solid rgba(255, 255, 255, 0.1);
+  /* border-bottom: 0.1rem solid rgba(255, 255, 255, 0.1); */
   text-align: center;
 }
 
@@ -123,19 +86,19 @@ details[open] .stats-cards {
   z-index: 1001;
 }
 
-.sidebar .sidebar-toggle .fa-chevron-right {
+.sidebar .sidebar-toggle .fa-angles-right {
   display: none; /* Hide right arrow by default */
 }
 
-.sidebar .sidebar-toggle .fa-chevron-left {
+.sidebar .sidebar-toggle .fa-angles-left {
   display: block; /* Show left arrow by default */
 }
 
-.sidebar.collapsed .sidebar-toggle .fa-chevron-right {
+.sidebar.collapsed .sidebar-toggle .fa-angles-right {
   display: block; /* Show right arrow when collapsed */
 }
 
-.sidebar.collapsed .sidebar-toggle .fa-chevron-left {
+.sidebar.collapsed .sidebar-toggle .fa-angles-left {
   display: none; /* Hide left arrow when collapsed */
 }
 
