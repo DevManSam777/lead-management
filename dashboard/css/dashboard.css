@@ -958,7 +958,7 @@ body {
     box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
     background-color: var(--primary);
     color: white;
-    top: 1rem;
+    top: 2rem;
     transition: left var(--transition-speed);
   }
 
@@ -969,7 +969,8 @@ body {
 
   /* Position when sidebar is collapsed */
   .sidebar.collapsed .sidebar-toggle {
-    left: 2rem;
+    left: 3rem;
+    top: 2rem;
   }
 
   .container .main-content .header h2 {
