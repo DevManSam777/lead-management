@@ -102,9 +102,10 @@ function initializeCharts() {
             '#4361ee',   // New - Blue
             '#f8961e',   // Contacted - Orange
             '#f9dc5c',   // In Progress - Yellow
-            '#4cc9f0',   // Closed Won - Light Blue
+            '#4caf50',   // Closed Won - Light Blue
             '#f72585'    // Closed Lost - Pink
-          ]
+          ],
+          borderWidth: .5
         }]
       };
   
@@ -218,8 +219,8 @@ function initializeCharts() {
               {
                 label: 'Won',
                 data: monthlyClosedWonLeadCounts,
-                backgroundColor: '#4cc9f040',
-                borderColor: '#4cc9f0',
+                backgroundColor: '#2e7d3240',
+                borderColor: '#4caf50',
                 tension: 0.4,
                 fill: true
               }
@@ -340,12 +341,12 @@ function initializeCharts() {
             {
                     label: `${previousYear}`,
                     data: previousYearMonthlyTotals,
-                    backgroundColor: '#3f37c9'
+                    backgroundColor: '#4361ee'
             },
               {
                 label: `${currentYear}`,
                 data: currentYearMonthlyTotals,
-                backgroundColor: '#4361ee'
+                backgroundColor: '#4caf50'
               },
             ]
           },
