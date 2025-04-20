@@ -1332,7 +1332,6 @@ async function openLeadSelectionModal() {
         leadItem.style.justifyContent = "space-between";
         leadItem.style.padding = "1rem";
         leadItem.style.borderBottom = "1px solid var(--border-color)";
-        leadItem.style.cursor = "pointer";
 
         // Format lead name
         const fullName = `${lead.firstName} ${lead.lastName}`;

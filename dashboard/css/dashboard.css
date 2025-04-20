@@ -76,7 +76,7 @@ body {
   background: transparent;
   border: none;
   color: var(--sidebar-text);
-  font-size: 2rem;
+  font-size: 2.4rem;
   cursor: pointer;
   padding: 0rem;
   display: flex;
@@ -280,8 +280,8 @@ body {
 
 /* Submit button */
 #leadForm button[type="submit"] {
-  margin: 2rem 0 1rem;
-  padding: 0.9rem 2rem;
+  margin: 2rem auto 1rem;
+  padding: 1rem 2rem;
   width: 100%;
 }
 
@@ -947,8 +947,8 @@ body {
 
   .sidebar-toggle {
     position: fixed;
-    width: 3.6rem;
-    height: 3.6rem;
+    width: 4rem;
+    height: 4rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -962,7 +962,7 @@ body {
 
   /* Position when sidebar is visible */
   .sidebar:not(.collapsed) .sidebar-toggle {
-    left: calc(var(--sidebar-collapsed-width) - 1.6rem);
+    left: calc(var(--sidebar-collapsed-width) - 2rem);
   }
 
   /* Position when sidebar is collapsed */
@@ -1136,9 +1136,17 @@ body {
   .form-group {
     min-width: 100%;
   }
+
+  #leadForm button[type="submit"] {
+    width: calc(100% - 1rem);
+  }
 }
 
 @media (max-width: 480px) {
+  .modal-content {
+    padding-inline: 1rem;
+  }
+
   .leads-container {
     padding: 0;
   }
@@ -1156,6 +1164,30 @@ body {
     width: 100%;
   }
 
+  .template-cards {
+    width: 100%;
+  }
+  
+  .template-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    padding-block: 3rem;
+  }
+
+  .template-icon {
+    margin: 0 auto;
+  }
+
+  .template-details + .template-actions,  .use-template {
+    margin: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 376px) {
   .header h2 {
     font-size: 2rem;
   }

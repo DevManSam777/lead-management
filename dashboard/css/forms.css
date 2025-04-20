@@ -535,6 +535,10 @@ div.editor-section {
     flex-direction: column;
     gap: 2px;
   }
+
+  .template-meta span {
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -554,7 +558,12 @@ div.editor-section {
   .pagination {
     flex-direction: row;
   }
+
   .pagination-info {
     width: 100%;
+  }
+
+  .template-cards {
+    padding-inline: 1rem;
   }
 }
