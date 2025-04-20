@@ -51,9 +51,12 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/lib/codemirror.css"
     />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/lib/codemirror.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/mode/markdown/markdown.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/addon/display/placeholder.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.4/dist/purify.min.js"></script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
@@ -62,8 +65,7 @@
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/pagination.css" />
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.4/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="../css/charts.css" />
   </head>
   <body>
     <div class="container">
@@ -198,6 +200,24 @@
               <div class="change">
                 <span>All-Time Earnings</span>
               </div>
+            </div>
+          </div>
+        </details>
+        <!-- Charts Section -->
+        <details open id="chartsSection">
+          <summary><h3>Analytics</h3></summary>
+          <div class="charts-cards">
+            <div class="chart-card">
+              <h3>Project Status Distribution</h3>
+              <div id="statusDistributionChart" class="chart-container"></div>
+            </div>
+            <div class="chart-card">
+              <h3>Acquisition to Conversion</h3>
+              <div id="newProjectsChart" class="chart-container"></div>
+            </div>
+            <div class="chart-card">
+              <h3>Revenue Comparison by Month</h3>
+              <div id="revenueComparisonChart" class="chart-container"></div>
             </div>
           </div>
         </details>
@@ -607,6 +627,7 @@
     <script type="module" src="../js/payments.js"></script>
     <script type="module" src="../js/leadForms.js"></script>
     <script type="module" src="../js/documents.js"></script>
+    <script type="module" src="../js/charts.js"></script>
     <script type="module" src="../js/dashboard.js"></script>
   </body>
 </html>

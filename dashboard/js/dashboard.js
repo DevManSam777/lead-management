@@ -902,6 +902,8 @@ async function fetchLeadsAndRender() {
 
     // Fetch leads
     allLeads = await API.fetchLeads();
+    window.allLeads = allLeads;
+    console.log("Made leads globally available:", window.allLeads.length);
 
     // Reset to page 1 when loading fresh data
     currentPage = 1;
@@ -911,6 +913,10 @@ async function fetchLeadsAndRender() {
 
     // Fetch payments
     payments = await API.fetchPayments();
+    window.payments = payments;
+    console.log("Made payments globally available:", window.payments.length);
+
+    window.initializeCharts();
 
     // Calculate and update stats
     UI.calculateStats(allLeads, payments);
