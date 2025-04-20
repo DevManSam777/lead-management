@@ -8,7 +8,7 @@
 .forms-category {
   background-color: var(--card-background);
   border-radius: var(--card-border-radius);
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
   overflow: hidden;
   transition: background-color var(--transition-speed),
     box-shadow var(--transition-speed);
@@ -83,12 +83,13 @@
   align-items: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
 }
 
 .template-card:hover {
   background-color: var(--table-hover);
   transform: translateY(-0.3rem);
-  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.5);
 }
 
 .template-icon {

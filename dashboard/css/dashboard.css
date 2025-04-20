@@ -235,7 +235,7 @@ body {
 .leads-container {
   background-color: var(--card-background);
   border-radius: var(--card-border-radius);
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
   padding: 2rem;
   margin-bottom: 3rem;
   overflow-x: auto;

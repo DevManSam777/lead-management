@@ -42,7 +42,7 @@
   background-color: var(--card-background);
   padding: 2rem;
   border-radius: var(--card-border-radius);
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
@@ -101,7 +101,7 @@
   background-color: var(--card-background);
   border-radius: var(--card-border-radius);
   padding: 2rem;
-  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
   border-top: 0.3rem solid var(--primary);
   transition: all 0.2s ease;
   display: flex;
@@ -626,7 +626,7 @@ details[open] .stats-cards {
 .leads-table tbody tr:hover,
 .leads-table tr.clickable:hover {
   background-color: var(--table-hover);
-  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.5);
 }
 
 /* Status Badges */
