@@ -33,7 +33,7 @@
     background-color: #fff;
     padding: 3rem;
     border-radius: 0.8rem;
-    box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.1);
+   box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.5)
   }
   
   h1 {
@@ -61,7 +61,7 @@
   textarea {
     width: 100%;
     padding: 1rem;
-    border: 0.1rem solid #ddd;
+    border: 0.1rem solid #aaa;
     border-radius: 0.4rem;
     font-size: 1.6rem;
     box-sizing: border-box;
@@ -136,7 +136,7 @@
   }
   
   fieldset {
-    border: 0.1rem solid #ddd;
+    border: 0.1rem solid #aaa;
     border-radius: 0.6rem;
     padding: 2rem;
     margin-bottom: 2.5rem;
@@ -209,7 +209,7 @@
   /* Keep normal styling for non-required fields */
   input:not([required]),
   textarea:not([required]) {
-    border-color: #ddd;
+    border-color: #aaa;
     background-color: #fff;
   }
   
