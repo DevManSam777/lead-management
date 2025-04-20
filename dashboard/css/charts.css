@@ -31,8 +31,8 @@
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9; /* More rectangular aspect ratio */
-    min-height: 200px;
-    max-height: 350px;
+    min-height: 20rem;
+    max-height: 35rem;
   }
   
   .chart-no-data {
@@ -56,8 +56,8 @@
     }
   
     .chart-container {
-      max-height: 300px;
-      min-height: 180px;
+      max-height: 30rem;
+      min-height: 18rem;
     }
   }
   
@@ -77,8 +77,8 @@
     }
   
     .chart-container {
-      max-height: 250px;
-      min-height: 150px;
+      max-height: 25rem;
+      min-height: 15rem;
     }
   }
   
@@ -94,7 +94,7 @@
   
     .chart-container {
       aspect-ratio: 4 / 3; /* Slightly less wide on very small screens */
-      height: 250px;
+      height: 25rem;
     }
   }
   
@@ -114,7 +114,7 @@
   
     .chart-container {
       aspect-ratio: 3 / 2; /* Even more compact on smallest screens */
-      height: 200px;
+      height: 20rem;
       min-width: 0; /* Ensure it can shrink */
     }
   }
@@ -125,7 +125,7 @@
     }
   
     .chart-container {
-      height: 180px;
+      height: 18rem;
     }
   
     .chart-card h3 {
@@ -136,8 +136,8 @@
   
   /* Ensure charts are responsive within their containers */
   canvas {
-    width: 100% !important;
-    height: 100% !important;
+    width: 100%;
+    height: 100%;
     max-width: 100%;
   }
   

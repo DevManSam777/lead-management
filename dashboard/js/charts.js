@@ -104,8 +104,8 @@ function initializeCharts() {
             '#f9dc5c',   // In Progress - Yellow
             '#4caf50',   // Closed Won - Light Blue
             '#f72585'    // Closed Lost - Pink
-          ],
-          borderWidth: .5
+          ]
+          ,borderWidth: 0
         }]
       };
   
@@ -127,7 +127,8 @@ function initializeCharts() {
                   color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
                   font: {
                     size: getResponsiveFontSize(container)
-                  }
+                  },
+                  boxWidth: getResponsiveFontSize(container)
                 }
               }
             }
@@ -348,7 +349,7 @@ function initializeCharts() {
                 data: currentYearMonthlyTotals,
                 backgroundColor: '#4caf50'
               },
-            ]
+            ],
           },
           options: {
             responsive: true,
@@ -362,7 +363,8 @@ function initializeCharts() {
                   color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
                   font: {
                     size: getResponsiveFontSize(container)
-                  }
+                  },
+                  boxWidth: getResponsiveFontSize(container),
                 }
               }
             },
