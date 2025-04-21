@@ -43,7 +43,7 @@ function getResponsiveFontSize(container) {
   return 14; // Large screens
 }
 
-// CHART 1: Project Status Distribution (Pie Chart)
+// CHART 1: Project Status Distribution (Donut Chart)
 function updateProjectStatusChart() {
   const container = document.getElementById("statusDistributionChart");
   if (!container) {
@@ -94,13 +94,14 @@ function updateProjectStatusChart() {
             statusCounts["closed-lost"],
           ],
           backgroundColor: [
-            "#00E6FF",
-            "#8A2BE2",
-            "#6236FF",
-            "#00DDBD",
-            "#E066FF",
+            "rgba(0, 230, 255, 0.4)",
+            "rgba(138, 43, 226, 0.4)",
+            "rgba(98, 54, 255, 0.4)",
+            "rgba(0, 221, 189, 0.4)",
+            "rgba(224, 102, 255, 0.4)",
           ],
-          borderWidth: 0, // No borders
+          borderWidth: 2,
+          borderColor: ["#00E6FF", "#8A2BE2", "#6236FF", "#00DDBD", "#E066FF"],
         },
       ],
     };
@@ -108,11 +109,12 @@ function updateProjectStatusChart() {
     // Create the chart only if there are leads
     if (leads.length > 0) {
       const chart = new Chart(ctx, {
-        type: "pie",
+        type: "doughnut",
         data: data,
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          cutout: "65%",
           layout: {
             padding: 10,
           },
@@ -127,6 +129,22 @@ function updateProjectStatusChart() {
                   size: getResponsiveFontSize(container),
                 },
                 boxWidth: getResponsiveFontSize(container),
+              },
+            },
+            tooltip: {
+              callbacks: {
+                title: function (tooltipItems) {
+                  return tooltipItems[0].label;
+                },
+                label: function (context) {
+                  const value = context.raw;
+                  const total = context.dataset.data.reduce(
+                    (acc, val) => acc + val,
+                    0
+                  );
+                  const percentage = Math.round((value / total) * 100) + "%";
+                  return `${value} (${percentage})`;
+                },
               },
             },
           },
@@ -222,30 +240,30 @@ function updateNewProjectsChart() {
             {
               label: "New",
               data: monthlyNewLeadCounts,
-              backgroundColor: "rgba(148, 71, 255, 0.2)", // Swapped - Now using purple with transparency
-              borderColor: "#9747FF", // Purple line
+              backgroundColor: "rgba(148, 71, 255, 0.2)",
+              borderColor: "#9747FF",
               tension: 0.4,
               fill: true,
               borderWidth: 3,
               pointBackgroundColor: "#9747FF",
-              pointBorderWidth: 0, // No borders on points
+              pointBorderWidth: 0,
               pointRadius: 4,
               pointHoverRadius: 6,
-              pointStyle: "rectRot", // Diamond shape points
+              pointStyle: "rectRot",
             },
             {
               label: "Won",
               data: monthlyClosedWonLeadCounts,
-              backgroundColor: "rgba(12, 255, 225, 0.2)", // Swapped - Now using cyan with transparency
-              borderColor: "#0CFFE1", // Cyan line
+              backgroundColor: "rgba(12, 255, 225, 0.2)",
+              borderColor: "#0CFFE1",
               tension: 0.4,
               fill: true,
               borderWidth: 3,
               pointBackgroundColor: "#0CFFE1",
-              pointBorderWidth: 0, // No borders on points
+              pointBorderWidth: 0,
               pointRadius: 4,
               pointHoverRadius: 6,
-              pointStyle: "rectRot", // Diamond shape points
+              pointStyle: "rectRot",
             },
           ],
         },
@@ -271,7 +289,7 @@ function updateNewProjectsChart() {
             y: {
               beginAtZero: true,
               grid: {
-                color: "rgba(255, 255, 255, 0.05)", // Very subtle grid lines
+                color: "rgba(255, 255, 255, 0.05)",
                 lineWidth: 0.5,
               },
               ticks: {
@@ -285,7 +303,7 @@ function updateNewProjectsChart() {
             },
             x: {
               grid: {
-                color: "rgba(255, 255, 255, 0.05)", // Very subtle grid lines
+                color: "rgba(255, 255, 255, 0.05)",
                 lineWidth: 0.5,
               },
               ticks: {
@@ -390,8 +408,9 @@ function updateRevenueComparisonChart() {
             {
               label: `${previousYear}`,
               data: previousYearMonthlyTotals,
-              backgroundColor: "#9747FF", // Swapped - Now using Purple
-              borderWidth: 0, // No borders
+              backgroundColor: "rgba(151, 71, 255, 0.2)",
+              borderColor: "#9747FF",
+              borderWidth: 1,
               borderRadius: 3,
               barPercentage: 0.7,
               categoryPercentage: 0.85,
@@ -399,8 +418,9 @@ function updateRevenueComparisonChart() {
             {
               label: `${currentYear}`,
               data: currentYearMonthlyTotals,
-              backgroundColor: "#0CFFE1", // Swapped - Now using Cyan
-              borderWidth: 0, // No borders
+              backgroundColor: "rgba(12, 255, 225, 0.2)",
+              borderColor: "#0CFFE1",
+              borderWidth: 1,
               borderRadius: 3,
               barPercentage: 0.7,
               categoryPercentage: 0.85,
