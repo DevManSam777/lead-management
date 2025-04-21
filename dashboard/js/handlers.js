@@ -477,6 +477,10 @@ async function saveLead() {
 
     // Close the modal
     window.closeLeadModal();
+
+    // explicitly reload to update charts
+    window.location.reload();
+
   } catch (error) {
     console.error("Error saving lead:", error);
     showToast("Error: " + error.message);

@@ -1112,6 +1112,9 @@ function performCleanupAndCloseModal() {
 
   // Reset the submission flag just in case
   window.leadSubmissionInProgress = false;
+
+  // explicitly reload page so that graphs show accurate data
+  window.location.reload();
 }
 
 /**
