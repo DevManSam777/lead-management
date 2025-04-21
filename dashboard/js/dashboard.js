@@ -417,6 +417,30 @@ document.addEventListener("DOMContentLoaded", async function () {
     UI.calculateStats(allLeads, payments);
   });
 
+  // month-leads stat card
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const now = new Date();
+  const currentMonth = monthNames[now.getMonth()];
+
+  const leadsHeader = document.getElementById("month-leads");
+
+  if (leadsHeader) {
+    leadsHeader.innerHTML = `${currentMonth} ${leadsHeader.innerHTML}`;
+  }
+
   window.addEventListener("paymentsUpdated", async function () {
     // Refresh all payments data
     try {

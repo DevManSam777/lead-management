@@ -161,7 +161,8 @@
         <details open>
           <summary><h3>Key Metrics</h3></summary>
           <div class="stats-cards">
-            <div class="stats-card">
+            <!-- remove the display none to show again -->
+            <div class="stats-card" style="display: none">
               <i class="fa-solid fa-laptop-code"></i>
               <h3>Total Projects</h3>
               <div class="value" id="totalLeadsValue">0</div>
@@ -170,8 +171,10 @@
               </div>
             </div>
             <div class="stats-card">
-              <i class="fa-solid fa-bolt"></i>
-              <h3>New Projects</h3>
+              <!-- <i class="fa-solid fa-bolt"></i> -->
+              <i class="fa-solid fa-laptop-code"></i>
+              <!-- current month dynamically appears - function is in domcontentloaded in dashboard.js-->
+              <h3 id="month-leads">Leads</h3>
               <div class="value" id="newLeadsValue">0</div>
               <div class="change positive">
                 <span>% from last month</span>

@@ -15,6 +15,7 @@
     flex-direction: column;
     transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
     min-width: 0; /* Important for preventing overflow */
+    ;
   }
   
   .chart-card h3 {
@@ -113,7 +114,7 @@
     }
   
     .chart-container {
-      aspect-ratio: 3 / 2; /* Even more compact on smallest screens */
+      aspect-ratio: 3 / 2; 
       height: 20rem;
       min-width: 0; /* Ensure it can shrink */
     }
@@ -134,15 +135,9 @@
     }
   }
   
-  /* Ensure charts are responsive within their containers */
   canvas {
     width: 100%;
     height: 100%;
     max-width: 100%;
   }
   
-  /* Prevent horizontal scrolling */
-  .charts-cards {
-    overflow-x: hidden;
-    padding: 0 0.5rem; /* prevent potential edge clipping */
-  }

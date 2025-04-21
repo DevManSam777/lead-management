@@ -44,123 +44,301 @@ function getResponsiveFontSize(container) {
 }
 
 // CHART 1: Project Status Distribution (Donut Chart)
+// function updateProjectStatusChart() {
+//   const container = document.getElementById("statusDistributionChart");
+//   if (!container) {
+//     console.log("Status chart container not found");
+//     return;
+//   }
+
+//   console.log("Creating status chart");
+
+//   // Clear previous chart
+//   container.innerHTML = "";
+
+//   // Create a canvas
+//   const canvas = document.createElement("canvas");
+//   container.appendChild(canvas);
+
+//   const ctx = canvas.getContext("2d");
+
+//   try {
+//     // Group leads by status
+//     const statusCounts = {
+//       new: 0,
+//       contacted: 0,
+//       "in-progress": 0,
+//       "closed-won": 0,
+//       "closed-lost": 0,
+//     };
+
+//     // Access allLeads from the global context
+//     const leads = window.allLeads || [];
+
+//     // Count leads in each status
+//     leads.forEach((lead) => {
+//       const status = lead.status || "new";
+//       statusCounts[status]++;
+//     });
+
+//     // Prepare data for chart with high-contrast, accessible colors
+//     const data = {
+//       labels: ["New", "Contacted", "In Progress", "Won", "Lost"],
+//       datasets: [
+//         {
+//           data: [
+//             statusCounts["new"],
+//             statusCounts["contacted"],
+//             statusCounts["in-progress"],
+//             statusCounts["closed-won"],
+//             statusCounts["closed-lost"],
+//           ],
+//           backgroundColor: [
+//             "rgba(0, 230, 255, 0.4)",
+//             "rgba(138, 43, 226, 0.4)",
+//             "rgba(98, 54, 255, 0.4)",
+//             "rgba(0, 221, 189, 0.4)",
+//             "rgba(224, 102, 255, 0.4)",
+//           ],
+//           borderWidth: 2,
+//           borderColor: ["#00E6FF", "#8A2BE2", "#6236FF", "#00DDBD", "#E066FF"],
+//         },
+//       ],
+//     };
+
+//     // Create the chart only if there are leads
+//     if (leads.length > 0) {
+//       const chart = new Chart(ctx, {
+//         type: "doughnut",
+//         data: data,
+//         options: {
+//           responsive: true,
+//           maintainAspectRatio: false,
+//           cutout: "65%",
+//           layout: {
+//             padding: 10,
+//           },
+//           plugins: {
+//             legend: {
+//               position: "bottom",
+//               labels: {
+//                 color: getComputedStyle(
+//                   document.documentElement
+//                 ).getPropertyValue("--text-color"),
+//                 font: {
+//                   size: getResponsiveFontSize(container),
+//                 },
+//                 boxWidth: getResponsiveFontSize(container),
+//               },
+//             },
+//             tooltip: {
+//               callbacks: {
+//                 title: function (tooltipItems) {
+//                   return tooltipItems[0].label;
+//                 },
+//                 label: function (context) {
+//                   const value = context.raw;
+//                   const total = context.dataset.data.reduce(
+//                     (acc, val) => acc + val,
+//                     0
+//                   );
+//                   const percentage = Math.round((value / total) * 100) + "%";
+//                   return `${value} (${percentage})`;
+//                 },
+//               },
+//             },
+//           },
+//         },
+//       });
+//       console.log("Status chart created successfully");
+//     } else {
+//       container.innerHTML =
+//         '<div class="chart-no-data">No projects to display</div>';
+//     }
+//   } catch (error) {
+//     console.error("Error creating status chart:", error);
+//     container.innerHTML =
+//       '<div class="chart-no-data">Error creating chart</div>';
+//   }
+// }
+
+// CHART 1: Project Status Distribution (Donut Chart)
+
+// CHART 1: Project Status Distribution (Donut Chart)
 function updateProjectStatusChart() {
-  const container = document.getElementById("statusDistributionChart");
-  if (!container) {
-    console.log("Status chart container not found");
-    return;
-  }
-
-  console.log("Creating status chart");
-
-  // Clear previous chart
-  container.innerHTML = "";
-
-  // Create a canvas
-  const canvas = document.createElement("canvas");
-  container.appendChild(canvas);
-
-  const ctx = canvas.getContext("2d");
-
-  try {
-    // Group leads by status
-    const statusCounts = {
-      new: 0,
-      contacted: 0,
-      "in-progress": 0,
-      "closed-won": 0,
-      "closed-lost": 0,
-    };
-
-    // Access allLeads from the global context
-    const leads = window.allLeads || [];
-
-    // Count leads in each status
-    leads.forEach((lead) => {
-      const status = lead.status || "new";
-      statusCounts[status]++;
-    });
-
-    // Prepare data for chart with high-contrast, accessible colors
-    const data = {
-      labels: ["New", "Contacted", "In Progress", "Won", "Lost"],
-      datasets: [
-        {
-          data: [
-            statusCounts["new"],
-            statusCounts["contacted"],
-            statusCounts["in-progress"],
-            statusCounts["closed-won"],
-            statusCounts["closed-lost"],
-          ],
-          backgroundColor: [
-            "rgba(0, 230, 255, 0.4)",
-            "rgba(138, 43, 226, 0.4)",
-            "rgba(98, 54, 255, 0.4)",
-            "rgba(0, 221, 189, 0.4)",
-            "rgba(224, 102, 255, 0.4)",
-          ],
-          borderWidth: 2,
-          borderColor: ["#00E6FF", "#8A2BE2", "#6236FF", "#00DDBD", "#E066FF"],
-        },
-      ],
-    };
-
-    // Create the chart only if there are leads
-    if (leads.length > 0) {
-      const chart = new Chart(ctx, {
-        type: "doughnut",
-        data: data,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: "65%",
-          layout: {
-            padding: 10,
-          },
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: {
-                color: getComputedStyle(
-                  document.documentElement
-                ).getPropertyValue("--text-color"),
-                font: {
-                  size: getResponsiveFontSize(container),
-                },
-                boxWidth: getResponsiveFontSize(container),
-              },
-            },
-            tooltip: {
-              callbacks: {
-                title: function (tooltipItems) {
-                  return tooltipItems[0].label;
-                },
-                label: function (context) {
-                  const value = context.raw;
-                  const total = context.dataset.data.reduce(
-                    (acc, val) => acc + val,
-                    0
-                  );
-                  const percentage = Math.round((value / total) * 100) + "%";
-                  return `${value} (${percentage})`;
-                },
-              },
-            },
-          },
-        },
-      });
-      console.log("Status chart created successfully");
-    } else {
-      container.innerHTML =
-        '<div class="chart-no-data">No projects to display</div>';
+    const container = document.getElementById("statusDistributionChart");
+    if (!container) {
+      console.log("Status chart container not found");
+      return;
     }
-  } catch (error) {
-    console.error("Error creating status chart:", error);
-    container.innerHTML =
-      '<div class="chart-no-data">Error creating chart</div>';
+
+    console.log("Creating status chart");
+
+    // Clear previous chart
+    container.innerHTML = "";
+
+    // Create a canvas
+    const canvas = document.createElement("canvas");
+    container.appendChild(canvas);
+
+    const ctx = canvas.getContext("2d");
+
+    try {
+      // Group leads by status
+      const statusCounts = {
+        new: 0,
+        contacted: 0,
+        "in-progress": 0,
+        "closed-won": 0,
+        "closed-lost": 0,
+      };
+
+      // Access allLeads from the global context
+      const leads = window.allLeads || [];
+
+      // Count leads in each status
+      leads.forEach((lead) => {
+        const status = lead.status || "new";
+        statusCounts[status]++;
+      });
+
+      const totalProjects = leads.length; // Calculate total projects
+
+      // Prepare data for chart with high-contrast, accessible colors
+      const data = {
+        labels: ["New", "Contacted", "In Progress", "Won", "Lost"],
+        datasets: [
+          {
+            data: [
+              statusCounts["new"],
+              statusCounts["contacted"],
+              statusCounts["in-progress"],
+              statusCounts["closed-won"],
+              statusCounts["closed-lost"],
+            ],
+            backgroundColor: [
+              "rgba(0, 230, 255, 0.4)",
+              "rgba(138, 43, 226, 0.4)",
+              "rgba(98, 54, 255, 0.4)",
+              "rgba(0, 221, 189, 0.4)",
+              "rgba(224, 102, 255, 0.4)",
+            ],
+            borderWidth: 2,
+            borderColor: ["#00E6FF", "#8A2BE2", "#6236FF", "#00DDBD", "#E066FF"],
+          },
+        ],
+      };
+
+      // Custom plugin for center text
+      const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw: function(chart) {
+          const ctx = chart.ctx;
+          const width = chart.width;
+          const height = chart.height;
+          const centerX = width / 2;
+          const centerY = height / 2; // This is the vertical center of the canvas
+
+          ctx.restore();
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+
+          // Get text colors from CSS variables
+          const textColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
+          const textMutedColor = getComputedStyle(document.documentElement).getPropertyValue("--text-muted");
+
+
+          // Define the text lines
+          const headerText = "Total";
+          const totalText = totalProjects.toString();
+
+          // Use the font sizes you've already adjusted
+          const baseFontSize = Math.min(width, height) / 20;
+          const headerFontSize = baseFontSize * 1;
+          const totalFontSize = baseFontSize * 2.4;
+
+          // Adjust the vertical offset for the text block from the center
+          // I'm adding a small positive offset to try and move it down slightly from the last "worse" position
+          const verticalOffset = -25; // Adjusted vertical offset
+
+
+          // Calculate vertical positions for the two lines of text
+          // Position the header and total relative to the adjusted center
+          // Adjust these multipliers if the spacing between Total and the number needs tweaking
+          const headerY = centerY + verticalOffset - (totalFontSize * .45); // Adjusted header Y offset multiplier
+          const totalY = centerY + verticalOffset + (totalFontSize * .55); // Adjusted total Y offset multiplier
+
+
+          // Draw header text
+          ctx.font = `bold ${headerFontSize}px sans-serif`;
+          ctx.fillStyle = textMutedColor; // Set color for header to --text-muted
+          ctx.fillText(headerText, centerX, headerY);
+
+          // Draw total count text
+          ctx.font = `${totalFontSize}px sans-serif`;
+          ctx.fillStyle = textColor; // Set color for total count back to --text-color
+          ctx.fillText(totalText, centerX, totalY);
+
+          ctx.save();
+        }
+      };
+
+      // Create the chart only if there are leads
+      if (leads.length > 0) {
+        const chart = new Chart(ctx, {
+          type: "doughnut",
+          data: data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "65%", // Ensure you have a cutout for the center
+            layout: {
+              padding: 10,
+            },
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  color: getComputedStyle(
+                    document.documentElement
+                  ).getPropertyValue("--text-color"),
+                  font: {
+                    size: getResponsiveFontSize(container),
+                  },
+                  boxWidth: getResponsiveFontSize(container),
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  title: function (tooltipItems) {
+                    return tooltipItems[0].label;
+                  },
+                  label: function (context) {
+                    const value = context.raw;
+                    const total = context.dataset.data.reduce(
+                      (acc, val) => acc + val,
+                      0
+                    );
+                    const percentage = Math.round((value / total) * 100) + "%";
+                    return `${value} (${percentage})`;
+                  },
+                },
+              },
+            },
+          },
+          plugins: [centerTextPlugin] // Add the custom plugin here
+        });
+        console.log("Status chart created successfully");
+      } else {
+        container.innerHTML =
+          '<div class="chart-no-data">No projects to display</div>';
+      }
+    } catch (error) {
+      console.error("Error creating status chart:", error);
+      container.innerHTML =
+        '<div class="chart-no-data">Error creating chart</div>';
+    }
   }
-}
 
 // CHART 2: New Projects vs Closed Won Projects Over Time (Line Chart)
 function updateNewProjectsChart() {
