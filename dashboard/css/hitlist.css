@@ -1,5 +1,5 @@
 /* dashboard/css/hitlist.css */
-.hitlists-container {
+.hitlists-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
@@ -260,7 +260,24 @@
     flex-direction: column;
   }
 
-  .business-filters .search-box {
+  .search-filter-sort {
+    padding-inline: 3rem;
+    min-width: 300px;
+  }
+
+  #createHitlistBtn, .business-filters .search-box {
     width: 100%;
+  }
+}
+
+@media (max-width: 378px) {
+  .search-filter-sort {
+    padding-inline: 0;
+   width: 300px;
+   margin: 0 auto;
+  }
+
+  .search-box {
+    margin-bottom: 1rem;
   }
 }
