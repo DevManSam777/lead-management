@@ -33,7 +33,7 @@
 }
 
 .form-item {
-  padding: 12px 15px;
+  padding: 1.2rem 1.5rem;
 }
 
 .form-metadata {
@@ -44,24 +44,24 @@
 .form-metadata div {
   line-height: 1.5;
   color: var(--text-muted); 
-  font-size: 0.9em;
+  font-size: 0.9rem;
 }
 
 .template-meta {
   line-height: 1.25;
   font-size: 1.2rem;
   color: var(--text-muted);
-  margin-top: 5px;
+  margin-top: .5rem;
 }
 
 .template-meta span {
   display: flex;
   align-items: center;
-  margin-bottom: 3px;
+  margin-bottom: 0.3rem;
 }
 
 .template-meta i {
-  margin-right: 5px;
+  margin-right: .5rem;
   color: var(--primary);
   opacity: 0.8;
 }
@@ -72,7 +72,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
 }
 
 .template-card {
@@ -123,14 +123,14 @@
 
 .template-category-header {
   font-size: 1.8rem;
-  margin: 15px 0 10px;
+  margin: 1.5rem 0 1rem;
   color: var(--primary);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 5px;
+  border-bottom: 0.1rem solid var(--border-color);
+  padding-bottom: 0.5rem;
 }
 
 .no-templates-message {
-  padding: 20px;
+  padding: 2rem;
   text-align: center;
   color: var(--text-muted);
   font-style: italic;
@@ -179,7 +179,7 @@
 .template-preview {
   padding: 1rem 0;
   height: 50vh;
-  min-height: 400px;
+  min-height: 40rem;
 }
 
 .template-preview iframe {
@@ -200,7 +200,7 @@
 /* Form editor container */
 .form-editor-container {
   display: flex;
-  height: 600px;
+  height: 60rem;
   max-height: none;
   overflow: hidden;
   margin: 0 auto;
@@ -235,12 +235,12 @@
 }
 
 .preview-section {
-  border: 1px solid var(--border-color);
+  border: 0.1rem solid var(--border-color);
   border-radius: var(--card-border-radius);
   padding: 2rem;
   overflow-y: auto;
   background-color: var(--background-color);
-  max-height: 800px;
+  max-height: 80rem;
 }
 
 /* Modal Content Styles */
@@ -252,7 +252,7 @@
 }
 
 #formTemplateModal .search-box {
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
 }
 
 #formPreviewModal .modal-actions,
@@ -272,7 +272,7 @@
 }
 
 #leadsList {
-  max-height: 400px;
+  max-height: 40rem;
   overflow-y: auto;
 }
 
@@ -306,7 +306,7 @@ div.editor-section {
 .editor-tab {
   padding: 1rem 2rem;
   background-color: var(--card-background);
-  border: 1px solid var(--border-color);
+  border: 0.1rem solid var(--border-color);
   cursor: pointer;
 }
 
@@ -344,7 +344,7 @@ div.editor-section {
 #generatedFormModal .preview-section {
   flex: 1;
   overflow-y: auto;
-  border: 1px solid var(--border-color);
+  border: 0.1rem solid var(--border-color);
   border-radius: var(--card-border-radius);
   padding: 2rem;
   background-color: var(--background-color);
@@ -361,14 +361,14 @@ div.editor-section {
 #generatedFormModal .editor-tabs {
   display: flex;
   margin-top: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 0.1rem solid var(--border-color);
   margin-bottom: 1rem;
 }
 
 #generatedFormModal .editor-tab {
   padding: 0.8rem 1.5rem;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 0.1rem solid transparent;
   border-bottom: none;
   border-radius: 0.5rem 0.5rem 0 0;
   margin-right: 0.5rem;
@@ -383,8 +383,8 @@ div.editor-section {
 
 #generatedFormModal .CodeMirror {
   height: auto;
-  min-height: 300px;
-  border: 1px solid var(--border-color);
+  min-height: 30rem;
+  border: 0.1rem solid var(--border-color);
   border-radius: var(--card-border-radius);
 }
 
@@ -414,8 +414,8 @@ div.editor-section {
 /* Empty state styles */
 .empty-state {
   color: var(--text-muted);
-  border: 2px dashed var(--text-muted);
-  border-radius: 5px;
+  border: 0.2rem dashed var(--text-muted);
+  border-radius: 0.5rem;
   padding: 4rem;
   text-align: center;
 }
@@ -433,7 +433,7 @@ div.editor-section {
 }
 
 .markdown-content blockquote {
-  border-left: 4px solid var(--primary);
+  border-left: 0.4rem solid var(--primary);
   padding-left: 1rem;
   margin-left: 0;
   color: var(--text-muted);
@@ -441,7 +441,7 @@ div.editor-section {
 
 .markdown-content hr {
   border: 0;
-  border-top: 1px solid var(--border-color);
+  border-top: 0.1rem solid var(--border-color);
   margin: 2rem 0;
 }
 
@@ -463,8 +463,8 @@ div.editor-section {
 
 .markdown-content ul,
 .markdown-content ol {
-  padding-left: 2em;
-  margin: 1em 0;
+  padding-left: 2rem;
+  margin: 1rem 0;
 }
 
 .markdown-content ul ul,
@@ -476,7 +476,7 @@ div.editor-section {
 }
 
 .markdown-content li {
-  margin-bottom: 0.5em;
+  margin-bottom: 0.5rem;
 }
 
 .markdown-content p {
@@ -487,13 +487,13 @@ div.editor-section {
 .markdown-content table {
   border-collapse: collapse;
   width: 100%;
-  margin: 1em 0;
+  margin: 1rem 0;
 }
 
 .markdown-content th,
 .markdown-content td {
-  border: 1px solid var(--border-color);
-  padding: 0.5em;
+  border: 0.1rem solid var(--border-color);
+  padding: 0.5rem;
   text-align: left;
 }
 
@@ -534,7 +534,7 @@ div.editor-section {
 
   .form-dates {
     flex-direction: column;
-    gap: 2px;
+    gap: 0.2rem;
   }
 
   .template-meta span {
