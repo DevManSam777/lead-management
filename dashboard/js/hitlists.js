@@ -56,14 +56,14 @@ function setupEventListeners() {
   document.getElementById("createHitlistBtn").addEventListener("click", openCreateHitlistModal);
   document.getElementById("closeHitlistModal").addEventListener("click", closeHitlistModal);
   document.getElementById("cancelHitlistBtn").addEventListener("click", closeHitlistModal);
-  document.getElementById("hitlistForm").addEventListener("submit", handleHitlistSubmit);
+  document.getElementById("hitlistForm").addEventListener("submit", handleHitlistSubmit); // Correctly tied to Hitlist form
 
   // Business modal events
   document.getElementById("closeBusinessListModal").addEventListener("click", closeBusinessListModal);
   document.getElementById("addBusinessBtn").addEventListener("click", openAddBusinessModal);
   document.getElementById("closeBusinessModal").addEventListener("click", closeBusinessModal);
   document.getElementById("cancelBusinessBtn").addEventListener("click", closeBusinessModal);
-  document.getElementById("businessForm").addEventListener("submit", handleBusinessSubmit);
+  document.getElementById("businessForm").addEventListener("submit", handleBusinessSubmit); // Correctly tied to Business form
 
   // Search and filter events
   document.getElementById("searchInput").addEventListener("input", filterHitlists);
@@ -169,7 +169,7 @@ function renderHitlists(hitlists) {
 
 function openCreateHitlistModal() {
   document.getElementById("hitlistModalTitle").textContent = "Create New Hitlist";
-  document.getElementById("hitlistId").value = "";
+  document.getElementById("hitlistId").value = ""; // Clear hidden ID for new hitlist
   document.getElementById("hitlistForm").reset();
   document.getElementById("hitlistModal").style.display = "block";
 }
@@ -179,7 +179,7 @@ function openEditHitlistModal(hitlistId) {
   if (!hitlist) return;
 
   document.getElementById("hitlistModalTitle").textContent = "Edit Hitlist";
-  document.getElementById("hitlistId").value = hitlist._id;
+  document.getElementById("hitlistId").value = hitlist._id; // Set hidden ID for editing
   document.getElementById("hitlistName").value = hitlist.name;
   document.getElementById("hitlistDescription").value = hitlist.description || "";
   document.getElementById("hitlistModal").style.display = "block";
@@ -189,73 +189,36 @@ function closeHitlistModal() {
   document.getElementById("hitlistModal").style.display = "none";
 }
 
+// --- CORRECT handleHitlistSubmit for the HITLIST FORM ---
 async function handleHitlistSubmit(event) {
   event.preventDefault();
 
-  const businessId = document.getElementById("businessId").value;
-  const hitlistId = document.getElementById("currentHitlistId").value;
-
-  // Combine first and last name for contact name
-  const contactFirstName = document.getElementById("contactFirstName").value;
-  const contactLastName = document.getElementById("contactLastName").value;
-  const contactName = (contactFirstName || contactLastName)
-    ? `${contactFirstName} ${contactLastName}`.trim()
-    : '';
-
-  // Handle website URL - add https:// if no protocol is present
-  let websiteUrl = document.getElementById("websiteUrl").value.trim();
-  if (websiteUrl && !websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
-    websiteUrl = `https://${websiteUrl}`;
-  }
-
-  const businessData = {
-    businessName: document.getElementById("businessName").value,
-    typeOfBusiness: document.getElementById("typeOfBusiness").value,
-    contactName: contactName,
-    businessPhone: document.getElementById("businessPhone").value,
-    // Removed the incorrect line that caused the ReferenceError
-    hasWebsite: document.getElementById("hasWebsite").value === "true",
-    websiteUrl: websiteUrl,
-    status: document.getElementById("status").value,
-    priority: document.getElementById("priority").value,
-    notes: document.getElementById("notes").value,
-    hitlistId: hitlistId
+  const hitlistId = document.getElementById("hitlistId").value; // Check if hitlistId exists (editing)
+  const hitlistData = {
+    name: document.getElementById("hitlistName").value,
+    description: document.getElementById("hitlistDescription").value
   };
 
-  // Correctly get businessEmail from the form input for both create and edit
-  const businessEmailInput = document.getElementById("businessEmail").value;
-  if (businessEmailInput) {
-    businessData.businessEmail = businessEmailInput;
-  } else {
-      // Explicitly set to empty string if input is empty
-      businessData.businessEmail = ''; // Or null, depending on API expectation
-  }
-
-
-  // Handle date - Send the-MM-DD string directly from the input
-  // This avoids client-side timezone conversion issues during save.
-  const lastContactedDateValue = document.getElementById("lastContactedDate").value; // Gets "YYYY-MM-DD"
-  businessData.lastContactedDate = lastContactedDateValue || null; // Send the string or null
-
   try {
-    if (businessId) {
-      // Assuming API.updateBusiness correctly handles the date string ("YYYY-MM-DD") or null
-      await API.updateBusiness(businessId, businessData);
-      Utils.showToast("Business updated successfully");
+    if (hitlistId) {
+      // Edit existing hitlist
+      await API.updateHitlist(hitlistId, hitlistData);
+      Utils.showToast("Hitlist updated successfully");
     } else {
-      // Assuming API.createBusiness correctly handles the date string ("YYYY-MM-DD") or null
-      await API.createBusiness(hitlistId, businessData);
-      Utils.showToast("Business added successfully");
+      // Create NEW hitlist
+      await API.createHitlist(hitlistData); // This is the correct API call for creating a hitlist
+      Utils.showToast("Hitlist created successfully");
     }
 
-    closeBusinessModal();
-    // Refresh business list, which will re-fetch data including the saved date
-    openBusinessListModal(hitlistId);
+    closeHitlistModal(); // Close the Hitlist Modal
+    fetchAndRenderHitlists(); // Refresh the list of hitlists
   } catch (error) {
-    console.error("Error saving business:", error);
-    Utils.showToast("Error saving business");
+    console.error("Error saving hitlist:", error); // Correct error logging
+    Utils.showToast("Error saving hitlist"); // Correct toast message
   }
 }
+// --- END handleHitlistSubmit ---
+
 
 async function openBusinessListModal(hitlistId) {
   currentHitlistId = hitlistId;
@@ -419,8 +382,8 @@ function openAddBusinessModal() {
   const businessIdInput = document.getElementById("businessId");
   const currentHitlistIdInput = document.getElementById("currentHitlistId");
 
-  if (businessIdInput) businessIdInput.value = "";
-  if (currentHitlistIdInput) currentHitlistIdInput.value = currentHitlistId || "";
+  if (businessIdInput) businessIdInput.value = ""; // Clear business ID for new business
+  if (currentHitlistIdInput) currentHitlistIdInput.value = currentHitlistId || ""; // Set hitlist ID
 
   // Reset and hide date display for new business
   const lastContactedInput = document.getElementById("lastContactedDate");
@@ -456,8 +419,8 @@ function openEditBusinessModal(business) {
   const nameParts = (business.contactName || '').split(' ');
 
   // Set form fields
-  document.getElementById("businessId").value = business._id;
-  document.getElementById("currentHitlistId").value = business.hitlistId;
+  document.getElementById("businessId").value = business._id; // Set business ID for editing
+  document.getElementById("currentHitlistId").value = business.hitlistId; // Set hitlist ID
   document.getElementById("businessName").value = business.businessName || '';
   document.getElementById("typeOfBusiness").value = business.typeOfBusiness || '';
   document.getElementById("contactFirstName").value = nameParts[0] || '';
@@ -514,11 +477,12 @@ function closeBusinessModal() {
   document.getElementById("businessModal").style.display = "none";
 }
 
+// --- CORRECT handleBusinessSubmit for the BUSINESS FORM ---
 async function handleBusinessSubmit(event) {
   event.preventDefault();
 
-  const businessId = document.getElementById("businessId").value;
-  const hitlistId = document.getElementById("currentHitlistId").value;
+  const businessId = document.getElementById("businessId").value; // Check if businessId exists (editing)
+  const hitlistId = document.getElementById("currentHitlistId").value; // Need hitlistId for business
 
   // Combine first and last name for contact name
   const contactFirstName = document.getElementById("contactFirstName").value;
@@ -538,24 +502,14 @@ async function handleBusinessSubmit(event) {
     typeOfBusiness: document.getElementById("typeOfBusiness").value,
     contactName: contactName,
     businessPhone: document.getElementById("businessPhone").value,
-    // Removed the incorrect line that caused the ReferenceError
+    businessEmail: document.getElementById("businessEmail").value || '', // Get email directly from input
     hasWebsite: document.getElementById("hasWebsite").value === "true",
     websiteUrl: websiteUrl,
     status: document.getElementById("status").value,
     priority: document.getElementById("priority").value,
     notes: document.getElementById("notes").value,
-    hitlistId: hitlistId
+    hitlistId: hitlistId // Include the hitlist ID in the business data
   };
-
-  // Correctly get businessEmail from the form input for both create and edit
-  const businessEmailInput = document.getElementById("businessEmail").value;
-  if (businessEmailInput) {
-    businessData.businessEmail = businessEmailInput;
-  } else {
-      // Explicitly set to empty string if input is empty
-      businessData.businessEmail = ''; // Or null, depending on API expectation
-  }
-
 
   // Handle date - Send the-MM-DD string directly from the input
   // This avoids client-side timezone conversion issues during save.
@@ -564,23 +518,26 @@ async function handleBusinessSubmit(event) {
 
   try {
     if (businessId) {
-      // Assuming API.updateBusiness correctly handles the date string ("YYYY-MM-DD") or null
+      // Update existing business
       await API.updateBusiness(businessId, businessData);
       Utils.showToast("Business updated successfully");
     } else {
-      // Assuming API.createBusiness correctly handles the date string ("YYYY-MM-DD") or null
+      // Create NEW business
+      // **This is the correct API call for creating a business within a hitlist**
       await API.createBusiness(hitlistId, businessData);
       Utils.showToast("Business added successfully");
     }
 
-    closeBusinessModal();
-    // Refresh business list, which will re-fetch data including the saved date
+    closeBusinessModal(); // Close the Business Modal
+    // Refresh business list for the current hitlist
     openBusinessListModal(hitlistId);
   } catch (error) {
-    console.error("Error saving business:", error);
-    Utils.showToast("Error saving business");
+    console.error("Error saving business:", error); // Correct error logging
+    Utils.showToast("Error saving business"); // Correct toast message
   }
 }
+// --- END handleBusinessSubmit ---
+
 
 function openViewBusinessModal(business) {
   document.getElementById("viewBusinessName").textContent = business.businessName || 'N/A';
@@ -592,7 +549,7 @@ function openViewBusinessModal(business) {
   document.getElementById("viewContactLastName").textContent = nameParts.slice(1).join(' ') || 'N/A';
 
   document.getElementById("viewBusinessPhone").textContent = business.businessPhone || 'N/A';
-  document.getElementById("viewBusinessEmail").textContent = business.businessEmail || 'N/A';
+  document.getElementById("viewBusinessEmail").textContent = business.businessEmail || 'example@email.com';
 
     // Corrected websiteUrl link creation for display
     const websiteLinkHtml = business.websiteUrl ?
