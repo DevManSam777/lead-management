@@ -90,7 +90,13 @@
             </li>
             <li>
               <a href="forms.html" id="forms-link" title="Form Templates">
-                <i class="fa-solid fa-file-signature"></i><span>Form Templates</span>
+                <i class="fa-solid fa-file-signature"></i
+                ><span>Form Templates</span>
+              </a>
+            </li>
+            <li>
+              <a href="hitlist.html" id="hitlists-link" title="Hitlists">
+                <i class="fas fa-bullseye"></i><span>Hitlists</span>
               </a>
             </li>
             <li>
@@ -127,7 +133,10 @@
               <option value="template" selected>Templates</option>
               <option value="draft">Drafts</option>
             </select>
-            <button id="addFormBtnFormsPage" class="btn btn-primary blue-border">
+            <button
+              id="addFormBtnFormsPage"
+              class="btn btn-primary blue-border"
+            >
               <i class="fas fa-plus"></i> Create Form
             </button>
           </div>
@@ -152,10 +161,10 @@
         <div class="modal-header">
           <h3 id="formEditorTitle">Create New Form</h3>
         </div>
-    
+
         <form id="formEditorForm">
           <input type="hidden" id="formId" />
-    
+
           <div class="form-group">
             <label for="formTitle" class="required">Title</label>
             <input
@@ -165,7 +174,7 @@
               placeholder="Form title"
             />
           </div>
-    
+
           <div class="form-group">
             <label for="formDescription">Description</label>
             <input
@@ -174,7 +183,7 @@
               placeholder="Brief description of this form"
             />
           </div>
-    
+
           <div class="form-row">
             <div class="form-group">
               <label for="formCategory">Category</label>
@@ -186,7 +195,7 @@
                 <option value="other">Other</option>
               </select>
             </div>
-    
+
             <div class="form-group">
               <label for="isTemplate">Save as</label>
               <select id="isTemplate">
@@ -195,12 +204,12 @@
               </select>
             </div>
           </div>
-    
+
           <div class="editor-tabs">
             <div class="editor-tab active" data-tab="editor">Editor</div>
             <div class="editor-tab" data-tab="preview">Preview</div>
           </div>
-    
+
           <div class="form-editor-container">
             <div class="editor-section">
               <label for="formContent" class="required">Content</label>
@@ -208,27 +217,113 @@
               <div class="variables-container">
                 <h4>Available Variables</h4>
                 <p class="variable-hint">
-                  Click a variable to insert it at the cursor position. Use format
+                  Click a variable to insert it at the cursor position. Use
+                  format
                   <code>{{variableName}}</code> in your content.
                 </p>
                 <div class="variables-list" id="variablesList">
-                  <span class="variable-tag" data-variable="firstName" title="{{firstName}}">First Name</span>
-                  <span class="variable-tag" data-variable="lastName" title="{{lastName}}">Last Name</span>
-                  <span class="variable-tag" data-variable="fullName" title="{{fullName}}">Full Name</span>
-                  <span class="variable-tag" data-variable="email" title="{{email}}">Personal Email</span>
-                  <span class="variable-tag" data-variable="phone" title="{{phone}}">Personal Phone</span>
-                  <span class="variable-tag" data-variable="businessName" title="{{businessName}}">Business Name</span>
-                  <span class="variable-tag" data-variable="businessEmail" title="{{businessEmail}}">Business Email</span>
-                  <span class="variable-tag" data-variable="businessPhone" title="{{businessPhone}}">Business Phone</span>
-                  <span class="variable-tag" data-variable="preferredContact" title="{{preferredContact}}">Contact Preference</span>
-                  <span class="variable-tag" data-variable="billingAddress" title="{{billingAddress}}">Billing Address</span>
-                  <span class="variable-tag" data-variable="serviceDesired" title="{{serviceDesired}}">Service Desired</span>
-                  <span class="variable-tag" data-variable="estimatedBudget" title="{{estimatedBudget}}">Estimated Budget</span>
-                  <span class="variable-tag" data-variable="billedAmount" title="{{billedAmount}}">Billed Amount</span>
-                  <span class="variable-tag" data-variable="paidAmount" title="{{paidAmount}}">Paid Amount</span>
-                  <span class="variable-tag" data-variable="remainingBalance" title="{{remainingBalance}}">Remaining Balance</span>
-                  <span class="variable-tag" data-variable="currentDate" title="{{currentDate}}">Current Date</span>
-                  <span class="variable-tag" data-variable="createdAt" title="{{createdAt}}">Project Origin Date</span>
+                  <span
+                    class="variable-tag"
+                    data-variable="firstName"
+                    title="{{firstName}}"
+                    >First Name</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="lastName"
+                    title="{{lastName}}"
+                    >Last Name</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="fullName"
+                    title="{{fullName}}"
+                    >Full Name</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="email"
+                    title="{{email}}"
+                    >Personal Email</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="phone"
+                    title="{{phone}}"
+                    >Personal Phone</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="businessName"
+                    title="{{businessName}}"
+                    >Business Name</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="businessEmail"
+                    title="{{businessEmail}}"
+                    >Business Email</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="businessPhone"
+                    title="{{businessPhone}}"
+                    >Business Phone</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="preferredContact"
+                    title="{{preferredContact}}"
+                    >Contact Preference</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="billingAddress"
+                    title="{{billingAddress}}"
+                    >Billing Address</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="serviceDesired"
+                    title="{{serviceDesired}}"
+                    >Service Desired</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="estimatedBudget"
+                    title="{{estimatedBudget}}"
+                    >Estimated Budget</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="billedAmount"
+                    title="{{billedAmount}}"
+                    >Billed Amount</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="paidAmount"
+                    title="{{paidAmount}}"
+                    >Paid Amount</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="remainingBalance"
+                    title="{{remainingBalance}}"
+                    >Remaining Balance</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="currentDate"
+                    title="{{currentDate}}"
+                    >Current Date</span
+                  >
+                  <span
+                    class="variable-tag"
+                    data-variable="createdAt"
+                    title="{{createdAt}}"
+                    >Project Origin Date</span
+                  >
                 </div>
               </div>
             </div>
@@ -237,7 +332,7 @@
               <div class="markdown-content" id="markdownPreview"></div>
             </div>
           </div>
-    
+
           <div class="modal-actions">
             <button type="button" id="cancelFormBtn" class="btn btn-outline">
               Cancel
@@ -255,12 +350,12 @@
         <div class="modal-header">
           <h3 id="previewFormTitle">Form Preview</h3>
         </div>
-    
+
         <div class="preview-container">
           <!-- Content will be inserted here by JavaScript -->
           <div class="markdown-content" id="previewContent"></div>
         </div>
-    
+
         <div class="modal-actions">
           <div>
             <button type="button" id="editFormBtn" class="btn btn-outline">

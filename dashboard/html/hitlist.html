@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevLeads Hitlists</title>
+    <style>
+      .sidebar,
+      .main-content {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+    </style>
+    <script>
+      (function () {
+        // Original theme setup from localStorage
+        const savedTheme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        document.documentElement.setAttribute("data-theme", savedTheme);
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const sidebar = document.querySelector(".sidebar");
+          const mainContent = document.querySelector(".main-content");
+
+          const isSidebarCollapsed =
+            localStorage.getItem("sidebarCollapsed") === "true";
+
+          if (isSidebarCollapsed) {
+            sidebar.classList.add("collapsed");
+            mainContent.classList.add("expanded");
+          }
+
+          setTimeout(function () {
+            sidebar.style.opacity = "1";
+            mainContent.style.opacity = "1";
+          }, 300);
+        });
+      })();
+    </script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/pagination.css" />
+    <link rel="stylesheet" href="../css/hitlist.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h1>DevLeads</h1>
+          <p>Beta Version</p>
+        </div>
+        <div class="sidebar-menu">
+          <ul>
+            <li>
+              <a href="dashboard.html" id="dashboard-link" title="Dashboard">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="resources.html" id="resources-link" title="Resources">
+                <i class="fa-solid fa-toolbox"></i><span>Resources</span>
+              </a>
+            </li>
+            <li>
+              <a href="forms.html" id="forms-link" title="Form Templates">
+                <i class="fa-solid fa-file-signature"></i
+                ><span>Form Templates</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="hitlist.html"
+                id="hitlists-link"
+                title="Hitlists"
+                class="active"
+              >
+                <i class="fas fa-bullseye"></i><span>Hitlists</span>
+              </a>
+            </li>
+            <li>
+              <a href="settings.html" id="settings-link" title="Settings">
+                <i class="fas fa-cog"></i> <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="header">
+          <h2>Business Hitlists</h2>
+          <div class="search-filter-sort">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search hitlists..."
+              />
+            </div>
+            <button id="createHitlistBtn" class="btn btn-primary blue-border">
+              <i class="fas fa-plus"></i> Create Hitlist
+            </button>
+          </div>
+        </header>
+
+        <!-- Hitlists Container -->
+        <div class="hitlists-container">
+          <div id="hitlistsList" class="loading-indicator">
+            <i class="fas fa-spinner fa-spin"></i> Loading hitlists...
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Create/Edit Hitlist Modal -->
+    <div id="hitlistModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeHitlistModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="hitlistModalTitle">Create New Hitlist</h3>
+        </div>
+        <form id="hitlistForm">
+          <input type="hidden" id="hitlistId" />
+          <div class="form-group">
+            <label for="hitlistName" class="required">Name</label>
+            <input type="text" id="hitlistName" required />
+          </div>
+          <div class="form-group">
+            <label for="hitlistDescription">Description</label>
+            <textarea id="hitlistDescription" rows="3"></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="cancelHitlistBtn" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save Hitlist</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Business List Modal -->
+    <div id="businessListModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeBusinessListModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="businessListTitle">Businesses</h3>
+          <button id="addBusinessBtn" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Business
+          </button>
+        </div>
+        <div class="business-filters">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="businessSearchInput"
+              placeholder="Search businesses..."
+            />
+          </div>
+          <select id="statusFilter">
+            <option value="">All Statuses</option>
+            <option value="not-contacted">Not Contacted</option>
+            <option value="contacted">Contacted</option>
+            <option value="follow-up">Follow-up Required</option>
+            <option value="not-interested">Not Interested</option>
+            <option value="converted">Converted</option>
+          </select>
+        </div>
+        <div id="businessesList" class="businesses-list">
+          <!-- Businesses will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Business Form Modal -->
+    <div id="businessModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeBusinessModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="businessModalTitle">Add Business</h3>
+        </div>
+        <form id="businessForm">
+          <input type="hidden" id="businessId" />
+          <input type="hidden" id="currentHitlistId" />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="businessName" class="required">Business Name</label>
+              <input type="text" id="businessName" required />
+            </div>
+            <div class="form-group">
+              <label for="industry">Industry</label>
+              <input type="text" id="industry" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contactName">Contact Name</label>
+              <input type="text" id="contactName" />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" />
+            </div>
+            <div class="form-group">
+              <label for="hasWebsite">Has Website?</label>
+              <select id="hasWebsite">
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" id="websiteUrlGroup" style="display: none">
+            <label for="websiteUrl">Website URL</label>
+            <input type="url" id="websiteUrl" placeholder="https://" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status">
+                <option value="not-contacted">Not Contacted</option>
+                <option value="contacted">Contacted</option>
+                <option value="follow-up">Follow-up Required</option>
+                <option value="not-interested">Not Interested</option>
+                <option value="converted">Converted</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="priority">Priority</label>
+              <select id="priority">
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastContactedDate">Last Contacted</label>
+            <div class="date-input-container">
+              <input type="date" id="lastContactedDate" />
+              <div class="date-display" id="lastContactedDisplay"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" rows="4"></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              id="cancelBusinessBtn"
+              class="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save Business</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+      <p id="toastMessage"></p>
+    </div>
+
+    <!-- Load scripts -->
+    <script type="module" src="../js/utils.js"></script>
+    <script type="module" src="../js/api.js"></script>
+    <script type="module" src="../js/hitlists.js"></script>
+  </body>
+</html>

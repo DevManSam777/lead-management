@@ -7,6 +7,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const settingRoutes = require("./routes/settingRoutes");
 const formRoutes = require("./routes/formRoutes");
 const documentRoutes = require("./routes/documentRoutes");
+const hitlistRoutes = require("./routes/hitlistRoutes");
 
 // Load environment variables
 const path = require("path");
@@ -82,6 +83,17 @@ app.get("/", (req, res) => {
       documentById: `http://localhost:${PORT}/api/documents/:id`,
       uploadDocument: `http://localhost:${PORT}/api/documents/lead/:leadId`,
       deleteDocument: `http://localhost:${PORT}/api/documents/:id`,
+    },
+    hitlistEndpoints: {
+      allHitlists: `http://localhost:${PORT}/api/hitlists`,
+      hitlistById: `http://localhost:${PORT}/api/hitlists/:id`,
+      createHitlist: `http://localhost:${PORT}/api/hitlists`,
+      updateHitlist: `http://localhost:${PORT}/api/hitlists/:id`,
+      deleteHitlist: `http://localhost:${PORT}/api/hitlists/:id`,
+      businessesByHitlist: `http://localhost:${PORT}/api/hitlists/:hitlistId/businesses`,
+      createBusiness: `http://localhost:${PORT}/api/hitlists/:hitlistId/businesses`,
+      updateBusiness: `http://localhost:${PORT}/api/hitlists/businesses/:id`,
+      deleteBusiness: `http://localhost:${PORT}/api/hitlists/businesses/:id`,
     },
     documentation: {
       description: "LEADS REST API",
@@ -499,6 +511,121 @@ app.get("/", (req, res) => {
           response: "JSON success message or error.",
           exampleResponse: "{ message: 'Document deleted successfully' }", // Example placeholder
         },
+        // Hitlist Endpoints
+        {
+          method: "GET",
+          path: "/api/hitlists",
+          description: "Get all hitlists",
+          response: "Array of hitlist objects"
+        },
+        {
+          method: "GET",
+          path: "/api/hitlists/:id",
+          description: "Get specific hitlist by ID",
+          parameters: [
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the hitlist",
+              required: true
+            }
+          ],
+          response: "Hitlist object"
+        },
+        {
+          method: "POST",
+          path: "/api/hitlists",
+          description: "Create a new hitlist",
+          requestBody: "Hitlist object in JSON format",
+          response: "Newly created hitlist object"
+        },
+        {
+          method: "PUT",
+          path: "/api/hitlists/:id",
+          description: "Update a hitlist",
+          parameters: [
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the hitlist to update",
+              required: true
+            }
+          ],
+          requestBody: "Updated hitlist object in JSON format",
+          response: "Updated hitlist object"
+        },
+        {
+          method: "DELETE",
+          path: "/api/hitlists/:id",
+          description: "Delete a hitlist",
+          parameters: [
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the hitlist to delete",
+              required: true
+            }
+          ],
+          response: "Success message or error"
+        },
+        {
+          method: "GET",
+          path: "/api/hitlists/:hitlistId/businesses",
+          description: "Get all businesses for a specific hitlist",
+          parameters: [
+            {
+              name: "hitlistId",
+              type: "string",
+              description: "ID of the hitlist",
+              required: true
+            }
+          ],
+          response: "Array of business objects"
+        },
+        {
+          method: "POST",
+          path: "/api/hitlists/:hitlistId/businesses",
+          description: "Create a new business for a hitlist",
+          parameters: [
+            {
+              name: "hitlistId",
+              type: "string",
+              description: "ID of the hitlist",
+              required: true
+            }
+          ],
+          requestBody: "Business object in JSON format",
+          response: "Newly created business object"
+        },
+        {
+          method: "PUT",
+          path: "/api/hitlists/businesses/:id",
+          description: "Update a business",
+          parameters: [
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the business to update",
+              required: true
+            }
+          ],
+          requestBody: "Updated business object in JSON format",
+          response: "Updated business object"
+        },
+        {
+          method: "DELETE",
+          path: "/api/hitlists/businesses/:id",
+          description: "Delete a business",
+          parameters: [
+            {
+              name: "id",
+              type: "string",
+              description: "ID of the business to delete",
+              required: true
+            }
+          ],
+          response: "Success message or error"
+        }
       ],
     },
   });
@@ -510,6 +637,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/settings", settingRoutes);
 app.use("/api/forms", formRoutes);
 app.use("/api/documents", documentRoutes);
+app.use("/api/hitlists", hitlistRoutes);
 
 // Start the server
 app.listen(PORT, () => {

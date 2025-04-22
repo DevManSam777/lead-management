@@ -3,6 +3,7 @@ const API_PAYMENTS_URL = "http://localhost:5000/api/payments";
 const SETTINGS_API_URL = "http://localhost:5000/api/settings";
 const FORMS_API_URL = "http://localhost:5000/api/forms";
 const API_DOCUMENTS_URL = "http://localhost:5000/api/documents";
+const HITLIST_API_URL = "http://localhost:5000/api/hitlists";
 
 // Helper function to get base URL
 function getBaseUrl() {
@@ -677,6 +678,145 @@ async function deleteDocument(documentId) {
   }
 }
 
+// Hitlist API functions
+async function fetchHitlists() {
+  try {
+    const response = await fetch(HITLIST_API_URL);
+    if (!response.ok) {
+      throw new Error("Failed to fetch hitlists");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching hitlists:", error);
+    throw error;
+  }
+}
+
+async function fetchHitlistById(hitlistId) {
+  try {
+    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch hitlist");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching hitlist:", error);
+    throw error;
+  }
+}
+
+async function createHitlist(hitlistData) {
+  try {
+    const response = await fetch(HITLIST_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(hitlistData),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to create hitlist");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating hitlist:", error);
+    throw error;
+  }
+}
+
+async function updateHitlist(hitlistId, hitlistData) {
+  try {
+    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(hitlistData),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to update hitlist");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating hitlist:", error);
+    throw error;
+  }
+}
+
+async function deleteHitlist(hitlistId) {
+  try {
+    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to delete hitlist");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting hitlist:", error);
+    throw error;
+  }
+}
+
+// Business API functions
+async function fetchBusinessesByHitlist(hitlistId) {
+  try {
+    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}/businesses`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch businesses");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching businesses:", error);
+    throw error;
+  }
+}
+
+async function createBusiness(hitlistId, businessData) {
+  try {
+    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}/businesses`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(businessData),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to create business");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating business:", error);
+    throw error;
+  }
+}
+
+async function updateBusiness(businessId, businessData) {
+  try {
+    const response = await fetch(`${HITLIST_API_URL}/businesses/${businessId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(businessData),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to update business");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating business:", error);
+    throw error;
+  }
+}
+
+async function deleteBusiness(businessId) {
+  try {
+    const response = await fetch(`${HITLIST_API_URL}/businesses/${businessId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to delete business");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting business:", error);
+    throw error;
+  }
+}
+
 
 export {
   getBaseUrl,
@@ -705,5 +845,14 @@ export {
   generateFormForLead,
   getDocumentsByLead,
   uploadDocument,
-  deleteDocument
+  deleteDocument,
+  fetchHitlists,
+  fetchHitlistById,
+  createHitlist,
+  updateHitlist,
+  deleteHitlist,
+  fetchBusinessesByHitlist,
+  createBusiness,
+  updateBusiness,
+  deleteBusiness
 };
