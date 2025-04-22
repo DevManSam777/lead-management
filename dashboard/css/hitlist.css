@@ -246,6 +246,9 @@
   font-style: italic;
 }
 
+a { 
+  color: inherit;
+}
 
 a, a:visited {
   color: inherit;

@@ -1,15 +1,15 @@
-// dashboard/js/hitlists.js
 import * as API from "./api.js";
-import * as Utils from "./utils.js";
+import * as Utils from "./utils.js"; // Assuming Utils has a formatDate function
 
 let allHitlists = [];
 let currentHitlistId = null;
+let currentBusinesses = []; // Store businesses globally
 
 document.addEventListener("DOMContentLoaded", function () {
   setupSidebarToggle();
   setupEventListeners();
   fetchAndRenderHitlists();
-  initializeDateInputs();
+  initializeDateInputs(); // Ensure date inputs are initialized
 });
 
 function setupSidebarToggle() {
@@ -71,22 +71,19 @@ function setupEventListeners() {
   document.getElementById("statusFilter").addEventListener("change", filterBusinesses);
 
   // Website checkbox toggle
-  document.getElementById("hasWebsite").addEventListener("change", function() {
-    const websiteUrlGroup = document.getElementById("websiteUrlGroup");
-    websiteUrlGroup.style.display = this.value === "true" ? "block" : "none";
-  });
+  const hasWebsiteSelect = document.getElementById("hasWebsite");
+  if (hasWebsiteSelect) {
+    hasWebsiteSelect.addEventListener("change", function() {
+      const websiteUrlGroup = document.getElementById("websiteUrlGroup");
+      websiteUrlGroup.style.display = this.value === "true" ? "block" : "none";
+    });
+  }
 
-  // Date input changes
-  const lastContactedInput = document.getElementById("lastContactedDate");
-  if (lastContactedInput) {
-    lastContactedInput.addEventListener("change", function() {
-      if (this.value) {
-        const date = new Date(this.value);
-        const displayElement = document.getElementById("lastContactedDisplay");
-        if (displayElement) {
-          displayElement.textContent = Utils.formatDate(date, window.dateFormat || "MM/DD/YYYY");
-        }
-      }
+  // Close button for view business modal
+  const closeBusinessViewModalButton = document.getElementById("closeBusinessViewModal");
+  if (closeBusinessViewModalButton) {
+    closeBusinessViewModalButton.addEventListener("click", function() {
+      document.getElementById("businessViewModal").style.display = "none";
     });
   }
 }
@@ -100,14 +97,14 @@ async function fetchAndRenderHitlists() {
     renderHitlists(allHitlists);
   } catch (error) {
     console.error("Error fetching hitlists:", error);
-    document.getElementById("hitlistsList").innerHTML = 
+    document.getElementById("hitlistsList").innerHTML =
       '<div class="error-state">Error loading hitlists. Please try again.</div>';
   }
 }
 
 function renderHitlists(hitlists) {
   const hitlistsList = document.getElementById("hitlistsList");
-  
+
   if (!hitlists || hitlists.length === 0) {
     hitlistsList.innerHTML = `
       <div class="empty-state">
@@ -140,27 +137,31 @@ function renderHitlists(hitlists) {
         </span>
         <span class="hitlist-stat">
           <i class="fas fa-clock"></i>
-          ${Utils.formatDate(hitlist.lastModified, window.dateFormat || "MM/DD/YYYY")}
+          ${hitlist.lastModified ? Utils.formatDate(hitlist.lastModified, window.dateFormat || "MM/DD/YYYY") : 'N/A'}
         </span>
       </div>
     </div>
   `).join('');
 
   // Add event listeners to cards
-  hitlistsList.querySelectorAll('.hitlist-card').forEach(card => {
+  const hitlistCards = document.querySelectorAll('.hitlist-card');
+  hitlistCards.forEach(card => {
+    // Open business list when card is clicked
     card.addEventListener('click', function(e) {
       if (!e.target.closest('.hitlist-actions')) {
         openBusinessListModal(this.dataset.id);
       }
     });
 
+    // Edit hitlist button
     card.querySelector('.edit-hitlist').addEventListener('click', function(e) {
-      e.stopPropagation();
+      e.stopPropagation(); // Correctly stop propagation on the event object
       openEditHitlistModal(card.dataset.id);
     });
 
+    // Delete hitlist button
     card.querySelector('.delete-hitlist').addEventListener('click', function(e) {
-      e.stopPropagation();
+      e.stopPropagation(); // Correctly stop propagation on the event object
       deleteHitlist(card.dataset.id);
     });
   });
@@ -191,57 +192,84 @@ function closeHitlistModal() {
 async function handleHitlistSubmit(event) {
   event.preventDefault();
 
-  const hitlistId = document.getElementById("hitlistId").value;
-  const hitlistData = {
-    name: document.getElementById("hitlistName").value,
-    description: document.getElementById("hitlistDescription").value
+  const businessId = document.getElementById("businessId").value;
+  const hitlistId = document.getElementById("currentHitlistId").value;
+
+  // Combine first and last name for contact name
+  const contactFirstName = document.getElementById("contactFirstName").value;
+  const contactLastName = document.getElementById("contactLastName").value;
+  const contactName = (contactFirstName || contactLastName)
+    ? `${contactFirstName} ${contactLastName}`.trim()
+    : '';
+
+  // Handle website URL - add https:// if no protocol is present
+  let websiteUrl = document.getElementById("websiteUrl").value.trim();
+  if (websiteUrl && !websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+    websiteUrl = `https://${websiteUrl}`;
+  }
+
+  const businessData = {
+    businessName: document.getElementById("businessName").value,
+    typeOfBusiness: document.getElementById("typeOfBusiness").value,
+    contactName: contactName,
+    businessPhone: document.getElementById("businessPhone").value,
+    // Removed the incorrect line that caused the ReferenceError
+    hasWebsite: document.getElementById("hasWebsite").value === "true",
+    websiteUrl: websiteUrl,
+    status: document.getElementById("status").value,
+    priority: document.getElementById("priority").value,
+    notes: document.getElementById("notes").value,
+    hitlistId: hitlistId
   };
 
+  // Correctly get businessEmail from the form input for both create and edit
+  const businessEmailInput = document.getElementById("businessEmail").value;
+  if (businessEmailInput) {
+    businessData.businessEmail = businessEmailInput;
+  } else {
+      // Explicitly set to empty string if input is empty
+      businessData.businessEmail = ''; // Or null, depending on API expectation
+  }
+
+
+  // Handle date - Send the-MM-DD string directly from the input
+  // This avoids client-side timezone conversion issues during save.
+  const lastContactedDateValue = document.getElementById("lastContactedDate").value; // Gets "YYYY-MM-DD"
+  businessData.lastContactedDate = lastContactedDateValue || null; // Send the string or null
+
   try {
-    if (hitlistId) {
-      await API.updateHitlist(hitlistId, hitlistData);
-      Utils.showToast("Hitlist updated successfully");
+    if (businessId) {
+      // Assuming API.updateBusiness correctly handles the date string ("YYYY-MM-DD") or null
+      await API.updateBusiness(businessId, businessData);
+      Utils.showToast("Business updated successfully");
     } else {
-      await API.createHitlist(hitlistData);
-      Utils.showToast("Hitlist created successfully");
+      // Assuming API.createBusiness correctly handles the date string ("YYYY-MM-DD") or null
+      await API.createBusiness(hitlistId, businessData);
+      Utils.showToast("Business added successfully");
     }
 
-    closeHitlistModal();
-    fetchAndRenderHitlists();
+    closeBusinessModal();
+    // Refresh business list, which will re-fetch data including the saved date
+    openBusinessListModal(hitlistId);
   } catch (error) {
-    console.error("Error saving hitlist:", error);
-    Utils.showToast("Error saving hitlist");
-  }
-}
-
-async function deleteHitlist(hitlistId) {
-  if (!confirm("Are you sure you want to delete this hitlist? All associated businesses will also be deleted.")) {
-    return;
-  }
-
-  try {
-    await API.deleteHitlist(hitlistId);
-    Utils.showToast("Hitlist deleted successfully");
-    fetchAndRenderHitlists();
-  } catch (error) {
-    console.error("Error deleting hitlist:", error);
-    Utils.showToast("Error deleting hitlist");
+    console.error("Error saving business:", error);
+    Utils.showToast("Error saving business");
   }
 }
 
 async function openBusinessListModal(hitlistId) {
   currentHitlistId = hitlistId;
   const hitlist = allHitlists.find(h => h._id === hitlistId);
-  
+
   if (!hitlist) return;
 
   document.getElementById("businessListTitle").textContent = hitlist.name + " - Businesses";
   document.getElementById("businessListModal").style.display = "block";
-  
+
   // Show loading indicator
   const businessesList = document.getElementById("businessesList");
   businessesList.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading businesses...</div>';
-  
+
   try {
     const businesses = await API.fetchBusinessesByHitlist(hitlistId);
     renderBusinesses(businesses);
@@ -257,8 +285,14 @@ function closeBusinessListModal() {
 }
 
 function renderBusinesses(businesses) {
+  currentBusinesses = businesses; // Store for later use
   const businessesList = document.getElementById("businessesList");
-  
+
+  if (!businessesList) {
+    console.error("Businesses list container not found");
+    return;
+  }
+
   if (!businesses || businesses.length === 0) {
     businessesList.innerHTML = '<div class="no-businesses-message">No businesses added yet.</div>';
     return;
@@ -274,14 +308,32 @@ function renderBusinesses(businesses) {
         </div>
         <div class="business-details">
           ${business.contactName ? `<div class="business-detail"><i class="fas fa-user"></i> ${business.contactName}</div>` : ''}
-          ${business.phone ? `<div class="business-detail"><i class="fas fa-phone"></i> ${business.phone}</div>` : ''}
-          ${business.email ? `<div class="business-detail"><i class="fas fa-envelope"></i> ${business.email}</div>` : ''}
+          ${business.businessPhone ? `<div class="business-detail"><i class="fas fa-phone"></i> ${business.businessPhone}</div>` : ''}
+          ${business.businessEmail ? `<div class="business-detail"><i class="fas fa-envelope"></i> ${business.businessEmail}</div>` : ''}
           ${business.websiteUrl ? `<div class="business-detail"><i class="fas fa-globe"></i> <a href="${business.websiteUrl}" target="_blank">Website</a></div>` : ''}
-          ${business.lastContactedDate ? `<div class="business-detail"><i class="fas fa-clock"></i> Last contact: ${Utils.formatDate(business.lastContactedDate, window.dateFormat || "MM/DD/YYYY")}</div>` : ''}
+          ${business.lastContactedDate ? `
+            <div class="business-detail"><i class="fas fas fa-clock"></i> Last contact: ${
+                (() => {
+                    const fetchedDate = new Date(business.lastContactedDate);
+                    // Check if fetchedDate is a valid Date object
+                    if (fetchedDate && !isNaN(fetchedDate.getTime())) {
+                        // **Using UTC components to create local date at noon, consistent with working edit modal**
+                        const localDateForDisplay = new Date(fetchedDate.getUTCFullYear(), fetchedDate.getUTCMonth(), fetchedDate.getUTCDate(), 12, 0, 0);
+                         return Utils.formatDate(localDateForDisplay, window.dateFormat || "MM/DD/YYYY");
+                    } else {
+                         console.error("Invalid lastContactedDate for business ID", business._id, ":", business.lastContactedDate);
+                         return 'N/A'; // Display N/A or similar for invalid dates
+                    }
+                })()
+            }</div>
+          ` : ''}
         </div>
       </div>
       <div class="business-actions">
-        ${business.status !== 'converted' ? 
+        <button class="btn-icon view-business" title="View Business Details">
+          <i class="fas fa-eye"></i>
+        </button>
+        ${business.status !== 'converted' ?
           `<button class="btn-icon convert-to-lead" title="Convert to Lead">
             <i class="fas fa-user-plus"></i>
           </button>` :
@@ -299,28 +351,50 @@ function renderBusinesses(businesses) {
     </div>
   `).join('');
 
-  // Add event listeners
+  // Add event listeners after rendering
+  attachBusinessActionListeners(businesses);
+}
+
+function attachBusinessActionListeners(businesses) {
+  const businessesList = document.getElementById("businessesList");
+
+  // View business button
+  businessesList.querySelectorAll('.view-business').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.stopPropagation(); // Correctly stop propagation on the event object
+      const businessId = this.closest('.business-item').dataset.id;
+      const business = businesses.find(b => b._id === businessId);
+      openViewBusinessModal(business);
+    });
+  });
+
+  // Convert to lead button
   businessesList.querySelectorAll('.convert-to-lead').forEach(button => {
     button.addEventListener('click', function(e) {
-      e.stopPropagation();
+      e.stopPropagation(); // Correctly stop propagation on the event object
       const businessId = this.closest('.business-item').dataset.id;
       const business = businesses.find(b => b._id === businessId);
       convertBusinessToLead(business);
     });
   });
 
+  // Edit business button
   businessesList.querySelectorAll('.edit-business').forEach(button => {
+    // Removed incorrect button.stopPropagation()
     button.addEventListener('click', function(e) {
-      e.stopPropagation();
+      e.stopPropagation(); // Correctly stop propagation on the event object
       const businessId = this.closest('.business-item').dataset.id;
       const business = businesses.find(b => b._id === businessId);
       openEditBusinessModal(business);
     });
   });
 
+
+  // Delete business button
   businessesList.querySelectorAll('.delete-business').forEach(button => {
+    // Removed incorrect button.stopPropagation()
     button.addEventListener('click', function(e) {
-      e.stopPropagation();
+      e.stopPropagation(); // Correctly stop propagation on the event object
       const businessId = this.closest('.business-item').dataset.id;
       deleteBusiness(businessId);
     });
@@ -328,41 +402,112 @@ function renderBusinesses(businesses) {
 }
 
 function openAddBusinessModal() {
-  document.getElementById("businessModalTitle").textContent = "Add Business";
-  document.getElementById("businessId").value = "";
-  document.getElementById("currentHitlistId").value = currentHitlistId;
-  document.getElementById("businessForm").reset();
-  document.getElementById("websiteUrlGroup").style.display = "none";
-  document.getElementById("businessModal").style.display = "block";
+  // Ensure the modal exists before trying to access its elements
+  const modal = document.getElementById("businessModal");
+  if (!modal) {
+    console.error("Business modal not found");
+    return;
+  }
+
+  // Reset the form
+  const form = document.getElementById("businessForm");
+  if (form) {
+    form.reset();
+  }
+
+  // Clear hidden inputs
+  const businessIdInput = document.getElementById("businessId");
+  const currentHitlistIdInput = document.getElementById("currentHitlistId");
+
+  if (businessIdInput) businessIdInput.value = "";
+  if (currentHitlistIdInput) currentHitlistIdInput.value = currentHitlistId || "";
+
+  // Reset and hide date display for new business
+  const lastContactedInput = document.getElementById("lastContactedDate");
+  const lastContactedDisplay = document.getElementById("lastContactedDisplay");
+  if (lastContactedInput) lastContactedInput.value = '';
+  if (lastContactedDisplay) lastContactedDisplay.textContent = '';
+
+
+  // Hide website URL group by default
+  const websiteUrlGroup = document.getElementById("websiteUrlGroup");
+  if (websiteUrlGroup) {
+    websiteUrlGroup.style.display = "none";
+  }
+
+  // Show the modal
+  modal.style.display = "block";
 }
 
 function openEditBusinessModal(business) {
-  document.getElementById("businessModalTitle").textContent = "Edit Business";
+  if (!business) {
+    console.error("No business data provided");
+    return;
+  }
+
+  // Ensure the modal exists before trying to access its elements
+  const modal = document.getElementById("businessModal");
+  if (!modal) {
+    console.error("Business modal not found");
+    return;
+  }
+
+  // Split contact name if exists
+  const nameParts = (business.contactName || '').split(' ');
+
+  // Set form fields
   document.getElementById("businessId").value = business._id;
   document.getElementById("currentHitlistId").value = business.hitlistId;
-  
-  // Fill form fields
-  document.getElementById("businessName").value = business.businessName;
-  document.getElementById("industry").value = business.industry || "";
-  document.getElementById("contactName").value = business.contactName || "";
-  document.getElementById("phone").value = business.phone || "";
-  document.getElementById("email").value = business.email || "";
+  document.getElementById("businessName").value = business.businessName || '';
+  document.getElementById("typeOfBusiness").value = business.typeOfBusiness || '';
+  document.getElementById("contactFirstName").value = nameParts[0] || '';
+  document.getElementById("contactLastName").value = nameParts.slice(1).join(' ') || '';
+  document.getElementById("businessPhone").value = business.businessPhone || '';
+  document.getElementById("businessEmail").value = business.businessEmail || '';
   document.getElementById("hasWebsite").value = business.hasWebsite ? "true" : "false";
-  document.getElementById("websiteUrl").value = business.websiteUrl || "";
-  document.getElementById("status").value = business.status;
-  document.getElementById("priority").value = business.priority;
-  document.getElementById("notes").value = business.notes || "";
-  
+  document.getElementById("websiteUrl").value = business.websiteUrl || '';
+  document.getElementById("status").value = business.status || 'not-contacted';
+  document.getElementById("priority").value = business.priority || 'medium';
+  document.getElementById("notes").value = business.notes || '';
+
+  // Set last contacted date
+  const lastContactedInput = document.getElementById("lastContactedDate");
+  const lastContactedDisplay = document.getElementById("lastContactedDisplay");
+
   if (business.lastContactedDate) {
-    const date = new Date(business.lastContactedDate);
-    document.getElementById("lastContactedDate").value = date.toISOString().split('T')[0];
-    document.getElementById("lastContactedDisplay").textContent = Utils.formatDate(date, window.dateFormat || "MM/DD/YYYY");
+    const fetchedDate = new Date(business.lastContactedDate);
+    // Check if the fetched date is a valid Date object
+    if (fetchedDate && !isNaN(fetchedDate.getTime())) {
+      // Treat the fetched date (could be UTC or local from backend) and create a local date object at noon for display and input
+      // Using UTC components from the fetched date helps if the backend stored UTC
+      const localDateForDisplay = new Date(fetchedDate.getUTCFullYear(), fetchedDate.getUTCMonth(), fetchedDate.getUTCDate(), 12, 0, 0);
+
+      const year = localDateForDisplay.getFullYear();
+      const month = (localDateForDisplay.getMonth() + 1).toString().padStart(2, '0');
+      const day = localDateForDisplay.getDate().toString().padStart(2, '0');
+
+      lastContactedInput.value = `${year}-${month}-${day}`; // Set the input value correctly (YYYY-MM-DD)
+      lastContactedDisplay.textContent = Utils.formatDate(localDateForDisplay, window.dateFormat || "MM/DD/YYYY"); // Format the local date for display
+    } else {
+       console.error("Invalid lastContactedDate received for business (editing):", business._id, business.lastContactedDate);
+       lastContactedInput.value = '';
+       lastContactedDisplay.textContent = '';
+    }
+  } else {
+    // Handle no date - clear inputs/displays
+    lastContactedInput.value = '';
+    lastContactedDisplay.textContent = '';
   }
-  
-  // Show/hide website URL field
-  document.getElementById("websiteUrlGroup").style.display = business.hasWebsite ? "block" : "none";
-  
-  document.getElementById("businessModal").style.display = "block";
+
+
+  // Show/hide website URL field based on hasWebsite
+  const websiteUrlGroup = document.getElementById("websiteUrlGroup");
+  if (websiteUrlGroup) {
+    websiteUrlGroup.style.display = business.hasWebsite ? "block" : "none";
+  }
+
+  // Show the modal
+  modal.style.display = "block";
 }
 
 function closeBusinessModal() {
@@ -374,43 +519,126 @@ async function handleBusinessSubmit(event) {
 
   const businessId = document.getElementById("businessId").value;
   const hitlistId = document.getElementById("currentHitlistId").value;
-  
+
+  // Combine first and last name for contact name
+  const contactFirstName = document.getElementById("contactFirstName").value;
+  const contactLastName = document.getElementById("contactLastName").value;
+  const contactName = (contactFirstName || contactLastName)
+    ? `${contactFirstName} ${contactLastName}`.trim()
+    : '';
+
+  // Handle website URL - add https:// if no protocol is present
+  let websiteUrl = document.getElementById("websiteUrl").value.trim();
+  if (websiteUrl && !websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+    websiteUrl = `https://${websiteUrl}`;
+  }
+
   const businessData = {
     businessName: document.getElementById("businessName").value,
-    industry: document.getElementById("industry").value,
-    contactName: document.getElementById("contactName").value,
-    phone: document.getElementById("phone").value,
-    email: document.getElementById("email").value,
+    typeOfBusiness: document.getElementById("typeOfBusiness").value,
+    contactName: contactName,
+    businessPhone: document.getElementById("businessPhone").value,
+    // Removed the incorrect line that caused the ReferenceError
     hasWebsite: document.getElementById("hasWebsite").value === "true",
-    websiteUrl: document.getElementById("websiteUrl").value,
+    websiteUrl: websiteUrl,
     status: document.getElementById("status").value,
     priority: document.getElementById("priority").value,
     notes: document.getElementById("notes").value,
     hitlistId: hitlistId
   };
 
-  // Handle date
-  const lastContactedDate = document.getElementById("lastContactedDate").value;
-  if (lastContactedDate) {
-    businessData.lastContactedDate = new Date(lastContactedDate);
+  // Correctly get businessEmail from the form input for both create and edit
+  const businessEmailInput = document.getElementById("businessEmail").value;
+  if (businessEmailInput) {
+    businessData.businessEmail = businessEmailInput;
+  } else {
+      // Explicitly set to empty string if input is empty
+      businessData.businessEmail = ''; // Or null, depending on API expectation
   }
+
+
+  // Handle date - Send the-MM-DD string directly from the input
+  // This avoids client-side timezone conversion issues during save.
+  const lastContactedDateValue = document.getElementById("lastContactedDate").value; // Gets "YYYY-MM-DD"
+  businessData.lastContactedDate = lastContactedDateValue || null; // Send the string or null
 
   try {
     if (businessId) {
+      // Assuming API.updateBusiness correctly handles the date string ("YYYY-MM-DD") or null
       await API.updateBusiness(businessId, businessData);
       Utils.showToast("Business updated successfully");
     } else {
+      // Assuming API.createBusiness correctly handles the date string ("YYYY-MM-DD") or null
       await API.createBusiness(hitlistId, businessData);
       Utils.showToast("Business added successfully");
     }
 
     closeBusinessModal();
-    openBusinessListModal(hitlistId); // Refresh business list
+    // Refresh business list, which will re-fetch data including the saved date
+    openBusinessListModal(hitlistId);
   } catch (error) {
     console.error("Error saving business:", error);
     Utils.showToast("Error saving business");
   }
 }
+
+function openViewBusinessModal(business) {
+  document.getElementById("viewBusinessName").textContent = business.businessName || 'N/A';
+  document.getElementById("viewTypeOfBusiness").textContent = business.typeOfBusiness || 'N/A';
+
+  // Split contact name
+  const nameParts = (business.contactName || '').split(' ');
+  document.getElementById("viewContactFirstName").textContent = nameParts[0] || 'N/A';
+  document.getElementById("viewContactLastName").textContent = nameParts.slice(1).join(' ') || 'N/A';
+
+  document.getElementById("viewBusinessPhone").textContent = business.businessPhone || 'N/A';
+  document.getElementById("viewBusinessEmail").textContent = business.businessEmail || 'N/A';
+
+    // Corrected websiteUrl link creation for display
+    const websiteLinkHtml = business.websiteUrl ?
+        (() => {
+            let displayUrl = business.websiteUrl;
+            if (!displayUrl.startsWith('http://') && !displayUrl.startsWith('https://')) {
+                displayUrl = `https://${displayUrl}`;
+            }
+            try {
+                 const url = new URL(displayUrl);
+                 return `<a href="${url.href}" target="_blank">${url.hostname}</a>`; // Link text is just the hostname
+            } catch (e) {
+                 console.error("Invalid URL for display:", business.websiteUrl);
+                 return business.websiteUrl; // Fallback to just showing the text if invalid
+            }
+        })()
+        : 'N/A';
+
+  document.getElementById("viewWebsiteUrl").innerHTML = websiteLinkHtml;
+
+  document.getElementById("viewStatus").textContent = formatStatus(business.status);
+  document.getElementById("viewPriority").textContent = business.priority;
+
+  // Last contacted date
+  // Attempt to create a Date object from the fetched value for formatting
+  const lastContactedDisplayDate = business.lastContactedDate ? new Date(business.lastContactedDate) : null;
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
+  let formattedLastContacted = 'N/A';
+
+  if (lastContactedDisplayDate && !isNaN(lastContactedDisplayDate.getTime())) {
+      // **Using UTC components to create local date at noon, consistent with working edit modal and list card**
+      const localDateForDisplay = new Date(lastContactedDisplayDate.getUTCFullYear(), lastContactedDisplayDate.getUTCMonth(), lastContactedDisplayDate.getUTCDate(), 12, 0, 0);
+      formattedLastContacted = Utils.formatDate(localDateForDisplay, dateFormat);
+  } else if (business.lastContactedDate) {
+       console.error("Invalid lastContactedDate received for business (viewing):", business._id, business.lastContactedDate);
+       // formattedLastContacted remains 'N/A'
+  }
+
+  document.getElementById("viewLastContactedDate").textContent = formattedLastContacted;
+
+  document.getElementById("viewNotes").textContent = business.notes || 'N/A';
+
+  // Show the view modal
+  document.getElementById("businessViewModal").style.display = "block";
+}
+
 
 async function deleteBusiness(businessId) {
   if (!confirm("Are you sure you want to delete this business?")) {
@@ -427,105 +655,101 @@ async function deleteBusiness(businessId) {
   }
 }
 
-function filterHitlists() {
-  const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-  const filteredHitlists = allHitlists.filter(hitlist => 
-    hitlist.name.toLowerCase().includes(searchTerm) ||
-    (hitlist.description && hitlist.description.toLowerCase().includes(searchTerm))
-  );
-  renderHitlists(filteredHitlists);
-}
-
-function filterBusinesses() {
-  const searchTerm = document.getElementById("businessSearchInput").value.toLowerCase();
-  const statusFilter = document.getElementById("statusFilter").value;
-  
-  // For filtering, we need to fetch businesses again or store them globally
-  API.fetchBusinessesByHitlist(currentHitlistId).then(businesses => {
-    const filteredBusinesses = businesses.filter(business => {
-      const matchesSearch = 
-        business.businessName.toLowerCase().includes(searchTerm) ||
-        (business.contactName && business.contactName.toLowerCase().includes(searchTerm)) ||
-        (business.email && business.email.toLowerCase().includes(searchTerm)) ||
-        (business.phone && business.phone.toLowerCase().includes(searchTerm));
-      
-      const matchesStatus = !statusFilter || business.status === statusFilter;
-      
-      return matchesSearch && matchesStatus;
-    });
-    
-    renderBusinesses(filteredBusinesses);
-  });
-}
-
-function formatStatus(status) {
-  return status.split('-').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1)
-  ).join(' ');
-}
-
-function initializeDateInputs() {
-  // Handle date input changes
-  const lastContactedInput = document.getElementById("lastContactedDate");
-  if (lastContactedInput) {
-    lastContactedInput.addEventListener("change", function() {
-      if (this.value) {
-        const date = new Date(this.value);
-        const displayElement = document.getElementById("lastContactedDisplay");
-        if (displayElement) {
-          displayElement.textContent = Utils.formatDate(date, window.dateFormat || "MM/DD/YYYY");
-        }
-      }
-    });
-  }
-}
 
 async function convertBusinessToLead(business) {
   try {
     // Prepare lead data from business information
+    const nameParts = (business.contactName || '').split(' ');
+
+    // Convert business.lastContactedDate to a UTC date object for the lead API
+    // Need to ensure the date sent to the Lead API is correctly interpreted.
+    // If the Business API returned a-MM-DD string, parse that into a Date object.
+    // If the Lead API expects UTC, create a UTC Date object.
+    let lastContactedAt = null;
+    if (business.lastContactedDate) {
+        const dateFromBusiness = new Date(business.lastContactedDate); // Try parsing whatever format the Business API returned
+
+        if (dateFromBusiness && !isNaN(dateFromBusiness.getTime())) {
+             // Assuming the Lead API expects UTC midnight of the selected day,
+             // create a new UTC date from the components of the date received from the business API.
+             // Use UTC methods on the parsed date to get consistent components regardless of original format.
+             lastContactedAt = new Date(Date.UTC(
+                 dateFromBusiness.getUTCFullYear(),
+                 dateFromBusiness.getUTCMonth(),
+                 dateFromBusiness.getUTCDate()
+             ));
+        } else {
+             console.error("Invalid lastContactedDate received for business (lead conversion):", business._id, business.lastContactedDate);
+             // lastContactedAt remains null
+        }
+    }
+
+
     const leadData = {
-      firstName: business.contactName ? business.contactName.split(' ')[0] || '' : 'Unknown',
-      lastName: business.contactName ? business.contactName.split(' ').slice(1).join(' ') || '' : 'Lead',
-      email: business.email || '',
-      phone: business.phone || '',
+      firstName: nameParts[0] || 'Not specified',
+      lastName: nameParts.slice(1).join(' ') || 'Not specified',
+      email: business.businessEmail || 'Not specified', // Provide default to avoid potential API issues with empty string
+      phone: business.businessPhone || '',
       businessName: business.businessName,
-      businessPhone: business.phone || '',
-      businessEmail: business.email || '',
+      businessPhone: business.businessPhone || '',
+      businessEmail: business.businessEmail || '', // Keep business email if needed
       hasWebsite: business.hasWebsite ? 'yes' : 'no',
       websiteAddress: business.websiteUrl || '',
+      serviceDesired: "Web Development", // Default service - adjust if necessary
       status: mapBusinessStatusToLeadStatus(business.status),
-      notes: business.notes || '',
-      lastContactedAt: business.lastContactedDate || null,
-      source: `Converted from Hitlist: ${currentHitlistId}`,
-      message: `Converted from business hitlist. Industry: ${business.industry || 'Not specified'}. Priority: ${business.priority}`,
+      notes: (business.notes ? business.notes + '\n\n' : '') +
+             `Type of Business: ${business.typeOfBusiness || 'Not specified'}`,
+      lastContactedAt: lastContactedAt, // This will be UTC or null, depending on Lead API needs
+      source: `Converted from Hitlist: ${business.hitlistId || currentHitlistId}`, // Use business's hitlistId if available
+      message: `Converted from business hitlist. Type of Business: ${business.typeOfBusiness || 'Not specified'}. Priority: ${business.priority}`,
     };
+
+    // Basic validation before sending to API
+    if (!leadData.businessName) {
+        Utils.showToast("Business Name is required for conversion.");
+        return;
+    }
+     if (leadData.email === 'Not specified' && !leadData.phone) {
+        Utils.showToast("Either Email or Phone is required for conversion.");
+        return;
+    }
+
 
     // Create the lead
     const createdLead = await API.createLead(leadData);
-    
+
     // Show success message
     Utils.showToast(`Business "${business.businessName}" successfully converted to lead!`);
-    
+
     // Optionally update the business status to "converted"
+    // Only attempt to update if the business isn't already marked as converted
     if (business.status !== 'converted') {
       const updatedBusiness = {
         ...business,
         status: 'converted'
       };
-      await API.updateBusiness(business._id, updatedBusiness);
-      
+      // Send only the status update, not potentially stale other data
+      await API.updateBusiness(business._id, { status: 'converted' });
+
       // Refresh the business list to show updated status
-      openBusinessListModal(currentHitlistId);
+      // openBusinessListModal(currentHitlistId); // This will happen after redirect anyway
     }
 
     // Redirect to dashboard leads page to see the newly created lead
-    window.location.href = 'dashboard.html';
+    // Use a small delay to allow toast to be seen
+    setTimeout(() => {
+        window.location.href = 'dashboard.html';
+    }, 1500); // Increased delay slightly
+
 
   } catch (error) {
     console.error("Error converting business to lead:", error);
-    Utils.showToast("Error converting business to lead");
+     // Provide more specific error if possible
+     const errorMessage = error.message || "An unexpected error occurred.";
+    Utils.showToast(`Error converting business to lead: ${errorMessage}`);
   }
 }
+
 
 function mapBusinessStatusToLeadStatus(businessStatus) {
   // Map business status to lead status
@@ -538,8 +762,95 @@ function mapBusinessStatusToLeadStatus(businessStatus) {
     case 'not-interested':
       return 'closed-lost';
     case 'converted':
-      return 'closed-won';
+      // This mapping is only used if the business status is *already* converted,
+      // but the convert button is disabled in that case.
+      // If somehow triggered for an already converted business, mapping to 'contacted' or 'new'
+      // is more appropriate for the initial lead status than 'closed-won'.
+      return 'contacted'; // Or 'new'
     default:
       return 'new';
   }
 }
+
+function formatStatus(status) {
+  if (!status) return 'Unknown';
+  return status.split('-').map(word =>
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+}
+
+function filterHitlists() {
+  const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+  const filteredHitlists = allHitlists.filter(hitlist =>
+    hitlist.name.toLowerCase().includes(searchTerm) ||
+    (hitlist.description && hitlist.description.toLowerCase().includes(searchTerm))
+  );
+  renderHitlists(filteredHitlists);
+}
+
+function filterBusinesses() {
+  const searchTerm = document.getElementById("businessSearchInput").value.toLowerCase();
+  const statusFilter = document.getElementById("statusFilter").value;
+
+  // Filter based on the currently loaded businesses
+  renderBusinesses(
+    currentBusinesses.filter(business => {
+      const matchesSearch =
+        business.businessName.toLowerCase().includes(searchTerm) ||
+        (business.contactName && business.contactName.toLowerCase().includes(searchTerm)) ||
+        (business.businessEmail && business.businessEmail.toLowerCase().includes(searchTerm)) ||
+        (business.businessPhone && business.businessPhone.toLowerCase().includes(searchTerm)) ||
+        (business.notes && business.notes.toLowerCase().includes(searchTerm)) || // Include notes in search
+        (business.typeOfBusiness && business.typeOfBusiness.toLowerCase().includes(searchTerm)); // Include type in search
+
+      const matchesStatus = !statusFilter || business.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    })
+  );
+}
+
+function initializeDateInputs() {
+  // Handle date input changes
+  const lastContactedInput = document.getElementById("lastContactedDate");
+  const lastContactedDisplay = document.getElementById("lastContactedDisplay");
+
+  if (lastContactedInput && lastContactedDisplay) {
+    lastContactedInput.addEventListener("change", function() {
+      if (this.value) {
+        const [year, month, day] = this.value.split('-').map(Number);
+        // Create a local date object at noon from the input value components
+        // This avoids timezone issues when formatting the display text
+        const date = new Date(year, month - 1, day, 12, 0, 0);
+
+        // Check if the date object is valid
+        if (date && !isNaN(date.getTime())) {
+           const displayElement = document.getElementById("lastContactedDisplay");
+            if (displayElement) {
+              // Format using the local date object created
+              displayElement.textContent = Utils.formatDate(date, window.dateFormat || "MM/DD/YYYY");
+            }
+        } else {
+            // Handle invalid date input value if necessary (shouldn't happen with type="date")
+            console.error("Invalid date input value:", this.value);
+            lastContactedDisplay.textContent = "";
+        }
+
+      } else {
+        lastContactedDisplay.textContent = "";
+      }
+    });
+  }
+}
+
+export {
+  setupSidebarToggle,
+  setupEventListeners,
+  fetchAndRenderHitlists,
+  renderHitlists,
+  openBusinessListModal,
+  openAddBusinessModal,
+  convertBusinessToLead,
+  openEditBusinessModal,
+  openViewBusinessModal
+};

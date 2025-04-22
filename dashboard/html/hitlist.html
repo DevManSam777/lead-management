@@ -201,39 +201,49 @@
               <input type="text" id="businessName" required />
             </div>
             <div class="form-group">
-              <label for="industry">Industry</label>
-              <input type="text" id="industry" />
+              <label for="typeOfBusiness">Type of Business</label>
+              <input type="text" id="typeOfBusiness" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="contactName">Contact Name</label>
-              <input type="text" id="contactName" />
+              <label for="contactFirstName">First Name</label>
+              <input type="text" id="contactFirstName" />
             </div>
             <div class="form-group">
-              <label for="phone">Phone</label>
-              <input type="tel" id="phone" />
+              <label for="contactLastName">Last Name</label>
+              <input type="text" id="contactLastName" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" />
+              <label for="businessPhone">Business Phone</label>
+              <input type="tel" id="businessPhone" />
             </div>
             <div class="form-group">
-              <label for="hasWebsite">Has Website?</label>
+              <label for="businessEmail">Business Email</label>
+              <input type="email" id="businessEmail" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="websiteUrl">Website</label>
+              <input
+                type="text"
+                id="websiteUrl"
+                placeholder="Enter website (optional)"
+              />
+            </div>
+            <div class="form-group">
+              <label for="hasWebsite">Website Exists</label>
               <select id="hasWebsite">
                 <option value="false">No</option>
                 <option value="true">Yes</option>
               </select>
             </div>
-          </div>
-
-          <div class="form-group" id="websiteUrlGroup" style="display: none">
-            <label for="websiteUrl">Website URL</label>
-            <input type="url" id="websiteUrl" placeholder="https://" />
           </div>
 
           <div class="form-row">
@@ -281,6 +291,85 @@
             <button type="submit" class="btn btn-primary">Save Business</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Add this modal right after the Business Modal -->
+    <div id="businessViewModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeBusinessViewModal">&times;</span>
+        <div class="modal-header">
+          <h3 id="businessViewModalTitle">Business Details</h3>
+        </div>
+        <div class="view-container">
+          <div class="form-section">
+            <div class="form-group">
+              <label>Business Name</label>
+              <div class="date-display-readonly" id="viewBusinessName"></div>
+            </div>
+            <div class="form-group">
+              <label>Type of Business</label>
+              <div class="date-display-readonly" id="viewTypeOfBusiness"></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label>First Name</label>
+              <div
+                class="date-display-readonly"
+                id="viewContactFirstName"
+              ></div>
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <div class="date-display-readonly" id="viewContactLastName"></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label>Business Phone</label>
+              <div class="date-display-readonly" id="viewBusinessPhone"></div>
+            </div>
+            <div class="form-group">
+              <label>Business Email</label>
+              <div class="date-display-readonly" id="viewBusinessEmail"></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label>Website</label>
+              <div class="date-display-readonly" id="viewWebsiteUrl"></div>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <div class="date-display-readonly" id="viewStatus"></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label>Priority</label>
+              <div class="date-display-readonly" id="viewPriority"></div>
+            </div>
+            <div class="form-group">
+              <label>Last Contacted</label>
+              <div
+                class="date-display-readonly"
+                id="viewLastContactedDate"
+              ></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label>Notes</label>
+              <div class="date-display-readonly" id="viewNotes"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
