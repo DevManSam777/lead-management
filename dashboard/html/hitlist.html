@@ -220,11 +220,19 @@
             </div>
           </div>
 
+          <!-- This is the section that needs to be updated in hitlist.html -->
           <div class="form-row">
             <div class="form-group">
               <label for="businessPhone">Business Phone</label>
               <input type="tel" id="businessPhone" />
             </div>
+            <div class="form-group">
+              <label for="businessPhoneExt">Extension</label>
+              <input type="text" id="businessPhoneExt" placeholder="Optional" />
+            </div>
+          </div>
+          
+          <div class="form-row">
             <div class="form-group">
               <label for="businessEmail">Business Email</label>
               <input type="email" id="businessEmail" />
@@ -345,7 +353,9 @@
           <div class="form-section">
             <div class="form-group">
               <label>Business Phone</label>
-              <div class="date-display-readonly" id="viewBusinessPhone"></div>
+                <div class="date-display-readonly" id="viewBusinessPhone"></div>
+                <div class="date-display-readonly" id="viewBusinessPhoneExt" style="margin-top: 0.5rem;"></div>
+              </div>
             </div>
             <div class="form-group">
               <label>Business Email</label>

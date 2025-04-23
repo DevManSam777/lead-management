@@ -1,67 +1,4 @@
-// server/models/Business.js
 const mongoose = require('mongoose');
-
-// const businessSchema = new mongoose.Schema({
-//   businessName: {
-//     type: String,
-//     required: true,
-//     trim: true
-//   },
-//   hasWebsite: {
-//     type: Boolean,
-//     default: false
-//   },
-//   websiteUrl: {
-//     type: String,
-//     trim: true
-//   },
-//   contactName: {
-//     type: String,
-//     trim: true
-//   },
-//   phone: {
-//     type: String,
-//     trim: true
-//   },
-//   email: {
-//     type: String,
-//     trim: true
-//   },
-//   lastContactedDate: {
-//     type: Date
-//   },
-//   status: {
-//     type: String,
-//     enum: ['not-contacted', 'contacted', 'follow-up', 'not-interested', 'converted'],
-//     default: 'not-contacted'
-//   },
-//   priority: {
-//     type: String,
-//     enum: ['high', 'medium', 'low'],
-//     default: 'medium'
-//   },
-//   industry: {
-//     type: String,
-//     trim: true
-//   },
-//   notes: {
-//     type: String,
-//     trim: true
-//   },
-//   hitlistId: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'Hitlist',
-//     required: true
-//   },
-//   createdAt: {
-//     type: Date,
-//     default: Date.now
-//   },
-//   lastModified: {
-//     type: Date,
-//     default: Date.now
-//   }
-// });
 
 const businessSchema = new mongoose.Schema({
   businessName: {
@@ -78,6 +15,10 @@ const businessSchema = new mongoose.Schema({
     trim: true
   },
   businessPhone: {
+    type: String,
+    trim: true
+  },
+  businessPhoneExt: {
     type: String,
     trim: true
   },

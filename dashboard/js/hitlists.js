@@ -465,6 +465,38 @@ function openAddBusinessModal() {
   modal.style.display = "block";
 }
 
+// function openEditBusinessModal(business) {
+//   if (!business) {
+//     console.error("No business data provided");
+//     return;
+//   }
+
+//   // Ensure the modal exists before trying to access its elements
+//   const modal = document.getElementById("businessModal");
+//   if (!modal) {
+//     console.error("Business modal not found");
+//     return;
+//   }
+
+//   // Split contact name if exists
+//   const nameParts = (business.contactName || "").split(" ");
+
+//   // Set form fields
+//   document.getElementById("businessId").value = business._id; // Set business ID for editing
+//   document.getElementById("currentHitlistId").value = business.hitlistId; // Set hitlist ID
+//   document.getElementById("businessName").value = business.businessName || "";
+//   document.getElementById("typeOfBusiness").value =
+//     business.typeOfBusiness || "";
+//   document.getElementById("contactFirstName").value = nameParts[0] || "";
+//   document.getElementById("contactLastName").value =
+//     nameParts.slice(1).join(" ") || "";
+//   document.getElementById("businessPhone").value = business.businessPhone || "";
+//   document.getElementById("businessEmail").value = business.businessEmail || "";
+//   document.getElementById("websiteUrl").value = business.websiteUrl || "";
+//   document.getElementById("status").value = business.status || "not-contacted";
+//   document.getElementById("priority").value = business.priority || "medium";
+//   document.getElementById("notes").value = business.notes || "";
+
 function openEditBusinessModal(business) {
   if (!business) {
     console.error("No business data provided");
@@ -485,17 +517,17 @@ function openEditBusinessModal(business) {
   document.getElementById("businessId").value = business._id; // Set business ID for editing
   document.getElementById("currentHitlistId").value = business.hitlistId; // Set hitlist ID
   document.getElementById("businessName").value = business.businessName || "";
-  document.getElementById("typeOfBusiness").value =
-    business.typeOfBusiness || "";
+  document.getElementById("typeOfBusiness").value = business.typeOfBusiness || "";
   document.getElementById("contactFirstName").value = nameParts[0] || "";
-  document.getElementById("contactLastName").value =
-    nameParts.slice(1).join(" ") || "";
+  document.getElementById("contactLastName").value = nameParts.slice(1).join(" ") || "";
   document.getElementById("businessPhone").value = business.businessPhone || "";
+  document.getElementById("businessPhoneExt").value = business.businessPhoneExt || ""; // Add Extension
   document.getElementById("businessEmail").value = business.businessEmail || "";
   document.getElementById("websiteUrl").value = business.websiteUrl || "";
   document.getElementById("status").value = business.status || "not-contacted";
   document.getElementById("priority").value = business.priority || "medium";
   document.getElementById("notes").value = business.notes || "";
+
 
   // Set last contacted date
   const lastContactedInput = document.getElementById("lastContactedDate");
@@ -637,6 +669,77 @@ async function deleteHitlist(hitlistId) {
   }
 }
 
+// async function convertBusinessToLead(business) {
+//   try {
+//     // Prepare lead data from business information
+//     const nameParts = (business.contactName || "").split(" ");
+
+//     let lastContactedAt = null;
+//     if (business.lastContactedDate) {
+//       const dateStr = new Date(business.lastContactedDate)
+//         .toISOString()
+//         .split("T")[0];
+//       const [year, month, day] = dateStr.split("-").map(Number);
+
+//       lastContactedAt = new Date(year, month - 1, day, 12, 0, 0);
+//     }
+
+//     const leadData = {
+//       firstName: nameParts[0] || "Not specified",
+//       lastName: nameParts.slice(1).join(" ") || "Not specified",
+//       email: business.businessEmail || "example@email.com",
+//       phone: business.businessPhone || "",
+//       businessName: business.businessName,
+//       businessPhone: business.businessPhone || "",
+//       businessEmail: business.businessEmail || "",
+//       businessServices: business.typeOfBusiness || "",
+//       websiteAddress: business.websiteUrl || "",
+//       serviceDesired: "Web Development", // Default service
+//       status: mapBusinessStatusToLeadStatus(business.status),
+//       notes: business.notes || "",
+//       lastContactedAt: lastContactedAt,
+//       source: `Converted from Hitlist: ${
+//         business.hitlistId || currentHitlistId
+//       }`,
+//       message: `Converted from business hitlist`,
+//     };
+
+//     // Basic validation
+//     if (!leadData.businessName) {
+//       Utils.showToast("Business Name is required for conversion.");
+//       return;
+//     }
+//     if (leadData.email === "Not specified" && !leadData.phone) {
+//       Utils.showToast("Either Email or Phone is required for conversion.");
+//       return;
+//     }
+
+//     // Create the lead
+//     const createdLead = await API.createLead(leadData);
+
+//     // Update business status to converted
+//     if (business.status !== "converted") {
+//       await API.updateBusiness(business._id, { status: "converted" });
+//     }
+
+//     // Show success message
+//     Utils.showToast(
+//       `Business "${business.businessName}" successfully converted to lead!`
+//     );
+
+//     // Refresh the business list in the modal
+//     const hitlistId = business.hitlistId || currentHitlistId;
+//     if (hitlistId) {
+//       setTimeout(() => {
+//         openBusinessListModal(hitlistId);
+//       }, 300);
+//     }
+//   } catch (error) {
+//     console.error("Error converting business to lead:", error);
+//     Utils.showToast(`Error converting business to lead: ${error.message}`);
+//   }
+// }
+
 async function convertBusinessToLead(business) {
   try {
     // Prepare lead data from business information
@@ -657,12 +760,15 @@ async function convertBusinessToLead(business) {
       lastName: nameParts.slice(1).join(" ") || "Not specified",
       email: business.businessEmail || "example@email.com",
       phone: business.businessPhone || "",
+      phoneExt: business.businessPhoneExt || "", // Add phone extension
       businessName: business.businessName,
       businessPhone: business.businessPhone || "",
+      businessPhoneExt: business.businessPhoneExt || "", // Add business phone extension
       businessEmail: business.businessEmail || "",
       businessServices: business.typeOfBusiness || "",
-      websiteAddress: business.websiteUrl || "",
+      websiteAddress: business.websiteUrl || "", // Add website URL
       serviceDesired: "Web Development", // Default service
+      hasWebsite: business.websiteUrl ? "yes" : "no", // Set hasWebsite based on URL
       status: mapBusinessStatusToLeadStatus(business.status),
       notes: business.notes || "",
       lastContactedAt: lastContactedAt,
@@ -864,6 +970,107 @@ function formatPhoneNumber(phoneNumber) {
 }
 
 
+// async function handleBusinessSubmit(event) {
+//   event.preventDefault();
+
+//   const businessId = document.getElementById("businessId").value;
+//   const hitlistId = document.getElementById("currentHitlistId").value;
+
+//   if (!hitlistId) {
+//     console.error("Cannot save business: No hitlist ID found.");
+//     Utils.showToast("Error saving business: No hitlist selected.");
+//     return;
+//   }
+
+//   // Combine first and last name for contact name
+//   const contactFirstName = document.getElementById("contactFirstName").value.trim();
+//   const contactLastName = document.getElementById("contactLastName").value.trim();
+//   const contactName =
+//     contactFirstName || contactLastName
+//       ? `${contactFirstName} ${contactLastName}`.trim()
+//       : ""; // Ensure no leading/trailing space if only one name exists
+
+//   // Get phone number value (Cleave.js handles formatting on input, but get the raw value or formatted)
+//   let businessPhone = document.getElementById("businessPhone").value.trim();
+
+
+
+//   let websiteUrl = document.getElementById("websiteUrl").value.trim();
+//   // Check if the URL already starts with http:// or https://
+//   if (websiteUrl && !websiteUrl.startsWith("http://") && !websiteUrl.startsWith("https://")) {
+//     // If not, prepend https://
+//     websiteUrl = "https://" + websiteUrl;
+//   }
+
+
+//   const businessData = {
+//     businessName: document.getElementById("businessName").value.trim(),
+//     typeOfBusiness: document.getElementById("typeOfBusiness").value.trim(),
+//     contactName: contactName,
+//     businessPhone: businessPhone,
+//     businessEmail: document.getElementById("businessEmail").value.trim() || "",
+//     websiteUrl: websiteUrl, 
+//     status: document.getElementById("status").value,
+//     priority: document.getElementById("priority").value,
+//     notes: document.getElementById("notes").value.trim(),
+//     hitlistId: hitlistId,
+//   };
+
+//   // Handle date - get the value directly from the hidden input
+//   const lastContactedDateValue =
+//     document.getElementById("lastContactedDate").value;
+
+//    // Convert YYYY-MM-DD to an ISO string or Date object if your API expects that
+//    let lastContactedISO = null;
+//    if (lastContactedDateValue) {
+//        const date = new Date(lastContactedDateValue + 'T12:00:00'); // Treat as local noon to avoid timezone issues with just date string
+//        if (date && !isNaN(date.getTime())) {
+//            lastContactedISO = date.toISOString(); // Convert to ISO string for the API
+//        } else {
+//             console.warn("Invalid lastContactedDate value from input:", lastContactedDateValue);
+//        }
+//    }
+//   businessData.lastContactedDate = lastContactedISO; // Send ISO string or null
+
+
+//   try {
+//     let savedBusiness;
+
+//     if (businessId) {
+//       // If businessId exists, update the existing business
+//       savedBusiness = await API.updateBusiness(businessId, businessData);
+//       Utils.showToast("Business updated successfully");
+
+//        // Update the business in the currentBusinesses array locally
+//         const businessIndex = currentBusinesses.findIndex(b => b._id === businessId);
+//         if(businessIndex !== -1) {
+//              currentBusinesses[businessIndex] = savedBusiness; // Assuming API returns the updated business
+//         }
+
+//     } else {
+//       // If no businessId, create a new business
+//       savedBusiness = await API.createBusiness(hitlistId, businessData);
+//       Utils.showToast("Business added successfully");
+
+//       // Add the new business to the currentBusinesses array locally
+//        currentBusinesses.push(savedBusiness); // Assuming API returns the newly created business
+
+//       // Update the hitlist card on the main view to show the updated business count
+//       updateHitlistBusinessCount(hitlistId);
+//     }
+
+//     // Close the business modal
+//     closeBusinessModal();
+//     // Refresh the business list in the modal by re-rendering the updated currentBusinesses array
+//     renderBusinesses(currentBusinesses); // Re-render with updated local data
+
+
+//   } catch (error) {
+//     console.error("Error saving business:", error);
+//     Utils.showToast("Error saving business"); // Completed line
+//   }
+// }
+
 async function handleBusinessSubmit(event) {
   event.preventDefault();
 
@@ -882,11 +1089,12 @@ async function handleBusinessSubmit(event) {
   const contactName =
     contactFirstName || contactLastName
       ? `${contactFirstName} ${contactLastName}`.trim()
-      : ""; // Ensure no leading/trailing space if only one name exists
+      : "";
 
   // Get phone number value (Cleave.js handles formatting on input, but get the raw value or formatted)
   let businessPhone = document.getElementById("businessPhone").value.trim();
-
+  // Get phone extension (new field)
+  let businessPhoneExt = document.getElementById("businessPhoneExt").value.trim();
 
 
   let websiteUrl = document.getElementById("websiteUrl").value.trim();
@@ -902,8 +1110,9 @@ async function handleBusinessSubmit(event) {
     typeOfBusiness: document.getElementById("typeOfBusiness").value.trim(),
     contactName: contactName,
     businessPhone: businessPhone,
+    businessPhoneExt: businessPhoneExt, // Add the extension field
     businessEmail: document.getElementById("businessEmail").value.trim() || "",
-    websiteUrl: websiteUrl, 
+    websiteUrl: websiteUrl,
     status: document.getElementById("status").value,
     priority: document.getElementById("priority").value,
     notes: document.getElementById("notes").value.trim(),
@@ -914,18 +1123,17 @@ async function handleBusinessSubmit(event) {
   const lastContactedDateValue =
     document.getElementById("lastContactedDate").value;
 
-   // Convert YYYY-MM-DD to an ISO string or Date object if your API expects that
-   let lastContactedISO = null;
-   if (lastContactedDateValue) {
-       const date = new Date(lastContactedDateValue + 'T12:00:00'); // Treat as local noon to avoid timezone issues with just date string
-       if (date && !isNaN(date.getTime())) {
-           lastContactedISO = date.toISOString(); // Convert to ISO string for the API
-       } else {
-            console.warn("Invalid lastContactedDate value from input:", lastContactedDateValue);
-       }
-   }
+  // Convert YYYY-MM-DD to an ISO string or Date object if your API expects that
+  let lastContactedISO = null;
+  if (lastContactedDateValue) {
+    const date = new Date(lastContactedDateValue + 'T12:00:00'); // Treat as local noon to avoid timezone issues
+    if (date && !isNaN(date.getTime())) {
+      lastContactedISO = date.toISOString(); // Convert to ISO string for the API
+    } else {
+      console.warn("Invalid lastContactedDate value from input:", lastContactedDateValue);
+    }
+  }
   businessData.lastContactedDate = lastContactedISO; // Send ISO string or null
-
 
   try {
     let savedBusiness;
@@ -935,19 +1143,18 @@ async function handleBusinessSubmit(event) {
       savedBusiness = await API.updateBusiness(businessId, businessData);
       Utils.showToast("Business updated successfully");
 
-       // Update the business in the currentBusinesses array locally
-        const businessIndex = currentBusinesses.findIndex(b => b._id === businessId);
-        if(businessIndex !== -1) {
-             currentBusinesses[businessIndex] = savedBusiness; // Assuming API returns the updated business
-        }
-
+      // Update the business in the currentBusinesses array locally
+      const businessIndex = currentBusinesses.findIndex(b => b._id === businessId);
+      if(businessIndex !== -1) {
+        currentBusinesses[businessIndex] = savedBusiness; // Assuming API returns the updated business
+      }
     } else {
       // If no businessId, create a new business
       savedBusiness = await API.createBusiness(hitlistId, businessData);
       Utils.showToast("Business added successfully");
 
       // Add the new business to the currentBusinesses array locally
-       currentBusinesses.push(savedBusiness); // Assuming API returns the newly created business
+      currentBusinesses.push(savedBusiness); // Assuming API returns the newly created business
 
       // Update the hitlist card on the main view to show the updated business count
       updateHitlistBusinessCount(hitlistId);
@@ -957,13 +1164,12 @@ async function handleBusinessSubmit(event) {
     closeBusinessModal();
     // Refresh the business list in the modal by re-rendering the updated currentBusinesses array
     renderBusinesses(currentBusinesses); // Re-render with updated local data
-
-
   } catch (error) {
     console.error("Error saving business:", error);
     Utils.showToast("Error saving business"); // Completed line
   }
 }
+
 
 async function updateHitlistBusinessCount(hitlistId) {
   try {
@@ -997,6 +1203,128 @@ async function updateHitlistBusinessCount(hitlistId) {
 }
 
 // Update renderBusinesses to format phone numbers in the business list
+// function renderBusinesses(businesses) {
+//   currentBusinesses = businesses; // Store for later use
+//   const businessesList = document.getElementById("businessesList");
+
+//   if (!businessesList) {
+//     console.error("Businesses list container not found");
+//     return;
+//   }
+
+//   if (!businesses || businesses.length === 0) {
+//     businessesList.innerHTML =
+//       '<div class="no-businesses-message">No businesses added yet.</div>';
+//     return;
+//   }
+
+//   businessesList.innerHTML = businesses
+//     .map((business) => {
+//       // Format phone number for display if needed
+//       let displayPhone = business.businessPhone || "";
+//       if (displayPhone && !displayPhone.includes("-")) {
+//         displayPhone = formatPhoneNumber(displayPhone);
+//       }
+
+//       return `
+//   <div class="business-item ${
+//     business.status === "converted" ? "converted" : ""
+//   }" data-id="${business._id}">
+//     <div class="business-info">
+//       <div class="business-header">
+//         <span class="business-title">${business.businessName}</span>
+//         <span class="status-badge status-${business.status}">${formatStatus(
+//         business.status
+//       )}</span>
+//         <span class="priority-badge priority-${business.priority}">${
+//         business.priority
+//       }</span>
+//       </div>
+//       <div class="business-details">
+//         ${
+//           business.contactName
+//             ? `<div class="business-detail"><i class="fas fa-user"></i> ${business.contactName}</div>`
+//             : ""
+//         }
+//         ${
+//           displayPhone
+//             ? `<div class="business-detail"><i class="fas fa-phone"></i> ${displayPhone}</div>`
+//             : ""
+//         }
+//         ${
+//           business.businessEmail
+//             ? `<div class="business-detail"><i class="fas fa-envelope"></i> ${business.businessEmail}</div>`
+//             : ""
+//         }
+//         ${
+//           business.websiteUrl
+//             ? `<div class="business-detail"><i class="fas fa-globe"></i> <a href="${business.websiteUrl}" target="_blank">${business.websiteUrl}</a></div>`
+//             : ""
+//         }
+//         ${
+//           business.lastContactedDate
+//             ? `
+//           <div class="business-detail"><i class="fas fas fa-clock"></i> Last contact: ${(() => {
+//             const fetchedDate = new Date(business.lastContactedDate);
+//             // Check if fetchedDate is a valid Date object
+//             if (fetchedDate && !isNaN(fetchedDate.getTime())) {
+//               // **Using UTC components to create local date at noon, consistent with working edit modal**
+//               const localDateForDisplay = new Date(
+//                 fetchedDate.getUTCFullYear(),
+//                 fetchedDate.getUTCMonth(),
+//                 fetchedDate.getUTCDate(),
+//                 12,
+//                 0,
+//                 0
+//               );
+//               return Utils.formatDate(
+//                 localDateForDisplay,
+//                 window.dateFormat || "MM/DD/YYYY"
+//               );
+//             } else {
+//               console.error(
+//                 "Invalid lastContactedDate for business ID",
+//                 business._id,
+//                 ":",
+//                 business.lastContactedDate
+//               );
+//               return "N/A"; // Display N/A or similar for invalid dates
+//             }
+//           })()}</div>
+//         `
+//             : ""
+//         }
+//       </div>
+//     </div>
+//     <div class="business-actions">
+//       <button class="btn-icon view-business" title="View Business Details">
+//         <i class="fas fa-eye"></i>
+//       </button>
+//       ${
+//         business.status !== "converted"
+//           ? `<button class="btn-icon convert-to-lead" title="Convert to Lead">
+//           <i class="fas fa-user-plus"></i>
+//         </button>`
+//           : `<button class="btn-icon" disabled title="Already Converted" style="cursor: not-allowed; opacity: 0.5;">
+//           <i class="fas fa-check"></i>
+//         </button>`
+//       }
+//       <button class="btn-icon edit-business" title="Edit">
+//         <i class="fas fa-edit"></i>
+//       </button>
+//       <button class="btn-icon delete-business" title="Delete">
+//         <i class="fas fa-trash"></i>
+//       </button>
+//     </div>
+//   </div>
+// `;
+//     })
+//     .join("");
+
+//   // Add event listeners after rendering
+//   attachBusinessActionListeners(businesses);
+// }
+
 function renderBusinesses(businesses) {
   currentBusinesses = businesses; // Store for later use
   const businessesList = document.getElementById("businessesList");
@@ -1018,6 +1346,11 @@ function renderBusinesses(businesses) {
       let displayPhone = business.businessPhone || "";
       if (displayPhone && !displayPhone.includes("-")) {
         displayPhone = formatPhoneNumber(displayPhone);
+      }
+      
+      // Add extension if available
+      if (business.businessPhoneExt) {
+        displayPhone += ` Ext: ${business.businessPhoneExt}`;
       }
 
       return `
@@ -1120,18 +1453,50 @@ function renderBusinesses(businesses) {
 }
 
 // Update openViewBusinessModal to format the phone number in the view details
+// function openViewBusinessModal(business) {
+//   document.getElementById("viewBusinessName").textContent =
+//     business.businessName || "N/A";
+//   document.getElementById("viewTypeOfBusiness").textContent =
+//     business.typeOfBusiness || "N/A";
+
+//   // Split contact name
+//   const nameParts = (business.contactName || "").split(" ");
+//   document.getElementById("viewContactFirstName").textContent =
+//     nameParts[0] || "N/A";
+//   document.getElementById("viewContactLastName").textContent =
+//     nameParts.slice(1).join(" ") || "N/A";
+
+//   // Format phone number for view modal
+//   let displayPhone = business.businessPhone || "N/A";
+//   if (displayPhone !== "N/A" && !displayPhone.includes("-")) {
+//     displayPhone = formatPhoneNumber(displayPhone);
+//   }
+//   document.getElementById("viewBusinessPhone").textContent = displayPhone;
+
+// function openViewBusinessModal(business) {
+//   document.getElementById("viewBusinessName").textContent = business.businessName || "N/A";
+//   document.getElementById("viewTypeOfBusiness").textContent = business.typeOfBusiness || "N/A";
+
+//   // Split contact name
+//   const nameParts = (business.contactName || "").split(" ");
+//   document.getElementById("viewContactFirstName").textContent = nameParts[0] || "N/A";
+//   document.getElementById("viewContactLastName").textContent = nameParts.slice(1).join(" ") || "N/A";
+
+//   // Format phone number for view modal
+//   let displayPhone = business.businessPhone || "N/A";
+//   if (displayPhone !== "N/A" && !displayPhone.includes("-")) {
+//     displayPhone = formatPhoneNumber(displayPhone);
+//   }
+//   document.getElementById("viewBusinessPhone").textContent = displayPhone;
+
 function openViewBusinessModal(business) {
-  document.getElementById("viewBusinessName").textContent =
-    business.businessName || "N/A";
-  document.getElementById("viewTypeOfBusiness").textContent =
-    business.typeOfBusiness || "N/A";
+  document.getElementById("viewBusinessName").textContent = business.businessName || "N/A";
+  document.getElementById("viewTypeOfBusiness").textContent = business.typeOfBusiness || "N/A";
 
   // Split contact name
   const nameParts = (business.contactName || "").split(" ");
-  document.getElementById("viewContactFirstName").textContent =
-    nameParts[0] || "N/A";
-  document.getElementById("viewContactLastName").textContent =
-    nameParts.slice(1).join(" ") || "N/A";
+  document.getElementById("viewContactFirstName").textContent = nameParts[0] || "N/A";
+  document.getElementById("viewContactLastName").textContent = nameParts.slice(1).join(" ") || "N/A";
 
   // Format phone number for view modal
   let displayPhone = business.businessPhone || "N/A";
@@ -1139,6 +1504,14 @@ function openViewBusinessModal(business) {
     displayPhone = formatPhoneNumber(displayPhone);
   }
   document.getElementById("viewBusinessPhone").textContent = displayPhone;
+  
+  // Add extension display
+  document.getElementById("viewBusinessPhoneExt").textContent = 
+    business.businessPhoneExt ? `Ext: ${business.businessPhoneExt}` : "";
+  
+  // Add extension display
+  document.getElementById("viewBusinessPhoneExt").textContent = 
+    business.businessPhoneExt ? `Ext: ${business.businessPhoneExt}` : "";
 
   document.getElementById("viewBusinessEmail").textContent =
     business.businessEmail || "N/A";
