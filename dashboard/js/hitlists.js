@@ -7,9 +7,9 @@ let currentBusinesses = []; // Store businesses globally
 
 document.addEventListener("DOMContentLoaded", function () {
   setupSidebarToggle();
-  setupEventListeners();
+  setupEventListeners(); // Basic event listeners
   fetchAndRenderHitlists();
-  initializeDateInputs(); // Ensure date inputs are initialized
+  // initializeDateInputs(); // Date inputs initialized specifically when the modal opens
 });
 
 function setupSidebarToggle() {
@@ -52,41 +52,79 @@ function setupSidebarToggle() {
 }
 
 function setupEventListeners() {
-  // Hitlist modal events
+  // Hitlist modal events (these elements should be in the initial DOM)
   document.getElementById("createHitlistBtn").addEventListener("click", openCreateHitlistModal);
   document.getElementById("closeHitlistModal").addEventListener("click", closeHitlistModal);
   document.getElementById("cancelHitlistBtn").addEventListener("click", closeHitlistModal);
-  document.getElementById("hitlistForm").addEventListener("submit", handleHitlistSubmit); // Correctly tied to Hitlist form
+  document.getElementById("hitlistForm").addEventListener("submit", handleHitlistSubmit);
 
-  // Business modal events
+  // Business List modal close (this element should be in the initial DOM)
   document.getElementById("closeBusinessListModal").addEventListener("click", closeBusinessListModal);
-  document.getElementById("addBusinessBtn").addEventListener("click", openAddBusinessModal);
-  document.getElementById("closeBusinessModal").addEventListener("click", closeBusinessModal);
-  document.getElementById("cancelBusinessBtn").addEventListener("click", closeBusinessModal);
-  document.getElementById("businessForm").addEventListener("submit", handleBusinessSubmit); // Correctly tied to Business form
 
-  // Search and filter events
+  // Add Business button (this element should be in the initial DOM)
+  document.getElementById("addBusinessBtn").addEventListener("click", openAddBusinessModal);
+
+
+  // Search and filter events (these elements should be in the initial DOM)
   document.getElementById("searchInput").addEventListener("input", filterHitlists);
   document.getElementById("businessSearchInput").addEventListener("input", filterBusinesses);
   document.getElementById("statusFilter").addEventListener("change", filterBusinesses);
 
-  // Website checkbox toggle
-  const hasWebsiteSelect = document.getElementById("hasWebsite");
-  if (hasWebsiteSelect) {
-    hasWebsiteSelect.addEventListener("change", function() {
-      const websiteUrlGroup = document.getElementById("websiteUrlGroup");
-      websiteUrlGroup.style.display = this.value === "true" ? "block" : "none";
-    });
-  }
-
-  // Close button for view business modal
+  // Close button for view business modal (this element should be in the initial DOM)
   const closeBusinessViewModalButton = document.getElementById("closeBusinessViewModal");
   if (closeBusinessViewModalButton) {
     closeBusinessViewModalButton.addEventListener("click", function() {
       document.getElementById("businessViewModal").style.display = "none";
     });
   }
+
+  // ** Website checkbox toggle listener removed from here - moved to setupBusinessModalListeners **
+  // ** Business modal form submit listener removed from here - it's tied to the form directly when modal is opened **
+
 }
+
+// Function to set up event listeners specific to the Business Modal
+function setupBusinessModalListeners() {
+    // Set up business form submit listener
+    const businessForm = document.getElementById("businessForm");
+    if (businessForm && !businessForm.dataset.listenerAttached) { // Check if listener already attached
+         businessForm.addEventListener("submit", handleBusinessSubmit);
+         businessForm.dataset.listenerAttached = 'true'; // Mark as attached
+    }
+
+
+    // Set up website checkbox toggle listener
+    const hasWebsiteSelect = document.getElementById("hasWebsite");
+    const websiteUrlGroup = document.getElementById("websiteUrlGroup");
+
+    // Only set up the listener if both elements exist and listener isn't already attached
+    if (hasWebsiteSelect && websiteUrlGroup && !hasWebsiteSelect.dataset.listenerAttached) {
+        hasWebsiteSelect.addEventListener("change", function() {
+            // websiteUrlGroup is guaranteed to exist if this listener is attached here
+            websiteUrlGroup.style.display = this.value === "true" ? "block" : "none";
+        });
+        hasWebsiteSelect.dataset.listenerAttached = 'true'; // Mark as attached
+        // Trigger the change once on setup to set initial state based on current value
+        hasWebsiteSelect.dispatchEvent(new Event('change'));
+    }
+
+    // Initialize date inputs and display for the modal
+    initializeDateInputs();
+
+     // Close button for the Business Modal (ensure it's tied here if modal is dynamic)
+    const closeBusinessModalButton = document.getElementById("closeBusinessModal");
+     const cancelBusinessButton = document.getElementById("cancelBusinessBtn");
+
+    if (closeBusinessModalButton && !closeBusinessModalButton.dataset.listenerAttached) {
+        closeBusinessModalButton.addEventListener("click", closeBusinessModal);
+         closeBusinessModalButton.dataset.listenerAttached = 'true';
+    }
+     if (cancelBusinessButton && !cancelBusinessButton.dataset.listenerAttached) {
+        cancelBusinessButton.addEventListener("click", closeBusinessModal);
+         cancelBusinessButton.dataset.listenerAttached = 'true';
+    }
+}
+
 
 async function fetchAndRenderHitlists() {
   try {
@@ -379,11 +417,8 @@ function openAddBusinessModal() {
   }
 
   // Clear hidden inputs
-  const businessIdInput = document.getElementById("businessId");
-  const currentHitlistIdInput = document.getElementById("currentHitlistId");
-
-  if (businessIdInput) businessIdInput.value = ""; // Clear business ID for new business
-  if (currentHitlistIdInput) currentHitlistIdInput.value = currentHitlistId || ""; // Set hitlist ID
+  document.getElementById("businessId").value = ""; // Clear business ID for new business
+  document.getElementById("currentHitlistId").value = currentHitlistId || ""; // Set hitlist ID
 
   // Reset and hide date display for new business
   const lastContactedInput = document.getElementById("lastContactedDate");
@@ -392,11 +427,19 @@ function openAddBusinessModal() {
   if (lastContactedDisplay) lastContactedDisplay.textContent = '';
 
 
-  // Hide website URL group by default
+  // Hide website URL group by default (based on initial select value or default)
+  const hasWebsiteSelect = document.getElementById("hasWebsite");
   const websiteUrlGroup = document.getElementById("websiteUrlGroup");
-  if (websiteUrlGroup) {
-    websiteUrlGroup.style.display = "none";
+  if (hasWebsiteSelect && websiteUrlGroup) {
+       websiteUrlGroup.style.display = hasWebsiteSelect.value === "true" ? "block" : "none";
+  } else if (websiteUrlGroup) {
+      // If select not found but group is, hide it just in case
+      websiteUrlGroup.style.display = "none";
   }
+
+
+  // Set up listeners specific to the business modal if they haven't been already
+  setupBusinessModalListeners();
 
   // Show the modal
   modal.style.display = "block";
@@ -462,12 +505,16 @@ function openEditBusinessModal(business) {
     lastContactedDisplay.textContent = '';
   }
 
+    // Show/hide website URL field based on loaded value
+    const hasWebsiteSelect = document.getElementById("hasWebsite");
+    const websiteUrlGroup = document.getElementById("websiteUrlGroup");
+    if (hasWebsiteSelect && websiteUrlGroup) {
+         websiteUrlGroup.style.display = business.hasWebsite ? "block" : "none";
+    }
 
-  // Show/hide website URL field based on hasWebsite
-  const websiteUrlGroup = document.getElementById("websiteUrlGroup");
-  if (websiteUrlGroup) {
-    websiteUrlGroup.style.display = business.hasWebsite ? "block" : "none";
-  }
+
+  // Set up listeners specific to the business modal if they haven't been already
+  setupBusinessModalListeners();
 
   // Show the modal
   modal.style.display = "block";
@@ -475,6 +522,10 @@ function openEditBusinessModal(business) {
 
 function closeBusinessModal() {
   document.getElementById("businessModal").style.display = "none";
+  // Optional: Reset business form or content here if needed
+  document.getElementById("businessForm").reset();
+  document.getElementById("businessId").value = ""; // Clear business ID
+  document.getElementById("currentHitlistId").value = ""; // Clear hitlist ID
 }
 
 // --- CORRECT handleBusinessSubmit for the BUSINESS FORM ---
@@ -483,6 +534,14 @@ async function handleBusinessSubmit(event) {
 
   const businessId = document.getElementById("businessId").value; // Check if businessId exists (editing)
   const hitlistId = document.getElementById("currentHitlistId").value; // Need hitlistId for business
+
+  // Basic validation: Ensure hitlistId is present when adding/editing a business
+   if (!hitlistId) {
+       console.error("Cannot save business: No hitlist ID found.");
+       Utils.showToast("Error saving business: No hitlist selected.");
+       return; // Stop the function if hitlistId is missing
+   }
+
 
   // Combine first and last name for contact name
   const contactFirstName = document.getElementById("contactFirstName").value;
@@ -493,9 +552,13 @@ async function handleBusinessSubmit(event) {
 
   // Handle website URL - add https:// if no protocol is present
   let websiteUrl = document.getElementById("websiteUrl").value.trim();
-  if (websiteUrl && !websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+  if (websiteUrl && document.getElementById("hasWebsite").value === "true" && !websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
     websiteUrl = `https://${websiteUrl}`;
+  } else if (document.getElementById("hasWebsite").value === "false") {
+      // Clear website URL if website does not exist
+      websiteUrl = '';
   }
+
 
   const businessData = {
     businessName: document.getElementById("businessName").value,
@@ -504,12 +567,13 @@ async function handleBusinessSubmit(event) {
     businessPhone: document.getElementById("businessPhone").value,
     businessEmail: document.getElementById("businessEmail").value || '', // Get email directly from input
     hasWebsite: document.getElementById("hasWebsite").value === "true",
-    websiteUrl: websiteUrl,
+    websiteUrl: websiteUrl, // Use the potentially modified websiteUrl
     status: document.getElementById("status").value,
     priority: document.getElementById("priority").value,
     notes: document.getElementById("notes").value,
     hitlistId: hitlistId // Include the hitlist ID in the business data
   };
+
 
   // Handle date - Send the-MM-DD string directly from the input
   // This avoids client-side timezone conversion issues during save.
@@ -549,7 +613,7 @@ function openViewBusinessModal(business) {
   document.getElementById("viewContactLastName").textContent = nameParts.slice(1).join(' ') || 'N/A';
 
   document.getElementById("viewBusinessPhone").textContent = business.businessPhone || 'N/A';
-  document.getElementById("viewBusinessEmail").textContent = business.businessEmail || 'example@email.com';
+  document.getElementById("viewBusinessEmail").textContent = business.businessEmail || 'N/A';
 
     // Corrected websiteUrl link creation for display
     const websiteLinkHtml = business.websiteUrl ?
@@ -611,7 +675,6 @@ async function deleteBusiness(businessId) {
     Utils.showToast("Error deleting business");
   }
 }
-
 
 async function convertBusinessToLead(business) {
   try {
@@ -681,22 +744,25 @@ async function convertBusinessToLead(business) {
     // Optionally update the business status to "converted"
     // Only attempt to update if the business isn't already marked as converted
     if (business.status !== 'converted') {
-      const updatedBusiness = {
-        ...business,
-        status: 'converted'
-      };
       // Send only the status update, not potentially stale other data
       await API.updateBusiness(business._id, { status: 'converted' });
-
-      // Refresh the business list to show updated status
-      // openBusinessListModal(currentHitlistId); // This will happen after redirect anyway
     }
 
-    // Redirect to dashboard leads page to see the newly created lead
-    // Use a small delay to allow toast to be seen
-    setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 1500); // Increased delay slightly
+    // --- Add this call to refresh the business list in the modal after conversion ---
+    // Use the hitlistId from the business object to ensure the correct list is refreshed
+     if (business.hitlistId) {
+        // Add a slight delay before refreshing the list to give the toast time to show
+        setTimeout(() => {
+             openBusinessListModal(business.hitlistId); // Refresh the list in the currently open modal
+         }, 300); // Short delay (e.g., 300ms)
+     } else {
+         console.warn("Could not determine hitlist ID from business object to refresh list after conversion.", business);
+         // Fallback: If hitlistId is missing from business, maybe refresh the whole page or rely on manual refresh
+         // window.location.reload(); // Avoid full page reload if possible
+     }
+    // --- End added call ---
+
+    // The redirect was commented out, so no redirection will happen here
 
 
   } catch (error) {
@@ -706,6 +772,7 @@ async function convertBusinessToLead(business) {
     Utils.showToast(`Error converting business to lead: ${errorMessage}`);
   }
 }
+
 
 
 function mapBusinessStatusToLeadStatus(businessStatus) {
@@ -767,12 +834,14 @@ function filterBusinesses() {
   );
 }
 
+// Function to initialize date inputs and their display handlers within a specific modal
 function initializeDateInputs() {
   // Handle date input changes
   const lastContactedInput = document.getElementById("lastContactedDate");
   const lastContactedDisplay = document.getElementById("lastContactedDisplay");
 
-  if (lastContactedInput && lastContactedDisplay) {
+  // Ensure elements exist before adding listeners
+  if (lastContactedInput && lastContactedDisplay && !lastContactedInput.dataset.listenerAttached) {
     lastContactedInput.addEventListener("change", function() {
       if (this.value) {
         const [year, month, day] = this.value.split('-').map(Number);
@@ -797,8 +866,10 @@ function initializeDateInputs() {
         lastContactedDisplay.textContent = "";
       }
     });
+    lastContactedInput.dataset.listenerAttached = 'true'; // Mark as attached
   }
 }
+
 
 export {
   setupSidebarToggle,

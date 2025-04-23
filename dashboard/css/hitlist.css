@@ -376,7 +376,6 @@ a, a:visited {
 .business-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 1.5rem;
   border-bottom: 0.1rem solid var(--border-color);
   border-radius: 8px 0 0 8px;
