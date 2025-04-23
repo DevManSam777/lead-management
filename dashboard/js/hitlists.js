@@ -543,11 +543,11 @@ function openEditBusinessModal(business) {
   }
 
   // Show/hide website URL field based on loaded value
-  const hasWebsiteSelect = document.getElementById("hasWebsite");
-  const websiteUrlGroup = document.getElementById("websiteUrlGroup");
-  if (hasWebsiteSelect && websiteUrlGroup) {
-    websiteUrlGroup.style.display = business.hasWebsite ? "block" : "none";
-  }
+  // const hasWebsiteSelect = document.getElementById("hasWebsite");
+  // const websiteUrlGroup = document.getElementById("websiteUrlGroup");
+  // if (hasWebsiteSelect && websiteUrlGroup) {
+  //   websiteUrlGroup.style.display = business.hasWebsite ? "block" : "none";
+  // }
 
   // Set up listeners specific to the business modal if they haven't been already
   setupBusinessModalListeners();
@@ -870,6 +870,7 @@ function formatPhoneNumber(phoneNumber) {
   return phoneNumber;
 }
 
+
 async function handleBusinessSubmit(event) {
   event.preventDefault();
 
@@ -883,54 +884,92 @@ async function handleBusinessSubmit(event) {
   }
 
   // Combine first and last name for contact name
-  const contactFirstName = document.getElementById("contactFirstName").value;
-  const contactLastName = document.getElementById("contactLastName").value;
+  const contactFirstName = document.getElementById("contactFirstName").value.trim();
+  const contactLastName = document.getElementById("contactLastName").value.trim();
   const contactName =
     contactFirstName || contactLastName
       ? `${contactFirstName} ${contactLastName}`.trim()
-      : "";
+      : ""; // Ensure no leading/trailing space if only one name exists
 
-  // Ensure phone number is formatted correctly
+  // Get phone number value (Cleave.js handles formatting on input, but get the raw value or formatted)
   let businessPhone = document.getElementById("businessPhone").value.trim();
-  businessPhone = formatPhoneNumber(businessPhone);
+
+
+  // --- Start of Website URL Correction ---
+  let websiteUrl = document.getElementById("websiteUrl").value.trim();
+  // Check if the URL already starts with http:// or https://
+  if (websiteUrl && !websiteUrl.startsWith("http://") && !websiteUrl.startsWith("https://")) {
+    // If not, prepend https://
+    websiteUrl = "https://" + websiteUrl;
+  }
+  // --- End of Website URL Correction ---
+
 
   const businessData = {
-    businessName: document.getElementById("businessName").value,
-    typeOfBusiness: document.getElementById("typeOfBusiness").value,
+    businessName: document.getElementById("businessName").value.trim(),
+    typeOfBusiness: document.getElementById("typeOfBusiness").value.trim(),
     contactName: contactName,
-    businessPhone: businessPhone,
-    businessEmail: document.getElementById("businessEmail").value || "",
-    websiteUrl: document.getElementById("websiteUrl").value.trim(),
+    businessPhone: businessPhone, // Use the value from the input
+    businessEmail: document.getElementById("businessEmail").value.trim() || "",
+    websiteUrl: websiteUrl, // Use the corrected URL here
     status: document.getElementById("status").value,
     priority: document.getElementById("priority").value,
-    notes: document.getElementById("notes").value,
+    notes: document.getElementById("notes").value.trim(),
     hitlistId: hitlistId,
   };
 
-  // Handle date
+  // Handle date - get the value directly from the hidden input
   const lastContactedDateValue =
     document.getElementById("lastContactedDate").value;
-  businessData.lastContactedDate = lastContactedDateValue || null;
+
+   // Convert YYYY-MM-DD to an ISO string or Date object if your API expects that
+   let lastContactedISO = null;
+   if (lastContactedDateValue) {
+       const date = new Date(lastContactedDateValue + 'T12:00:00'); // Treat as local noon to avoid timezone issues with just date string
+       if (date && !isNaN(date.getTime())) {
+           lastContactedISO = date.toISOString(); // Convert to ISO string for the API
+       } else {
+            console.warn("Invalid lastContactedDate value from input:", lastContactedDateValue);
+       }
+   }
+  businessData.lastContactedDate = lastContactedISO; // Send ISO string or null
+
 
   try {
     let savedBusiness;
 
     if (businessId) {
+      // If businessId exists, update the existing business
       savedBusiness = await API.updateBusiness(businessId, businessData);
       Utils.showToast("Business updated successfully");
+
+       // Update the business in the currentBusinesses array locally
+        const businessIndex = currentBusinesses.findIndex(b => b._id === businessId);
+        if(businessIndex !== -1) {
+             currentBusinesses[businessIndex] = savedBusiness; // Assuming API returns the updated business
+        }
+
     } else {
+      // If no businessId, create a new business
       savedBusiness = await API.createBusiness(hitlistId, businessData);
       Utils.showToast("Business added successfully");
 
-      // Update the hitlist card to show the updated business count
+      // Add the new business to the currentBusinesses array locally
+       currentBusinesses.push(savedBusiness); // Assuming API returns the newly created business
+
+      // Update the hitlist card on the main view to show the updated business count
       updateHitlistBusinessCount(hitlistId);
     }
 
+    // Close the business modal
     closeBusinessModal();
-    openBusinessListModal(hitlistId);
+    // Refresh the business list in the modal by re-rendering the updated currentBusinesses array
+    renderBusinesses(currentBusinesses); // Re-render with updated local data
+
+
   } catch (error) {
     console.error("Error saving business:", error);
-    Utils.showToast("Error saving business");
+    Utils.showToast("Error saving business"); // Completed line
   }
 }
 
