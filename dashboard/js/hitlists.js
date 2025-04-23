@@ -545,7 +545,7 @@ function openEditBusinessModal(business) {
   document.getElementById("contactLastName").value = nameParts.slice(1).join(' ') || '';
   document.getElementById("businessPhone").value = business.businessPhone || '';
   document.getElementById("businessEmail").value = business.businessEmail || '';
-  document.getElementById("hasWebsite").value = business.hasWebsite ? "true" : "false";
+  // document.getElementById("hasWebsite").value = business.hasWebsite ? "true" : "false";
   document.getElementById("websiteUrl").value = business.websiteUrl || '';
   document.getElementById("status").value = business.status || 'not-contacted';
   document.getElementById("priority").value = business.priority || 'medium';
@@ -603,20 +603,18 @@ function closeBusinessModal() {
   document.getElementById("currentHitlistId").value = ""; // Clear hitlist ID
 }
 
-// --- CORRECT handleBusinessSubmit for the BUSINESS FORM ---
+
 async function handleBusinessSubmit(event) {
   event.preventDefault();
 
-  const businessId = document.getElementById("businessId").value; // Check if businessId exists (editing)
-  const hitlistId = document.getElementById("currentHitlistId").value; // Need hitlistId for business
+  const businessId = document.getElementById("businessId").value;
+  const hitlistId = document.getElementById("currentHitlistId").value;
 
-  // Basic validation: Ensure hitlistId is present when adding/editing a business
-   if (!hitlistId) {
-       console.error("Cannot save business: No hitlist ID found.");
-       Utils.showToast("Error saving business: No hitlist selected.");
-       return; // Stop the function if hitlistId is missing
-   }
-
+  if (!hitlistId) {
+    console.error("Cannot save business: No hitlist ID found.");
+    Utils.showToast("Error saving business: No hitlist selected.");
+    return;
+  }
 
   // Combine first and last name for contact name
   const contactFirstName = document.getElementById("contactFirstName").value;
@@ -625,58 +623,42 @@ async function handleBusinessSubmit(event) {
     ? `${contactFirstName} ${contactLastName}`.trim()
     : '';
 
-  // Handle website URL - add https:// if no protocol is present
+  // Handle website URL - keep it exactly as input
   let websiteUrl = document.getElementById("websiteUrl").value.trim();
-  if (websiteUrl && document.getElementById("hasWebsite").value === "true" && !websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
-    websiteUrl = `https://${websiteUrl}`;
-  } else if (document.getElementById("hasWebsite").value === "false") {
-      // Clear website URL if website does not exist
-      websiteUrl = '';
-  }
-
 
   const businessData = {
     businessName: document.getElementById("businessName").value,
     typeOfBusiness: document.getElementById("typeOfBusiness").value,
     contactName: contactName,
     businessPhone: document.getElementById("businessPhone").value,
-    businessEmail: document.getElementById("businessEmail").value || '', // Get email directly from input
-    hasWebsite: document.getElementById("hasWebsite").value === "true",
-    websiteUrl: websiteUrl, // Use the potentially modified websiteUrl
+    businessEmail: document.getElementById("businessEmail").value || '', 
+    websiteUrl: websiteUrl, 
     status: document.getElementById("status").value,
     priority: document.getElementById("priority").value,
     notes: document.getElementById("notes").value,
-    hitlistId: hitlistId // Include the hitlist ID in the business data
+    hitlistId: hitlistId
   };
 
-
-  // Handle date - Send the-MM-DD string directly from the input
-  // This avoids client-side timezone conversion issues during save.
-  const lastContactedDateValue = document.getElementById("lastContactedDate").value; // Gets "YYYY-MM-DD"
-  businessData.lastContactedDate = lastContactedDateValue || null; // Send the string or null
+  // Handle date - Send the YYYY-MM-DD string directly from the input
+  const lastContactedDateValue = document.getElementById("lastContactedDate").value;
+  businessData.lastContactedDate = lastContactedDateValue || null;
 
   try {
     if (businessId) {
-      // Update existing business
       await API.updateBusiness(businessId, businessData);
       Utils.showToast("Business updated successfully");
     } else {
-      // Create NEW business
-      // **This is the correct API call for creating a business within a hitlist**
       await API.createBusiness(hitlistId, businessData);
       Utils.showToast("Business added successfully");
     }
 
-    closeBusinessModal(); // Close the Business Modal
-    // Refresh business list for the current hitlist
+    closeBusinessModal();
     openBusinessListModal(hitlistId);
   } catch (error) {
-    console.error("Error saving business:", error); // Correct error logging
-    Utils.showToast("Error saving business"); // Correct toast message
+    console.error("Error saving business:", error);
+    Utils.showToast("Error saving business");
   }
 }
-// --- END handleBusinessSubmit ---
-
 
 function openViewBusinessModal(business) {
   document.getElementById("viewBusinessName").textContent = business.businessName || 'N/A';
@@ -756,46 +738,40 @@ async function convertBusinessToLead(business) {
     // Prepare lead data from business information
     const nameParts = (business.contactName || '').split(' ');
 
-    // FIX: Properly handle the date conversion to prevent day shift
-    // Create a date at noon in the LOCAL timezone to avoid date shift issues
     let lastContactedAt = null;
     if (business.lastContactedDate) {
-        // Parse the date string into its components
-        const dateStr = new Date(business.lastContactedDate).toISOString().split('T')[0];
-        const [year, month, day] = dateStr.split('-').map(Number);
-        
-        // Create a new date object using LOCAL date components with noon time
-        // This keeps the date the same regardless of timezone
-        lastContactedAt = new Date(year, month - 1, day, 12, 0, 0);
+      const dateStr = new Date(business.lastContactedDate).toISOString().split('T')[0];
+      const [year, month, day] = dateStr.split('-').map(Number);
+      
+      lastContactedAt = new Date(year, month - 1, day, 12, 0, 0);
     }
 
     const leadData = {
       firstName: nameParts[0] || 'Not specified',
       lastName: nameParts.slice(1).join(' ') || 'Not specified',
-      email: business.businessEmail || 'example@email.com', // Provide default to avoid potential API issues with empty string
+      email: business.businessEmail || 'example@email.com',
       phone: business.businessPhone || '',
       businessName: business.businessName,
       businessPhone: business.businessPhone || '',
-      businessEmail: business.businessEmail || '', // Keep business email if needed
-      hasWebsite: business.hasWebsite ? 'yes' : 'no',
+      businessEmail: business.businessEmail || '',
+      businessServices: business.typeOfBusiness || '', // Use typeOfBusiness for businessServices
       websiteAddress: business.websiteUrl || '',
-      serviceDesired: "Web Development", // Default service - adjust if necessary
+      serviceDesired: "Web Development", // Default service
       status: mapBusinessStatusToLeadStatus(business.status),
-      notes: (business.notes ? business.notes + '\n\n' : '') +
-             `Type of Business: ${business.typeOfBusiness || 'Not specified'}`,
-      lastContactedAt: lastContactedAt, // Using the fixed date conversion
-      source: `Converted from Hitlist: ${business.hitlistId || currentHitlistId}`, // Use business's hitlistId if available
-      message: `Converted from business hitlist. Type of Business: ${business.typeOfBusiness || 'Not specified'}. Priority: ${business.priority}`,
+      notes: business.notes || '',
+      lastContactedAt: lastContactedAt,
+      source: `Converted from Hitlist: ${business.hitlistId || currentHitlistId}`, 
+      message: `Converted from business hitlist`,
     };
 
-    // Basic validation before sending to API
+    // Basic validation
     if (!leadData.businessName) {
-        Utils.showToast("Business Name is required for conversion.");
-        return;
+      Utils.showToast("Business Name is required for conversion.");
+      return;
     }
     if (leadData.email === 'Not specified' && !leadData.phone) {
-        Utils.showToast("Either Email or Phone is required for conversion.");
-        return;
+      Utils.showToast("Either Email or Phone is required for conversion.");
+      return;
     }
 
     // Create the lead
@@ -804,31 +780,23 @@ async function convertBusinessToLead(business) {
     // Show success message
     Utils.showToast(`Business "${business.businessName}" successfully converted to lead!`);
 
-    // Optionally update the business status to "converted"
-    // Only attempt to update if the business isn't already marked as converted
+    // Update business status to converted
     if (business.status !== 'converted') {
-      // Send only the status update, not potentially stale other data
       await API.updateBusiness(business._id, { status: 'converted' });
     }
 
-    // Refresh the business list in the modal after conversion
+    // Refresh the business list in the modal
     if (business.hitlistId) {
-        // Add a slight delay before refreshing the list to give the toast time to show
-        setTimeout(() => {
-            openBusinessListModal(business.hitlistId); // Refresh the list in the currently open modal
-        }, 300); // Short delay (e.g., 300ms)
-    } else {
-        console.warn("Could not determine hitlist ID from business object to refresh list after conversion.", business);
+      setTimeout(() => {
+        openBusinessListModal(business.hitlistId);
+      }, 300);
     }
 
   } catch (error) {
     console.error("Error converting business to lead:", error);
-    // Provide more specific error if possible
-    const errorMessage = error.message || "An unexpected error occurred.";
-    Utils.showToast(`Error converting business to lead: ${errorMessage}`);
+    Utils.showToast(`Error converting business to lead: ${error.message}`);
   }
 }
-
 
 function mapBusinessStatusToLeadStatus(businessStatus) {
   // Map business status to lead status
@@ -887,6 +855,18 @@ function filterBusinesses() {
       return matchesSearch && matchesStatus;
     })
   );
+}
+
+function initializePhoneInputs() {
+  const businessPhoneInput = document.getElementById('businessPhone');
+  if (businessPhoneInput) {
+    new Cleave(businessPhoneInput, {
+      phone: true,
+      phoneRegionCode: 'US',
+      delimiter: '-',
+      blocks: [3, 3, 4]
+    });
+  }
 }
 
 // Function to initialize date inputs and their display handlers within a specific modal
