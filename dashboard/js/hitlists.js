@@ -542,13 +542,6 @@ function openEditBusinessModal(business) {
     lastContactedDisplay.textContent = "";
   }
 
-  // Show/hide website URL field based on loaded value
-  // const hasWebsiteSelect = document.getElementById("hasWebsite");
-  // const websiteUrlGroup = document.getElementById("websiteUrlGroup");
-  // if (hasWebsiteSelect && websiteUrlGroup) {
-  //   websiteUrlGroup.style.display = business.hasWebsite ? "block" : "none";
-  // }
-
   // Set up listeners specific to the business modal if they haven't been already
   setupBusinessModalListeners();
 
@@ -895,23 +888,22 @@ async function handleBusinessSubmit(event) {
   let businessPhone = document.getElementById("businessPhone").value.trim();
 
 
-  // --- Start of Website URL Correction ---
+
   let websiteUrl = document.getElementById("websiteUrl").value.trim();
   // Check if the URL already starts with http:// or https://
   if (websiteUrl && !websiteUrl.startsWith("http://") && !websiteUrl.startsWith("https://")) {
     // If not, prepend https://
     websiteUrl = "https://" + websiteUrl;
   }
-  // --- End of Website URL Correction ---
 
 
   const businessData = {
     businessName: document.getElementById("businessName").value.trim(),
     typeOfBusiness: document.getElementById("typeOfBusiness").value.trim(),
     contactName: contactName,
-    businessPhone: businessPhone, // Use the value from the input
+    businessPhone: businessPhone,
     businessEmail: document.getElementById("businessEmail").value.trim() || "",
-    websiteUrl: websiteUrl, // Use the corrected URL here
+    websiteUrl: websiteUrl, 
     status: document.getElementById("status").value,
     priority: document.getElementById("priority").value,
     notes: document.getElementById("notes").value.trim(),
@@ -1060,7 +1052,7 @@ function renderBusinesses(businesses) {
         }
         ${
           business.websiteUrl
-            ? `<div class="business-detail"><i class="fas fa-globe"></i> <a href="${business.websiteUrl}" target="_blank">Website</a></div>`
+            ? `<div class="business-detail"><i class="fas fa-globe"></i> <a href="${business.websiteUrl}" target="_blank">${business.websiteUrl}</a></div>`
             : ""
         }
         ${
