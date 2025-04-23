@@ -1,23 +1,30 @@
-/* dashboard/css/hitlist.css */
+.loading-indicator {
+  padding-inline: 0;
+}
+
 .hitlists-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
   margin-bottom: 3rem;
+  background-color: var(--card-background);
+  padding: 2rem;
+  border-radius: var(--card-border-radius);
 }
 
 .hitlist-card {
-  background-color: var(--card-background);
+  background-color: var(--background-color);
   border-radius: var(--card-border-radius);
   box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.5);
   padding: 2rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.5s ease;
   cursor: pointer;
 }
 
 .hitlist-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--hover-shadow);
+  background-color: var(--table-hover);
 }
 
 .hitlist-header {
@@ -269,7 +276,7 @@ a, a:visited {
   }
 
   .search-filter-sort {
-    padding-inline: 3rem;
+    /* padding-inline: 3rem; */
     min-width: 300px;
   }
 
@@ -318,7 +325,7 @@ a, a:visited {
   }
 
   .search-filter-sort {
-    padding-inline: 3rem;
+    /* padding-inline: 3rem; */
     min-width: 300px;
   }
 
@@ -385,4 +392,39 @@ a, a:visited {
 .business-item .business-info {
   flex: 1;
   min-width: 0; /* Allow text to wrap */
+}
+/* Additional styles for hitlist pagination */
+.hitlists-container {
+  position: relative;
+  padding-bottom: 60px; /* Makes room for pagination at bottom */
+}
+
+.businesses-list {
+  position: relative;
+  padding-bottom: 60px; /* Makes room for pagination at bottom */
+  max-height: calc(70vh - 60px); /* Adjust max height to account for pagination */
+}
+
+.businesses-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Ensure pagination is visible in the modal */
+#businessesList .pagination {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem 0;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Adjust pagination spacing for hitlists list */
+.hitlists-container .pagination {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
 }

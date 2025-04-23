@@ -1,9 +1,16 @@
 import * as API from "./api.js";
-import * as Utils from "./utils.js"; // Assuming Utils has a formatDate function
+import * as Utils from "./utils.js"; 
+import * as Pagination from "./pagination.js";
 
 let allHitlists = [];
 let currentHitlistId = null;
 let currentBusinesses = []; // Store businesses globally
+
+// Pagination state for hitlists defaults
+let hitlistCurrentPage = 1;
+let hitlistPageSize = 12; // Show 12 hitlists per page
+let hitlistTotalPages = 1;
+
 
 document.addEventListener("DOMContentLoaded", function () {
   setupSidebarToggle();
@@ -125,14 +132,51 @@ function setupBusinessModalListeners() {
     }
 }
 
-
 async function fetchAndRenderHitlists() {
   try {
     const hitlistsList = document.getElementById("hitlistsList");
     hitlistsList.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading hitlists...</div>';
 
     allHitlists = await API.fetchHitlists();
-    renderHitlists(allHitlists);
+    
+    // Initialize pagination with all hitlists
+    const paginationInfo = Pagination.initPagination(
+      allHitlists,
+      hitlistCurrentPage,
+      hitlistPageSize
+    );
+
+    // Update current page and total pages based on pagination info
+    hitlistCurrentPage = paginationInfo.currentPage;
+    hitlistTotalPages = paginationInfo.totalPages;
+
+    // Get only the hitlists for the current page
+    const paginatedHitlists = Pagination.getPaginatedItems(
+      allHitlists,
+      hitlistCurrentPage,
+      hitlistPageSize
+    );
+
+    renderHitlists(paginatedHitlists);
+
+    // Add pagination UI for hitlists
+    Pagination.renderPagination({
+      totalItems: allHitlists.length,
+      totalPages: hitlistTotalPages,
+      currentPage: hitlistCurrentPage,
+      pageSize: hitlistPageSize,
+      onPageChange: (newPage) => {
+        hitlistCurrentPage = newPage;
+        renderPaginatedHitlists();
+      },
+      onPageSizeChange: (newPageSize) => {
+        hitlistPageSize = newPageSize;
+        localStorage.setItem("hitlistPageSize", newPageSize);
+        hitlistCurrentPage = 1; // Reset to first page when changing page size
+        renderPaginatedHitlists();
+      },
+      containerId: ".hitlists-container",
+    });
   } catch (error) {
     console.error("Error fetching hitlists:", error);
     document.getElementById("hitlistsList").innerHTML =
@@ -202,6 +246,37 @@ function renderHitlists(hitlists) {
       e.stopPropagation(); // Correctly stop propagation on the event object
       deleteHitlist(card.dataset.id);
     });
+  });
+}
+
+function renderPaginatedHitlists() {
+  // Get paginated hitlists for the current page
+  const paginatedHitlists = Pagination.getPaginatedItems(
+    allHitlists,
+    hitlistCurrentPage,
+    hitlistPageSize
+  );
+
+  // Render the hitlists
+  renderHitlists(paginatedHitlists);
+
+  // Update pagination UI
+  Pagination.renderPagination({
+    totalItems: allHitlists.length,
+    totalPages: hitlistTotalPages,
+    currentPage: hitlistCurrentPage,
+    pageSize: hitlistPageSize,
+    onPageChange: (newPage) => {
+      hitlistCurrentPage = newPage;
+      renderPaginatedHitlists();
+    },
+    onPageSizeChange: (newPageSize) => {
+      hitlistPageSize = newPageSize;
+      localStorage.setItem("hitlistPageSize", newPageSize);
+      hitlistCurrentPage = 1;
+      renderPaginatedHitlists();
+    },
+    containerId: ".hitlists-container",
   });
 }
 
