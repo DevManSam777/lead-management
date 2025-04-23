@@ -681,29 +681,18 @@ async function convertBusinessToLead(business) {
     // Prepare lead data from business information
     const nameParts = (business.contactName || '').split(' ');
 
-    // Convert business.lastContactedDate to a UTC date object for the lead API
-    // Need to ensure the date sent to the Lead API is correctly interpreted.
-    // If the Business API returned a-MM-DD string, parse that into a Date object.
-    // If the Lead API expects UTC, create a UTC Date object.
+    // FIX: Properly handle the date conversion to prevent day shift
+    // Create a date at noon in the LOCAL timezone to avoid date shift issues
     let lastContactedAt = null;
     if (business.lastContactedDate) {
-        const dateFromBusiness = new Date(business.lastContactedDate); // Try parsing whatever format the Business API returned
-
-        if (dateFromBusiness && !isNaN(dateFromBusiness.getTime())) {
-             // Assuming the Lead API expects UTC midnight of the selected day,
-             // create a new UTC date from the components of the date received from the business API.
-             // Use UTC methods on the parsed date to get consistent components regardless of original format.
-             lastContactedAt = new Date(Date.UTC(
-                 dateFromBusiness.getUTCFullYear(),
-                 dateFromBusiness.getUTCMonth(),
-                 dateFromBusiness.getUTCDate()
-             ));
-        } else {
-             console.error("Invalid lastContactedDate received for business (lead conversion):", business._id, business.lastContactedDate);
-             // lastContactedAt remains null
-        }
+        // Parse the date string into its components
+        const dateStr = new Date(business.lastContactedDate).toISOString().split('T')[0];
+        const [year, month, day] = dateStr.split('-').map(Number);
+        
+        // Create a new date object using LOCAL date components with noon time
+        // This keeps the date the same regardless of timezone
+        lastContactedAt = new Date(year, month - 1, day, 12, 0, 0);
     }
-
 
     const leadData = {
       firstName: nameParts[0] || 'Not specified',
@@ -719,7 +708,7 @@ async function convertBusinessToLead(business) {
       status: mapBusinessStatusToLeadStatus(business.status),
       notes: (business.notes ? business.notes + '\n\n' : '') +
              `Type of Business: ${business.typeOfBusiness || 'Not specified'}`,
-      lastContactedAt: lastContactedAt, // This will be UTC or null, depending on Lead API needs
+      lastContactedAt: lastContactedAt, // Using the fixed date conversion
       source: `Converted from Hitlist: ${business.hitlistId || currentHitlistId}`, // Use business's hitlistId if available
       message: `Converted from business hitlist. Type of Business: ${business.typeOfBusiness || 'Not specified'}. Priority: ${business.priority}`,
     };
@@ -729,11 +718,10 @@ async function convertBusinessToLead(business) {
         Utils.showToast("Business Name is required for conversion.");
         return;
     }
-     if (leadData.email === 'Not specified' && !leadData.phone) {
+    if (leadData.email === 'Not specified' && !leadData.phone) {
         Utils.showToast("Either Email or Phone is required for conversion.");
         return;
     }
-
 
     // Create the lead
     const createdLead = await API.createLead(leadData);
@@ -748,31 +736,23 @@ async function convertBusinessToLead(business) {
       await API.updateBusiness(business._id, { status: 'converted' });
     }
 
-    // --- Add this call to refresh the business list in the modal after conversion ---
-    // Use the hitlistId from the business object to ensure the correct list is refreshed
-     if (business.hitlistId) {
+    // Refresh the business list in the modal after conversion
+    if (business.hitlistId) {
         // Add a slight delay before refreshing the list to give the toast time to show
         setTimeout(() => {
-             openBusinessListModal(business.hitlistId); // Refresh the list in the currently open modal
-         }, 300); // Short delay (e.g., 300ms)
-     } else {
-         console.warn("Could not determine hitlist ID from business object to refresh list after conversion.", business);
-         // Fallback: If hitlistId is missing from business, maybe refresh the whole page or rely on manual refresh
-         // window.location.reload(); // Avoid full page reload if possible
-     }
-    // --- End added call ---
-
-    // The redirect was commented out, so no redirection will happen here
-
+            openBusinessListModal(business.hitlistId); // Refresh the list in the currently open modal
+        }, 300); // Short delay (e.g., 300ms)
+    } else {
+        console.warn("Could not determine hitlist ID from business object to refresh list after conversion.", business);
+    }
 
   } catch (error) {
     console.error("Error converting business to lead:", error);
-     // Provide more specific error if possible
-     const errorMessage = error.message || "An unexpected error occurred.";
+    // Provide more specific error if possible
+    const errorMessage = error.message || "An unexpected error occurred.";
     Utils.showToast(`Error converting business to lead: ${errorMessage}`);
   }
 }
-
 
 
 function mapBusinessStatusToLeadStatus(businessStatus) {
