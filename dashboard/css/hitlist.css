@@ -23,6 +23,13 @@
   box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
 }
 
+/* Add this to help with alignment of uneven rows */
+.hitlists-list::after {
+  content: "";
+  grid-column: 1 / -1;
+  height: 0;
+}
+
 .hitlist-card {
   background-color: var(--background-color);
   border: 0.1rem solid var(--border-color);
@@ -31,6 +38,10 @@
   padding: 2rem;
   transition: all 0.2s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 180px; /* Set minimum height for consistency */
 }
 
 .hitlist-card:hover {
@@ -62,6 +73,10 @@
   color: var(--text-muted);
   margin-bottom: 1.5rem;
   font-size: 1.4rem;
+  white-space: pre-wrap; /* Preserve whitespace like in the dashboard */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  flex-grow: 1; /* Allow description to grow and fill available space */
 }
 
 .hitlist-stats {
@@ -69,6 +84,7 @@
   justify-content: space-between;
   color: var(--text-muted);
   font-size: 1.3rem;
+  margin-top: auto; /* Push to bottom of flex container */
 }
 
 .hitlist-stat {
@@ -388,6 +404,50 @@ a:visited {
 .hitlist-card .hitlist-actions .delete-hitlist:hover i {
   background-color: var(--danger);
   color: white !important;
+}
+
+/* Styles for the hitlist description textarea */
+#hitlistDescription {
+  min-height: 100px; /* Set minimum height */
+  resize: none; /* Disable manual resizing since we're handling it with JS */
+  width: 100%;
+  padding: 1rem;
+  border: 0.1rem solid var(--input-border);
+  border-radius: 0.5rem;
+  font-size: 1.4rem;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  transition: border-color var(--transition-speed), background-color var(--transition-speed);
+  white-space: pre-wrap; /* Preserve whitespace */
+  overflow-y: hidden; /* Hide scrollbar while auto-resizing */
+  line-height: 1.6;
+}
+
+#hitlistDescription:focus {
+  outline: none;
+  border-color: var(--input-focus);
+}
+
+/* Make the hitlist modal display descriptions with appropriate whitespace */
+.hitlist-modal-content .hitlist-description {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Ensure consistent sizing of hitlist cards in the main view */
+.hitlists-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  grid-auto-rows: minmax(180px, auto);
+}
+
+/* Added styles for creating a new hitlist to match dashboard textarea behavior */
+#hitlistModal textarea {
+  min-height: 4.2rem;
+  overflow-y: hidden;
+  transition: height 0.2s ease;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 992px) {
