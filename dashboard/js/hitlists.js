@@ -708,7 +708,7 @@ async function convertBusinessToLead(business) {
     const leadData = {
       firstName: nameParts[0] || 'Not specified',
       lastName: nameParts.slice(1).join(' ') || 'Not specified',
-      email: business.businessEmail || 'Not specified', // Provide default to avoid potential API issues with empty string
+      email: business.businessEmail || 'example@email.com', // Provide default to avoid potential API issues with empty string
       phone: business.businessPhone || '',
       businessName: business.businessName,
       businessPhone: business.businessPhone || '',
