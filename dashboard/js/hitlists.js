@@ -103,7 +103,7 @@ function setupEventListeners() {
       document.getElementById("businessViewModal").style.display = "none";
     });
   }
-  
+
   // Setup textarea auto-resize for hitlist descriptions
   setupHitlistFormTextareas();
 }
@@ -112,17 +112,16 @@ function setupHitlistFormTextareas() {
   const descriptionTextarea = document.getElementById("hitlistDescription");
   if (descriptionTextarea) {
     // Set initial height
-    descriptionTextarea.style.height = 'auto';
-    descriptionTextarea.style.height = (descriptionTextarea.scrollHeight) + 'px';
-    
+    descriptionTextarea.style.height = "auto";
+    descriptionTextarea.style.height = descriptionTextarea.scrollHeight + "px";
+
     // Add event listener for input changes
-    descriptionTextarea.addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = (this.scrollHeight) + 'px';
+    descriptionTextarea.addEventListener("input", function () {
+      this.style.height = "auto";
+      this.style.height = this.scrollHeight + "px";
     });
   }
 }
-
 
 async function fetchAndRenderHitlists() {
   try {
@@ -168,6 +167,7 @@ async function fetchAndRenderHitlists() {
         hitlistCurrentPage = 1; // Reset to first page when changing page size
         renderPaginatedHitlists();
       },
+      // containerId: ".hitlists-container",
       containerId: ".hitlists-container",
     });
   } catch (error) {
@@ -268,7 +268,6 @@ function renderPaginatedHitlists() {
   // Render the hitlists
   renderHitlists(paginatedHitlists);
 
-  // Update pagination UI
   Pagination.renderPagination({
     totalItems: allHitlists.length,
     totalPages: hitlistTotalPages,
@@ -284,7 +283,7 @@ function renderPaginatedHitlists() {
       hitlistCurrentPage = 1;
       renderPaginatedHitlists();
     },
-    containerId: ".hitlists-container",
+    containerId: ".hitlists-container", // Make sure this is correct
   });
 }
 
@@ -303,17 +302,17 @@ function openEditHitlistModal(hitlistId) {
   document.getElementById("hitlistModalTitle").textContent = "Edit Hitlist";
   document.getElementById("hitlistId").value = hitlist._id; // Set hidden ID for editing
   document.getElementById("hitlistName").value = hitlist.name;
-  
+
   // Set the description and ensure the textarea properly shows its content
   const descriptionTextarea = document.getElementById("hitlistDescription");
   descriptionTextarea.value = hitlist.description || "";
-  
+
   // Apply auto-resize to textarea
   setTimeout(() => {
-    descriptionTextarea.style.height = 'auto';
-    descriptionTextarea.style.height = (descriptionTextarea.scrollHeight) + 'px';
+    descriptionTextarea.style.height = "auto";
+    descriptionTextarea.style.height = descriptionTextarea.scrollHeight + "px";
   }, 0);
-  
+
   document.getElementById("hitlistModal").style.display = "block";
 }
 
@@ -348,7 +347,6 @@ async function handleHitlistSubmit(event) {
     Utils.showToast("Error saving hitlist"); // Correct toast message
   }
 }
-
 
 async function openBusinessListModal(hitlistId) {
   currentHitlistId = hitlistId;
@@ -574,16 +572,16 @@ async function deleteBusiness(businessId) {
   try {
     // Get the hitlist ID from the current context
     const hitlistId = currentHitlistId;
-    
+
     // Delete the business
     await API.deleteBusiness(businessId);
     Utils.showToast("Business deleted successfully");
-    
+
     // Update the hitlist card to show the updated business count
     if (hitlistId) {
       decrementHitlistBusinessCount(hitlistId);
     }
-    
+
     // Refresh business list
     openBusinessListModal(hitlistId);
   } catch (error) {
@@ -592,24 +590,26 @@ async function deleteBusiness(businessId) {
   }
 }
 
-
 function decrementHitlistBusinessCount(hitlistId) {
   try {
     // Find the hitlist card for this hitlist
-    const hitlistCard = document.querySelector(`.hitlist-card[data-id="${hitlistId}"]`);
+    const hitlistCard = document.querySelector(
+      `.hitlist-card[data-id="${hitlistId}"]`
+    );
     if (!hitlistCard) return;
-    
+
     // Find the business stat element
-    const businessStat = hitlistCard.querySelector('.hitlist-stat:first-child');
+    const businessStat = hitlistCard.querySelector(".hitlist-stat:first-child");
     if (!businessStat) return;
-    
+
     // Find the hitlist in our data
-    const hitlist = allHitlists.find(h => h._id === hitlistId);
-    if (!hitlist || !hitlist.businesses || hitlist.businesses.length === 0) return;
-    
+    const hitlist = allHitlists.find((h) => h._id === hitlistId);
+    if (!hitlist || !hitlist.businesses || hitlist.businesses.length === 0)
+      return;
+
     // Decrement the business count
     hitlist.businesses.pop(); // Remove one business
-    
+
     // Update the UI
     businessStat.innerHTML = `<i class="fas fa-building"></i> ${hitlist.businesses.length} businesses`;
   } catch (error) {
@@ -617,6 +617,32 @@ function decrementHitlistBusinessCount(hitlistId) {
   }
 }
 
+async function deleteHitlist(hitlistId) {
+  if (
+    !confirm(
+      "Are you sure you want to delete this hitlist? All businesses in this hitlist will also be deleted."
+    )
+  ) {
+    return;
+  }
+
+  try {
+    // Delete the hitlist
+    await API.deleteHitlist(hitlistId);
+
+    // Remove the hitlist from the allHitlists array
+    allHitlists = allHitlists.filter((h) => h._id !== hitlistId);
+
+    // Update UI
+    Utils.showToast("Hitlist deleted successfully");
+
+    // Re-render hitlists
+    renderHitlists(allHitlists);
+  } catch (error) {
+    console.error("Error deleting hitlist:", error);
+    Utils.showToast("Error deleting hitlist");
+  }
+}
 
 async function convertBusinessToLead(business) {
   try {
@@ -675,7 +701,7 @@ async function convertBusinessToLead(business) {
     Utils.showToast(
       `Business "${business.businessName}" successfully converted to lead!`
     );
-    
+
     // Refresh the business list in the modal
     const hitlistId = business.hitlistId || currentHitlistId;
     if (hitlistId) {
@@ -844,7 +870,6 @@ function formatPhoneNumber(phoneNumber) {
   return phoneNumber;
 }
 
-
 async function handleBusinessSubmit(event) {
   event.preventDefault();
 
@@ -883,19 +908,20 @@ async function handleBusinessSubmit(event) {
   };
 
   // Handle date
-  const lastContactedDateValue = document.getElementById("lastContactedDate").value;
+  const lastContactedDateValue =
+    document.getElementById("lastContactedDate").value;
   businessData.lastContactedDate = lastContactedDateValue || null;
 
   try {
     let savedBusiness;
-    
+
     if (businessId) {
       savedBusiness = await API.updateBusiness(businessId, businessData);
       Utils.showToast("Business updated successfully");
     } else {
       savedBusiness = await API.createBusiness(hitlistId, businessData);
       Utils.showToast("Business added successfully");
-      
+
       // Update the hitlist card to show the updated business count
       updateHitlistBusinessCount(hitlistId);
     }
@@ -908,29 +934,30 @@ async function handleBusinessSubmit(event) {
   }
 }
 
-
 async function updateHitlistBusinessCount(hitlistId) {
   try {
     // Find the hitlist card for this hitlist
-    const hitlistCard = document.querySelector(`.hitlist-card[data-id="${hitlistId}"]`);
+    const hitlistCard = document.querySelector(
+      `.hitlist-card[data-id="${hitlistId}"]`
+    );
     if (!hitlistCard) return;
-    
+
     // Find the business stat element
-    const businessStat = hitlistCard.querySelector('.hitlist-stat:first-child');
+    const businessStat = hitlistCard.querySelector(".hitlist-stat:first-child");
     if (!businessStat) return;
-    
+
     // Fetch the current hitlist
-    const hitlist = allHitlists.find(h => h._id === hitlistId);
+    const hitlist = allHitlists.find((h) => h._id === hitlistId);
     if (!hitlist) return;
-    
+
     // If businesses array doesn't exist, create it
     if (!hitlist.businesses) {
       hitlist.businesses = [];
     }
-    
+
     // Increment the business count in our local data
-    hitlist.businesses.push({ _id: 'temp-' + Date.now() }); // Add a temporary business
-    
+    hitlist.businesses.push({ _id: "temp-" + Date.now() }); // Add a temporary business
+
     // Update the UI
     businessStat.innerHTML = `<i class="fas fa-building"></i> ${hitlist.businesses.length} businesses`;
   } catch (error) {

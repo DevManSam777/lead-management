@@ -509,3 +509,35 @@ a:visited {
     margin: 0 auto;
   }
 }
+
+
+/* Modified container styles to support fixed pagination at bottom */
+.hitlists-container {
+  position: relative;
+  padding-bottom: 60px; /* Make room for pagination */
+  display: flex;
+  flex-direction: column;
+  min-height: 400px; /* Ensure enough space for content */
+}
+
+/* Make the hitlists list take available space */
+.hitlists-list {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 1rem; /* Reduced margin to account for pagination */
+  background-color: var(--card-background);
+  padding: 2rem;
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
+}
+
+/* Position pagination at bottom of container */
+.hitlists-container .pagination {
+  margin-top: auto; /* Push to bottom of container */
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--card-background);
+  border-radius: 0 0 var(--card-border-radius) var(--card-border-radius);
+}
