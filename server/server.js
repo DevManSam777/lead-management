@@ -1,48 +1,41 @@
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const seederLogic = require("./utils/seeder");
 const leadRoutes = require("./routes/leadRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const settingRoutes = require("./routes/settingRoutes");
 const formRoutes = require("./routes/formRoutes");
 const documentRoutes = require("./routes/documentRoutes");
 const hitlistRoutes = require("./routes/hitlistRoutes");
-const { seedForms } = require('./utils/seeder');
-
-// Load environment variables
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
-
-// Connect to database
-connectDB();
 
 const app = express();
 
 // Middleware
 app.use(
   cors({
-    origin: "*", // Allow all origins during development
+    origin: "*", // Allow all origins during development 
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-app.use(express.json({ limit: "50mb" }));
+app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
 
+// Security headers middleware
 app.use((req, res, next) => {
   // For PDF and document endpoints, add specific headers
-  if (req.path.startsWith("/api/documents/")) {
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("X-Frame-Options", "SAMEORIGIN");
-  }
+  // This middleware will apply to all routes, but headers are conditionally set
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
   next();
 });
 
 // Port configuration
 const PORT = process.env.PORT || 5000;
 
-// Root route with detailed info
 app.get("/", (req, res) => {
   res.json({
     message: `🍕 Congratulations! Freelance Lead Management API is now running on port ${PORT}! 🍕`,
@@ -52,6 +45,7 @@ app.get("/", (req, res) => {
       environment: process.env.NODE_ENV || "development",
       apiVersion: "1.0.0",
     },
+
     endpoints: {
       allLeads: `http://localhost:${PORT}/api/leads`,
       leadById: `http://localhost:${PORT}/api/leads/:id`,
@@ -471,7 +465,7 @@ app.get("/", (req, res) => {
           ],
           response:
             "File content or a redirect to the file's storage location.",
-          exampleResponse: "Binary file data (e.g., PDF, image) or a redirect.", 
+          exampleResponse: "Binary file data (e.g., PDF, image) or a redirect.",
         },
         {
           method: "POST",
@@ -517,7 +511,7 @@ app.get("/", (req, res) => {
           method: "GET",
           path: "/api/hitlists",
           description: "Get all hitlists",
-          response: "Array of hitlist objects"
+          response: "Array of hitlist objects",
         },
         {
           method: "GET",
@@ -528,17 +522,17 @@ app.get("/", (req, res) => {
               name: "id",
               type: "string",
               description: "ID of the hitlist",
-              required: true
-            }
+              required: true,
+            },
           ],
-          response: "Hitlist object"
+          response: "Hitlist object",
         },
         {
           method: "POST",
           path: "/api/hitlists",
           description: "Create a new hitlist",
           requestBody: "Hitlist object in JSON format",
-          response: "Newly created hitlist object"
+          response: "Newly created hitlist object",
         },
         {
           method: "PUT",
@@ -549,11 +543,11 @@ app.get("/", (req, res) => {
               name: "id",
               type: "string",
               description: "ID of the hitlist to update",
-              required: true
-            }
+              required: true,
+            },
           ],
           requestBody: "Updated hitlist object in JSON format",
-          response: "Updated hitlist object"
+          response: "Updated hitlist object",
         },
         {
           method: "DELETE",
@@ -564,10 +558,10 @@ app.get("/", (req, res) => {
               name: "id",
               type: "string",
               description: "ID of the hitlist to delete",
-              required: true
-            }
+              required: true,
+            },
           ],
-          response: "Success message or error"
+          response: "Success message or error",
         },
         {
           method: "GET",
@@ -578,10 +572,10 @@ app.get("/", (req, res) => {
               name: "hitlistId",
               type: "string",
               description: "ID of the hitlist",
-              required: true
-            }
+              required: true,
+            },
           ],
-          response: "Array of business objects"
+          response: "Array of business objects",
         },
         {
           method: "POST",
@@ -592,11 +586,11 @@ app.get("/", (req, res) => {
               name: "hitlistId",
               type: "string",
               description: "ID of the hitlist",
-              required: true
-            }
+              required: true,
+            },
           ],
           requestBody: "Business object in JSON format",
-          response: "Newly created business object"
+          response: "Newly created business object",
         },
         {
           method: "PUT",
@@ -607,11 +601,11 @@ app.get("/", (req, res) => {
               name: "id",
               type: "string",
               description: "ID of the business to update",
-              required: true
-            }
+              required: true,
+            },
           ],
           requestBody: "Updated business object in JSON format",
-          response: "Updated business object"
+          response: "Updated business object",
         },
         {
           method: "DELETE",
@@ -622,17 +616,17 @@ app.get("/", (req, res) => {
               name: "id",
               type: "string",
               description: "ID of the business to delete",
-              required: true
-            }
+              required: true,
+            },
           ],
-          response: "Success message or error"
-        }
+          response: "Success message or error",
+        },
       ],
     },
   });
 });
 
-// Routes
+// Mount route handlers
 app.use("/api/leads", leadRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/settings", settingRoutes);
@@ -640,20 +634,30 @@ app.use("/api/forms", formRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/hitlists", hitlistRoutes);
 
-// Start the server
-// app.listen(PORT, () => {
-//   console.log(`Freelance Lead Management API is now running on port ${PORT}`);
-// });
+// This function ensures the correct sequence: Connect -> Seed -> Start Server
+async function startServer() {
+  try {
+    // Connect to the database and returns a Promise
+    await connectDB(); // Await the database connection to complete
 
-connectDB().then(async () => {
-  // Seed the database with initial forms if needed
-  await seedForms();
-  
-  // Start the server
-  app.listen(PORT, () => {
-    console.log(`Freelance Lead Management API is now running on port ${PORT}`);
-  });
-}).catch(err => {
-  console.error('Database connection failed:', err);
-  process.exit(1);
-});
+    console.log("MongoDB connection established by connectDB function.");
+
+    // After successful database connection, run the initial seeding logic
+    // The seedFormsIfFirstRun function is designed to only seed if necessary based on the flag/existing data
+    await seederLogic.seedFormsIfFirstRun(); // Call the seeder function from the imported module
+
+    // Start the Express server
+    app.listen(PORT, () => {
+      console.log(
+        `Freelance Lead Management API is now running on port ${PORT}`
+      );
+    });
+  } catch (err) {
+    console.error("FATAL ERROR: Server initialization failed:", err);
+    // Exit the process if database connection or server start fails
+    process.exit(1);
+  }
+}
+
+// Call the main server startup function to initiate the process
+startServer();
