@@ -20,7 +20,6 @@ async function runSeederTasks() {
 
     // Ensure DB connection for this task
     if (mongoose.connection.readyState !== 1) { // 1 means connected
-        console.log('Connecting to MongoDB...');
         try {
           console.log('Connecting to MongoDB...');
           await mongoose.connect(MONGO_URI); 
