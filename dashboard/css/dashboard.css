@@ -1222,3 +1222,33 @@ body {
   }
 }
 
+/* Add these styles to dashboard/css/dashboard.css */
+
+.website-link-container {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0;
+}
+
+.website-link {
+  color: var(--primary);
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.4rem;
+  transition: all 0.2s ease;
+}
+
+.website-link:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+.website-link i {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+/* Style for read-only mode */
+.lead-modal-readonly .website-link-container {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
