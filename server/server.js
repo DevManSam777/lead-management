@@ -8,6 +8,7 @@ const settingRoutes = require("./routes/settingRoutes");
 const formRoutes = require("./routes/formRoutes");
 const documentRoutes = require("./routes/documentRoutes");
 const hitlistRoutes = require("./routes/hitlistRoutes");
+const { seedForms } = require('./utils/seeder');
 
 // Load environment variables
 const path = require("path");
@@ -640,6 +641,19 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/hitlists", hitlistRoutes);
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Freelance Lead Management API is now running on port ${PORT}`);
+// app.listen(PORT, () => {
+//   console.log(`Freelance Lead Management API is now running on port ${PORT}`);
+// });
+
+connectDB().then(async () => {
+  // Seed the database with initial forms if needed
+  await seedForms();
+  
+  // Start the server
+  app.listen(PORT, () => {
+    console.log(`Freelance Lead Management API is now running on port ${PORT}`);
+  });
+}).catch(err => {
+  console.error('Database connection failed:', err);
+  process.exit(1);
 });
