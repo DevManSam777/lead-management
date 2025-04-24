@@ -12,12 +12,65 @@ let hitlistCurrentPage = 1;
 let hitlistPageSize = 12; // Show 12 hitlists per page
 let hitlistTotalPages = 1;
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  // Initialize settings first before doing anything else
+  await initializeSettings();
+  
+  // Now proceed with the rest of the initialization
   setupSidebarToggle();
-  setupEventListeners(); // Basic event listeners
+  setupEventListeners();
   fetchAndRenderHitlists();
-  // initializeDateInputs(); // Date inputs initialized specifically when the modal opens
+  
+  // Add the settings update event listener
+  window.addEventListener('settingsUpdated', function(event) {
+    const { key, value } = event.detail;
+    
+    if (key === 'dateFormat') {
+      console.log('Date format updated to:', value);
+      window.dateFormat = value;
+      
+      // Refresh hitlists and businesses to update date displays
+      if (allHitlists && allHitlists.length > 0) {
+        renderPaginatedHitlists();
+      }
+      
+      // Refresh businesses if the business list modal is open
+      if (currentHitlistId && currentBusinesses && currentBusinesses.length > 0) {
+        renderBusinesses(currentBusinesses);
+      }
+      
+      // Re-initialize any open date inputs
+      initializeDateInputs();
+    }
+  });
 });
+
+async function initializeSettings() {
+  try {
+    console.log("Initializing settings for hitlist page...");
+    
+    // Fetch settings from the server using the existing API function
+    const settings = await API.fetchAllSettings();
+    
+    // Set the date format globally
+    window.dateFormat = settings.dateFormat || "MM/DD/YYYY";
+    
+    console.log("Date format initialized:", window.dateFormat);
+    
+    return settings;
+  } catch (error) {
+    console.error("Error initializing settings:", error);
+    
+    // Use fallback format from localStorage if API fails
+    window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
+    console.log("Using fallback date format:", window.dateFormat);
+    
+    return {
+      dateFormat: window.dateFormat
+    };
+  }
+}
+
 
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
@@ -178,6 +231,7 @@ async function fetchAndRenderHitlists() {
   }
 }
 
+
 function renderHitlists(hitlists) {
   const hitlistsList = document.getElementById("hitlistsList");
 
@@ -191,6 +245,9 @@ function renderHitlists(hitlists) {
     `;
     return;
   }
+
+  // Get dateFormat from window object (set in settings)
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
   hitlistsList.innerHTML = hitlists
     .map(
@@ -220,8 +277,8 @@ function renderHitlists(hitlists) {
           ${
             hitlist.lastModified
               ? Utils.formatDate(
-                  hitlist.lastModified,
-                  window.dateFormat || "MM/DD/YYYY"
+                  new Date(hitlist.lastModified),
+                  dateFormat
                 )
               : "N/A"
           }
@@ -257,6 +314,7 @@ function renderHitlists(hitlists) {
       });
   });
 }
+
 
 function renderPaginatedHitlists() {
   // Get paginated hitlists for the current page
@@ -1017,8 +1075,8 @@ async function updateHitlistBusinessCount(hitlistId) {
 }
 
 function renderBusinesses(businesses) {
-  // Do NOT reassign currentBusinesses here
-  // The businesses parameter is what we'll use to render
+  // Get dateFormat from window object (set in settings)
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
   
   const businessesList = document.getElementById("businessesList");
 
@@ -1088,7 +1146,7 @@ function renderBusinesses(businesses) {
             const fetchedDate = new Date(business.lastContactedDate);
             // Check if fetchedDate is a valid Date object
             if (fetchedDate && !isNaN(fetchedDate.getTime())) {
-              // **Using UTC components to create local date at noon, consistent with working edit modal**
+              // Create local date at noon to avoid timezone issues
               const localDateForDisplay = new Date(
                 fetchedDate.getUTCFullYear(),
                 fetchedDate.getUTCMonth(),
@@ -1097,10 +1155,7 @@ function renderBusinesses(businesses) {
                 0,
                 0
               );
-              return Utils.formatDate(
-                localDateForDisplay,
-                window.dateFormat || "MM/DD/YYYY"
-              );
+              return Utils.formatDate(localDateForDisplay, dateFormat);
             } else {
               console.error(
                 "Invalid lastContactedDate for business ID",
@@ -1145,7 +1200,11 @@ function renderBusinesses(businesses) {
   attachBusinessActionListeners(businesses);
 }
 
+
 function openViewBusinessModal(business) {
+  // Get dateFormat from window object (set in settings)
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
+  
   document.getElementById("viewBusinessName").textContent = business.businessName || "N/A";
   document.getElementById("viewTypeOfBusiness").textContent = business.typeOfBusiness || "N/A";
 
@@ -1160,10 +1219,6 @@ function openViewBusinessModal(business) {
     displayPhone = formatPhoneNumber(displayPhone);
   }
   document.getElementById("viewBusinessPhone").textContent = displayPhone;
-  
-  // Add extension display
-  document.getElementById("viewBusinessPhoneExt").textContent = 
-    business.businessPhoneExt ? `Ext: ${business.businessPhoneExt}` : "";
   
   // Add extension display
   document.getElementById("viewBusinessPhoneExt").textContent = 
@@ -1199,16 +1254,15 @@ function openViewBusinessModal(business) {
   );
   document.getElementById("viewPriority").textContent = business.priority;
 
-  // Last contacted date
-  // Attempt to create a Date object from the fetched value for formatting
+  // Last contacted date - use the global date format from settings
   const lastContactedDisplayDate = business.lastContactedDate
     ? new Date(business.lastContactedDate)
     : null;
-  const dateFormat = window.dateFormat || "MM/DD/YYYY";
+  
   let formattedLastContacted = "N/A";
 
   if (lastContactedDisplayDate && !isNaN(lastContactedDisplayDate.getTime())) {
-    // **Using UTC components to create local date at noon, consistent with working edit modal and list card**
+    // Using UTC components to create local date at noon, consistent with other date displays
     const localDateForDisplay = new Date(
       lastContactedDisplayDate.getUTCFullYear(),
       lastContactedDisplayDate.getUTCMonth(),
@@ -1224,7 +1278,6 @@ function openViewBusinessModal(business) {
       business._id,
       business.lastContactedDate
     );
-    // formattedLastContacted remains 'N/A'
   }
 
   document.getElementById("viewLastContactedDate").textContent =
@@ -1236,8 +1289,11 @@ function openViewBusinessModal(business) {
   document.getElementById("businessViewModal").style.display = "block";
 }
 
-// Function to initialize date inputs and their display handlers within a specific modal
+
 function initializeDateInputs() {
+  // Get dateFormat from window object (set in settings)
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
+  
   // Handle date input changes
   const lastContactedInput = document.getElementById("lastContactedDate");
   const lastContactedDisplay = document.getElementById("lastContactedDisplay");
@@ -1261,10 +1317,10 @@ function initializeDateInputs() {
             "lastContactedDisplay"
           );
           if (displayElement) {
-            // Format using the local date object created
+            // Format using the local date object created with the global date format
             displayElement.textContent = Utils.formatDate(
               date,
-              window.dateFormat || "MM/DD/YYYY"
+              dateFormat
             );
           }
         } else {
