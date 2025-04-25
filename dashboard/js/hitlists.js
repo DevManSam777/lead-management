@@ -254,7 +254,7 @@ function renderHitlists(hitlists) {
       (hitlist) => `
     <div class="hitlist-card" data-id="${hitlist._id}">
       <div class="hitlist-header">
-        <h3 class="hitlist-title">${hitlist.name}</h3>
+        <h3 class="hitlist-title"><span class="bullseye"><i class="fa-solid fa-bullseye"></i></span> ${hitlist.name}</h3>
         <div class="hitlist-actions">
           <button class="btn-icon edit-hitlist" title="Edit">
             <i class="fas fa-edit"></i>

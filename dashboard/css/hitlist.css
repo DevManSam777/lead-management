@@ -432,6 +432,10 @@ a:visited {
   margin-top: 1rem;
 }
 
+.loading-indicator.hitlists-list .fa-bullseye {
+  font-size: 2rem;
+  margin-right: 1rem;
+}
 
 @media (max-width: 992px) {
   #createHitlistBtn {
