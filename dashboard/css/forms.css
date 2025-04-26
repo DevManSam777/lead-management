@@ -78,9 +78,10 @@
 
 .template-card {
   display: flex;
+  position: relative;
   background-color: var(--background-color);
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: 2rem 2rem 2rem 6rem;;
   align-items: center;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -95,11 +96,14 @@
 
 .template-icon {
   font-size: 2.4rem;
-  color: var(--primary);
+  /* color: var(--primary);
   margin-right: 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; */
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
 }
 
 .template-details {
@@ -120,6 +124,7 @@
 .template-actions {
   display: flex;
   gap: 0.8rem;
+  justify-content: center;
 }
 
 .template-category-header {
@@ -567,5 +572,9 @@ div.editor-section {
 
   .template-cards {
     padding-inline: 1rem;
+  }
+
+    .template-cards {
+    grid-template-columns: 1fr;
   }
 }
