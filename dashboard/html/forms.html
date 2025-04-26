@@ -6,7 +6,11 @@
     <title>DevLeads Form Template Manager</title>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
@@ -15,7 +19,7 @@
         storageBucket: "devleads-a1329.firebasestorage.app",
         messagingSenderId: "95407568917",
         appId: "1:95407568917:web:db6424b8f1df724258361c",
-        measurementId: "G-47PSY58Q5P"
+        measurementId: "G-47PSY58Q5P",
       };
 
       const app = initializeApp(firebaseConfig);
@@ -26,36 +30,26 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          window.location.href = '../index.html';
+          window.location.href = "/dashboard/index.html";
         } else {
           document.body.style.display = "block";
-        }
-      });
-    </script>
-    <script type="module">
-      import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-
-      const auth = getAuth();
-
-      // Redirect to login if not authenticated
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          window.location.href = '../index.html';
         }
       });
 
       const signOutButton = document.getElementById("signOutButton");
 
       signOutButton.addEventListener("click", () => {
-        signOut(auth).then(() => {
-          console.log("User signed out.");
-          window.location.href = '../index.html';
-        }).catch((error) => {
-          console.error("Error signing out:", error);
-        });
+        signOut(auth)
+          .then(() => {
+            console.log("User signed out.");
+            window.location.href = "/dashboard/index.html";
+          })
+          .catch((error) => {
+            console.error("Error signing out:", error);
+          });
       });
     </script>
-     <style>
+    <style>
       .sidebar,
       .main-content {
         opacity: 0;
@@ -135,19 +129,23 @@
               </a>
             </li>
             <li>
-              <a href="resources.html" id="resources-link" title="Resources">
-                <i class="fa-solid fa-toolbox"></i><span>Resources</span>
+              <a
+                href="hitlist.html"
+                id="hitlists-link"
+                title="Hitlists"
+              >
+                <i class="fas fa-bullseye"></i><span>Hitlists</span>
               </a>
             </li>
             <li>
-              <a href="forms.html" id="forms-link" title="Form Templates">
+              <a href="forms.html" id="forms-link" title="Form Templates" class="active">
                 <i class="fa-solid fa-file-signature"></i
                 ><span>Form Templates</span>
               </a>
             </li>
             <li>
-              <a href="hitlist.html" id="hitlists-link" title="Hitlists">
-                <i class="fas fa-bullseye"></i><span>Hitlists</span>
+              <a href="resources.html" id="resources-link" title="Resources">
+                <i class="fa-solid fa-toolbox"></i><span>Resources</span>
               </a>
             </li>
             <li>
@@ -191,6 +189,7 @@
               <i class="fas fa-plus"></i> Create Form
             </button>
           </div>
+          <button id="signOutButton">Sign Out</button>
         </header>
 
         <!-- Forms Container -->
