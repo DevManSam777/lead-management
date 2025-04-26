@@ -15,30 +15,34 @@ let hitlistTotalPages = 1;
 document.addEventListener("DOMContentLoaded", async function () {
   // Initialize settings first before doing anything else
   await initializeSettings();
-  
+
   // Now proceed with the rest of the initialization
   setupSidebarToggle();
   setupEventListeners();
   fetchAndRenderHitlists();
-  
+
   // Add the settings update event listener
-  window.addEventListener('settingsUpdated', function(event) {
+  window.addEventListener("settingsUpdated", function (event) {
     const { key, value } = event.detail;
-    
-    if (key === 'dateFormat') {
-      console.log('Date format updated to:', value);
+
+    if (key === "dateFormat") {
+      console.log("Date format updated to:", value);
       window.dateFormat = value;
-      
+
       // Refresh hitlists and businesses to update date displays
       if (allHitlists && allHitlists.length > 0) {
         renderPaginatedHitlists();
       }
-      
+
       // Refresh businesses if the business list modal is open
-      if (currentHitlistId && currentBusinesses && currentBusinesses.length > 0) {
+      if (
+        currentHitlistId &&
+        currentBusinesses &&
+        currentBusinesses.length > 0
+      ) {
         renderBusinesses(currentBusinesses);
       }
-      
+
       // Re-initialize any open date inputs
       initializeDateInputs();
     }
@@ -48,29 +52,28 @@ document.addEventListener("DOMContentLoaded", async function () {
 async function initializeSettings() {
   try {
     console.log("Initializing settings for hitlist page...");
-    
+
     // Fetch settings from the server using the existing API function
     const settings = await API.fetchAllSettings();
-    
+
     // Set the date format globally
     window.dateFormat = settings.dateFormat || "MM/DD/YYYY";
-    
+
     console.log("Date format initialized:", window.dateFormat);
-    
+
     return settings;
   } catch (error) {
     console.error("Error initializing settings:", error);
-    
+
     // Use fallback format from localStorage if API fails
     window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
     console.log("Using fallback date format:", window.dateFormat);
-    
+
     return {
-      dateFormat: window.dateFormat
+      dateFormat: window.dateFormat,
     };
   }
 }
-
 
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
@@ -231,7 +234,6 @@ async function fetchAndRenderHitlists() {
   }
 }
 
-
 function renderHitlists(hitlists) {
   const hitlistsList = document.getElementById("hitlistsList");
 
@@ -254,7 +256,9 @@ function renderHitlists(hitlists) {
       (hitlist) => `
     <div class="hitlist-card" data-id="${hitlist._id}">
       <div class="hitlist-header">
-        <h3 class="hitlist-title"><span class="bullseye"><i class="fa-solid fa-bullseye"></i></span> ${hitlist.name}</h3>
+        <h3 class="hitlist-title"><span class="bullseye"><i class="fa-solid fa-bullseye"></i></span> ${
+          hitlist.name
+        }</h3>
         <div class="hitlist-actions">
           <button class="btn-icon edit-hitlist" title="Edit">
             <i class="fas fa-edit"></i>
@@ -269,20 +273,27 @@ function renderHitlists(hitlists) {
       }</p>
       <div class="hitlist-stats">
         <span class="hitlist-stat">
-          <i class="fas fa-building"></i>
+          <i class="far fa-building"></i>
           ${hitlist.businesses ? hitlist.businesses.length : 0} businesses
         </span>
-        <span class="hitlist-stat">
-          <i class="fas fa-clock"></i>
-          ${
-            hitlist.lastModified
-              ? Utils.formatDate(
-                  new Date(hitlist.lastModified),
-                  dateFormat
-                )
-              : "N/A"
-          }
-        </span>
+        <div class="hitlist-dates">
+          <span class="hitlist-stat">
+            <i class="far fa-calendar-plus"></i>
+            Created: ${
+              hitlist.createdAt
+                ? Utils.formatDate(new Date(hitlist.createdAt), dateFormat)
+                : "N/A"
+            }
+          </span>
+          <span class="hitlist-stat">
+            <i class="far fa-clock"></i>
+            Modified: ${
+              hitlist.lastModified
+                ? Utils.formatDate(new Date(hitlist.lastModified), dateFormat)
+                : "N/A"
+            }
+          </span>
+        </div>
       </div>
     </div>
   `
@@ -314,7 +325,6 @@ function renderHitlists(hitlists) {
       });
   });
 }
-
 
 function renderPaginatedHitlists() {
   // Get paginated hitlists for the current page
@@ -426,11 +436,11 @@ async function openBusinessListModal(hitlistId) {
     const businesses = await API.fetchBusinessesByHitlist(hitlistId);
     originalBusinesses = [...businesses]; // Store the original complete list
     currentBusinesses = [...businesses]; // Initialize the current filtered list
-    
+
     // Reset filter inputs when opening the modal
     document.getElementById("businessSearchInput").value = "";
     document.getElementById("statusFilter").value = "";
-    
+
     renderBusinesses(currentBusinesses);
   } catch (error) {
     console.error("Error fetching businesses:", error);
@@ -531,7 +541,6 @@ function openAddBusinessModal() {
   modal.style.display = "block";
 }
 
-
 function openEditBusinessModal(business) {
   if (!business) {
     console.error("No business data provided");
@@ -552,17 +561,19 @@ function openEditBusinessModal(business) {
   document.getElementById("businessId").value = business._id; // Set business ID for editing
   document.getElementById("currentHitlistId").value = business.hitlistId; // Set hitlist ID
   document.getElementById("businessName").value = business.businessName || "";
-  document.getElementById("typeOfBusiness").value = business.typeOfBusiness || "";
+  document.getElementById("typeOfBusiness").value =
+    business.typeOfBusiness || "";
   document.getElementById("contactFirstName").value = nameParts[0] || "";
-  document.getElementById("contactLastName").value = nameParts.slice(1).join(" ") || "";
+  document.getElementById("contactLastName").value =
+    nameParts.slice(1).join(" ") || "";
   document.getElementById("businessPhone").value = business.businessPhone || "";
-  document.getElementById("businessPhoneExt").value = business.businessPhoneExt || ""; // Add Extension
+  document.getElementById("businessPhoneExt").value =
+    business.businessPhoneExt || ""; // Add Extension
   document.getElementById("businessEmail").value = business.businessEmail || "";
   document.getElementById("websiteUrl").value = business.websiteUrl || "";
   document.getElementById("status").value = business.status || "not-contacted";
   document.getElementById("priority").value = business.priority || "medium";
   document.getElementById("notes").value = business.notes || "";
-
 
   // Set last contacted date
   const lastContactedInput = document.getElementById("lastContactedDate");
@@ -624,7 +635,6 @@ function closeBusinessModal() {
   document.getElementById("currentHitlistId").value = ""; // Clear hitlist ID
 }
 
-
 async function deleteBusiness(businessId) {
   if (!confirm("Are you sure you want to delete this business?")) {
     return;
@@ -644,9 +654,9 @@ async function deleteBusiness(businessId) {
     }
 
     // Remove the business from both arrays
-    originalBusinesses = originalBusinesses.filter(b => b._id !== businessId);
-    currentBusinesses = currentBusinesses.filter(b => b._id !== businessId);
-    
+    originalBusinesses = originalBusinesses.filter((b) => b._id !== businessId);
+    currentBusinesses = currentBusinesses.filter((b) => b._id !== businessId);
+
     // Re-render the list
     renderBusinesses(currentBusinesses);
   } catch (error) {
@@ -708,7 +718,6 @@ async function deleteHitlist(hitlistId) {
     Utils.showToast("Error deleting hitlist");
   }
 }
-
 
 async function convertBusinessToLead(business) {
   try {
@@ -824,7 +833,6 @@ function filterHitlists() {
   renderHitlists(filteredHitlists);
 }
 
-
 function filterBusinesses() {
   const searchTerm = document
     .getElementById("businessSearchInput")
@@ -835,12 +843,17 @@ function filterBusinesses() {
   // This ensures filtering works properly after the first filter is applied
   currentBusinesses = originalBusinesses.filter((business) => {
     const matchesSearch =
-      (business.businessName && business.businessName.toLowerCase().includes(searchTerm)) ||
-      (business.contactName && business.contactName.toLowerCase().includes(searchTerm)) ||
-      (business.businessEmail && business.businessEmail.toLowerCase().includes(searchTerm)) ||
-      (business.businessPhone && business.businessPhone.toLowerCase().includes(searchTerm)) ||
-      (business.notes && business.notes.toLowerCase().includes(searchTerm)) || 
-      (business.typeOfBusiness && business.typeOfBusiness.toLowerCase().includes(searchTerm));
+      (business.businessName &&
+        business.businessName.toLowerCase().includes(searchTerm)) ||
+      (business.contactName &&
+        business.contactName.toLowerCase().includes(searchTerm)) ||
+      (business.businessEmail &&
+        business.businessEmail.toLowerCase().includes(searchTerm)) ||
+      (business.businessPhone &&
+        business.businessPhone.toLowerCase().includes(searchTerm)) ||
+      (business.notes && business.notes.toLowerCase().includes(searchTerm)) ||
+      (business.typeOfBusiness &&
+        business.typeOfBusiness.toLowerCase().includes(searchTerm));
 
     const matchesStatus = !statusFilter || business.status === statusFilter;
 
@@ -951,8 +964,12 @@ async function handleBusinessSubmit(event) {
   }
 
   // Combine first and last name for contact name
-  const contactFirstName = document.getElementById("contactFirstName").value.trim();
-  const contactLastName = document.getElementById("contactLastName").value.trim();
+  const contactFirstName = document
+    .getElementById("contactFirstName")
+    .value.trim();
+  const contactLastName = document
+    .getElementById("contactLastName")
+    .value.trim();
   const contactName =
     contactFirstName || contactLastName
       ? `${contactFirstName} ${contactLastName}`.trim()
@@ -961,16 +978,20 @@ async function handleBusinessSubmit(event) {
   // Get phone number value (Cleave.js handles formatting on input, but get the raw value or formatted)
   let businessPhone = document.getElementById("businessPhone").value.trim();
   // Get phone extension (new field)
-  let businessPhoneExt = document.getElementById("businessPhoneExt").value.trim();
-
+  let businessPhoneExt = document
+    .getElementById("businessPhoneExt")
+    .value.trim();
 
   let websiteUrl = document.getElementById("websiteUrl").value.trim();
   // Check if the URL already starts with http:// or https://
-  if (websiteUrl && !websiteUrl.startsWith("http://") && !websiteUrl.startsWith("https://")) {
+  if (
+    websiteUrl &&
+    !websiteUrl.startsWith("http://") &&
+    !websiteUrl.startsWith("https://")
+  ) {
     // If not, prepend https://
     websiteUrl = "https://" + websiteUrl;
   }
-
 
   const businessData = {
     businessName: document.getElementById("businessName").value.trim(),
@@ -993,11 +1014,14 @@ async function handleBusinessSubmit(event) {
   // Convert YYYY-MM-DD to an ISO string or Date object if your API expects that
   let lastContactedISO = null;
   if (lastContactedDateValue) {
-    const date = new Date(lastContactedDateValue + 'T12:00:00'); // Treat as local noon to avoid timezone issues
+    const date = new Date(lastContactedDateValue + "T12:00:00"); // Treat as local noon to avoid timezone issues
     if (date && !isNaN(date.getTime())) {
       lastContactedISO = date.toISOString(); // Convert to ISO string for the API
     } else {
-      console.warn("Invalid lastContactedDate value from input:", lastContactedDateValue);
+      console.warn(
+        "Invalid lastContactedDate value from input:",
+        lastContactedDateValue
+      );
     }
   }
   businessData.lastContactedDate = lastContactedISO; // Send ISO string or null
@@ -1011,13 +1035,17 @@ async function handleBusinessSubmit(event) {
       Utils.showToast("Business updated successfully");
 
       // Update in both arrays
-      const businessIndex = currentBusinesses.findIndex(b => b._id === businessId);
-      if(businessIndex !== -1) {
+      const businessIndex = currentBusinesses.findIndex(
+        (b) => b._id === businessId
+      );
+      if (businessIndex !== -1) {
         currentBusinesses[businessIndex] = savedBusiness;
       }
-      
-      const originalIndex = originalBusinesses.findIndex(b => b._id === businessId);
-      if(originalIndex !== -1) {
+
+      const originalIndex = originalBusinesses.findIndex(
+        (b) => b._id === businessId
+      );
+      if (originalIndex !== -1) {
         originalBusinesses[originalIndex] = savedBusiness;
       }
     } else {
@@ -1077,7 +1105,7 @@ async function updateHitlistBusinessCount(hitlistId) {
 function renderBusinesses(businesses) {
   // Get dateFormat from window object (set in settings)
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
-  
+
   const businessesList = document.getElementById("businessesList");
 
   if (!businessesList) {
@@ -1098,7 +1126,7 @@ function renderBusinesses(businesses) {
       if (displayPhone && !displayPhone.includes("-")) {
         displayPhone = formatPhoneNumber(displayPhone);
       }
-      
+
       // Add extension if available
       if (business.businessPhoneExt) {
         displayPhone += ` Ext: ${business.businessPhoneExt}`;
@@ -1200,18 +1228,21 @@ function renderBusinesses(businesses) {
   attachBusinessActionListeners(businesses);
 }
 
-
 function openViewBusinessModal(business) {
   // Get dateFormat from window object (set in settings)
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
-  
-  document.getElementById("viewBusinessName").textContent = business.businessName || "N/A";
-  document.getElementById("viewTypeOfBusiness").textContent = business.typeOfBusiness || "N/A";
+
+  document.getElementById("viewBusinessName").textContent =
+    business.businessName || "N/A";
+  document.getElementById("viewTypeOfBusiness").textContent =
+    business.typeOfBusiness || "N/A";
 
   // Split contact name
   const nameParts = (business.contactName || "").split(" ");
-  document.getElementById("viewContactFirstName").textContent = nameParts[0] || "N/A";
-  document.getElementById("viewContactLastName").textContent = nameParts.slice(1).join(" ") || "N/A";
+  document.getElementById("viewContactFirstName").textContent =
+    nameParts[0] || "N/A";
+  document.getElementById("viewContactLastName").textContent =
+    nameParts.slice(1).join(" ") || "N/A";
 
   // Format phone number for view modal
   let displayPhone = business.businessPhone || "N/A";
@@ -1219,9 +1250,9 @@ function openViewBusinessModal(business) {
     displayPhone = formatPhoneNumber(displayPhone);
   }
   document.getElementById("viewBusinessPhone").textContent = displayPhone;
-  
+
   // Add extension display
-  document.getElementById("viewBusinessPhoneExt").textContent = 
+  document.getElementById("viewBusinessPhoneExt").textContent =
     business.businessPhoneExt ? `Ext: ${business.businessPhoneExt}` : "";
 
   document.getElementById("viewBusinessEmail").textContent =
@@ -1258,7 +1289,7 @@ function openViewBusinessModal(business) {
   const lastContactedDisplayDate = business.lastContactedDate
     ? new Date(business.lastContactedDate)
     : null;
-  
+
   let formattedLastContacted = "N/A";
 
   if (lastContactedDisplayDate && !isNaN(lastContactedDisplayDate.getTime())) {
@@ -1289,11 +1320,10 @@ function openViewBusinessModal(business) {
   document.getElementById("businessViewModal").style.display = "block";
 }
 
-
 function initializeDateInputs() {
   // Get dateFormat from window object (set in settings)
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
-  
+
   // Handle date input changes
   const lastContactedInput = document.getElementById("lastContactedDate");
   const lastContactedDisplay = document.getElementById("lastContactedDisplay");
@@ -1318,10 +1348,7 @@ function initializeDateInputs() {
           );
           if (displayElement) {
             // Format using the local date object created with the global date format
-            displayElement.textContent = Utils.formatDate(
-              date,
-              dateFormat
-            );
+            displayElement.textContent = Utils.formatDate(date, dateFormat);
           }
         } else {
           // Handle invalid date input value if necessary (shouldn't happen with type="date")

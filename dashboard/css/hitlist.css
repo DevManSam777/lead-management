@@ -98,13 +98,16 @@ a:visited {
   display: flex;
   justify-content: space-between;
   color: var(--text-muted);
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   margin-top: auto;
+}
+
+.hitlist-dates .hitlist-stat {
+  margin-bottom: 0.5rem;
 }
 
 .hitlist-stat {
   display: flex;
-  align-items: center;
   gap: 0.5rem;
 }
 
@@ -418,12 +421,12 @@ a:visited {
   flex-direction: column;
   gap: 1rem;
   padding: 3rem 1rem;
-  width: 100%; 
+  width: 100%;
   border: 2px dashed var(--text-muted);
   border-radius: 0.5rem;
-  text-align: center; 
-  justify-content: center; 
-  align-items: center; 
+  text-align: center;
+  justify-content: center;
+  align-items: center;
   /* Make the element span all columns in its parent grid */
   grid-column: 1 / -1;
 }
@@ -436,6 +439,7 @@ a:visited {
   font-size: 2rem;
   margin-right: 1rem;
 }
+
 
 @media (max-width: 992px) {
   #createHitlistBtn {
