@@ -36,7 +36,7 @@
         }
       });
 
-      const signOutButton = document.getElementById("signOutButton");
+      const signOutButton = document.querySelector(".sign-out");
 
       signOutButton.addEventListener("click", () => {
         signOut(auth)
@@ -139,6 +139,11 @@
                 <i class="fas fa-cog"></i> <span>Settings</span>
               </a>
             </li>
+            <li class="sign-out-item" title="Sign Out">
+              <button class="sign-out">
+                <i class="fa-solid fa-right-from-bracket"></i><span>Sign out</span>
+              </button>
+            </li>
           </ul>
         </div>
       </aside>
@@ -146,7 +151,6 @@
       <main class="main-content">
         <header class="header">
           <h2>Resources</h2>
-          <button id="signOutButton">Sign Out</button>
         </header>
         <div class="resources-container">
           <div class="resource-card">

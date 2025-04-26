@@ -122,7 +122,7 @@ body {
   margin-bottom: 1.6rem;
 }
 
-.sidebar-menu a {
+.sidebar-menu a, .sidebar-menu .sign-out {
   color: var(--sidebar-link);
   text-decoration: none;
   display: flex;
@@ -133,12 +133,14 @@ body {
 }
 
 .sidebar-menu a:hover,
-.sidebar-menu a.active {
+.sidebar-menu a.active,
+.sidebar-menu .sign-out:hover,
+.sidebar-menu .sign-out:active {
   background-color: var(--sidebar-active);
   color: var(--primary);
 }
 
-.sidebar-menu i {
+.sidebar-menu i, .sidebar-menu .sign-out i  {
   margin-right: 1rem;
   width: auto;
   text-align: center;
@@ -150,11 +152,11 @@ body {
 }
 
 /* Sidebar Collapsed State */
-.sidebar.collapsed .sidebar-menu span {
+.sidebar.collapsed .sidebar-menu span, .sidebar.collapsed .sidebar-menu .sign-out span {
   display: none;
-}
+} 
 
-.sidebar.collapsed .sidebar-menu a {
+.sidebar.collapsed .sidebar-menu a, .sidebar.collapsed .sidebar-menu .sign-out {
   justify-content: center;
 }
 
@@ -162,6 +164,17 @@ body {
   margin-right: 0;
   font-size: 2rem;
 }
+
+/* Sign out button styling */
+.sidebar-menu .sign-out {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1.6rem; 
+  font-family: inherit;
+}
+
 
 /* Main Content */
 .main-content {
