@@ -25,7 +25,6 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
 
-      // Hide the body initially
       document.body.style.display = "none";
 
       onAuthStateChanged(auth, (user) => {
@@ -39,14 +38,16 @@
       const signOutButton = document.querySelector(".sign-out");
 
       signOutButton.addEventListener("click", () => {
-        signOut(auth)
-          .then(() => {
-            console.log("User signed out.");
-            window.location.href = "/dashboard/index.html";
-          })
-          .catch((error) => {
-            console.error("Error signing out:", error);
-          });
+        if (confirm("Are you sure you want to log out?")) {
+          signOut(auth)
+            .then(() => {
+              console.log("User signed out.");
+              window.location.href = "/dashboard/index.html";
+            })
+            .catch((error) => {
+              console.error("Error signing out:", error);
+            });
+        }
       });
     </script>
     <style>
