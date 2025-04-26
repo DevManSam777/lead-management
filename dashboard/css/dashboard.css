@@ -138,6 +138,7 @@ body {
 .sidebar-menu .sign-out:active {
   background-color: var(--sidebar-active);
   color: var(--primary);
+  cursor: pointer;
 }
 
 .sidebar-menu i, .sidebar-menu .sign-out i  {
