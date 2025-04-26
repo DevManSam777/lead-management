@@ -4,6 +4,50 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevLeads Resources</title>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
+        authDomain: "devleads-a1329.firebaseapp.com",
+        projectId: "devleads-a1329",
+        storageBucket: "devleads-a1329.firebasestorage.app",
+        messagingSenderId: "95407568917",
+        appId: "1:95407568917:web:db6424b8f1df724258361c",
+        measurementId: "G-47PSY58Q5P"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      // Hide the body initially
+      document.body.style.display = "none";
+
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = '../index.html';
+        } else {
+          document.body.style.display = "block";
+        }
+      });
+    </script>
+    <script type="module">
+      import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+      const auth = getAuth();
+
+      const signOutButton = document.getElementById("signOutButton");
+
+      signOutButton.addEventListener("click", () => {
+        signOut(auth).then(() => {
+          console.log("User signed out.");
+          window.location.href = '/index.html';
+        }).catch((error) => {
+          console.error("Error signing out:", error);
+        });
+      });
+    </script>
     <style>
       .sidebar,
       .main-content {
@@ -101,6 +145,7 @@
       <main class="main-content">
         <header class="header">
           <h2>Resources</h2>
+          <button id="signOutButton">Sign Out</button>
         </header>
         <div class="resources-container">
           <div class="resource-card">

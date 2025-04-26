@@ -6,6 +6,31 @@ import {
   safeSetTextContent,
 } from "./utils.js";
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
+    authDomain: "devleads-a1329.firebaseapp.com",
+    projectId: "devleads-a1329",
+    storageBucket: "devleads-a1329.firebasestorage.app",
+    messagingSenderId: "95407568917",
+    appId: "1:95407568917:web:db6424b8f1df724258361c",
+    measurementId: "G-47PSY58Q5P"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Redirect to login page if user is not authenticated
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = '/dashboard/index.html';
+    }
+});
+
 export {
   renderLeads,
   renderGridView,
