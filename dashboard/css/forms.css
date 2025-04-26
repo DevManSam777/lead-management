@@ -81,7 +81,7 @@
   position: relative;
   background-color: var(--background-color);
   border-radius: 0.8rem;
-  padding: 5rem 2rem 2rem 6rem;
+  padding: 6rem 2rem 2rem;
   align-items: center;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -526,7 +526,7 @@ div.editor-section {
   .template-card {
     flex-direction: column;
     text-align: center;
-    padding: 5rem 2rem 2rem 2rem;
+    padding: 5rem 2rem 2rem;
   }
 
   .template-icon {
