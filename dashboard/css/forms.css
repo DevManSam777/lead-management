@@ -526,7 +526,7 @@ div.editor-section {
   .template-icon {
     margin-right: 0;
     margin-bottom: 1rem;
-    font-size: 3rem;
+    /* font-size: 3rem; */
   }
 
   .template-actions {
