@@ -240,7 +240,7 @@
             </div>
             <div class="stats-card">
               <i class="fa-solid fa-chart-line"></i>
-              <h3>Conversion Rate</h3>
+              <h3>Succesfully Completed</h3>
               <div class="value" id="conversionRateValue">0%</div>
               <div class="change" id="conversionChange">
                 <span>Closed-Won Projects</span>
@@ -248,7 +248,8 @@
             </div>
             <div class="stats-card">
               <i class="fa-solid fa-money-bill-wave"></i>
-              <h3>Monthly Revenue</h3>
+              <!-- current month dynamically appears - function is in domcontentloaded in dashboard.js-->
+              <h3 id="monthly-revenue-header">Revenue</h3>
               <div class="value" id="monthlyPaymentsValue">$0</div>
               <div class="change" id="paymentsChange">
                 <span>% from last month</span>

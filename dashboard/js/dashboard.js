@@ -436,9 +436,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   const currentMonth = monthNames[now.getMonth()];
 
   const leadsHeader = document.getElementById("month-leads");
+  const monthlyRevenueHeader = document.getElementById("monthly-revenue-header");
 
   if (leadsHeader) {
     leadsHeader.innerHTML = `${currentMonth} ${leadsHeader.innerHTML}`;
+  }
+
+  if (monthlyRevenueHeader) {
+    monthlyRevenueHeader.innerHTML = `${currentMonth} ${monthlyRevenueHeader.innerHTML}`;
   }
 
   window.addEventListener("paymentsUpdated", async function () {
