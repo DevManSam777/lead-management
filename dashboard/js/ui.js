@@ -64,7 +64,7 @@ function renderGridView(leads) {
     }
 
     card.innerHTML = `
-      <div id="code-icon"><i class="fa-solid fa-code"></i></div>
+      <div id="code-icon"><i class="fa-solid fa-laptop-code"></i></div>
       <h3>${fullName}</h3>
       <p><strong>Business:</strong> ${businessName}</p>
       ${lastContactedText}
