@@ -67,9 +67,17 @@
 }
 
 /* Template Cards */
-.template-cards {
+/* .template-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 400px));
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+} */
+
+.template-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
   margin-bottom: 2rem;
   padding: 2rem;
