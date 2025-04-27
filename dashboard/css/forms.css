@@ -86,7 +86,7 @@
 .template-card {
   background-color: var(--card-background);
   border-radius: var(--card-border-radius);
-  padding: 5rem 2rem 2rem;
+  padding: 5rem 2rem 2rem 2rem;
   position: relative;
   border-top: 0.5rem solid var(--primary);
   box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.5);
