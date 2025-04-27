@@ -98,7 +98,7 @@
 }
 
 .lead-card {
-  background-color: var(--card-background);
+  background-color: var(--background-color);
   border-radius: var(--card-border-radius);
   padding: 2rem;
   box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.5);
