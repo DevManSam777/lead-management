@@ -1,9 +1,3 @@
-/* General link styles */
-a,
-a:visited {
-  color: inherit;
-}
-
 /* Hitlists List Container */
 .hitlists-container {
   position: relative;
