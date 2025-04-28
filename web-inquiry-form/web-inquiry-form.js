@@ -1018,7 +1018,7 @@ class WebInquiryForm extends HTMLElement {
       city: this.shadowRoot.getElementById('billingCity').value || '',
       state: this.shadowRoot.getElementById('billingState').value || '',
       zipCode: this.shadowRoot.getElementById('billingZipCode').value || '',
-      country: this.shadowRoot.getElementById('billingCountry').value || 'United States'
+      country: this.shadowRoot.getElementById('billingCountry').value || 'USA'
     };
     
     // Handle phone extensions properly

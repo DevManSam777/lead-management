@@ -399,7 +399,7 @@ formObject.billingAddress = {
   city: document.getElementById("billingCity").value || '',
   state: document.getElementById("billingState").value || '',
   zipCode: document.getElementById("billingZipCode").value || '',
-  country: document.getElementById("billingCountry").value || 'United States'
+  country: document.getElementById("billingCountry").value || 'USA'
 };
 
     // Handle phone extensions properly
