@@ -1,4 +1,5 @@
 import { formatDate } from './utils.js';
+import { authApi } from './authApi.js';
 
 document.addEventListener("DOMContentLoaded", function () {
   // API URL Configuration (same base URL as in dashboard.js)
@@ -17,74 +18,62 @@ document.addEventListener("DOMContentLoaded", function () {
   // Get date format example element
   const dateFormatExample = document.getElementById('dateFormatExample');
   
-  // Function to fetch all settings from the server
-  async function fetchAllSettings() {
-      try {
-          const response = await fetch(SETTINGS_API_URL);
-          
-          if (!response.ok) {
-              throw new Error("Failed to fetch settings");
-          }
-          
-          const settings = await response.json();
-          globalSettings = settings;
-          
-          // Return the settings
-          return settings;
-      } catch (error) {
-          console.error("Error fetching settings:", error);
-          
-          // Fallback to localStorage if API fails
-          return {
-              theme: localStorage.getItem("theme") || 
-                (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
-              dateFormat: localStorage.getItem("dateFormat") || "MM/DD/YYYY"
-          };
-      }
-  }
   
-  // Function to update a setting on the server
-  async function updateSetting(key, value) {
-      try {
-          const response = await fetch(`${SETTINGS_API_URL}/${key}`, {
-              method: "PUT",
-              headers: {
-                  "Content-Type": "application/json"
-              },
-              body: JSON.stringify({ value })
-          });
-          
-          if (!response.ok) {
-              throw new Error("Failed to update setting");
-          }
-          
-          const updatedSetting = await response.json();
-          globalSettings[key] = updatedSetting.value;
-          
-          // Also update localStorage as a fallback
-          localStorage.setItem(key, value);
-          
-          // Dispatch an event to notify about setting change
-          window.dispatchEvent(new CustomEvent('settingsUpdated', { 
-            detail: { key, value } 
-          }));
-          
-          return updatedSetting;
-      } catch (error) {
-          console.error("Error updating setting:", error);
-          
-          // Update localStorage as a fallback
-          localStorage.setItem(key, value);
-          
-          // Still dispatch the event even if server update failed
-          window.dispatchEvent(new CustomEvent('settingsUpdated', { 
-            detail: { key, value } 
-          }));
-          
-          return { key, value };
-      }
-  }
-  
+  /* Fetch all settings
+  * @returns {Promise<Object>} 
+  */
+ async function fetchAllSettings() {
+   try {
+     console.log("Fetching all settings...");
+     
+     // Use authApi instead of direct fetch
+     const settings = await authApi.get('/settings');
+     console.log("Settings fetched successfully:", settings);
+     return settings;
+   } catch (error) {
+     console.error("Error fetching settings:", error);
+     
+     // Fallback to localStorage if API fails
+     console.log("Using localStorage fallback due to API error");
+     return {
+       theme:
+         localStorage.getItem("theme") ||
+         (window.matchMedia("(prefers-color-scheme: dark)").matches
+           ? "dark"
+           : "light"),
+     };
+   }
+ }
+ 
+ /**
+  * Update a specific setting
+  * @param {string} key
+  * @param {*} value
+  * @returns {Promise<Object>} 
+  */
+ async function updateSetting(key, value) {
+   try {
+     console.log(`Updating setting ${key} to ${value}...`);
+     
+     // Use authApi instead of direct fetch
+     const updatedSetting = await authApi.put(`/settings/${key}`, { value });
+     console.log(`Setting ${key} updated successfully:`, updatedSetting);
+     
+     // Also update localStorage as a fallback
+     localStorage.setItem(key, value);
+     
+     return updatedSetting;
+   } catch (error) {
+     console.error("Error updating setting:", error);
+     
+     // Update localStorage as a fallback
+     localStorage.setItem(key, value);
+     
+     return { key, value };
+   }
+ }
+ 
+
   // Function to apply theme to HTML element
   function setTheme(theme) {
       document.documentElement.setAttribute("data-theme", theme);

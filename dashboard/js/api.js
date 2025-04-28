@@ -1,15 +1,11 @@
-const API_URL = "http://localhost:5000/api/leads";
-const API_PAYMENTS_URL = "http://localhost:5000/api/payments";
-const SETTINGS_API_URL = "http://localhost:5000/api/settings";
-const FORMS_API_URL = "http://localhost:5000/api/forms";
-const API_DOCUMENTS_URL = "http://localhost:5000/api/documents";
-const HITLIST_API_URL = "http://localhost:5000/api/hitlists";
+import { authApi } from './authApi.js';
+
+const API_URL = "http://localhost:5000/api";
 
 // Helper function to get base URL
 function getBaseUrl() {
   return "http://localhost:5000";
 }
-
 
 /**
  * Fetch all leads from the API
@@ -17,15 +13,8 @@ function getBaseUrl() {
  */
 async function fetchLeads() {
   try {
-    console.log("Fetching leads from:", API_URL);
-    const response = await fetch(API_URL);
-    console.log("Response status:", response.status);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch leads");
-    }
-
-    const data = await response.json();
+    console.log("Fetching leads from:", API_URL + "/leads");
+    const data = await authApi.get('/leads');
     console.log("Fetched leads data:", data);
 
     // Make sure data is an array
@@ -47,13 +36,8 @@ async function fetchLeads() {
  */
 async function fetchLeadById(leadId) {
   try {
-    const response = await fetch(`${API_URL}/${leadId}`);
-    
-    if (!response.ok) {
-      throw new Error("Failed to fetch lead");
-    }
-    
-    return await response.json();
+    const data = await authApi.get(`/leads/${leadId}`);
+    return data;
   } catch (error) {
     console.error(`Error fetching lead ${leadId}:`, error);
     throw error;
@@ -67,18 +51,8 @@ async function fetchLeadById(leadId) {
  */
 async function createLead(leadData) {
   try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(leadData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to create lead");
-    }
-
-    return await response.json();
+    const data = await authApi.post('/leads', leadData);
+    return data;
   } catch (error) {
     console.error("Error creating lead:", error);
     throw error;
@@ -93,18 +67,8 @@ async function createLead(leadData) {
  */
 async function updateLead(leadId, leadData) {
   try {
-    const response = await fetch(`${API_URL}/${leadId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(leadData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to update lead");
-    }
-
-    return await response.json();
+    const data = await authApi.put(`/leads/${leadId}`);
+    return data;
   } catch (error) {
     console.error("Error updating lead:", error);
     throw error;
@@ -118,15 +82,8 @@ async function updateLead(leadId, leadData) {
  */
 async function deleteLead(leadId) {
   try {
-    const response = await fetch(`${API_URL}/${leadId}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to delete lead");
-    }
-
-    return await response.json();
+    const data = await authApi.delete(`/leads/${leadId}`);
+    return data;
   } catch (error) {
     console.error("Error deleting lead:", error);
     throw error;
@@ -140,13 +97,8 @@ async function deleteLead(leadId) {
  */
 async function searchLeads(query) {
   try {
-    const response = await fetch(`${API_URL}/search?query=${encodeURIComponent(query)}`);
-    
-    if (!response.ok) {
-      throw new Error("Failed to search leads");
-    }
-    
-    return await response.json();
+    const data = await authApi.get(`/leads/search?query=${encodeURIComponent(query)}`);
+    return data;
   } catch (error) {
     console.error("Error searching leads:", error);
     throw error;
@@ -161,12 +113,8 @@ async function searchLeads(query) {
  */
 async function fetchPayments() {
   try {
-    const response = await fetch(API_PAYMENTS_URL);
-    if (!response.ok) {
-      throw new Error("Failed to fetch payments");
-    }
-
-    return await response.json();
+    const data = await authApi.get('/payments');
+    return data;
   } catch (error) {
     console.error("Error fetching payments:", error);
     throw error;
@@ -187,12 +135,7 @@ async function fetchLeadPayments(leadId) {
       return [];
     }
 
-    const response = await fetch(`${API_PAYMENTS_URL}/lead/${leadId}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch lead payments");
-    }
-
-    const payments = await response.json();
+    const payments = await authApi.get(`/payments/lead/${leadId}`);
     console.log(`Received ${payments.length} payments for lead ID: ${leadId}`);
 
     // Verify each payment belongs to this lead
@@ -222,18 +165,8 @@ async function fetchLeadPayments(leadId) {
  */
 async function createPayment(paymentData) {
   try {
-    const response = await fetch(API_PAYMENTS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(paymentData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to create payment");
-    }
-
-    return await response.json();
+    const data = await authApi.post('/payments', paymentData);
+    return data;
   } catch (error) {
     console.error("Error creating payment:", error);
     throw error;
@@ -248,18 +181,8 @@ async function createPayment(paymentData) {
  */
 async function updatePayment(paymentId, paymentData) {
   try {
-    const response = await fetch(`${API_PAYMENTS_URL}/${paymentId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(paymentData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to update payment");
-    }
-
-    return await response.json();
+    const data = await authApi.put(`/payments/${paymentId}`, paymentData);
+    return data;
   } catch (error) {
     console.error("Error updating payment:", error);
     throw error;
@@ -273,22 +196,13 @@ async function updatePayment(paymentId, paymentData) {
  */
 async function deletePayment(paymentId) {
   try {
-    const response = await fetch(`${API_PAYMENTS_URL}/${paymentId}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to delete payment");
-    }
-
-    return await response.json();
+    const data = await authApi.delete(`/payments/${paymentId}`);
+    return data;
   } catch (error) {
     console.error("Error deleting payment:", error);
     throw error;
   }
 }
-
-
 
 /**
  * Fetch all settings
@@ -296,13 +210,7 @@ async function deletePayment(paymentId) {
  */
 async function fetchAllSettings() {
   try {
-    const response = await fetch(SETTINGS_API_URL);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch settings");
-    }
-
-    const settings = await response.json();
+    const settings = await authApi.get('/settings');
     return settings;
   } catch (error) {
     console.error("Error fetching settings:", error);
@@ -326,19 +234,7 @@ async function fetchAllSettings() {
  */
 async function updateSetting(key, value) {
   try {
-    const response = await fetch(`${SETTINGS_API_URL}/${key}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ value }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to update setting");
-    }
-
-    const updatedSetting = await response.json();
+    const updatedSetting = await authApi.put(`/settings/${key}`, { value });
     
     // Also update localStorage as a fallback
     localStorage.setItem(key, value);
@@ -376,15 +272,9 @@ async function fetchForms(filters = {}) {
     }
     
     const queryString = queryParams.toString();
-    const url = queryString ? `${FORMS_API_URL}?${queryString}` : FORMS_API_URL;
+    const endpoint = queryString ? `/forms?${queryString}` : '/forms';
     
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error("Failed to fetch forms");
-    }
-    
-    const data = await response.json();
+    const data = await authApi.get(endpoint);
     
     // Make sure data is an array
     if (!Array.isArray(data)) {
@@ -398,7 +288,6 @@ async function fetchForms(filters = {}) {
   }
 }
 
-
 /**
  * Fetch a specific form by ID
  * @param {string} formId 
@@ -406,20 +295,13 @@ async function fetchForms(filters = {}) {
  */
 async function fetchFormById(formId) {
   try {
-    const response = await fetch(`${FORMS_API_URL}/${formId}`);
-    
-    if (!response.ok) {
-      throw new Error("Failed to fetch form");
-    }
-    
-    return await response.json();
+    const data = await authApi.get(`/forms/${formId}`);
+    return data;
   } catch (error) {
     console.error(`Error fetching form ${formId}:`, error);
     throw error;
   }
 }
-
-
 
 /**
  * Create a new form
@@ -428,18 +310,8 @@ async function fetchFormById(formId) {
  */
 async function createForm(formData) {
   try {
-    const response = await fetch(FORMS_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to create form");
-    }
-    
-    return await response.json();
+    const data = await authApi.post('/forms', formData);
+    return data;
   } catch (error) {
     console.error("Error creating form:", error);
     throw error;
@@ -454,18 +326,8 @@ async function createForm(formData) {
  */
 async function updateForm(formId, formData) {
   try {
-    const response = await fetch(`${FORMS_API_URL}/${formId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to update form");
-    }
-    
-    return await response.json();
+    const data = await authApi.put(`/forms/${formId}`, formData);
+    return data;
   } catch (error) {
     console.error("Error updating form:", error);
     throw error;
@@ -479,15 +341,8 @@ async function updateForm(formId, formData) {
  */
 async function deleteForm(formId) {
   try {
-    const response = await fetch(`${FORMS_API_URL}/${formId}`, {
-      method: "DELETE",
-    });
-    
-    if (!response.ok) {
-      throw new Error("Failed to delete form");
-    }
-    
-    return await response.json();
+    const data = await authApi.delete(`/forms/${formId}`);
+    return data;
   } catch (error) {
     console.error("Error deleting form:", error);
     throw error;
@@ -501,13 +356,8 @@ async function deleteForm(formId) {
  */
 async function searchForms(query) {
   try {
-    const response = await fetch(`${FORMS_API_URL}/search?query=${encodeURIComponent(query)}`);
-    
-    if (!response.ok) {
-      throw new Error("Failed to search forms");
-    }
-    
-    return await response.json();
+    const data = await authApi.get(`/forms/search?query=${encodeURIComponent(query)}`);
+    return data;
   } catch (error) {
     console.error("Error searching forms:", error);
     throw error;
@@ -521,15 +371,8 @@ async function searchForms(query) {
  */
 async function cloneTemplateForm(templateId) {
   try {
-    const response = await fetch(`${FORMS_API_URL}/${templateId}/clone`, {
-      method: "POST",
-    });
-    
-    if (!response.ok) {
-      throw new Error("Failed to clone template");
-    }
-    
-    return await response.json();
+    const data = await authApi.post(`/forms/${templateId}/clone`);
+    return data;
   } catch (error) {
     console.error("Error cloning template:", error);
     throw error;
@@ -544,17 +387,8 @@ async function cloneTemplateForm(templateId) {
  */
 async function generateFormWithLeadData(formId, leadId) {
   try {
-    const response = await fetch(`${FORMS_API_URL}/${formId}/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ leadId }),
-    });
-    
-    if (!response.ok) {
-      throw new Error("Failed to generate form with lead data");
-    }
-    
-    return await response.json();
+    const data = await authApi.post(`/forms/${formId}/generate`, { leadId });
+    return data;
   } catch (error) {
     console.error("Error generating form with lead data:", error);
     throw error;
@@ -568,13 +402,8 @@ async function generateFormWithLeadData(formId, leadId) {
  */
 async function getFormsByLead(leadId) {
   try {
-    const response = await fetch(`${getBaseUrl()}/api/forms/lead/${leadId}`);
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch forms for lead');
-    }
-    
-    return await response.json();
+    const data = await authApi.get(`/forms/lead/${leadId}`);
+    return data;
   } catch (error) {
     console.error(`Error fetching forms for lead ${leadId}:`, error);
     throw error;
@@ -589,25 +418,13 @@ async function getFormsByLead(leadId) {
  */
 async function generateFormForLead(templateId, leadId) {
   try {
-    const response = await fetch(`${getBaseUrl()}/api/forms/${templateId}/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ leadId })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to generate form');
-    }
-    
-    return await response.json();
+    const data = await authApi.post(`/forms/${templateId}/generate`, { leadId });
+    return data;
   } catch (error) {
     console.error('Error generating form:', error);
     throw error;
   }
 }
-
 
 /**
  * Get documents for a specific lead
@@ -616,13 +433,8 @@ async function generateFormForLead(templateId, leadId) {
  */
 async function getDocumentsByLead(leadId) {
   try {
-    const response = await fetch(`${API_DOCUMENTS_URL}/lead/${leadId}`);
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch documents for lead');
-    }
-    
-    return await response.json();
+    const data = await authApi.get(`/documents/lead/${leadId}`);
+    return data;
   } catch (error) {
     console.error(`Error fetching documents for lead ${leadId}:`, error);
     throw error;
@@ -637,19 +449,8 @@ async function getDocumentsByLead(leadId) {
  */
 async function uploadDocument(leadId, documentData) {
   try {
-    const response = await fetch(`${API_DOCUMENTS_URL}/lead/${leadId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(documentData)
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to upload document');
-    }
-    
-    return await response.json();
+    const data = await authApi.post(`/documents/lead/${leadId}`, documentData);
+    return data;
   } catch (error) {
     console.error('Error uploading document:', error);
     throw error;
@@ -663,15 +464,8 @@ async function uploadDocument(leadId, documentData) {
  */
 async function deleteDocument(documentId) {
   try {
-    const response = await fetch(`${API_DOCUMENTS_URL}/${documentId}`, {
-      method: 'DELETE'
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to delete document');
-    }
-    
-    return await response.json();
+    const data = await authApi.delete(`/documents/${documentId}`);
+    return data;
   } catch (error) {
     console.error('Error deleting document:', error);
     throw error;
@@ -681,11 +475,8 @@ async function deleteDocument(documentId) {
 // Hitlist API functions
 async function fetchHitlists() {
   try {
-    const response = await fetch(HITLIST_API_URL);
-    if (!response.ok) {
-      throw new Error("Failed to fetch hitlists");
-    }
-    return await response.json();
+    const data = await authApi.get('/hitlists');
+    return data;
   } catch (error) {
     console.error("Error fetching hitlists:", error);
     throw error;
@@ -694,11 +485,8 @@ async function fetchHitlists() {
 
 async function fetchHitlistById(hitlistId) {
   try {
-    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch hitlist");
-    }
-    return await response.json();
+    const data = await authApi.get(`/hitlists/${hitlistId}`);
+    return data;
   } catch (error) {
     console.error("Error fetching hitlist:", error);
     throw error;
@@ -707,15 +495,8 @@ async function fetchHitlistById(hitlistId) {
 
 async function createHitlist(hitlistData) {
   try {
-    const response = await fetch(HITLIST_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(hitlistData),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to create hitlist");
-    }
-    return await response.json();
+    const data = await authApi.post('/hitlists', hitlistData);
+    return data;
   } catch (error) {
     console.error("Error creating hitlist:", error);
     throw error;
@@ -724,15 +505,8 @@ async function createHitlist(hitlistData) {
 
 async function updateHitlist(hitlistId, hitlistData) {
   try {
-    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(hitlistData),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to update hitlist");
-    }
-    return await response.json();
+    const data = await authApi.put(`/hitlists/${hitlistId}`, hitlistData);
+    return data;
   } catch (error) {
     console.error("Error updating hitlist:", error);
     throw error;
@@ -741,13 +515,8 @@ async function updateHitlist(hitlistId, hitlistData) {
 
 async function deleteHitlist(hitlistId) {
   try {
-    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error("Failed to delete hitlist");
-    }
-    return await response.json();
+    const data = await authApi.delete(`/hitlists/${hitlistId}`);
+    return data;
   } catch (error) {
     console.error("Error deleting hitlist:", error);
     throw error;
@@ -757,11 +526,8 @@ async function deleteHitlist(hitlistId) {
 // Business API functions
 async function fetchBusinessesByHitlist(hitlistId) {
   try {
-    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}/businesses`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch businesses");
-    }
-    return await response.json();
+    const data = await authApi.get(`/hitlists/${hitlistId}/businesses`);
+    return data;
   } catch (error) {
     console.error("Error fetching businesses:", error);
     throw error;
@@ -770,15 +536,8 @@ async function fetchBusinessesByHitlist(hitlistId) {
 
 async function createBusiness(hitlistId, businessData) {
   try {
-    const response = await fetch(`${HITLIST_API_URL}/${hitlistId}/businesses`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(businessData),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to create business");
-    }
-    return await response.json();
+    const data = await authApi.post(`/hitlists/${hitlistId}/businesses`, businessData);
+    return data;
   } catch (error) {
     console.error("Error creating business:", error);
     throw error;
@@ -787,15 +546,8 @@ async function createBusiness(hitlistId, businessData) {
 
 async function updateBusiness(businessId, businessData) {
   try {
-    const response = await fetch(`${HITLIST_API_URL}/businesses/${businessId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(businessData),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to update business");
-    }
-    return await response.json();
+    const data = await authApi.put(`/hitlists/businesses/${businessId}`, businessData);
+    return data;
   } catch (error) {
     console.error("Error updating business:", error);
     throw error;
@@ -804,19 +556,13 @@ async function updateBusiness(businessId, businessData) {
 
 async function deleteBusiness(businessId) {
   try {
-    const response = await fetch(`${HITLIST_API_URL}/businesses/${businessId}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error("Failed to delete business");
-    }
-    return await response.json();
+    const data = await authApi.delete(`/hitlists/businesses/${businessId}`);
+    return data;
   } catch (error) {
     console.error("Error deleting business:", error);
     throw error;
   }
 }
-
 
 export {
   getBaseUrl,

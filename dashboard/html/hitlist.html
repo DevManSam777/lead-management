@@ -25,6 +25,8 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
 
+      window.auth = auth;
+
       document.body.style.display = "none";
 
       onAuthStateChanged(auth, (user) => {
@@ -439,5 +441,6 @@
     <script type="module" src="../js/utils.js"></script>
     <script type="module" src="../js/api.js"></script>
     <script type="module" src="../js/hitlists.js"></script>
+    <script type="module" src="../js/authApi.js"></script>
   </body>
 </html>

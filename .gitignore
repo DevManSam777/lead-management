@@ -19,6 +19,5 @@ yarn-error.log*
 *.swp
 *.swo
 
-# Clerk Keys
-CLERK_PUBLISHABLE_KEY=your_publishable_key
-CLERK_SECRET_KEY=your_secret_key
+# firebase json file
+/server/config/serviceAccountKey.json
