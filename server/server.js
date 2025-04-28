@@ -10,6 +10,7 @@ const settingRoutes = require("./routes/settingRoutes");
 const formRoutes = require("./routes/formRoutes");
 const documentRoutes = require("./routes/documentRoutes");
 const hitlistRoutes = require("./routes/hitlistRoutes");
+const auth = require('./middleware/auth');
 
 const app = express();
 
@@ -627,12 +628,12 @@ app.get("/", (req, res) => {
 });
 
 // Mount route handlers
-app.use("/api/leads", leadRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/settings", settingRoutes);
-app.use("/api/forms", formRoutes);
-app.use("/api/documents", documentRoutes);
-app.use("/api/hitlists", hitlistRoutes);
+app.use("/api/leads", auth, leadRoutes);
+app.use("/api/payments", auth, paymentRoutes);
+app.use("/api/settings", auth, settingRoutes);
+app.use("/api/forms", auth, formRoutes);
+app.use("/api/documents", auth, documentRoutes);
+app.use("/api/hitlists", auth, hitlistRoutes);
 
 // This function ensures the correct sequence: Connect -> Seed -> Start Server
 async function startServer() {
