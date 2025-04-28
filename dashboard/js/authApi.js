@@ -123,7 +123,6 @@ async function apiCall(endpoint, method = 'GET', data = null) {
   const user = auth.currentUser;
   
   if (!user) {
-    console.error('No authenticated user found. Waiting for auth state to resolve...');
     
     // Return a promise that resolves when auth state changes
     return new Promise((resolve, reject) => {
@@ -137,7 +136,7 @@ async function apiCall(endpoint, method = 'GET', data = null) {
             .then(resolve)
             .catch(reject);
         } else {
-          console.error('Still no authenticated user after auth state change');
+          console.error('No authenticated user after auth state change');
           reject(new Error('User not authenticated'));
         }
       });
