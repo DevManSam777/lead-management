@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const leadController = require("../controllers/leadController");
 const auth = require("../middleware/auth");
+const verifyToken = require('../middleware/auth');
 
 // All routes are protected with auth middleware
 router.get("/", auth, leadController.getLeads);

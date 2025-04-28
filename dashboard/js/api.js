@@ -87,10 +87,25 @@ async function updateLead(leadId, leadData) {
  */
 async function deleteLead(leadId) {
   try {
-    const data = await authApi.delete(`/leads/${leadId}`);
-    return data;
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("User is not authenticated");
+    }
+    const token = await user.getIdToken();
+
+    const response = await fetch(`${API_URL}/leads/${leadId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete lead");
+    }
+
+    return true;
   } catch (error) {
-    console.error("Error deleting lead:", error);
     throw error;
   }
 }

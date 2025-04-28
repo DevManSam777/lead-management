@@ -225,9 +225,28 @@ async function loadLeadDocuments(leadId) {
 
 async function viewDocument(documentId, fileName) {
   try {
-    // Open the document in a new tab
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("User is not authenticated");
+    }
+    const token = await user.getIdToken();
+
+    // Open the document in a new tab with the Authorization header
     const documentUrl = `${API.getBaseUrl()}/api/documents/${documentId}`;
-    window.open(documentUrl, '_blank');
+    const response = await fetch(documentUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch document");
+    }
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
   } catch (error) {
     console.error("Error viewing document:", error);
     Utils.showToast("Error: " + error.message);
