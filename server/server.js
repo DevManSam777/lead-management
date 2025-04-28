@@ -10,14 +10,14 @@ const settingRoutes = require("./routes/settingRoutes");
 const formRoutes = require("./routes/formRoutes");
 const documentRoutes = require("./routes/documentRoutes");
 const hitlistRoutes = require("./routes/hitlistRoutes");
-const auth = require('./middleware/auth');
+const auth = require("./middleware/auth");
 
 const app = express();
 
 // Middleware
 app.use(
   cors({
-    origin: "*", // Allow all origins during development 
+    origin: "*", // Allow all origins during development
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -628,7 +628,9 @@ app.get("/", (req, res) => {
 });
 
 // Mount route handlers
-app.use("/api/leads", auth, leadRoutes);
+// added auth to all endpoints here instead of routes pages except for leadRoutes
+// added auth to each leadRoutes endpoint individually from leadRoutes.js file but kept POST open for public form submission
+app.use("/api/leads", leadRoutes);
 app.use("/api/payments", auth, paymentRoutes);
 app.use("/api/settings", auth, settingRoutes);
 app.use("/api/forms", auth, formRoutes);
