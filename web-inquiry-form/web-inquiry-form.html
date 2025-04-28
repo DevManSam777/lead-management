@@ -146,11 +146,14 @@
     </div>
     
     <footer>
-      <p>© 2025 DevLeads Development Environment. For testing purposes only.</p>
+      <p>© <span id="year-span"></span> Samir Shuman. For testing purposes only.</p>
     </footer>
   </div>
   
   <script>
+    const yearSpan = document.getElementById("year-span");
+    yearSpan.innerText = new Date().getFullYear();
+    
     // Function to check if the server is running
     async function checkServerConnection() {
       const statusElement = document.getElementById('server-status');

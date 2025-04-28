@@ -191,7 +191,7 @@ async function seedFormsIfFirstRun() {
     const alreadyRun = await hasSeederRun();
 
     if (alreadyRun) {
-      console.log('ℹ️ Forms have been seeded in a previous run. Skipping automatic seeding on startup.');
+      console.log('ℹ️  Forms have been seeded in a previous run. Skipping automatic seeding on startup.');
       return false;
     }
 
@@ -200,7 +200,7 @@ async function seedFormsIfFirstRun() {
     const existingCount = await Form.countDocuments({ isTemplate: true });
 
     if (existingCount > 0) {
-      console.log(`ℹ️ Database already has ${existingCount} form templates. Marking as seeded and skipping insert.`);
+      console.log(`ℹ️  Database already has ${existingCount} form templates. Marking as seeded and skipping insert.`);
       await markSeederRun();
       return false;
     }
