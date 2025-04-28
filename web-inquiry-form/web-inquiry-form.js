@@ -272,7 +272,7 @@ class WebInquiryForm extends HTMLElement {
             }
             
             h1 {
-              font-size: 2rem;
+              font-size: 1.8rem;
             }
             
             .form-container {
