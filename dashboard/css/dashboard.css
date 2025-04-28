@@ -85,9 +85,13 @@ body {
 }
 
 .sidebar.collapsed .sidebar-toggle {
-  top: 1rem;
+  top: 1.5rem;
   right: 0;
   left: 0;
+}
+
+.sidebar.collapsed .sidebar-menu ul{
+  margin-top: .5rem;
 }
 
 .sidebar .sidebar-toggle .fa-angles-right {
