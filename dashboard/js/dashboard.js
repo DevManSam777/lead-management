@@ -1119,7 +1119,7 @@ function performCleanupAndCloseModal() {
   window.leadSubmissionInProgress = false;
 
   // explicitly reload page so that graphs show accurate data
-  // window.location.reload();
+  window.location.reload();
 }
 
 /**
