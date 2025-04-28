@@ -1,17 +1,17 @@
 // web-inquiry-form.js
 class WebInquiryForm extends HTMLElement {
-    constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-    }
-  
-    connectedCallback() {
-      this.render();
-      this.initializeEvents();
-    }
-  
-    render() {
-      this.shadowRoot.innerHTML = `
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+  }
+
+  connectedCallback() {
+    this.render();
+    this.initializeEvents();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
         <style>
           :host {
             display: block;
@@ -270,47 +270,28 @@ class WebInquiryForm extends HTMLElement {
               font-size: 58%;
             }
             
-            h1 {
-              font-size: 2rem;
+             h1 {
+              font-size: 2.4rem;
             }
             
             .form-container {
+              padding: 2rem;
+            }
+            
+            .radio-group {
+              flex-direction: column;
+              gap: 1rem;
+            }
+            
+            fieldset {
               padding: 1.5rem;
             }
-          }
-          
-          .extension-option {
-            margin-top: 0.5rem;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-          }
-          
-          .extension-option input[type="checkbox"] {
-            margin-right: 0.5rem;
-          }
-          
-          .extension-option label {
-            margin: 0;
-            display: inline;
-            font-weight: normal;
-          }
-          
-          .extension-field {
-            margin-top: 0.5rem;
-            margin-left: 1.5rem;
-            width: 100%;
-          }
-          
-          .extension-field input {
-            width: 100%;
-            max-width: 10rem;
-          }
-          
-          .check-spam-folder {
-            margin: 1rem auto 0;
-            font-size: 1.2rem;
-          }
+            
+            .extension-field {
+              margin-left: 0;
+              margin-top: 0.5rem;
+            }
+          }         
         </style>
         <div class="form-container">
           <h1>Web Development Inquiry</h1>
@@ -603,499 +584,553 @@ class WebInquiryForm extends HTMLElement {
           </form>
         </div>
       `;
-    }
-  
-    initializeEvents() {
-      // Get important elements
-      const form = this.shadowRoot.getElementById('inquiry-form');
-      
-      // Initialize auto-resize for textareas
-      this.initializeAutoResizeTextareas();
-      
-      // Initialize form validation
-      this.initializeFormValidation();
-      
-      // Initialize phone number formatting (we need to load Cleave.js)
-      this.loadCleavejs().then(() => {
-        this.initializePhoneFormatting();
-      });
-      
-      // Initialize conditional fields
-      this.initializeConditionalFields();
-      
-      // Form submission
-      form.addEventListener('submit', this.handleFormSubmit.bind(this));
-    }
-    
-    loadCleavejs() {
-      return new Promise((resolve, reject) => {
-        if (window.Cleave) {
-          resolve();
-          return;
-        }
-        
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js';
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load Cleave.js'));
-        document.head.appendChild(script);
-      });
-    }
-    
-    initializeAutoResizeTextareas() {
-      const textareas = this.shadowRoot.querySelectorAll('textarea');
-      
-      textareas.forEach(textarea => {
-        // Set initial height based on content
-        this.adjustTextareaHeight(textarea);
-        
-        // Add event listener for input changes
-        textarea.addEventListener('input', () => {
-          this.adjustTextareaHeight(textarea);
-        });
-      });
-    }
-    
-    adjustTextareaHeight(textarea) {
-      // Reset height to auto to get the correct scrollHeight
-      textarea.style.height = 'auto';
-      
-      // Set height to scrollHeight to fit content
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-    
-    initializePhoneFormatting() {
-      const phoneInputs = this.shadowRoot.querySelectorAll('input[type="tel"]');
-      
+  }
+
+  initializeEvents() {
+    // Get important elements
+    const form = this.shadowRoot.getElementById("inquiry-form");
+
+    // Initialize auto-resize for textareas
+    this.initializeAutoResizeTextareas();
+
+    // Initialize form validation
+    this.initializeFormValidation();
+
+    // Initialize phone number formatting (we need to load Cleave.js)
+    this.loadCleavejs().then(() => {
+      this.initializePhoneFormatting();
+    });
+
+    // Initialize conditional fields
+    this.initializeConditionalFields();
+
+    // Form submission
+    form.addEventListener("submit", this.handleFormSubmit.bind(this));
+  }
+
+  loadCleavejs() {
+    return new Promise((resolve, reject) => {
       if (window.Cleave) {
-        phoneInputs.forEach(input => {
-          new window.Cleave(input, {
-            numericOnly: true,
-            blocks: [3, 3, 4],
-            delimiters: ['-', '-']
-          });
-        });
+        resolve();
+        return;
       }
+
+      const script = document.createElement("script");
+      script.src =
+        "https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js";
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("Failed to load Cleave.js"));
+      document.head.appendChild(script);
+    });
+  }
+
+  initializeAutoResizeTextareas() {
+    const textareas = this.shadowRoot.querySelectorAll("textarea");
+
+    textareas.forEach((textarea) => {
+      // Set initial height based on content
+      this.adjustTextareaHeight(textarea);
+
+      // Add event listener for input changes
+      textarea.addEventListener("input", () => {
+        this.adjustTextareaHeight(textarea);
+      });
+    });
+  }
+
+  adjustTextareaHeight(textarea) {
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = "auto";
+
+    // Set height to scrollHeight to fit content
+    textarea.style.height = textarea.scrollHeight + "px";
+  }
+
+  initializePhoneFormatting() {
+    const phoneInputs = this.shadowRoot.querySelectorAll('input[type="tel"]');
+
+    if (window.Cleave) {
+      phoneInputs.forEach((input) => {
+        new window.Cleave(input, {
+          numericOnly: true,
+          blocks: [3, 3, 4],
+          delimiters: ["-", "-"],
+        });
+      });
     }
-    
-    initializeConditionalFields() {
-      // Phone extension checkbox
-      const phoneExtCheck = this.shadowRoot.getElementById('phoneExtCheck');
-      const phoneExtField = this.shadowRoot.getElementById('phoneExtField');
-      
-      phoneExtCheck.addEventListener('change', function() {
-        phoneExtField.style.display = this.checked ? 'block' : 'none';
-        // Clear the field when hiding
-        if (!this.checked) {
-          phoneExtField.querySelector('input').value = '';
+  }
+
+  initializeConditionalFields() {
+    // Phone extension checkbox
+    const phoneExtCheck = this.shadowRoot.getElementById("phoneExtCheck");
+    const phoneExtField = this.shadowRoot.getElementById("phoneExtField");
+
+    phoneExtCheck.addEventListener("change", function () {
+      phoneExtField.style.display = this.checked ? "block" : "none";
+      // Clear the field when hiding
+      if (!this.checked) {
+        phoneExtField.querySelector("input").value = "";
+      }
+    });
+
+    // Business phone extension checkbox
+    const businessPhoneExtCheck = this.shadowRoot.getElementById(
+      "businessPhoneExtCheck"
+    );
+    const businessPhoneExtField = this.shadowRoot.getElementById(
+      "businessPhoneExtField"
+    );
+
+    businessPhoneExtCheck.addEventListener("change", function () {
+      businessPhoneExtField.style.display = this.checked ? "block" : "none";
+      // Clear the field when hiding
+      if (!this.checked) {
+        businessPhoneExtField.querySelector("input").value = "";
+      }
+    });
+
+    // Website address conditional field
+    const websiteYes = this.shadowRoot.getElementById("websiteYes");
+    const websiteNo = this.shadowRoot.getElementById("websiteNo");
+    const websiteAddressField = this.shadowRoot.getElementById(
+      "websiteAddressField"
+    );
+
+    websiteYes.addEventListener("change", function () {
+      websiteAddressField.style.display = this.checked ? "block" : "none";
+    });
+
+    websiteNo.addEventListener("change", function () {
+      websiteAddressField.style.display = "none";
+      // Clear the field when hiding
+      websiteAddressField.querySelector("input").value = "";
+    });
+  }
+
+  initializeFormValidation() {
+    const form = this.shadowRoot.getElementById("inquiry-form");
+
+    // Add blur event listeners to validate as user moves between fields
+    const requiredInputs = form.querySelectorAll(
+      "input[required], textarea[required]"
+    );
+    requiredInputs.forEach((input) => {
+      input.addEventListener("blur", () => {
+        this.validateField(input);
+      });
+    });
+
+    // Add input event listeners to validate as user types
+    const emailInputs = form.querySelectorAll('input[type="email"]');
+    emailInputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        if (input.value.trim() !== "") {
+          if (!this.isValidEmail(input.value)) {
+            this.showError(input, "Please enter a valid email address");
+          } else {
+            this.removeError(input);
+          }
         }
       });
-      
-      // Business phone extension checkbox
-      const businessPhoneExtCheck = this.shadowRoot.getElementById('businessPhoneExtCheck');
-      const businessPhoneExtField = this.shadowRoot.getElementById('businessPhoneExtField');
-      
-      businessPhoneExtCheck.addEventListener('change', function() {
-        businessPhoneExtField.style.display = this.checked ? 'block' : 'none';
-        // Clear the field when hiding
-        if (!this.checked) {
-          businessPhoneExtField.querySelector('input').value = '';
+    });
+
+    // Add blur event listeners to validate phone numbers
+    const phoneInputs = form.querySelectorAll('input[type="tel"]');
+    phoneInputs.forEach((input) => {
+      input.addEventListener("blur", () => {
+        if (input.value.trim() !== "" && input.required) {
+          if (!this.isValidPhone(input.value)) {
+            this.showError(
+              input,
+              "Please enter a valid 10-digit phone number in format: 000-000-0000"
+            );
+          } else {
+            this.removeError(input);
+          }
         }
       });
-      
-      // Website address conditional field
-      const websiteYes = this.shadowRoot.getElementById('websiteYes');
-      const websiteNo = this.shadowRoot.getElementById('websiteNo');
-      const websiteAddressField = this.shadowRoot.getElementById('websiteAddressField');
-      
-      websiteYes.addEventListener('change', function() {
-        websiteAddressField.style.display = this.checked ? 'block' : 'none';
-      });
-      
-      websiteNo.addEventListener('change', function() {
-        websiteAddressField.style.display = 'none';
-        // Clear the field when hiding
-        websiteAddressField.querySelector('input').value = '';
+    });
+
+    // Add input validation for website field
+    const websiteAddressInput =
+      this.shadowRoot.getElementById("websiteAddress");
+    if (websiteAddressInput) {
+      websiteAddressInput.addEventListener("input", () => {
+        if (websiteAddressInput.value.trim() !== "") {
+          if (!this.isValidUrl(websiteAddressInput.value)) {
+            this.showError(
+              websiteAddressInput,
+              "Please enter a valid website address (e.g., example.com)"
+            );
+          } else {
+            this.removeError(websiteAddressInput);
+          }
+        }
       });
     }
-    
-    initializeFormValidation() {
-      const form = this.shadowRoot.getElementById('inquiry-form');
-      
-      // Add blur event listeners to validate as user moves between fields
-      const requiredInputs = form.querySelectorAll('input[required], textarea[required]');
-      requiredInputs.forEach(input => {
-        input.addEventListener('blur', () => {
-          this.validateField(input);
-        });
-      });
-      
-      // Add input event listeners to validate as user types
-      const emailInputs = form.querySelectorAll('input[type="email"]');
-      emailInputs.forEach(input => {
-        input.addEventListener('input', () => {
-          if (input.value.trim() !== '') {
-            if (!this.isValidEmail(input.value)) {
-              this.showError(input, 'Please enter a valid email address');
-            } else {
-              this.removeError(input);
-            }
-          }
-        });
-      });
-      
-      // Add blur event listeners to validate phone numbers
-      const phoneInputs = form.querySelectorAll('input[type="tel"]');
-      phoneInputs.forEach(input => {
-        input.addEventListener('blur', () => {
-          if (input.value.trim() !== '' && input.required) {
-            if (!this.isValidPhone(input.value)) {
-              this.showError(input, 'Please enter a valid 10-digit phone number in format: 000-000-0000');
-            } else {
-              this.removeError(input);
-            }
-          }
-        });
-      });
-      
-      // Add input validation for website field
-      const websiteAddressInput = this.shadowRoot.getElementById('websiteAddress');
-      if (websiteAddressInput) {
-        websiteAddressInput.addEventListener('input', () => {
-          if (websiteAddressInput.value.trim() !== '') {
-            if (!this.isValidUrl(websiteAddressInput.value)) {
-              this.showError(websiteAddressInput, 'Please enter a valid website address (e.g., example.com)');
-            } else {
-              this.removeError(websiteAddressInput);
-            }
-          }
-        });
-      }
+  }
+
+  validateField(field) {
+    if (field.required && field.value.trim() === "") {
+      this.showError(field, "This field is required");
+      return false;
     }
-    
-    validateField(field) {
-      if (field.required && field.value.trim() === '') {
-        this.showError(field, 'This field is required');
+
+    if (field.type === "email" && field.value.trim() !== "") {
+      if (!this.isValidEmail(field.value)) {
+        this.showError(field, "Please enter a valid email address");
         return false;
       }
-      
-      if (field.type === 'email' && field.value.trim() !== '') {
-        if (!this.isValidEmail(field.value)) {
-          this.showError(field, 'Please enter a valid email address');
-          return false;
-        }
-      }
-      
-      if (field.type === 'tel' && field.value.trim() !== '' && field.required) {
-        if (!this.isValidPhone(field.value)) {
-          this.showError(field, 'Please enter a valid 10-digit phone number in format: 000-000-0000');
-          return false;
-        }
-      }
-      
-      if (field.id === 'websiteAddress' && field.value.trim() !== '') {
-        if (!this.isValidUrl(field.value)) {
-          this.showError(field, 'Please enter a valid website address (e.g., example.com)');
-          return false;
-        }
-      }
-      
-      // Specific validation for billing address fields
-      if (field.id === 'billingZipCode' && field.value.trim() !== '') {
-        if (!/^\d{5}(-\d{4})?$/.test(field.value)) {
-          this.showError(field, 'Please enter a valid ZIP code (e.g., 12345 or 12345-6789)');
-          return false;
-        }
-      }
-      
-      // Validation for city, state, and street address
-      if ((field.id === 'billingCity' || field.id === 'billingState' || field.id === 'billingStreet') && field.value.trim() !== '') {
-        if (field.value.length < 2) {
-          this.showError(field, 'Please enter a valid ' + field.name.replace('billing', '').toLowerCase());
-          return false;
-        }
-      }
-      
-      this.removeError(field);
-      return true;
     }
-    
-    validateRadioGroup(name) {
-      const radioButtons = this.shadowRoot.querySelectorAll(`input[name="${name}"]`);
-      const radioGroup = radioButtons[0].parentElement.parentElement.parentElement;
-      const isChecked = [...radioButtons].some(radio => radio.checked);
-      
-      if (!isChecked) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = 'Please select an option';
-        
-        // Remove existing error message if any
-        const existingError = radioGroup.querySelector('.error-message');
-        if (existingError) {
-          existingError.remove();
-        }
-        
-        radioGroup.appendChild(errorDiv);
-        return false;
-      } else {
-        const existingError = radioGroup.querySelector('.error-message');
-        if (existingError) {
-          existingError.remove();
-        }
-        return true;
-      }
-    }
-    
-    validateWebsiteAddress() {
-      const hasWebsiteYes = this.shadowRoot.getElementById('websiteYes');
-      const websiteAddress = this.shadowRoot.getElementById('websiteAddress');
-      
-      if (hasWebsiteYes.checked && websiteAddress.value.trim() === '') {
-        this.showError(websiteAddress, 'Please provide your website address');
+
+    if (field.type === "tel" && field.value.trim() !== "" && field.required) {
+      if (!this.isValidPhone(field.value)) {
+        this.showError(
+          field,
+          "Please enter a valid 10-digit phone number in format: 000-000-0000"
+        );
         return false;
       }
-      
-      if (hasWebsiteYes.checked && websiteAddress.value.trim() !== '') {
-        if (!this.isValidUrl(websiteAddress.value)) {
-          this.showError(websiteAddress, 'Please enter a valid website address (e.g., example.com)');
-          return false;
-        }
-      }
-      
-      this.removeError(websiteAddress);
-      return true;
     }
-    
-    showError(input, message) {
-      // Remove any existing error message
-      const existingError = input.parentElement.querySelector('.error-message');
+
+    if (field.id === "websiteAddress" && field.value.trim() !== "") {
+      if (!this.isValidUrl(field.value)) {
+        this.showError(
+          field,
+          "Please enter a valid website address (e.g., example.com)"
+        );
+        return false;
+      }
+    }
+
+    // Specific validation for billing address fields
+    if (field.id === "billingZipCode" && field.value.trim() !== "") {
+      if (!/^\d{5}(-\d{4})?$/.test(field.value)) {
+        this.showError(
+          field,
+          "Please enter a valid ZIP code (e.g., 12345 or 12345-6789)"
+        );
+        return false;
+      }
+    }
+
+    // Validation for city, state, and street address
+    if (
+      (field.id === "billingCity" ||
+        field.id === "billingState" ||
+        field.id === "billingStreet") &&
+      field.value.trim() !== ""
+    ) {
+      if (field.value.length < 2) {
+        this.showError(
+          field,
+          "Please enter a valid " +
+            field.name.replace("billing", "").toLowerCase()
+        );
+        return false;
+      }
+    }
+
+    this.removeError(field);
+    return true;
+  }
+
+  validateRadioGroup(name) {
+    const radioButtons = this.shadowRoot.querySelectorAll(
+      `input[name="${name}"]`
+    );
+    const radioGroup =
+      radioButtons[0].parentElement.parentElement.parentElement;
+    const isChecked = [...radioButtons].some((radio) => radio.checked);
+
+    if (!isChecked) {
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "error-message";
+      errorDiv.textContent = "Please select an option";
+
+      // Remove existing error message if any
+      const existingError = radioGroup.querySelector(".error-message");
       if (existingError) {
         existingError.remove();
       }
-      
-      // Create and add new error message
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error-message';
-      errorDiv.textContent = message;
-      input.parentElement.appendChild(errorDiv);
-      
-      // Add error class to the input
-      input.classList.add('invalid');
-    }
-    
-    removeError(input) {
-      const errorDiv = input.parentElement.querySelector('.error-message');
-      if (errorDiv) {
-        errorDiv.remove();
+
+      radioGroup.appendChild(errorDiv);
+      return false;
+    } else {
+      const existingError = radioGroup.querySelector(".error-message");
+      if (existingError) {
+        existingError.remove();
       }
-      input.classList.remove('invalid');
+      return true;
     }
-    
-    isValidPhone(phone) {
-      // Must be in format 000-000-0000 (10 digits with hyphens)
-      const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
-      return phoneRegex.test(phone);
+  }
+
+  validateWebsiteAddress() {
+    const hasWebsiteYes = this.shadowRoot.getElementById("websiteYes");
+    const websiteAddress = this.shadowRoot.getElementById("websiteAddress");
+
+    if (hasWebsiteYes.checked && websiteAddress.value.trim() === "") {
+      this.showError(websiteAddress, "Please provide your website address");
+      return false;
     }
-    
-    isValidEmail(email) {
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      return emailRegex.test(email);
-    }
-    
-    isValidUrl(url) {
-      if (!url) return true; // Allow empty URLs
-      
-      // For URLs with a protocol, validate directly
-      if (/^https?:\/\//i.test(url)) {
-        try {
-          new URL(url);
-          return true;
-        } catch (e) {
-          return false;
-        }
+
+    if (hasWebsiteYes.checked && websiteAddress.value.trim() !== "") {
+      if (!this.isValidUrl(websiteAddress.value)) {
+        this.showError(
+          websiteAddress,
+          "Please enter a valid website address (e.g., example.com)"
+        );
+        return false;
       }
-      
-      // For URLs without a protocol, check if it has a domain suffix
-      const domainSuffixRegex = /\.[a-z]{2,}(\S*)/i;
-      if (!domainSuffixRegex.test(url)) {
-        return false; // URL must have a domain suffix
-      }
-      
-      // Add protocol for validation
+    }
+
+    this.removeError(websiteAddress);
+    return true;
+  }
+
+  showError(input, message) {
+    // Remove any existing error message
+    const existingError = input.parentElement.querySelector(".error-message");
+    if (existingError) {
+      existingError.remove();
+    }
+
+    // Create and add new error message
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "error-message";
+    errorDiv.textContent = message;
+    input.parentElement.appendChild(errorDiv);
+
+    // Add error class to the input
+    input.classList.add("invalid");
+  }
+
+  removeError(input) {
+    const errorDiv = input.parentElement.querySelector(".error-message");
+    if (errorDiv) {
+      errorDiv.remove();
+    }
+    input.classList.remove("invalid");
+  }
+
+  isValidPhone(phone) {
+    // Must be in format 000-000-0000 (10 digits with hyphens)
+    const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
+    return phoneRegex.test(phone);
+  }
+
+  isValidEmail(email) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  }
+
+  isValidUrl(url) {
+    if (!url) return true; // Allow empty URLs
+
+    // For URLs with a protocol, validate directly
+    if (/^https?:\/\//i.test(url)) {
       try {
-        new URL('http://' + url);
+        new URL(url);
         return true;
       } catch (e) {
         return false;
       }
     }
-    
-    showToast(message) {
-      // Create toast element if it doesn't exist
-      let toast = this.shadowRoot.getElementById('toast-notification');
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'toast-notification';
-        toast.className = 'toast-notification';
-        this.shadowRoot.appendChild(toast);
-      }
-      
-      // Set message
-      toast.textContent = message;
-      
-      // Show toast
-      setTimeout(() => {
-        toast.classList.add('show');
-      }, 10);
-      
-      // Hide toast after 5 seconds
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 5000);
+
+    // For URLs without a protocol, check if it has a domain suffix
+    const domainSuffixRegex = /\.[a-z]{2,}(\S*)/i;
+    if (!domainSuffixRegex.test(url)) {
+      return false; // URL must have a domain suffix
     }
-    
-    async handleFormSubmit(event) {
-      event.preventDefault();
-      
-      const form = this.shadowRoot.getElementById('inquiry-form');
-      let isValid = true;
-      
-      // Get all required fields
-      const requiredInputs = form.querySelectorAll('input[required], textarea[required]');
-      
-      // Validate all required fields
-      requiredInputs.forEach(input => {
-        if (!this.validateField(input)) {
-          isValid = false;
-        }
-      });
-      
-      // Validate radio button groups
-      if (!this.validateRadioGroup('preferredContact')) {
-        isValid = false;
-      }
-      
-      if (!this.validateRadioGroup('serviceDesired')) {
-        isValid = false;
-      }
-      
-      // Validate conditional website address
-      if (this.shadowRoot.getElementById('websiteYes').checked) {
-        if (!this.validateWebsiteAddress()) {
-          isValid = false;
-        }
-      }
-      
-      if (!isValid) {
-        // Scroll to the first error
-        const firstError = this.shadowRoot.querySelector('.error-message');
-        if (firstError) {
-          firstError.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          });
-        }
-        return;
-      }
-      
-      // If validation passes, prepare form data
-      const formData = new FormData(form);
-      const formObject = {};
-      
-      formData.forEach((value, key) => {
-        // Store all values as-is, without modification
-        formObject[key] = value;
-      });
-      
-      // Include billing address fields
-      formObject.billingAddress = {
-        street: this.shadowRoot.getElementById('billingStreet').value || '',
-        aptUnit: this.shadowRoot.getElementById('billingAptUnit').value || '',
-        city: this.shadowRoot.getElementById('billingCity').value || '',
-        state: this.shadowRoot.getElementById('billingState').value || '',
-        zipCode: this.shadowRoot.getElementById('billingZipCode').value || '',
-        country: this.shadowRoot.getElementById('billingCountry').value || 'United States'
-      };
-      
-      // Handle phone extensions properly
-      if (formObject.phoneExtCheck === 'on' && formObject.phoneExt) {
-        formObject.phoneExt = formObject.phoneExt;
-      } else {
-        formObject.phoneExt = undefined;
-      }
-      
-      if (formObject.businessPhoneExtCheck === 'on' && formObject.businessPhoneExt) {
-        formObject.businessPhoneExt = formObject.businessPhoneExt;
-      } else {
-        formObject.businessPhoneExt = undefined;
-      }
-      
-      // Clean up the data by removing the checkbox values
-      delete formObject.phoneExtCheck;
-      delete formObject.businessPhoneExtCheck;
-      
-      // Add the isFormSubmission flag to identify this as coming from the form
-      formObject.isFormSubmission = true;
-      
-      // Dispatch a custom event with the form data
-      const submitEvent = new CustomEvent('form-submit', {
-        bubbles: true,
-        composed: true,
-        detail: formObject
-      });
-      
-      this.dispatchEvent(submitEvent);
-      
-      try {
-        // Default API endpoint - can be customized via attribute
-        const apiUrl = this.getAttribute('api-url') || 'http://localhost:5000/api/leads';
-        
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formObject),
-        });
-        
-        if (response.ok) {
-          // Show success message as toast notification
-          this.showToast('Thank you for your inquiry! We\'ll be in touch soon.');
-          
-          // Reset the form
-          form.reset();
-          
-          // Reset extension fields and hide them
-          this.shadowRoot.getElementById('phoneExtField').style.display = 'none';
-          this.shadowRoot.getElementById('businessPhoneExtField').style.display = 'none';
-          
-          // Hide any conditional fields
-          this.shadowRoot.getElementById('websiteAddressField').style.display = 'none';
-          
-          // Dispatch success event
-          this.dispatchEvent(new CustomEvent('form-success', {
-            bubbles: true,
-            composed: true,
-            detail: { message: 'Form submitted successfully' }
-          }));
-        } else {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Server responded with an error');
-        }
-      } catch (error) {
-        console.error('Error submitting form:', error);
-        this.showToast('Error: ' + error.message);
-        
-        // Dispatch error event
-        this.dispatchEvent(new CustomEvent('form-error', {
-          bubbles: true,
-          composed: true,
-          detail: { error: error.message }
-        }));
-      }
+
+    // Add protocol for validation
+    try {
+      new URL("http://" + url);
+      return true;
+    } catch (e) {
+      return false;
     }
   }
-  
-  // Define the custom element
-  customElements.define('web-inquiry-form', WebInquiryForm);
+
+  showToast(message) {
+    // Create toast element if it doesn't exist
+    let toast = this.shadowRoot.getElementById("toast-notification");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "toast-notification";
+      toast.className = "toast-notification";
+      this.shadowRoot.appendChild(toast);
+    }
+
+    // Set message
+    toast.textContent = message;
+
+    // Show toast
+    setTimeout(() => {
+      toast.classList.add("show");
+    }, 10);
+
+    // Hide toast after 5 seconds
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 5000);
+  }
+
+  async handleFormSubmit(event) {
+    event.preventDefault();
+
+    const form = this.shadowRoot.getElementById("inquiry-form");
+    let isValid = true;
+
+    // Get all required fields
+    const requiredInputs = form.querySelectorAll(
+      "input[required], textarea[required]"
+    );
+
+    // Validate all required fields
+    requiredInputs.forEach((input) => {
+      if (!this.validateField(input)) {
+        isValid = false;
+      }
+    });
+
+    // Validate radio button groups
+    if (!this.validateRadioGroup("preferredContact")) {
+      isValid = false;
+    }
+
+    if (!this.validateRadioGroup("serviceDesired")) {
+      isValid = false;
+    }
+
+    // Validate conditional website address
+    if (this.shadowRoot.getElementById("websiteYes").checked) {
+      if (!this.validateWebsiteAddress()) {
+        isValid = false;
+      }
+    }
+
+    if (!isValid) {
+      // Scroll to the first error
+      const firstError = this.shadowRoot.querySelector(".error-message");
+      if (firstError) {
+        firstError.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+      return;
+    }
+
+    // If validation passes, prepare form data
+    const formData = new FormData(form);
+    const formObject = {};
+
+    formData.forEach((value, key) => {
+      // Store all values as-is, without modification
+      formObject[key] = value;
+    });
+
+    // Include billing address fields
+    formObject.billingAddress = {
+      street: this.shadowRoot.getElementById("billingStreet").value || "",
+      aptUnit: this.shadowRoot.getElementById("billingAptUnit").value || "",
+      city: this.shadowRoot.getElementById("billingCity").value || "",
+      state: this.shadowRoot.getElementById("billingState").value || "",
+      zipCode: this.shadowRoot.getElementById("billingZipCode").value || "",
+      country:
+        this.shadowRoot.getElementById("billingCountry").value ||
+        "United States",
+    };
+
+    // Handle phone extensions properly
+    if (formObject.phoneExtCheck === "on" && formObject.phoneExt) {
+      formObject.phoneExt = formObject.phoneExt;
+    } else {
+      formObject.phoneExt = undefined;
+    }
+
+    if (
+      formObject.businessPhoneExtCheck === "on" &&
+      formObject.businessPhoneExt
+    ) {
+      formObject.businessPhoneExt = formObject.businessPhoneExt;
+    } else {
+      formObject.businessPhoneExt = undefined;
+    }
+
+    // Clean up the data by removing the checkbox values
+    delete formObject.phoneExtCheck;
+    delete formObject.businessPhoneExtCheck;
+
+    // Add the isFormSubmission flag to identify this as coming from the form
+    formObject.isFormSubmission = true;
+
+    // Dispatch a custom event with the form data
+    const submitEvent = new CustomEvent("form-submit", {
+      bubbles: true,
+      composed: true,
+      detail: formObject,
+    });
+
+    this.dispatchEvent(submitEvent);
+
+    try {
+      // Default API endpoint - can be customized via attribute
+      const apiUrl =
+        this.getAttribute("api-url") || "http://localhost:5000/api/leads";
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formObject),
+      });
+
+      if (response.ok) {
+        // Show success message as toast notification
+        this.showToast("Thank you for your inquiry! We'll be in touch soon.");
+
+        // Reset the form
+        form.reset();
+
+        // Reset extension fields and hide them
+        this.shadowRoot.getElementById("phoneExtField").style.display = "none";
+        this.shadowRoot.getElementById("businessPhoneExtField").style.display =
+          "none";
+
+        // Hide any conditional fields
+        this.shadowRoot.getElementById("websiteAddressField").style.display =
+          "none";
+
+        // Dispatch success event
+        this.dispatchEvent(
+          new CustomEvent("form-success", {
+            bubbles: true,
+            composed: true,
+            detail: { message: "Form submitted successfully" },
+          })
+        );
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Server responded with an error");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      this.showToast("Error: " + error.message);
+
+      // Dispatch error event
+      this.dispatchEvent(
+        new CustomEvent("form-error", {
+          bubbles: true,
+          composed: true,
+          detail: { error: error.message },
+        })
+      );
+    }
+  }
+}
+
+// Define the custom element
+customElements.define("web-inquiry-form", WebInquiryForm);

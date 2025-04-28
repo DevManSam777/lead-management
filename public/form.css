@@ -239,6 +239,40 @@
   .toast-notification.show {
     transform: translateX(0);
   }
+
+    
+  .extension-option {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .extension-option input[type="checkbox"] {
+    margin-right: 0.5rem;
+  }
+  
+  .extension-option label {
+    margin: 0;
+    display: inline;
+    font-weight: normal;
+  }
+  
+  .extension-field {
+    margin-top: 0.5rem;
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .extension-field input {
+    width: 100%;
+    max-width: 10rem;
+  }
+
+  .check-spam-folder {
+    margin: 1rem auto 0;
+    font-size: 1.2rem;
+  }
   
   /* Responsive adjustments */
   @media (max-width: 768px) {
@@ -262,42 +296,7 @@
     fieldset {
       padding: 1.5rem;
     }
-  }
-  
-  .extension-option {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  
-  .extension-option input[type="checkbox"] {
-    margin-right: 0.5rem;
-  }
-  
-  .extension-option label {
-    margin: 0;
-    display: inline;
-    font-weight: normal;
-  }
-  
-  .extension-field {
-    margin-top: 0.5rem;
-    margin-left: 1.5rem;
-    width: 100%;
-  }
-  
-  .extension-field input {
-    width: 100%;
-    max-width: 10rem;
-  }
 
-  .check-spam-folder {
-    margin: 1rem auto 0;
-    font-size: 1.2rem;
-  }
-  
-  @media (max-width: 768px) {
     .extension-field {
       margin-left: 0;
       margin-top: 0.5rem;
