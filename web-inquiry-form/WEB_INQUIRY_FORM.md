@@ -5,7 +5,7 @@ A reusable web component for collecting web development inquiries from potential
 ## Features
 
 - **Shadow DOM Encapsulation**: Styles and DOM are isolated from the rest of the page
-- **Built-in Validation**: Client-side validation for all form fields
+- **Built-in Validation**: Client-side validation for important form fields
 - **Responsive Design**: Works on all device sizes
 - **Phone Number Formatting**: Automatic formatting using Cleave.js
 - **Conditional Fields**: Show/hide fields based on user selections
@@ -20,6 +20,15 @@ A reusable web component for collecting web development inquiries from potential
 
 ```html
 <script src="path/to/web-inquiry-form.js" defer></script>
+```
+
+#### Alternatively, 
+
+1. Import web component from github using CDN
+2. Include it in your HTML file:
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/DevManSam777/lead-management@main/web-inquiry-form/web-inquiry-form.js" defer></script>
 ```
 
 ## Basic Usage
