@@ -264,22 +264,7 @@ class WebInquiryForm extends HTMLElement {
               margin-top: 0.5rem;
             }
           }
-          
-          @media (max-width: 480px) {
-            :host {
-              font-size: 58%;
-              padding-inline: 0;
-            }
-            
-            h1 {
-              font-size: 1.8rem;
-            }
-            
-            .form-container {
-              padding: 1.5rem;
-            }
-          }
-          
+
           .extension-option {
             margin-top: 0.5rem;
             display: flex;
@@ -311,6 +296,25 @@ class WebInquiryForm extends HTMLElement {
           .check-spam-folder {
             margin: 1rem auto 0;
             font-size: 1.2rem;
+          }
+          
+          @media (max-width: 480px) {
+            :host {
+              font-size: 58%;
+              padding-inline: 0;
+            }
+            
+            h1 {
+              font-size: 1.8rem;
+            }
+            
+            legend {
+              font-size: 1.4rem;
+            }
+            
+            .form-container {
+              padding: 1.5rem;
+            }
           }
         </style>
         <div class="form-container">
