@@ -21,7 +21,7 @@ class WebInquiryForm extends HTMLElement {
             max-width: 80rem;
             margin: 0 auto;
             padding: 2rem;
-            font-size: 62.5%;
+            font-size: 10px;
           }
           
           .form-container {
@@ -59,7 +59,6 @@ class WebInquiryForm extends HTMLElement {
             padding: 1rem;
             border: 0.1rem solid #aaa;
             border-radius: 0.4rem;
-            font-size: 1.6rem;
             box-sizing: border-box;
             transition: border-color 0.3s, background-color 0.3s;
           }
