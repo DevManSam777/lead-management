@@ -241,35 +241,7 @@ class WebInquiryForm extends HTMLElement {
             :host {
               font-size: 60%;
             }
-            
-            h1 {
-              font-size: 2.4rem;
-            }
-            
-            .form-container {
-              padding: 2rem;
-            }
-            
-            .radio-group {
-              flex-direction: column;
-              gap: 1rem;
-            }
-            
-            fieldset {
-              padding: 1.5rem;
-            }
-            
-            .extension-field {
-              margin-left: 0;
-              margin-top: 0.5rem;
-            }
-          }
-          
-          @media (max-width: 480px) {
-            :host {
-              font-size: 58%;
-            }
-            
+                          
              h1 {
               font-size: 2.4rem;
             }
