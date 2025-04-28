@@ -879,6 +879,15 @@ body {
   .sidebar.collapsed .sidebar-header {
     border-bottom: none;
   }
+
+  .sidebar .sidebar-menu {
+    padding-top: 0;
+  }
+
+  .sidebar.collapsed .sidebar-menu {
+    padding-top: 2rem;
+  }
+
   .sidebar-toggle {
     top: 2rem;
     margin-top: 1rem;
