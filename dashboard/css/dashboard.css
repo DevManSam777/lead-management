@@ -885,13 +885,25 @@ body {
   }
 
   .sidebar.collapsed .sidebar-menu {
-    padding-top: 2rem;
+    padding-top: 2.5rem;
   }
 
   .sidebar-toggle {
     top: 2rem;
     margin-top: 1rem;
   }
+
+  .sidebar-toggle {
+   padding-top: .5rem;
+  }
+
+  .sidebar .sidebar-toggle {
+    padding-top: 0;
+   }
+
+  .sidebar.collapsed .sidebar-toggle { 
+    padding-top: .5rem;
+   }
 
   .sidebar-menu a, .sign-out {
     margin-top: 2rem;
