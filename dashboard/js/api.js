@@ -59,15 +59,20 @@ async function createLead(leadData) {
   }
 }
 
-/**
- * Update an existing lead
- * @param {string} leadId
- * @param {Object} leadData 
- * @returns {Promise<Object>} 
- */
+// In api.js, check if the update function is actually sending the data:
 async function updateLead(leadId, leadData) {
   try {
-    const data = await authApi.put(`/leads/${leadId}`);
+    // Debug the data before sending
+    console.log("Sending lead update data:", leadData);
+    
+    const data = await fetch(`${API_URL}/leads/${leadId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(leadData),
+    }).then(response => response.json());
+    
     return data;
   } catch (error) {
     console.error("Error updating lead:", error);
