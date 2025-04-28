@@ -21,7 +21,7 @@ class WebInquiryForm extends HTMLElement {
             max-width: 80rem;
             margin: 0 auto;
             padding: 2rem;
-            font-size: 1.6rem;
+            font-size: 62.5%;
           }
           
           .form-container {
