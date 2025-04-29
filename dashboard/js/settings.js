@@ -3,7 +3,8 @@ import { authApi } from './authApi.js';
 
 document.addEventListener("DOMContentLoaded", function () {
   // API URL Configuration (same base URL as in dashboard.js)
-  const API_URL = "http://localhost:5000/api";
+  // const API_URL = "http://localhost:5000/api";
+  const API_URL = "https://lead-management-8u3l.onrender.com/api"
   const SETTINGS_API_URL = `${API_URL}/settings`;
   
   // Global settings cache

@@ -31,7 +31,8 @@ try {
 
 // Get auth instance
 const auth = getAuth(firebaseApp);
-const API_URL = "http://localhost:5000/api";
+// const API_URL = "http://localhost:5000/api";
+const API_URL = "https://lead-management-8u3l.onrender.com/api";
 
 // Store the original fetch function
 const originalFetch = window.fetch;
