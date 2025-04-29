@@ -15,13 +15,26 @@ const auth = require("./middleware/auth");
 const app = express();
 
 // Middleware
+// app.use(
+//   cors({
+//     origin: "*", // Allow all origins during development
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   })
+// );
+
 app.use(
   cors({
-    origin: "*", // Allow all origins during development
+    origin: [
+      'https://musical-bavarois-4b7d71.netlify.app', // Frontend URL
+      'https://lead-management-8u3l.onrender.com',   // Backend URL
+      'http://localhost:5500',  // Local frontend dev
+      'http://127.0.0.1:5500'   // Another local dev option
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
-);
+)
 
 app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
 
