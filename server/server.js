@@ -23,36 +23,19 @@ const app = express();
 //   })
 // );
 
-// app.use(
-//   cors({
-//     origin: [
-//       '*',
-//       'https://musical-bavarois-4b7d71.netlify.app', 
-//       'https://lead-management-8u3l.onrender.com',  
-//       'http://localhost:5500', 
-//       'http://127.0.0.1:5500'  
-//     ],
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization"]
-//   })
-// )
-
 app.use(
   cors({
     origin: [
-      '*',
       'https://musical-bavarois-4b7d71.netlify.app', 
-      'https://lead-management-8u3l.onrender.com',   
+      'https://lead-management-8u3l.onrender.com', 
+      'https://sideways-puzzling-lamp.glitch.me',  
       'http://localhost:5500',  
       'http://127.0.0.1:5500'   
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
+    methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
   })
-);
-
-// Add explicit handling for OPTIONS requests
-app.options('*', cors());
+)
 
 app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
 
