@@ -83,11 +83,12 @@ async function updateLead(leadId, leadData) {
 }
 
 /**
- * Delete a lead
+ * Delete a lead with retry logic
  * @param {string} leadId 
+ * @param {number} retries - Number of retry attempts (default: 3)
  * @returns {Promise<Object>}
  */
-async function deleteLead(leadId) {
+async function deleteLead(leadId, retries = 3) {
   try {
     const user = auth.currentUser;
     if (!user) {
@@ -108,6 +109,11 @@ async function deleteLead(leadId) {
 
     return true;
   } catch (error) {
+    if (retries > 0) {
+      console.warn(`Retrying deleteLead... Attempts left: ${retries - 1}`);
+      return deleteLead(leadId, retries - 1);
+    }
+    console.error("Error deleting lead after retries:", error);
     throw error;
   }
 }
