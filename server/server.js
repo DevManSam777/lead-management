@@ -28,7 +28,11 @@ app.use(
     origin: [
       'https://musical-bavarois-4b7d71.netlify.app', 
       'https://lead-management-8u3l.onrender.com', 
-      'https://sideways-puzzling-lamp.glitch.me',  
+      // 'https://sideways-puzzling-lamp.glitch.me',
+      'https://*.glitch.me',
+      'https://*.netlify.app',
+      'https://*.codepen.io',
+      'https://cdpn.io',   
       'http://localhost:5500',  
       'http://127.0.0.1:5500'   
     ],
