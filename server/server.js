@@ -26,6 +26,7 @@ const app = express();
 app.use(
   cors({
     origin: [
+      '*',
       'https://musical-bavarois-4b7d71.netlify.app', // Frontend URL
       'https://lead-management-8u3l.onrender.com',   // Backend URL
       'http://localhost:5500',  // Local frontend dev
