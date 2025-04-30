@@ -75,63 +75,23 @@ const PORT = process.env.PORT || 5000;
 //   }
 // });
 
-// // Serve static files from the parent directory (which contains both server and dashboard)
-// app.use(express.static(path.join(__dirname, '..')));
-
-// // Redirect root path to dashboard/index.html for browser requests
-// app.get('/', (req, res, next) => {
-//   // Check if it's a browser request (accepting HTML) and not an API request
-//   if (req.accepts('html') && !req.xhr && !req.path.startsWith('/api')) {
-//     return res.redirect('/dashboard/index.html');
-//   }
-  
-//   // For API requests, continue to the next handler
-//   next();
-// });
-
-// // Also redirect /index.html to /dashboard/index.html
-// app.get('/index.html', (req, res) => {
-//   res.redirect('/dashboard/index.html');
-// });
-
-// Add this right after your security headers middleware
-// Serve static files from the parent directory (with both server and dashboard)
+// Serve static files from the parent directory (which contains both server and dashboard)
 app.use(express.static(path.join(__dirname, '..')));
 
-// Clean URL routes that map to the HTML files
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/index.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/dashboard.html'));
-});
-
-app.get('/hitlists', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/hitlists.html'));
-});
-
-app.get('/forms', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/forms.html'));
-});
-
-app.get('/settings', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/settings.html'));
-});
-
-app.get('/resources', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/resources.html'));
-});
-
-// Root path handler for web browsers
+// Redirect root path to dashboard/index.html for browser requests
 app.get('/', (req, res, next) => {
-  // If it's likely an API request, continue to your API routes
-  if (req.xhr || req.path.startsWith('/api') || req.accepts('json')) {
-    next();
-  } else {
-    // For normal browser requests, redirect to login
-    res.redirect('/login');
+  // Check if it's a browser request (accepting HTML) and not an API request
+  if (req.accepts('html') && !req.xhr && !req.path.startsWith('/api')) {
+    return res.redirect('/dashboard/index.html');
   }
+  
+  // For API requests, continue to the next handler
+  next();
+});
+
+// Also redirect /index.html to /dashboard/index.html
+app.get('/index.html', (req, res) => {
+  res.redirect('/dashboard/index.html');
 });
 
 app.get("/", (req, res) => {
