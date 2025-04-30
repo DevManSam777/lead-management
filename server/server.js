@@ -56,6 +56,26 @@ app.use((req, res, next) => {
 // Port configuration
 const PORT = process.env.PORT || 5000;
 
+// Serve static files from the dashboard directory (sibling to server directory)
+const dashboardPath = path.join(__dirname, '../dashboard');
+app.use(express.static(dashboardPath));
+
+// Serve index.html for the dashboard route and any paths within dashboard
+// This enables client-side routing to work properly
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(dashboardPath, 'index.html'));
+});
+
+// Also handle the login route specifically
+app.get('/dashboard/login', (req, res) => {
+  res.sendFile(path.join(dashboardPath, 'index.html'));
+});
+
+// Optional: Redirect root to dashboard if needed
+app.get('/login', (req, res) => {
+  res.redirect('/dashboard/login');
+});
+
 app.get("/", (req, res) => {
   res.json({
     message: `🍕 Congratulations! Freelance Lead Management API is now running on port ${PORT}! 🍕`,
