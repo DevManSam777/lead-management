@@ -60,7 +60,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.static(path.join(__dirname, '..')));
 
 // Handle redirect for root index.html to dashboard/index.html
-app.get('/index.html', (req, res) => {
+app.get('/dashboard/index.html', (req, res) => {
   res.redirect('/dashboard/index.html');
 });
 
