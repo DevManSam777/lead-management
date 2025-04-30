@@ -14,6 +14,16 @@ const auth = require("./middleware/auth");
 
 const app = express();
 
+// --- Force canonical domain (www.devleads.site) ---
+app.use((req, res, next) => {
+  const host = req.headers.host;
+  // Redirect non-www to www (adjust as needed)
+  if (host === 'devleads.site') {
+    return res.redirect(301, 'https://www.devleads.site' + req.originalUrl);
+  }
+  next();
+});
+
 // -------------------- CORS & API ROUTES FIRST --------------------
 app.use(
   cors({
