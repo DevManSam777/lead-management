@@ -44,6 +44,9 @@ app.use(
   })
 )
 
+// Explicitly handle preflight requests
+app.options("*", cors());
+
 app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
 
 // Security headers middleware
