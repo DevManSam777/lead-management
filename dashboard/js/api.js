@@ -2,7 +2,7 @@ import { authApi } from "./authApi.js";
 
 // const API_URL = "http://localhost:5000/api";
 // const API_URL = "https://lead-management-8u3l.onrender.com/api";
-const API_URL = "https://devleads.site/api";
+const API_URL = "/api";
 
 // Helper function to get base URL
 function getBaseUrl() {

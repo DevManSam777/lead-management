@@ -33,7 +33,7 @@ try {
 const auth = getAuth(firebaseApp);
 // const API_URL = "http://localhost:5000/api";
 // const API_URL = "https://lead-management-8u3l.onrender.com/api";
-const API_URL = 'https://devleads.site/api';
+const API_URL = "/api";
 
 // Store the original fetch function
 const originalFetch = window.fetch;

@@ -17,16 +17,7 @@ const app = express();
 // -------------------- CORS & API ROUTES FIRST --------------------
 app.use(
   cors({
-    origin: [
-      'https://www.devleads.site',
-      'https://devleads.site',
-      'https://devleads.netlify.app',
-      'https://lead-management-8u3l.onrender.com',
-      'http://localhost:5500',
-      'http://127.0.0.1:5500'
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: true, // Reflects the request origin, works for same-origin and local dev
     credentials: true
   })
 );
