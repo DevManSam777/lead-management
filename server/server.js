@@ -45,12 +45,6 @@ app.use("/api/forms", auth, formRoutes);
 app.use("/api/documents", auth, documentRoutes);
 app.use("/api/hitlists", auth, hitlistRoutes);
 
-// Security headers middleware
-// app.use((req, res, next) => {
-//   res.setHeader("X-Content-Type-Options", "nosniff");
-//   res.setHeader("X-Frame-Options", "SAMEORIGIN");
-//   next();
-// });
 
 // Security headers middleware
 app.use((req, res, next) => {
