@@ -56,71 +56,43 @@ app.use((req, res, next) => {
 // Port configuration
 const PORT = process.env.PORT || 5000;
 
-// ===== CLEAN URL ROUTING CODE STARTS HERE =====
+// Serve static files from the parent directory (which contains both server and dashboard)
+// app.use(express.static(path.join(__dirname, '..')));
+
+// // Handle redirect for root index.html to dashboard/index.html
+// app.get('/dashboard/index.html', (req, res) => {
+//   res.redirect('/dashboard/index.html');
+// });
+
+// // Handle direct access to root path
+// app.get('/', (req, res, next) => {
+//   // If it's an API request, continue to your existing route handler
+//   if (req.accepts('json')) {
+//     next();
+//   } else {
+//     // Otherwise redirect to dashboard
+//     res.redirect('/dashboard/index.html');
+//   }
+// });
+
 // Serve static files from the parent directory (which contains both server and dashboard)
 app.use(express.static(path.join(__dirname, '..')));
 
-// Clean URL routes mapping to their specific HTML files
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/index.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/dashboard.html'));
-});
-
-app.get('/hitlists', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/hitlists.html'));
-});
-
-app.get('/forms', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/forms.html'));
-});
-
-app.get('/resources', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/resources.html'));
-});
-
-app.get('/settings', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/settings.html'));
-});
-
-// Handle direct requests to HTML files by redirecting to clean URLs
-app.get('/dashboard/index.html', (req, res) => {
-  res.redirect('/login');
-});
-
-app.get('/dashboard/dashboard.html', (req, res) => {
-  res.redirect('/dashboard');
-});
-
-app.get('/dashboard/hitlists.html', (req, res) => {
-  res.redirect('/hitlists');
-});
-
-app.get('/dashboard/forms.html', (req, res) => {
-  res.redirect('/forms');
-});
-
-app.get('/dashboard/resources.html', (req, res) => {
-  res.redirect('/resources');
-});
-
-app.get('/dashboard/settings.html', (req, res) => {
-  res.redirect('/settings');
-});
-
-// Root path handling for web browsers (not API requests)
+// Redirect root path to dashboard/index.html for browser requests
 app.get('/', (req, res, next) => {
-  // If it's an API request, continue to your existing API handlers
-  if (req.accepts('json') || req.path.startsWith('/api')) {
-    next();
-  } else {
-    // Otherwise redirect to login
-    res.redirect('/login');
+  // Check if it's a browser request (accepting HTML) and not an API request
+  if (req.accepts('html') && !req.xhr && !req.path.startsWith('/api')) {
+    return res.redirect('/dashboard/index.html');
   }
+  
+  // For API requests, continue to the next handler
+  next();
 });
-// ===== CLEAN URL ROUTING CODE ENDS HERE =====
+
+// Also redirect /index.html to /dashboard/index.html
+app.get('/index.html', (req, res) => {
+  res.redirect('/dashboard/index.html');
+});
 
 app.get("/", (req, res) => {
   res.json({
