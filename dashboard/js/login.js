@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
  // Firebase configuration
@@ -38,7 +38,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebas
      signInWithEmailAndPassword(auth, email, password)
          .then(() => {
              // Redirect to dashboard
-             window.location.href = '/dashboard/dashboard.html';
+             window.location.href = 'html/dashboard.html';
          })
          .catch((error) => {
              // Reset button
@@ -147,6 +147,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebas
  // Redirect to dashboard if already logged in
  onAuthStateChanged(auth, (user) => {
      if (user) {
-         window.location.href = '/dashboard';
+         window.location.href = 'html/dashboard.html';
      }
  });
