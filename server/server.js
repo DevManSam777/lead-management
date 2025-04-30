@@ -26,6 +26,7 @@ const app = express();
 app.use(
   cors({
     origin: [
+      'https://devleads.site',
       'https://devleads.netlify.app', 
       'https://lead-management-8u3l.onrender.com', 
       // 'https://sideways-puzzling-lamp.glitch.me',
