@@ -31,7 +31,9 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          window.location.href = "/login";
+          window.location.href = "/dashboard/index.html";
+          // Redirect to sign in
+              // window.location.href = "/index.html";
         } else {
           document.body.style.display = "block";
         }
@@ -129,7 +131,7 @@
         <div class="sidebar-menu">
           <ul>
             <li>
-              <a href="html/dashboard.html" id="dashboard-link" title="Dashboard">
+              <a href="dashboard.html" id="dashboard-link" title="Dashboard">
                 <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
               </a>
             </li>
