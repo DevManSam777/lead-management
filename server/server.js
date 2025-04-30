@@ -46,9 +46,18 @@ app.use("/api/documents", auth, documentRoutes);
 app.use("/api/hitlists", auth, hitlistRoutes);
 
 // Security headers middleware
+// app.use((req, res, next) => {
+//   res.setHeader("X-Content-Type-Options", "nosniff");
+//   res.setHeader("X-Frame-Options", "SAMEORIGIN");
+//   next();
+// });
+
+// Security headers middleware
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  // This allows everything from anywhere
+  res.setHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';");
   next();
 });
 
@@ -63,22 +72,7 @@ app.get('/index.html', (req, res) => {
   res.redirect('/dashboard/index.html');
 });
 
-// Remove pretty URLs for dashboard pages
-// app.get('/dashboard', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../dashboard/html/dashboard.html'));
-// });
-// app.get('/settings', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../dashboard/html/settings.html'));
-// });
-// app.get('/hitlist', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../dashboard/html/hitlist.html'));
-// });
-// app.get('/resources', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../dashboard/html/resources.html'));
-// });
-// app.get('/forms', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../dashboard/html/forms.html'));
-// }
+
 
 app.get("/", (req, res) => {
   res.json({

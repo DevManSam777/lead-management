@@ -31,6 +31,12 @@ A reusable web component for collecting web development inquiries from potential
 <script src="https://cdn.jsdelivr.net/gh/DevManSam777/lead-management@main/web-inquiry-form/web-inquiry-form.js" defer></script>
 ```
 
+_or_
+
+```html
+<script src="https://raw.githack.com/DevManSam777/lead-management/main/web-inquiry-form/web-inquiry-form.js" defer></script>
+```
+
 ## Basic Usage
 
 Add the web component to your HTML:
