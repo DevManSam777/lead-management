@@ -1,4 +1,4 @@
-import { authApi } from './authApi.js';
+import { authApi } from "./authApi.js";
 
 // const API_URL = "http://localhost:5000/api";
 const API_URL = "https://lead-management-8u3l.onrender.com/api";
@@ -16,7 +16,7 @@ function getBaseUrl() {
 async function fetchLeads() {
   try {
     console.log("Fetching leads from:", API_URL + "/leads");
-    const data = await authApi.get('/leads');
+    const data = await authApi.get("/leads");
     console.log("Fetched leads data:", data);
 
     // Make sure data is an array
@@ -48,12 +48,12 @@ async function fetchLeadById(leadId) {
 
 /**
  * Create a new lead
- * @param {Object} leadData 
- * @returns {Promise<Object>} 
+ * @param {Object} leadData
+ * @returns {Promise<Object>}
  */
 async function createLead(leadData) {
   try {
-    const data = await authApi.post('/leads', leadData);
+    const data = await authApi.post("/leads", leadData);
     return data;
   } catch (error) {
     console.error("Error creating lead:", error);
@@ -66,15 +66,15 @@ async function updateLead(leadId, leadData) {
   try {
     // Debug the data before sending
     console.log("Sending lead update data:", leadData);
-    
+
     const data = await fetch(`${API_URL}/leads/${leadId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(leadData),
-    }).then(response => response.json());
-    
+    }).then((response) => response.json());
+
     return data;
   } catch (error) {
     console.error("Error updating lead:", error);
@@ -84,7 +84,7 @@ async function updateLead(leadId, leadData) {
 
 /**
  * Delete a lead with retry logic
- * @param {string} leadId 
+ * @param {string} leadId
  * @param {number} retries - Number of retry attempts (default: 3)
  * @returns {Promise<Object>}
  */
@@ -97,7 +97,7 @@ async function deleteLead(leadId, retries = 3) {
     const token = await user.getIdToken();
 
     const response = await fetch(`${API_URL}/leads/${leadId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -120,12 +120,14 @@ async function deleteLead(leadId, retries = 3) {
 
 /**
  * Search leads by query
- * @param {string} query 
- * @returns {Promise<Array>} 
+ * @param {string} query
+ * @returns {Promise<Array>}
  */
 async function searchLeads(query) {
   try {
-    const data = await authApi.get(`/leads/search?query=${encodeURIComponent(query)}`);
+    const data = await authApi.get(
+      `/leads/search?query=${encodeURIComponent(query)}`
+    );
     return data;
   } catch (error) {
     console.error("Error searching leads:", error);
@@ -141,7 +143,7 @@ async function searchLeads(query) {
  */
 async function fetchPayments() {
   try {
-    const data = await authApi.get('/payments');
+    const data = await authApi.get("/payments");
     return data;
   } catch (error) {
     console.error("Error fetching payments:", error);
@@ -151,7 +153,7 @@ async function fetchPayments() {
 
 /**
  * Fetch payments for a specific lead
- * @param {string} leadId 
+ * @param {string} leadId
  * @returns {Promise<Array>}
  */
 async function fetchLeadPayments(leadId) {
@@ -188,12 +190,12 @@ async function fetchLeadPayments(leadId) {
 
 /**
  * Create a new payment
- * @param {Object} paymentData 
- * @returns {Promise<Object>} 
+ * @param {Object} paymentData
+ * @returns {Promise<Object>}
  */
 async function createPayment(paymentData) {
   try {
-    const data = await authApi.post('/payments', paymentData);
+    const data = await authApi.post("/payments", paymentData);
     return data;
   } catch (error) {
     console.error("Error creating payment:", error);
@@ -203,9 +205,9 @@ async function createPayment(paymentData) {
 
 /**
  * Update an existing payment
- * @param {string} paymentId 
- * @param {Object} paymentData 
- * @returns {Promise<Object>} 
+ * @param {string} paymentId
+ * @param {Object} paymentData
+ * @returns {Promise<Object>}
  */
 async function updatePayment(paymentId, paymentData) {
   try {
@@ -219,7 +221,7 @@ async function updatePayment(paymentId, paymentData) {
 
 /**
  * Delete a payment
- * @param {string} paymentId 
+ * @param {string} paymentId
  * @returns {Promise<Object>}
  */
 async function deletePayment(paymentId) {
@@ -234,11 +236,11 @@ async function deletePayment(paymentId) {
 
 /**
  * Fetch all settings
- * @returns {Promise<Object>} 
+ * @returns {Promise<Object>}
  */
 async function fetchAllSettings() {
   try {
-    const settings = await authApi.get('/settings');
+    const settings = await authApi.get("/settings");
     return settings;
   } catch (error) {
     console.error("Error fetching settings:", error);
@@ -258,22 +260,22 @@ async function fetchAllSettings() {
  * Update a specific setting
  * @param {string} key
  * @param {*} value
- * @returns {Promise<Object>} 
+ * @returns {Promise<Object>}
  */
 async function updateSetting(key, value) {
   try {
     const updatedSetting = await authApi.put(`/settings/${key}`, { value });
-    
+
     // Also update localStorage as a fallback
     localStorage.setItem(key, value);
-    
+
     return updatedSetting;
   } catch (error) {
     console.error("Error updating setting:", error);
-    
+
     // Update localStorage as a fallback
     localStorage.setItem(key, value);
-    
+
     return { key, value };
   }
 }
@@ -281,34 +283,34 @@ async function updateSetting(key, value) {
 /**
  * Fetch all forms from the API
  * @param {Object} filters
- * @returns {Promise<Array>} 
+ * @returns {Promise<Array>}
  */
 async function fetchForms(filters = {}) {
   try {
     // Build query string from filters
     const queryParams = new URLSearchParams();
-    
+
     if (filters.category) {
       queryParams.append("category", filters.category);
     }
-    
+
     // Handle the new template/draft filter
     if (filters.templateType === "template") {
       queryParams.append("isTemplate", "true");
     } else if (filters.templateType === "draft") {
       queryParams.append("isTemplate", "false");
     }
-    
+
     const queryString = queryParams.toString();
-    const endpoint = queryString ? `/forms?${queryString}` : '/forms';
-    
+    const endpoint = queryString ? `/forms?${queryString}` : "/forms";
+
     const data = await authApi.get(endpoint);
-    
+
     // Make sure data is an array
     if (!Array.isArray(data)) {
       throw new Error("Invalid data format received");
     }
-    
+
     return data;
   } catch (error) {
     console.error("Error fetching forms:", error);
@@ -318,8 +320,8 @@ async function fetchForms(filters = {}) {
 
 /**
  * Fetch a specific form by ID
- * @param {string} formId 
- * @returns {Promise<Object>} 
+ * @param {string} formId
+ * @returns {Promise<Object>}
  */
 async function fetchFormById(formId) {
   try {
@@ -333,12 +335,12 @@ async function fetchFormById(formId) {
 
 /**
  * Create a new form
- * @param {Object} formData 
+ * @param {Object} formData
  * @returns {Promise<Object>}
  */
 async function createForm(formData) {
   try {
-    const data = await authApi.post('/forms', formData);
+    const data = await authApi.post("/forms", formData);
     return data;
   } catch (error) {
     console.error("Error creating form:", error);
@@ -348,9 +350,9 @@ async function createForm(formData) {
 
 /**
  * Update an existing form
- * @param {string} formId 
+ * @param {string} formId
  * @param {Object} formData
- * @returns {Promise<Object>} 
+ * @returns {Promise<Object>}
  */
 async function updateForm(formId, formData) {
   try {
@@ -364,8 +366,8 @@ async function updateForm(formId, formData) {
 
 /**
  * Delete a form
- * @param {string} formId 
- * @returns {Promise<Object>} 
+ * @param {string} formId
+ * @returns {Promise<Object>}
  */
 async function deleteForm(formId) {
   try {
@@ -380,11 +382,13 @@ async function deleteForm(formId) {
 /**
  * Search forms by query
  * @param {string} query
- * @returns {Promise<Array>}  
+ * @returns {Promise<Array>}
  */
 async function searchForms(query) {
   try {
-    const data = await authApi.get(`/forms/search?query=${encodeURIComponent(query)}`);
+    const data = await authApi.get(
+      `/forms/search?query=${encodeURIComponent(query)}`
+    );
     return data;
   } catch (error) {
     console.error("Error searching forms:", error);
@@ -395,7 +399,7 @@ async function searchForms(query) {
 /**
  * Clone a template form
  * @param {string} templateId
- * @returns {Promise<Object>} 
+ * @returns {Promise<Object>}
  */
 async function cloneTemplateForm(templateId) {
   try {
@@ -410,8 +414,8 @@ async function cloneTemplateForm(templateId) {
 /**
  * Generate a form with lead data
  * @param {string} formId
- * @param {string} leadId 
- * @returns {Promise<Object>} 
+ * @param {string} leadId
+ * @returns {Promise<Object>}
  */
 async function generateFormWithLeadData(formId, leadId) {
   try {
@@ -426,7 +430,7 @@ async function generateFormWithLeadData(formId, leadId) {
 /**
  * Get forms for a specific lead
  * @param {string} leadId
- * @returns {Promise<Array>} 
+ * @returns {Promise<Array>}
  */
 async function getFormsByLead(leadId) {
   try {
@@ -440,16 +444,18 @@ async function getFormsByLead(leadId) {
 
 /**
  * Generate a form for a lead using a template
- * @param {string} templateId 
- * @param {string} leadId 
- * @returns {Promise<Object>} 
+ * @param {string} templateId
+ * @param {string} leadId
+ * @returns {Promise<Object>}
  */
 async function generateFormForLead(templateId, leadId) {
   try {
-    const data = await authApi.post(`/forms/${templateId}/generate`, { leadId });
+    const data = await authApi.post(`/forms/${templateId}/generate`, {
+      leadId,
+    });
     return data;
   } catch (error) {
-    console.error('Error generating form:', error);
+    console.error("Error generating form:", error);
     throw error;
   }
 }
@@ -457,7 +463,7 @@ async function generateFormForLead(templateId, leadId) {
 /**
  * Get documents for a specific lead
  * @param {string} leadId
- * @returns {Promise<Array>} 
+ * @returns {Promise<Array>}
  */
 async function getDocumentsByLead(leadId) {
   try {
@@ -471,8 +477,8 @@ async function getDocumentsByLead(leadId) {
 
 /**
  * Upload a document for a lead
- * @param {string} leadId 
- * @param {Object} documentData 
+ * @param {string} leadId
+ * @param {Object} documentData
  * @returns {Promise<Object>}
  */
 async function uploadDocument(leadId, documentData) {
@@ -480,14 +486,14 @@ async function uploadDocument(leadId, documentData) {
     const data = await authApi.post(`/documents/lead/${leadId}`, documentData);
     return data;
   } catch (error) {
-    console.error('Error uploading document:', error);
+    console.error("Error uploading document:", error);
     throw error;
   }
 }
 
 /**
  * Delete a document
- * @param {string} documentId 
+ * @param {string} documentId
  * @returns {Promise<Object>}
  */
 async function deleteDocument(documentId) {
@@ -495,7 +501,7 @@ async function deleteDocument(documentId) {
     const data = await authApi.delete(`/documents/${documentId}`);
     return data;
   } catch (error) {
-    console.error('Error deleting document:', error);
+    console.error("Error deleting document:", error);
     throw error;
   }
 }
@@ -503,7 +509,7 @@ async function deleteDocument(documentId) {
 // Hitlist API functions
 async function fetchHitlists() {
   try {
-    const data = await authApi.get('/hitlists');
+    const data = await authApi.get("/hitlists");
     return data;
   } catch (error) {
     console.error("Error fetching hitlists:", error);
@@ -523,7 +529,7 @@ async function fetchHitlistById(hitlistId) {
 
 async function createHitlist(hitlistData) {
   try {
-    const data = await authApi.post('/hitlists', hitlistData);
+    const data = await authApi.post("/hitlists", hitlistData);
     return data;
   } catch (error) {
     console.error("Error creating hitlist:", error);
@@ -564,7 +570,10 @@ async function fetchBusinessesByHitlist(hitlistId) {
 
 async function createBusiness(hitlistId, businessData) {
   try {
-    const data = await authApi.post(`/hitlists/${hitlistId}/businesses`, businessData);
+    const data = await authApi.post(
+      `/hitlists/${hitlistId}/businesses`,
+      businessData
+    );
     return data;
   } catch (error) {
     console.error("Error creating business:", error);
@@ -574,7 +583,10 @@ async function createBusiness(hitlistId, businessData) {
 
 async function updateBusiness(businessId, businessData) {
   try {
-    const data = await authApi.put(`/hitlists/businesses/${businessId}`, businessData);
+    const data = await authApi.put(
+      `/hitlists/businesses/${businessId}`,
+      businessData
+    );
     return data;
   } catch (error) {
     console.error("Error updating business:", error);
@@ -628,5 +640,5 @@ export {
   fetchBusinessesByHitlist,
   createBusiness,
   updateBusiness,
-  deleteBusiness
+  deleteBusiness,
 };
