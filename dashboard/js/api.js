@@ -8,7 +8,8 @@ const API_URL = "/api";
 function getBaseUrl() {
   // return "http://localhost:5000";
   // return "https://lead-management-8u3l.onrender.com";
-  return "https://devleads.site";
+  // return "https://devleads.site";
+  return window.location.origin;
 }
 
 /**
