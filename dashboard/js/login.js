@@ -38,7 +38,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebas
      signInWithEmailAndPassword(auth, email, password)
          .then(() => {
              // Redirect to dashboard
-             window.location.href = '/dashboard';
+             window.location.href = '/dashboard/dashboard.html';
          })
          .catch((error) => {
              // Reset button
