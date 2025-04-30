@@ -26,6 +26,7 @@ const app = express();
 app.use(
   cors({
     origin: [
+      'https://www.devleads.site',
       'https://devleads.site',
       'https://devleads.netlify.app', 
       'https://lead-management-8u3l.onrender.com', 
