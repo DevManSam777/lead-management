@@ -14,29 +14,16 @@ const auth = require("./middleware/auth");
 
 const app = express();
 
-// Middleware
-// app.use(
-//   cors({
-//     origin: "*", // Allow all origins during development
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization"],
-//   })
-// );
-
+// -------------------- CORS & API ROUTES FIRST --------------------
 app.use(
   cors({
     origin: [
       'https://www.devleads.site',
       'https://devleads.site',
-      'https://devleads.netlify.app', 
-      'https://lead-management-8u3l.onrender.com', 
-      // 'https://sideways-puzzling-lamp.glitch.me',
-      'https://*.glitch.me',
-      'https://*.netlify.app',
-      'https://*.codepen.io',
-      'https://cdpn.io',   
-      'http://localhost:5500',  
-      'http://127.0.0.1:5500'   
+      'https://devleads.netlify.app',
+      'https://lead-management-8u3l.onrender.com',
+      'http://localhost:5500',
+      'http://127.0.0.1:5500'
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -47,7 +34,7 @@ app.use(
 // Explicitly handle preflight requests
 app.options("*", cors());
 
-// API routes
+// API routes BEFORE static/redirects
 app.use("/api/leads", leadRoutes);
 app.use("/api/payments", auth, paymentRoutes);
 app.use("/api/settings", auth, settingRoutes);
@@ -55,7 +42,7 @@ app.use("/api/forms", auth, formRoutes);
 app.use("/api/documents", auth, documentRoutes);
 app.use("/api/hitlists", auth, hitlistRoutes);
 
-// 2. Static files and redirects AFTER API/CORS
+// -------------------- STATIC FILES & REDIRECTS AFTER --------------------
 app.use(express.static(path.join(__dirname, '..')));
 
 app.get('/', (req, res, next) => {
@@ -78,25 +65,6 @@ app.use((req, res, next) => {
 
 // Port configuration
 const PORT = process.env.PORT || 5000;
-
-// Serve static files from the parent directory (which contains both server and dashboard)
-// app.use(express.static(path.join(__dirname, '..')));
-
-// // Handle redirect for root index.html to dashboard/index.html
-// app.get('/dashboard/index.html', (req, res) => {
-//   res.redirect('/dashboard/index.html');
-// });
-
-// // Handle direct access to root path
-// app.get('/', (req, res, next) => {
-//   // If it's an API request, continue to your existing route handler
-//   if (req.accepts('json')) {
-//     next();
-//   } else {
-//     // Otherwise redirect to dashboard
-//     res.redirect('/dashboard/index.html');
-//   }
-// });
 
 // Serve static files from the parent directory (which contains both server and dashboard)
 app.use(express.static(path.join(__dirname, '..')));
