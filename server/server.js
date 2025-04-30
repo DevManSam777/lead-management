@@ -42,25 +42,25 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
   })
-)
-
-// Add logging for CORS middleware
-app.use((req, res, next) => {
-  console.log(`CORS Middleware: ${req.method} ${req.url}`);
-  next();
-});
+);
 
 // Explicitly handle preflight requests
 app.options("*", cors());
 
-// Ensure proper handling of preflight requests
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    return res.status(204).end();
+// API routes
+app.use("/api/leads", leadRoutes);
+app.use("/api/payments", auth, paymentRoutes);
+app.use("/api/settings", auth, settingRoutes);
+app.use("/api/forms", auth, formRoutes);
+app.use("/api/documents", auth, documentRoutes);
+app.use("/api/hitlists", auth, hitlistRoutes);
+
+// 2. Static files and redirects AFTER API/CORS
+app.use(express.static(path.join(__dirname, '..')));
+
+app.get('/', (req, res, next) => {
+  if (req.accepts('html') && !req.xhr && !req.path.startsWith('/api')) {
+    return res.redirect('/dashboard/index.html');
   }
   next();
 });
