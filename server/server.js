@@ -34,6 +34,8 @@ app.use(
 // Explicitly handle preflight requests
 app.options("*", cors());
 
+app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
+
 // API routes BEFORE static/redirects
 app.use("/api/leads", leadRoutes);
 app.use("/api/payments", auth, paymentRoutes);
@@ -42,45 +44,20 @@ app.use("/api/forms", auth, formRoutes);
 app.use("/api/documents", auth, documentRoutes);
 app.use("/api/hitlists", auth, hitlistRoutes);
 
-// -------------------- STATIC FILES & REDIRECTS AFTER --------------------
-app.use(express.static(path.join(__dirname, '..')));
-
-app.get('/', (req, res, next) => {
-  if (req.accepts('html') && !req.xhr && !req.path.startsWith('/api')) {
-    return res.redirect('/dashboard/index.html');
-  }
-  next();
-});
-
-app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
-
 // Security headers middleware
 app.use((req, res, next) => {
-  // For PDF and document endpoints, add specific headers
-  // This middleware will apply to all routes, but headers are conditionally set
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   next();
 });
 
-// Port configuration
-const PORT = process.env.PORT || 5000;
-
-// Serve static files from the parent directory (which contains both server and dashboard)
+// -------------------- STATIC FILES & REDIRECTS AFTER --------------------
 app.use(express.static(path.join(__dirname, '..')));
 
-// Redirect root path to dashboard/index.html for browser requests
-app.get('/', (req, res, next) => {
-  // Check if it's a browser request (accepting HTML) and not an API request
-  if (req.accepts('html') && !req.xhr && !req.path.startsWith('/api')) {
-    return res.redirect('/dashboard/index.html');
-  }
-  
-  // For API requests, continue to the next handler
-  next();
+app.get('/', (req, res) => {
+  res.redirect('/dashboard/index.html');
 });
 
-// Also redirect /index.html to /dashboard/index.html
 app.get('/index.html', (req, res) => {
   res.redirect('/dashboard/index.html');
 });
@@ -675,16 +652,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// Mount route handlers
-// added auth to all endpoints here instead of routes pages except for leadRoutes
-// added auth to each leadRoutes endpoint individually from leadRoutes.js file but kept POST open for public form submission
-app.use("/api/leads", leadRoutes);
-app.use("/api/payments", auth, paymentRoutes);
-app.use("/api/settings", auth, settingRoutes);
-app.use("/api/forms", auth, formRoutes);
-app.use("/api/documents", auth, documentRoutes);
-app.use("/api/hitlists", auth, hitlistRoutes);
-
 // This function ensures the correct sequence: Connect -> Seed -> Start Server
 async function startServer() {
   try {
@@ -698,6 +665,7 @@ async function startServer() {
     await seederLogic.seedFormsIfFirstRun(); // Call the seeder function from the imported module
 
     // Start the Express server
+    const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(
         `Freelance Lead Management API is now running on port ${PORT}`
