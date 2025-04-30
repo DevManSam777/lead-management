@@ -1194,9 +1194,9 @@ body {
     padding-inline: 1rem;
   }
 
-  .leads-container {
+  /* .leads-container {
     padding: 0;
-  }
+  } */
 
   .stats-cards {
     grid-template-columns: 1fr;
