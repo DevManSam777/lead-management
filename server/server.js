@@ -56,18 +56,23 @@ app.use((req, res, next) => {
 // Port configuration
 const PORT = process.env.PORT || 5000;
 
-// Serve static files from the dashboard directory (sibling to server directory)
-const dashboardPath = path.join(__dirname, '../dashboard');
-app.use(express.static(path.join(__dirname, '..'))); // Serve from parent directory
+// Serve static files from the parent directory (which contains both server and dashboard)
+app.use(express.static(path.join(__dirname, '..')));
 
-// Redirect routes to dashboard/index.html
-app.get('/login', (req, res) => {
+// Handle redirect for root index.html to dashboard/index.html
+app.get('/index.html', (req, res) => {
   res.redirect('/dashboard/index.html');
 });
 
-// Also handle direct dashboard requests
-app.get('/dashboard', (req, res) => {
-  res.redirect('/dashboard/index.html');
+// Handle direct access to root path
+app.get('/', (req, res, next) => {
+  // If it's an API request, continue to your existing route handler
+  if (req.accepts('json')) {
+    next();
+  } else {
+    // Otherwise redirect to dashboard
+    res.redirect('/dashboard/index.html');
+  }
 });
 
 app.get("/", (req, res) => {
