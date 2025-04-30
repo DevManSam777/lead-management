@@ -26,7 +26,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      'https://musical-bavarois-4b7d71.netlify.app', 
+      'https://devleads.netlify.app/', 
       'https://lead-management-8u3l.onrender.com', 
       // 'https://sideways-puzzling-lamp.glitch.me',
       'https://*.glitch.me',
