@@ -63,25 +63,22 @@ app.get('/index.html', (req, res) => {
   res.redirect('/dashboard/index.html');
 });
 
-// Pretty URLs for dashboard pages
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/index.html'));
-});
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/dashboard.html'));
-});
-app.get('/settings', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/settings.html'));
-});
-app.get('/hitlist', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/hitlist.html'));
-});
-app.get('/resources', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/resources.html'));
-});
-app.get('/forms', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard/html/forms.html'));
-});
+// Remove pretty URLs for dashboard pages
+// app.get('/dashboard', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../dashboard/html/dashboard.html'));
+// });
+// app.get('/settings', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../dashboard/html/settings.html'));
+// });
+// app.get('/hitlist', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../dashboard/html/hitlist.html'));
+// });
+// app.get('/resources', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../dashboard/html/resources.html'));
+// });
+// app.get('/forms', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../dashboard/html/forms.html'));
+// }
 
 app.get("/", (req, res) => {
   res.json({
