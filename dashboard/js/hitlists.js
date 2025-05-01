@@ -236,12 +236,14 @@ function setupHitlistFormTextareas() {
 
 async function fetchAndRenderHitlists() {
   try {
-    // Show loading spinner, hide hitlists list
-    const loadingSpinner = document.getElementById("hitlistsLoadingSpinner");
+    const hitlistsLoadingSpinner = document.getElementById(
+      "hitlistsLoadingSpinner"
+    );
     const hitlistsList = document.getElementById("hitlistsList");
-    
-    if (loadingSpinner) loadingSpinner.style.display = "flex";
-    if (hitlistsList) hitlistsList.style.display = "none";
+
+    // Show loading spinner
+    if (hitlistsLoadingSpinner) hitlistsLoadingSpinner.style.display = "flex";
+    if (hitlistsList) hitlistsList.innerHTML = "";
 
     allHitlists = await API.fetchHitlists();
 
@@ -263,30 +265,137 @@ async function fetchAndRenderHitlists() {
       hitlistPageSize
     );
 
-    // Hide loading spinner, show hitlists list
-    if (loadingSpinner) loadingSpinner.style.display = "none";
-    if (hitlistsList) hitlistsList.style.display = "block";
-    
+    // Hide loading spinner
+    if (hitlistsLoadingSpinner) hitlistsLoadingSpinner.style.display = "none";
+
     // Render hitlists
     renderHitlists(paginatedHitlists);
 
-    // Add pagination UI for hitlists
-    // ... rest of your pagination code
+    // Add pagination UI
+    Pagination.renderPagination({
+      totalItems: allHitlists.length,
+      totalPages: hitlistTotalPages,
+      currentPage: hitlistCurrentPage,
+      pageSize: hitlistPageSize,
+      onPageChange: (newPage) => {
+        hitlistCurrentPage = newPage;
+        renderPaginatedHitlists();
+      },
+      onPageSizeChange: (newPageSize) => {
+        hitlistPageSize = newPageSize;
+        localStorage.setItem("hitlistPageSize", newPageSize);
+        hitlistCurrentPage = 1;
+        renderPaginatedHitlists();
+      },
+      containerId: ".hitlists-container",
+    });
   } catch (error) {
     console.error("Error fetching hitlists:", error);
-    
-    // Hide loading spinner
-    const loadingSpinner = document.getElementById("hitlistsLoadingSpinner");
-    if (loadingSpinner) loadingSpinner.style.display = "none";
-    
-    // Show error in hitlists list
+
+    const hitlistsLoadingSpinner = document.getElementById(
+      "hitlistsLoadingSpinner"
+    );
+    if (hitlistsLoadingSpinner) hitlistsLoadingSpinner.style.display = "none";
+
     const hitlistsList = document.getElementById("hitlistsList");
     if (hitlistsList) {
-      hitlistsList.style.display = "block";
-      hitlistsList.innerHTML = '<div class="error-state">Error loading hitlists. Please try again.</div>';
+      hitlistsList.innerHTML =
+        '<div class="error-state">Error loading hitlists. Please try again.</div>';
     }
   }
 }
+
+// function renderHitlists(hitlists) {
+//   const hitlistsList = document.getElementById("hitlistsList");
+
+//   if (!hitlists || hitlists.length === 0) {
+//     hitlistsList.innerHTML = `
+//       <div class="empty-state">
+//         <i class="fas fa-bullseye"></i>
+//         <h3>No hitlists found</h3>
+//         <p>Try again or press the "Create Hitlist" button to get started</p>
+//       </div>
+//     `;
+//     return;
+//   }
+
+//   // Get dateFormat from window object (set in settings)
+//   const dateFormat = window.dateFormat || "MM/DD/YYYY";
+
+//   hitlistsList.innerHTML = hitlists
+//     .map(
+//       (hitlist) => `
+//     <div class="hitlist-card" data-id="${hitlist._id}">
+//       <div class="hitlist-header">
+//         <h3 class="hitlist-title"><span class="bullseye"><i class="fa-solid fa-bullseye"></i></span> ${
+//           hitlist.name
+//         }</h3>
+//         <div class="hitlist-actions">
+//           <button class="btn-icon edit-hitlist" title="Edit">
+//             <i class="fas fa-edit"></i>
+//           </button>
+//           <button class="btn-icon delete-hitlist" title="Delete">
+//             <i class="fas fa-trash"></i>
+//           </button>
+//         </div>
+//       </div>
+//       <p class="hitlist-description">${
+//         hitlist.description || "No description"
+//       }</p>
+//       <div class="hitlist-stats">
+//         <span class="hitlist-stat">
+//           <i class="far fa-building"></i>
+//           ${hitlist.businesses ? hitlist.businesses.length : 0} businesses
+//         </span>
+//         <div class="hitlist-dates">
+//           <span class="hitlist-stat">
+//             <i class="far fa-calendar-plus"></i>
+//             Created: ${
+//               hitlist.createdAt
+//                 ? Utils.formatDate(new Date(hitlist.createdAt), dateFormat)
+//                 : "N/A"
+//             }
+//           </span>
+//           <span class="hitlist-stat">
+//             <i class="far fa-clock"></i>
+//             Modified: ${
+//               hitlist.lastModified
+//                 ? Utils.formatDate(new Date(hitlist.lastModified), dateFormat)
+//                 : "N/A"
+//             }
+//           </span>
+//         </div>
+//       </div>
+//     </div>
+//   `
+//     )
+//     .join("");
+
+//   // Add event listeners to cards
+//   const hitlistCards = document.querySelectorAll(".hitlist-card");
+//   hitlistCards.forEach((card) => {
+//     // Open business list when card is clicked
+//     card.addEventListener("click", function (e) {
+//       if (!e.target.closest(".hitlist-actions")) {
+//         openBusinessListModal(this.dataset.id);
+//       }
+//     });
+
+//     // Edit hitlist button
+//     card.querySelector(".edit-hitlist").addEventListener("click", function (e) {
+//       e.stopPropagation(); // Correctly stop propagation on the event object
+//       openEditHitlistModal(card.dataset.id);
+//     });
+
+//     // Delete hitlist button
+//     card
+//       .querySelector(".delete-hitlist")
+//       .addEventListener("click", function (e) {
+//         e.stopPropagation(); // Correctly stop propagation on the event object
+//         deleteHitlist(card.dataset.id);
+//       });
+//   });
+// }
 
 function renderHitlists(hitlists) {
   const hitlistsList = document.getElementById("hitlistsList");
