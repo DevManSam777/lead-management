@@ -65,7 +65,7 @@ loginForm.addEventListener("submit", (e) => {
     })
     .then(() => {
       // Redirect to dashboard on success
-      window.location.href = "/dashboard";
+      window.location.href = "/dashboard/";
     })
     .catch((error) => {
       // Reset button
@@ -177,6 +177,6 @@ function getErrorMessage(errorCode) {
 // Redirect to dashboard if already logged in
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    window.location.href = "/dashboard";
+    window.location.href = "/dashboard/";
   }
 });

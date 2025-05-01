@@ -62,33 +62,28 @@ app.use((req, res, next) => {
 app.use("/dashboard", express.static(path.join(__dirname, "../dashboard")));
 
 // Handle pretty URLs for dashboard pages
-app.get("/dashboard", (req, res) => {
+app.get(["/dashboard", "/dashboard/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/dashboard.html"));
 });
 
-app.get("/dashboard/hitlists", (req, res) => {
+app.get(["/dashboard/hitlists", "/dashboard/hitlists/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/hitlists.html"));
 });
 
-app.get("/dashboard/forms", (req, res) => {
+app.get(["/dashboard/forms", "/dashboard/forms/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/forms.html"));
 });
 
-app.get("/dashboard/resources", (req, res) => {
+app.get(["/dashboard/resources", "/dashboard/resources/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/resources.html"));
 });
 
-app.get("/dashboard/settings", (req, res) => {
+app.get(["/dashboard/settings", "/dashboard/settings/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/settings.html"));
 });
 
 // Redirect root to dashboard
-app.get("/", (req, res) => {
-  res.redirect("/dashboard");
-});
-
-// Redirect /index.html to dashboard
-app.get("/index.html", (req, res) => {
+app.get(["/", "/index.html"], (req, res) => {
   res.redirect("/dashboard");
 });
 
