@@ -313,6 +313,222 @@ function setModalReadOnly(isReadOnly) {
   }
 }
 
+// function calculateStats(allLeads, payments) {
+//   try {
+//     // Debug info
+//     console.log("Calculating stats with:", {
+//       leadsCount: allLeads ? allLeads.length : 0,
+//       paymentsCount: payments ? payments.length : 0
+//     });
+    
+//     // If no leads, display zeros and return
+//     if (!allLeads || allLeads.length === 0) {
+//       safeSetTextContent("totalLeadsValue", "0");
+//       safeSetTextContent("newLeadsValue", "0");
+//       safeSetTextContent("conversionRateValue", "0%");
+//       safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
+//       safeSetTextContent("totalEarningsValue", formatCurrency(0, "USD"));
+//       return;
+//     }
+
+//     // Get current date and calculate previous periods
+//     const currentDate = new Date();
+    
+//     // Current month: 1st of current month to today
+//     const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    
+//     // Previous month: 1st of previous month to last day of previous month
+//     const previousMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+//     const previousMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+    
+//     // For consistent comparison, set all dates to noon
+//     currentDate.setHours(12, 0, 0, 0);
+//     currentMonthStart.setHours(12, 0, 0, 0);
+//     previousMonthStart.setHours(12, 0, 0, 0);
+//     previousMonthEnd.setHours(12, 0, 0, 0);
+
+//     // Debug date ranges
+//     console.log("Date ranges:", {
+//       currentDate: currentDate.toISOString(),
+//       currentMonthStart: currentMonthStart.toISOString(),
+//       previousMonthStart: previousMonthStart.toISOString(),
+//       previousMonthEnd: previousMonthEnd.toISOString()
+//     });
+
+//     // New Leads Calculation
+//     const currentMonthNewLeads = allLeads.filter(lead => {
+//       if (!lead.createdAt) return false;
+//       const leadDate = new Date(lead.createdAt);
+//       leadDate.setHours(12, 0, 0, 0);
+//       return leadDate >= currentMonthStart && leadDate <= currentDate;
+//     });
+
+//     const previousMonthNewLeads = allLeads.filter(lead => {
+//       if (!lead.createdAt) return false;
+//       const leadDate = new Date(lead.createdAt);
+//       leadDate.setHours(12, 0, 0, 0);
+//       return leadDate >= previousMonthStart && leadDate <= previousMonthEnd;
+//     });
+
+//     // Display new leads count
+//     safeSetTextContent("newLeadsValue", currentMonthNewLeads.length);
+
+//     // Calculate percentage change for new leads
+//     let newLeadsChange = 0;
+//     if (previousMonthNewLeads.length > 0) {
+//       newLeadsChange = ((currentMonthNewLeads.length - previousMonthNewLeads.length) / 
+//                         previousMonthNewLeads.length) * 100;
+//     } else if (currentMonthNewLeads.length > 0) {
+//       newLeadsChange = 100; // If no leads last month but some this month, that's a 100% increase
+//     }
+
+//     // Update new leads change display
+//     const newLeadsChangeSpan = document.querySelector('#newLeadsValue + .change span');
+//     if (newLeadsChangeSpan) {
+//       if (newLeadsChange > 0) {
+//         newLeadsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(newLeadsChange).toFixed(1)}% from last month`;
+//         newLeadsChangeSpan.closest('.change').className = "change positive";
+//       } else if (newLeadsChange < 0) {
+//         newLeadsChangeSpan.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(newLeadsChange).toFixed(1)}% from last month`;
+//         newLeadsChangeSpan.closest('.change').className = "change negative";
+//       } else {
+//         newLeadsChangeSpan.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
+//         newLeadsChangeSpan.closest('.change').className = "change";
+//       }
+//     }
+
+//     // Total Projects (All-Time)
+//     safeSetTextContent("totalLeadsValue", allLeads.length);
+
+//     // Handle payments calculation
+//     if (!payments || !Array.isArray(payments)) {
+//       console.error("Invalid payments array:", payments);
+//       payments = [];
+//     }
+
+//     // Create a set of valid lead IDs for faster lookups
+//     const validLeadIds = new Set(allLeads.map(lead => lead._id));
+    
+//     // Only process payments for existing leads
+//     const validPayments = payments.filter(payment => {
+//       return payment && payment.leadId && validLeadIds.has(payment.leadId);
+//     });
+
+//     console.log("Valid payments count:", validPayments.length);
+
+//     // Current month payments
+//     const currentMonthPayments = validPayments.filter(payment => {
+//       if (!payment.paymentDate) return false;
+//       const paymentDate = new Date(payment.paymentDate);
+//       paymentDate.setHours(12, 0, 0, 0);
+//       return paymentDate >= currentMonthStart && paymentDate <= currentDate;
+//     });
+
+//     // Previous month payments
+//     const previousMonthPayments = validPayments.filter(payment => {
+//       if (!payment.paymentDate) return false;
+//       const paymentDate = new Date(payment.paymentDate);
+//       paymentDate.setHours(12, 0, 0, 0);
+//       return paymentDate >= previousMonthStart && paymentDate <= previousMonthEnd;
+//     });
+
+//     // Calculate totals
+//     const currentMonthTotal = currentMonthPayments.reduce((sum, payment) => {
+//       const amount = parseFloat(payment.amount);
+//       return sum + (isNaN(amount) ? 0 : amount);
+//     }, 0);
+
+//     const previousMonthTotal = previousMonthPayments.reduce((sum, payment) => {
+//       const amount = parseFloat(payment.amount);
+//       return sum + (isNaN(amount) ? 0 : amount);
+//     }, 0);
+
+//     // Update monthly payments display
+//     safeSetTextContent(
+//       "monthlyPaymentsValue",
+//       formatCurrency(currentMonthTotal)
+//     );
+
+//     // Calculate percentage change for payments
+//     let paymentsChange = 0;
+//     if (previousMonthTotal > 0) {
+//       paymentsChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+//     } else if (currentMonthTotal > 0) {
+//       paymentsChange = 100; // If no payments last month but some this month, that's a 100% increase
+//     }
+
+//     // Update payments change display
+//     const paymentsChangeSpan = document.querySelector('#monthlyPaymentsValue + .change span');
+//     if (paymentsChangeSpan) {
+//       if (paymentsChange > 0) {
+//         paymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(paymentsChange).toFixed(1)}% from last month`;
+//         paymentsChangeSpan.closest('.change').className = "change positive";
+//       } else if (paymentsChange < 0) {
+//         paymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(paymentsChange).toFixed(1)}% from last month`;
+//         paymentsChangeSpan.closest('.change').className = "change negative";
+//       } else {
+//         paymentsChangeSpan.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
+//         paymentsChangeSpan.closest('.change').className = "change";
+//       }
+//     }
+
+//     // Total Earnings Calculation (All-Time)
+//     const totalEarnings = validPayments.reduce((sum, payment) => {
+//       const amount = parseFloat(payment.amount);
+//       return sum + (isNaN(amount) ? 0 : amount);
+//     }, 0);
+
+//     // Display total earnings
+//     safeSetTextContent(
+//       "totalEarningsValue",
+//       formatCurrency(totalEarnings)
+//     );
+
+//     // Conversion Rate Calculation
+//     const closedWonLeads = allLeads.filter(lead => 
+//       lead.status && 
+//       (lead.status.toLowerCase() === 'closed-won' || lead.status.toLowerCase() === 'won')
+//     );
+
+//     const conversionRate = allLeads.length > 0 
+//       ? Math.round((closedWonLeads.length / allLeads.length) * 100) 
+//       : 0;
+
+//     safeSetTextContent("conversionRateValue", `${conversionRate}%`);
+    
+//     // Print detailed debug information
+//     console.log("Stats calculation completed:", {
+//       newLeads: {
+//         current: currentMonthNewLeads.length,
+//         previous: previousMonthNewLeads.length,
+//         change: newLeadsChange
+//       },
+//       payments: {
+//         current: {
+//           count: currentMonthPayments.length,
+//           total: currentMonthTotal
+//         },
+//         previous: {
+//           count: previousMonthPayments.length,
+//           total: previousMonthTotal
+//         },
+//         change: paymentsChange
+//       },
+//       totalEarnings: totalEarnings,
+//       conversionRate: conversionRate
+//     });
+//   } catch (error) {
+//     console.error("Error calculating statistics:", error, error.stack);
+    
+//     // Set default values in case of error
+//     safeSetTextContent("totalLeadsValue", "0");
+//     safeSetTextContent("newLeadsValue", "0");
+//     safeSetTextContent("conversionRateValue", "0%");
+//     safeSetTextContent("monthlyPaymentsValue", formatCurrency(0, "USD"));
+//     safeSetTextContent("totalEarningsValue", formatCurrency(0, "USD"));
+//   }
+// }
+
 function calculateStats(allLeads, payments) {
   try {
     // Debug info
@@ -320,7 +536,7 @@ function calculateStats(allLeads, payments) {
       leadsCount: allLeads ? allLeads.length : 0,
       paymentsCount: payments ? payments.length : 0
     });
-    
+
     // If no leads, display zeros and return
     if (!allLeads || allLeads.length === 0) {
       safeSetTextContent("totalLeadsValue", "0");
@@ -332,41 +548,47 @@ function calculateStats(allLeads, payments) {
     }
 
     // Get current date and calculate previous periods
-    const currentDate = new Date();
-    
-    // Current month: 1st of current month to today
-    const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    
-    // Previous month: 1st of previous month to last day of previous month
-    const previousMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-    const previousMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
-    
-    // For consistent comparison, set all dates to noon
-    currentDate.setHours(12, 0, 0, 0);
+    const now = new Date(); // Use 'now' to represent the current moment
+
+    // Current month period: 1st of current month up to the beginning of the *next* day
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    // Calculate the start of the *next* day from 'now' to set the upper bound for the current period
+    const startOfNextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+    // Previous month period: 1st of previous month to last day of previous month
+    const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    // Setting day to 0 gives you the last day of the *previous* month
+    const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    // For consistent comparison, set all comparison dates to noon local time
+    // This helps avoid timezone issues around midnight when comparing date objects
     currentMonthStart.setHours(12, 0, 0, 0);
+    startOfNextDay.setHours(12, 0, 0, 0); // Noon of the next day
     previousMonthStart.setHours(12, 0, 0, 0);
-    previousMonthEnd.setHours(12, 0, 0, 0);
+    previousMonthEnd.setHours(12, 0, 0, 0); // Noon of the last day of previous month
 
     // Debug date ranges
-    console.log("Date ranges:", {
-      currentDate: currentDate.toISOString(),
-      currentMonthStart: currentMonthStart.toISOString(),
-      previousMonthStart: previousMonthStart.toISOString(),
-      previousMonthEnd: previousMonthEnd.toISOString()
+    console.log("Date ranges (Noon adjusted):", {
+      now: now.toISOString(), // Original 'now' time for reference
+      currentMonthStart: currentMonthStart.toISOString(), // May 1st at noon local time
+      startOfNextDay: startOfNextDay.toISOString(), // May 2nd at noon local time (use as upper bound <)
+      previousMonthStart: previousMonthStart.toISOString(), // April 1st at noon local time
+      previousMonthEnd: previousMonthEnd.toISOString() // April 30th at noon local time
     });
 
     // New Leads Calculation
     const currentMonthNewLeads = allLeads.filter(lead => {
       if (!lead.createdAt) return false;
       const leadDate = new Date(lead.createdAt);
-      leadDate.setHours(12, 0, 0, 0);
-      return leadDate >= currentMonthStart && leadDate <= currentDate;
+      leadDate.setHours(12, 0, 0, 0); // Adjust lead date to noon for comparison
+      // Use < startOfNextDay to include the whole current day
+      return leadDate >= currentMonthStart && leadDate < startOfNextDay;
     });
 
     const previousMonthNewLeads = allLeads.filter(lead => {
       if (!lead.createdAt) return false;
       const leadDate = new Date(lead.createdAt);
-      leadDate.setHours(12, 0, 0, 0);
+      leadDate.setHours(12, 0, 0, 0); // Adjust lead date to noon for comparison
       return leadDate >= previousMonthStart && leadDate <= previousMonthEnd;
     });
 
@@ -376,7 +598,7 @@ function calculateStats(allLeads, payments) {
     // Calculate percentage change for new leads
     let newLeadsChange = 0;
     if (previousMonthNewLeads.length > 0) {
-      newLeadsChange = ((currentMonthNewLeads.length - previousMonthNewLeads.length) / 
+      newLeadsChange = ((currentMonthNewLeads.length - previousMonthNewLeads.length) /
                         previousMonthNewLeads.length) * 100;
     } else if (currentMonthNewLeads.length > 0) {
       newLeadsChange = 100; // If no leads last month but some this month, that's a 100% increase
@@ -408,7 +630,7 @@ function calculateStats(allLeads, payments) {
 
     // Create a set of valid lead IDs for faster lookups
     const validLeadIds = new Set(allLeads.map(lead => lead._id));
-    
+
     // Only process payments for existing leads
     const validPayments = payments.filter(payment => {
       return payment && payment.leadId && validLeadIds.has(payment.leadId);
@@ -420,15 +642,28 @@ function calculateStats(allLeads, payments) {
     const currentMonthPayments = validPayments.filter(payment => {
       if (!payment.paymentDate) return false;
       const paymentDate = new Date(payment.paymentDate);
-      paymentDate.setHours(12, 0, 0, 0);
-      return paymentDate >= currentMonthStart && paymentDate <= currentDate;
+
+      // *** ADDED CONSOLE LOG HERE ***
+      // This log will appear for each payment processed
+      console.log(`Processing paymentDate: original='${payment.paymentDate}', ` +
+                  `parsed_date=${new Date(payment.paymentDate)}, ` + // Date object before setting hours
+                  `parsed_date_noon_local=${paymentDate.toString()}, ` + // Date object after setting hours to noon (use toString for readable date/time)
+                  `comparison_start=${currentMonthStart.toISOString()}, ` +
+                  `comparison_end_exclusive=${startOfNextDay.toISOString()}`); // Upper bound for comparison (<)
+
+      paymentDate.setHours(12, 0, 0, 0); // Set to noon local time for comparison
+
+
+      // Filter logic using the noon-adjusted dates
+      // Use < startOfNextDay to include the whole current day
+      return paymentDate >= currentMonthStart && paymentDate < startOfNextDay;
     });
 
     // Previous month payments
     const previousMonthPayments = validPayments.filter(payment => {
       if (!payment.paymentDate) return false;
       const paymentDate = new Date(payment.paymentDate);
-      paymentDate.setHours(12, 0, 0, 0);
+      paymentDate.setHours(12, 0, 0, 0); // Adjust payment date to noon for comparison
       return paymentDate >= previousMonthStart && paymentDate <= previousMonthEnd;
     });
 
@@ -472,6 +707,7 @@ function calculateStats(allLeads, payments) {
       }
     }
 
+
     // Total Earnings Calculation (All-Time)
     const totalEarnings = validPayments.reduce((sum, payment) => {
       const amount = parseFloat(payment.amount);
@@ -485,17 +721,17 @@ function calculateStats(allLeads, payments) {
     );
 
     // Conversion Rate Calculation
-    const closedWonLeads = allLeads.filter(lead => 
-      lead.status && 
+    const closedWonLeads = allLeads.filter(lead =>
+      lead.status &&
       (lead.status.toLowerCase() === 'closed-won' || lead.status.toLowerCase() === 'won')
     );
 
-    const conversionRate = allLeads.length > 0 
-      ? Math.round((closedWonLeads.length / allLeads.length) * 100) 
+    const conversionRate = allLeads.length > 0
+      ? Math.round((closedWonLeads.length / allLeads.length) * 100)
       : 0;
 
     safeSetTextContent("conversionRateValue", `${conversionRate}%`);
-    
+
     // Print detailed debug information
     console.log("Stats calculation completed:", {
       newLeads: {
@@ -517,9 +753,10 @@ function calculateStats(allLeads, payments) {
       totalEarnings: totalEarnings,
       conversionRate: conversionRate
     });
+
   } catch (error) {
     console.error("Error calculating statistics:", error, error.stack);
-    
+
     // Set default values in case of error
     safeSetTextContent("totalLeadsValue", "0");
     safeSetTextContent("newLeadsValue", "0");
@@ -528,6 +765,10 @@ function calculateStats(allLeads, payments) {
     safeSetTextContent("totalEarningsValue", formatCurrency(0, "USD"));
   }
 }
+
+// Assuming formatCurrency and safeSetTextContent are defined elsewhere
+// function formatCurrency(amount, currency = "USD") { /* ... */ }
+// function safeSetTextContent(elementId, text) { /* ... */ }
 
 export {
   renderLeads,
