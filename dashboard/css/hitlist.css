@@ -67,6 +67,9 @@
   top: 1.5rem;
   left: 1.75rem;
   font-size: 2.4rem;
+}
+
+.hitlist-card i, .hitlist-card .fa-bullseye {
   color: var(--primary);
 }
 
