@@ -510,7 +510,7 @@ function calculateStats(allLeads, payments) {
     );
     if (paymentsChangeSpan) {
       if (paymentsChange > 0) {
-        newPaymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
+        paymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
           paymentsChange
         ).toFixed(1)}% from last month`;
         paymentsChangeSpan.closest(".change").className = "change positive";
