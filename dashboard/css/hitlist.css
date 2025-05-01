@@ -508,6 +508,10 @@
   .hitlists-list {
     grid-template-columns: 1fr;
   }
+
+  .hitlists-container {
+    padding-inline: 1rem;
+  }
 }
 
 @media (max-width: 378px) {
@@ -517,7 +521,8 @@
     margin: 0 auto;
   }
 
-  .hitlist-stat, .hitlist-dates {
-    font-size: .9rem
- }
+  .hitlist-stat,
+  .hitlist-dates {
+    font-size: 0.9rem;
+  }
 }
