@@ -180,11 +180,68 @@ function setupHitlistFormTextareas() {
   }
 }
 
+// async function fetchAndRenderHitlists() {
+//   try {
+//     const hitlistsList = document.getElementById("hitlistsList");
+//     hitlistsList.innerHTML =
+//       '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading hitlists...</div>';
+
+//     allHitlists = await API.fetchHitlists();
+
+//     // Initialize pagination with all hitlists
+//     const paginationInfo = Pagination.initPagination(
+//       allHitlists,
+//       hitlistCurrentPage,
+//       hitlistPageSize
+//     );
+
+//     // Update current page and total pages based on pagination info
+//     hitlistCurrentPage = paginationInfo.currentPage;
+//     hitlistTotalPages = paginationInfo.totalPages;
+
+//     // Get only the hitlists for the current page
+//     const paginatedHitlists = Pagination.getPaginatedItems(
+//       allHitlists,
+//       hitlistCurrentPage,
+//       hitlistPageSize
+//     );
+
+//     renderHitlists(paginatedHitlists);
+
+//     // Add pagination UI for hitlists
+//     Pagination.renderPagination({
+//       totalItems: allHitlists.length,
+//       totalPages: hitlistTotalPages,
+//       currentPage: hitlistCurrentPage,
+//       pageSize: hitlistPageSize,
+//       onPageChange: (newPage) => {
+//         hitlistCurrentPage = newPage;
+//         renderPaginatedHitlists();
+//       },
+//       onPageSizeChange: (newPageSize) => {
+//         hitlistPageSize = newPageSize;
+//         localStorage.setItem("hitlistPageSize", newPageSize);
+//         hitlistCurrentPage = 1; // Reset to first page when changing page size
+//         renderPaginatedHitlists();
+//       },
+//       // containerId: ".hitlists-container",
+//       containerId: ".hitlists-container",
+//     });
+//   } catch (error) {
+//     console.error("Error fetching hitlists:", error);
+//     document.getElementById("hitlistsList").innerHTML =
+//       '<div class="error-state">Error loading hitlists. Please try again.</div>';
+//   }
+// }
+
 async function fetchAndRenderHitlists() {
   try {
+    // Show loading spinner, hide hitlists list
+    const loadingSpinner = document.getElementById("hitlistsLoadingSpinner");
     const hitlistsList = document.getElementById("hitlistsList");
-    hitlistsList.innerHTML =
-      '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading hitlists...</div>';
+    
+    if (loadingSpinner) loadingSpinner.style.display = "flex";
+    if (hitlistsList) hitlistsList.style.display = "none";
 
     allHitlists = await API.fetchHitlists();
 
@@ -206,31 +263,28 @@ async function fetchAndRenderHitlists() {
       hitlistPageSize
     );
 
+    // Hide loading spinner, show hitlists list
+    if (loadingSpinner) loadingSpinner.style.display = "none";
+    if (hitlistsList) hitlistsList.style.display = "block";
+    
+    // Render hitlists
     renderHitlists(paginatedHitlists);
 
     // Add pagination UI for hitlists
-    Pagination.renderPagination({
-      totalItems: allHitlists.length,
-      totalPages: hitlistTotalPages,
-      currentPage: hitlistCurrentPage,
-      pageSize: hitlistPageSize,
-      onPageChange: (newPage) => {
-        hitlistCurrentPage = newPage;
-        renderPaginatedHitlists();
-      },
-      onPageSizeChange: (newPageSize) => {
-        hitlistPageSize = newPageSize;
-        localStorage.setItem("hitlistPageSize", newPageSize);
-        hitlistCurrentPage = 1; // Reset to first page when changing page size
-        renderPaginatedHitlists();
-      },
-      // containerId: ".hitlists-container",
-      containerId: ".hitlists-container",
-    });
+    // ... rest of your pagination code
   } catch (error) {
     console.error("Error fetching hitlists:", error);
-    document.getElementById("hitlistsList").innerHTML =
-      '<div class="error-state">Error loading hitlists. Please try again.</div>';
+    
+    // Hide loading spinner
+    const loadingSpinner = document.getElementById("hitlistsLoadingSpinner");
+    if (loadingSpinner) loadingSpinner.style.display = "none";
+    
+    // Show error in hitlists list
+    const hitlistsList = document.getElementById("hitlistsList");
+    if (hitlistsList) {
+      hitlistsList.style.display = "block";
+      hitlistsList.innerHTML = '<div class="error-state">Error loading hitlists. Please try again.</div>';
+    }
   }
 }
 
