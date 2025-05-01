@@ -58,15 +58,18 @@ app.use((req, res, next) => {
 });
 
 // -------------------- STATIC FILES & REDIRECTS AFTER --------------------
-// Serve static files from the dashboard directory
-app.use("/dashboard", express.static(path.join(__dirname, "../dashboard")));
+// Serve static files from the dashboard directory with proper MIME types
 app.use(
-  "/dashboard/css",
-  express.static(path.join(__dirname, "../dashboard/css"))
-);
-app.use(
-  "/dashboard/js",
-  express.static(path.join(__dirname, "../dashboard/js"))
+  "/dashboard",
+  express.static(path.join(__dirname, "../dashboard"), {
+    setHeaders: (res, path) => {
+      if (path.endsWith(".css")) {
+        res.setHeader("Content-Type", "text/css");
+      } else if (path.endsWith(".js")) {
+        res.setHeader("Content-Type", "application/javascript");
+      }
+    },
+  })
 );
 
 // Handle login page
