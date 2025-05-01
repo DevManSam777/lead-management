@@ -65,7 +65,7 @@ loginForm.addEventListener("submit", (e) => {
     })
     .then(() => {
       // Redirect to dashboard on success
-      window.location.href = "/dashboard/";
+      window.location.href = "/dashboard/home";
     })
     .catch((error) => {
       // Reset button

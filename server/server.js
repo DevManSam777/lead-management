@@ -61,8 +61,13 @@ app.use((req, res, next) => {
 // Serve static files from the dashboard directory
 app.use("/dashboard", express.static(path.join(__dirname, "../dashboard")));
 
-// Handle pretty URLs for dashboard pages
+// Handle login page
 app.get(["/dashboard", "/dashboard/"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../dashboard/index.html"));
+});
+
+// Handle dashboard pages
+app.get(["/dashboard/home", "/dashboard/home/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/dashboard.html"));
 });
 
