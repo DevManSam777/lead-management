@@ -31,9 +31,9 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          window.location.href = "/dashboard/index.html";
+          window.location.href = "/dashboard";
           // Redirect to sign in
-            // window.location.href = "/index.html";
+          // window.location.href = "/index.html";
         } else {
           document.body.style.display = "block";
           // log user info to console
@@ -48,7 +48,7 @@
           signOut(auth)
             .then(() => {
               console.log("User signed out.");
-              window.location.href = "/dashboard/index.html";
+              window.location.href = "/dashboard";
               // Redirect to sign in
               // window.location.href = "/index.html";
             })
@@ -133,7 +133,7 @@
           <ul>
             <li>
               <a
-                href="dashboard.html"
+                href="/dashboard"
                 id="dashboard-link"
                 title="Dashboard"
                 class="active"
@@ -142,29 +142,34 @@
               </a>
             </li>
             <li>
-              <a href="hitlist.html" id="hitlists-link" title="Hitlists">
+              <a href="/dashboard/hitlists" id="hitlists-link" title="Hitlists">
                 <i class="fas fa-bullseye"></i><span>Hitlists</span>
               </a>
             </li>
             <li>
-              <a href="forms.html" id="forms-link" title="Form Templates">
+              <a href="/dashboard/forms" id="forms-link" title="Form Templates">
                 <i class="fa-solid fa-file-signature"></i
                 ><span>Form Templates</span>
               </a>
             </li>
             <li>
-              <a href="resources.html" id="resources-link" title="Resources">
+              <a
+                href="/dashboard/resources"
+                id="resources-link"
+                title="Resources"
+              >
                 <i class="fa-solid fa-toolbox"></i><span>Resources</span>
               </a>
             </li>
             <li>
-              <a href="settings.html" id="settings-link" title="Settings">
+              <a href="/dashboard/settings" id="settings-link" title="Settings">
                 <i class="fas fa-cog"></i> <span>Settings</span>
               </a>
             </li>
             <li class="sign-out-item" title="Sign Out">
               <button class="sign-out">
-                <i class="fa-solid fa-right-from-bracket"></i><span>Sign out</span>
+                <i class="fa-solid fa-right-from-bracket"></i
+                ><span>Sign out</span>
               </button>
             </li>
           </ul>

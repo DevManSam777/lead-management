@@ -18,8 +18,8 @@ const app = express();
 app.use((req, res, next) => {
   const host = req.headers.host;
   // Redirect non-www to www (adjust as needed)
-  if (host === 'devleads.site') {
-    return res.redirect(301, 'https://www.devleads.site' + req.originalUrl);
+  if (host === "devleads.site") {
+    return res.redirect(301, "https://www.devleads.site" + req.originalUrl);
   }
   next();
 });
@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 app.use(
   cors({
     origin: true, // Reflects the request origin, works for same-origin and local dev
-    credentials: true
+    credentials: true,
   })
 );
 
@@ -45,28 +45,52 @@ app.use("/api/forms", auth, formRoutes);
 app.use("/api/documents", auth, documentRoutes);
 app.use("/api/hitlists", auth, hitlistRoutes);
 
-
 // Security headers middleware
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   // This allows everything from anywhere
-  res.setHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';");
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';"
+  );
   next();
 });
 
 // -------------------- STATIC FILES & REDIRECTS AFTER --------------------
-app.use(express.static(path.join(__dirname, '..')));
+// Serve static files from the dashboard directory
+app.use("/dashboard", express.static(path.join(__dirname, "../dashboard")));
 
-app.get('/', (req, res) => {
-  res.redirect('/dashboard/index.html');
+// Handle pretty URLs for dashboard pages
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dashboard/html/dashboard.html"));
 });
 
-app.get('/index.html', (req, res) => {
-  res.redirect('/dashboard/index.html');
+app.get("/dashboard/hitlists", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dashboard/html/hitlists.html"));
 });
 
+app.get("/dashboard/forms", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dashboard/html/forms.html"));
+});
 
+app.get("/dashboard/resources", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dashboard/html/resources.html"));
+});
+
+app.get("/dashboard/settings", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dashboard/html/settings.html"));
+});
+
+// Redirect root to dashboard
+app.get("/", (req, res) => {
+  res.redirect("/dashboard");
+});
+
+// Redirect /index.html to dashboard
+app.get("/index.html", (req, res) => {
+  res.redirect("/dashboard");
+});
 
 app.get("/", (req, res) => {
   res.json({

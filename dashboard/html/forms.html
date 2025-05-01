@@ -31,9 +31,9 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          window.location.href = "/dashboard/index.html";
+          window.location.href = "/dashboard";
           // Redirect to sign in
-              // window.location.href = "/index.html";
+          // window.location.href = "/index.html";
         } else {
           document.body.style.display = "block";
         }
@@ -46,7 +46,7 @@
           signOut(auth)
             .then(() => {
               console.log("User signed out.");
-              window.location.href = "/dashboard/index.html";
+              window.location.href = "/dashboard";
               // Redirect to sign in
               // window.location.href = "/index.html";
             })
@@ -131,18 +131,18 @@
         <div class="sidebar-menu">
           <ul>
             <li>
-              <a href="dashboard.html" id="dashboard-link" title="Dashboard">
+              <a href="/dashboard" id="dashboard-link" title="Dashboard">
                 <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
               </a>
             </li>
             <li>
-              <a href="hitlist.html" id="hitlists-link" title="Hitlists">
+              <a href="/dashboard/hitlists" id="hitlists-link" title="Hitlists">
                 <i class="fas fa-bullseye"></i><span>Hitlists</span>
               </a>
             </li>
             <li>
               <a
-                href="forms.html"
+                href="/dashboard/forms"
                 id="forms-link"
                 title="Form Templates"
                 class="active"
@@ -152,12 +152,16 @@
               </a>
             </li>
             <li>
-              <a href="resources.html" id="resources-link" title="Resources">
+              <a
+                href="/dashboard/resources"
+                id="resources-link"
+                title="Resources"
+              >
                 <i class="fa-solid fa-toolbox"></i><span>Resources</span>
               </a>
             </li>
             <li>
-              <a href="settings.html" id="settings-link" title="Settings">
+              <a href="/dashboard/settings" id="settings-link" title="Settings">
                 <i class="fas fa-cog"></i> <span>Settings</span>
               </a>
             </li>
