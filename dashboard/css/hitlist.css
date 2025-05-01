@@ -504,6 +504,12 @@
   }
 }
 
+@media (max-width: 480px) {
+  .hitlists-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 378px) {
   .search-filter-sort {
     padding-inline: 0;
@@ -511,8 +517,7 @@
     margin: 0 auto;
   }
 
-  .hitlists-list {
-    grid-template-columns: 1fr;
-    min-width: 250px;
-  }
+  .hitlist-stat, .hitlist-dates {
+    font-size: .9rem
+ }
 }
