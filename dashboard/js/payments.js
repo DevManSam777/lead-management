@@ -322,6 +322,8 @@ function renderLeadPayments(leadPayments, leadId) {
   // Get the date format from window object or use default
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
   const formatDate = window.formatDate || ((date, format) => date.toLocaleDateString()); // Ensure formatDate is accessible
+  const formatCurrency = window.formatCurrency || ((amount) => `$${parseFloat(amount || 0).toFixed(2)}`); // Ensure formatCurrency is accessible
+
 
   // Clear the container first
   paymentsContainer.innerHTML = "";
@@ -347,8 +349,9 @@ function renderLeadPayments(leadPayments, leadId) {
 
   // Check if we're in edit mode (Lead modal is open and in edit mode)
   const leadModal = document.getElementById("leadModal");
+  // Check if the lead modal is open and has a submit button that is visible (indicating edit mode)
   const submitButton = leadModal ? leadModal.querySelector('button[type="submit"]') : null;
-  const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
+  const isEditMode = leadModal && leadModal.style.display !== 'none' && submitButton && getComputedStyle(submitButton).display !== "none";
 
 
   // Render each payment
@@ -359,20 +362,26 @@ function renderLeadPayments(leadPayments, leadId) {
       // Create a Date object from the stored UTC string
       const paymentDateUTC = new Date(payment.paymentDate);
 
-      // Create a *local* Date object representing the same date as the UTC date at local midnight
-      // This is the standard way to display a date stored in UTC in the local timezone.
-      const localDateForDisplay = new Date(
-        paymentDateUTC.getUTCFullYear(),
-        paymentDateUTC.getUTCMonth(),
-        paymentDateUTC.getUTCDate() // Use UTC date components to construct local date
-      );
+      // Check if the date is valid before proceeding
+      if (!isNaN(paymentDateUTC.getTime())) {
+           // Create a *local* Date object representing the same date as the UTC date at local midnight
+           // This is the standard way to display a date stored in UTC in the local timezone.
+           const localDateForDisplay = new Date(
+             paymentDateUTC.getUTCFullYear(),
+             paymentDateUTC.getUTCMonth(),
+             paymentDateUTC.getUTCDate() // Use UTC date components to construct local date
+           );
 
-      // Format the local date for display
-      formattedDate = formatDate(localDateForDisplay, dateFormat);
+           // Format the local date for display
+           formattedDate = formatDate(localDateForDisplay, dateFormat);
 
-      // Debug log to compare dates
-      console.log(`Render Payment Date: Original='${payment.paymentDate}', UTC Parsed='${paymentDateUTC.toISOString()}', Local Display Date='${localDateForDisplay.toLocaleDateString()}'`);
+           // Debug log to compare dates
+           console.log(`Render Payment Date: Original='${payment.paymentDate}', UTC Parsed='${paymentDateUTC.toISOString()}', Local Display Date='${localDateForDisplay.toLocaleDateString()}'`);
 
+      } else {
+          console.warn(`Invalid payment date format received: ${payment.paymentDate}`);
+          formattedDate = "Invalid Date"; // Display something if the date is invalid
+      }
     }
 
 
@@ -417,6 +426,7 @@ function renderLeadPayments(leadPayments, leadId) {
       // Edit button
       const editButton = document.createElement("button");
       editButton.innerHTML = '<i class="fas fa-edit"></i>';
+      editButton.title = "Edit Payment"; // Add title for better UX
       editButton.addEventListener("click", function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -428,6 +438,7 @@ function renderLeadPayments(leadPayments, leadId) {
       // Delete button
       const deleteButton = document.createElement("button");
       deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+       deleteButton.title = "Delete Payment"; // Add title for better UX
       deleteButton.addEventListener("click", function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -436,16 +447,21 @@ function renderLeadPayments(leadPayments, leadId) {
           deletePaymentAction(payment._id, payment.leadId);
         }
       });
-      actionsDiv.appendChild(actionsDiv); // Corrected: should append actionsDiv itself
+      actionsDiv.appendChild(deleteButton);
+
+      // Add actions div to the payment item
+      paymentItem.appendChild(actionsDiv); // <--- CORRECTED LINE
     }
 
-    // Add the payment item to the container
-    paymentsContainer.appendChild(paymentItem);
+    // Add the payment item to the container (This should always happen)
+    paymentsContainer.appendChild(paymentItem); // <--- MOVED THIS LINE OUTSIDE THE IF/ELSE
+
   });
 
   // Log the rendered payments
   console.log(`Rendered ${filteredPayments.length} payments for lead ID: ${leadId}`);
 }
+
 
 /**
  * Open the payment modal for adding or editing a payment
