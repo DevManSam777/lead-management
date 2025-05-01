@@ -349,6 +349,110 @@ function closePaymentModal() {
   }
 }
 
+// async function validateAndSavePayment(event) {
+//   event.preventDefault();
+
+//   // Get form data
+//   const paymentId = document.getElementById("paymentId").value;
+//   const leadId = document.getElementById("paymentLeadId").value;
+//   const amountStr = document.getElementById("paymentAmount").value;
+//   const paymentDate = document.getElementById("paymentDate").value;
+//   const notes = document.getElementById("paymentNotes").value;
+
+//   // Validate data
+//   if (!leadId) {
+//     showToast("Error: Missing lead ID");
+//     return;
+//   }
+
+//   // Extract numeric value from formatted amount
+//   const amount = parseFloat(amountStr.replace(/[^\d.-]/g, ""));
+
+//   if (isNaN(amount) || amount <= 0) {
+//     showToast("Please enter a valid amount");
+//     return;
+//   }
+
+//   if (!paymentDate) {
+//     showToast("Payment date is required");
+//     return;
+//   }
+
+//   // Create a date object at noon to avoid timezone issues
+//   const dateObj = new Date(paymentDate);
+//   dateObj.setHours(12, 0, 0, 0);
+
+//   // Prepare payment data
+//   const paymentData = {
+//     leadId,
+//     amount,
+//     paymentDate: dateObj,
+//     notes,
+//   };
+
+//   try {
+//     let result;
+    
+//     if (paymentId) {
+//       // Update existing payment
+//       result = await updatePayment(paymentId, paymentData);
+//       console.log("Updated payment:", result);
+//     } else {
+//       // Create new payment
+//       result = await createPayment(paymentData);
+//       console.log("Created payment:", result);
+//     }
+
+//     // Close the payment modal
+//     closePaymentModal();
+
+//     // Get updated payments list
+//     const updatedPayments = await fetchLeadPayments(leadId);
+//     console.log("Updated payments:", updatedPayments);
+
+//     // Calculate the total paid
+//     const totalPaid = updatedPayments.reduce((sum, payment) => {
+//       return sum + (parseFloat(payment.amount) || 0);
+//     }, 0);
+
+//     // Update paid amount field
+//     const paidAmountField = document.getElementById("paidAmount");
+//     if (paidAmountField) {
+//       paidAmountField.value = formatCurrency(totalPaid);
+//     }
+
+//     // Update remaining balance field
+//     const remainingBalanceField = document.getElementById("remainingBalance");
+//     if (remainingBalanceField) {
+//       // Get the billed amount (total budget) from the form
+//       const totalBudgetStr = document.getElementById("totalBudget").value;
+//       const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
+//       const remainingBalance = totalBudget - totalPaid;
+//       remainingBalanceField.value = formatCurrency(remainingBalance);
+      
+//       console.log("Updated payment amounts:", {
+//         totalBudget,
+//         totalPaid,
+//         remainingBalance
+//       });
+//     }
+
+//     // Render updated payment list
+//     renderLeadPayments(updatedPayments, leadId);
+
+//     // Show success message
+//     showToast(
+//       paymentId ? "Payment updated successfully" : "Payment added successfully"
+//     );
+
+//     // Signal that payments have been updated
+//     window.dispatchEvent(new CustomEvent("paymentsUpdated"));
+//   } catch (error) {
+//     console.error("Error saving payment:", error);
+//     showToast("Error: " + error.message);
+//   }
+// }
+
 async function validateAndSavePayment(event) {
   event.preventDefault();
 
@@ -356,7 +460,7 @@ async function validateAndSavePayment(event) {
   const paymentId = document.getElementById("paymentId").value;
   const leadId = document.getElementById("paymentLeadId").value;
   const amountStr = document.getElementById("paymentAmount").value;
-  const paymentDate = document.getElementById("paymentDate").value;
+  const paymentDateString = document.getElementById("paymentDate").value; // Get the YYYY-MM-DD string
   const notes = document.getElementById("paymentNotes").value;
 
   // Validate data
@@ -373,26 +477,36 @@ async function validateAndSavePayment(event) {
     return;
   }
 
-  if (!paymentDate) {
+  if (!paymentDateString) {
     showToast("Payment date is required");
     return;
   }
 
-  // Create a date object at noon to avoid timezone issues
-  const dateObj = new Date(paymentDate);
-  dateObj.setHours(12, 0, 0, 0);
+  // --- Correct Date Handling: Convert local date input to UTC ISO string ---
+
+  // paymentDateString is in YYYY-MM-DD format (e.g., "2025-05-01")
+  const [year, month, day] = paymentDateString.split("-").map(Number);
+
+  // Create a Date object representing midnight of that date in the *local* timezone
+  const paymentDateLocalMidnight = new Date(year, month - 1, day);
+
+  // Convert this local Date object to its UTC ISO string representation for saving
+  const paymentDateForSaving = paymentDateLocalMidnight.toISOString();
+
+  // --- End Correct Date Handling ---
+
 
   // Prepare payment data
   const paymentData = {
     leadId,
     amount,
-    paymentDate: dateObj,
+    paymentDate: paymentDateForSaving, // Use the correctly formatted UTC string here
     notes,
   };
 
   try {
     let result;
-    
+
     if (paymentId) {
       // Update existing payment
       result = await updatePayment(paymentId, paymentData);
@@ -406,30 +520,31 @@ async function validateAndSavePayment(event) {
     // Close the payment modal
     closePaymentModal();
 
-    // Get updated payments list
-    const updatedPayments = await fetchLeadPayments(leadId);
-    console.log("Updated payments:", updatedPayments);
+    // Get updated payments list for this lead
+    const updatedLeadPayments = await fetchLeadPayments(leadId);
+    console.log("Updated payments for lead:", updatedLeadPayments);
 
-    // Calculate the total paid
-    const totalPaid = updatedPayments.reduce((sum, payment) => {
-      return sum + (parseFloat(payment.amount) || 0);
+    // Calculate the total paid for this lead
+    const totalPaid = updatedLeadPayments.reduce((sum, payment) => {
+      const amount = parseFloat(payment.amount) || 0;
+      return sum + amount;
     }, 0);
 
-    // Update paid amount field
+
+    // Update paid amount field on the lead form/modal
     const paidAmountField = document.getElementById("paidAmount");
     if (paidAmountField) {
       paidAmountField.value = formatCurrency(totalPaid);
     }
 
-    // Update remaining balance field
+    // Update remaining balance field on the lead form/modal
     const remainingBalanceField = document.getElementById("remainingBalance");
     if (remainingBalanceField) {
-      // Get the billed amount (total budget) from the form
       const totalBudgetStr = document.getElementById("totalBudget").value;
       const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
       const remainingBalance = totalBudget - totalPaid;
       remainingBalanceField.value = formatCurrency(remainingBalance);
-      
+
       console.log("Updated payment amounts:", {
         totalBudget,
         totalPaid,
@@ -437,21 +552,23 @@ async function validateAndSavePayment(event) {
       });
     }
 
-    // Render updated payment list
-    renderLeadPayments(updatedPayments, leadId);
+    // Render updated payment list in the modal
+    renderLeadPayments(updatedLeadPayments, leadId);
 
     // Show success message
     showToast(
       paymentId ? "Payment updated successfully" : "Payment added successfully"
     );
 
-    // Signal that payments have been updated
+    // Signal that ALL payments have been updated (for dashboard stats)
     window.dispatchEvent(new CustomEvent("paymentsUpdated"));
+
   } catch (error) {
     console.error("Error saving payment:", error);
-    showToast("Error: " + error.message);
+    showToast("Error: " + (error.message || "An unknown error occurred"));
   }
 }
+
 
 
 async function deletePaymentAction(paymentId, leadId) {
