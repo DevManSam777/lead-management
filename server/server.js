@@ -60,6 +60,14 @@ app.use((req, res, next) => {
 // -------------------- STATIC FILES & REDIRECTS AFTER --------------------
 // Serve static files from the dashboard directory
 app.use("/dashboard", express.static(path.join(__dirname, "../dashboard")));
+app.use(
+  "/dashboard/css",
+  express.static(path.join(__dirname, "../dashboard/css"))
+);
+app.use(
+  "/dashboard/js",
+  express.static(path.join(__dirname, "../dashboard/js"))
+);
 
 // Handle login page
 app.get(["/dashboard", "/dashboard/"], (req, res) => {
