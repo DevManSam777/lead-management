@@ -485,12 +485,32 @@ function calculateStats(allLeads, payments) {
     }
 
     // Update payments change display
+    // const paymentsChangeSpan = document.querySelector(
+    //   "#monthlyPaymentsValue + .change span"
+    // );
+    // if (paymentsChangeSpan) {
+    //   if (paymentsChange > 0) {
+    //     newPaymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs( // Fixed typo here: newPaymentsChangeSpan -> paymentsChangeSpan
+    //       paymentsChange
+    //     ).toFixed(1)}% from last month`;
+    //     paymentsChangeSpan.closest(".change").className = "change positive";
+    //   } else if (paymentsChange < 0) {
+    //     paymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(
+    //       paymentsChange
+    //     ).toFixed(1)}% from last month`;
+    //     paymentsChangeSpan.closest(".change").className = "change negative";
+    //   } else {
+    //     paymentsChangeSpan.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
+    //     paymentsChangeSpan.closest(".change").className = "change";
+    //   }
+    // }
+
     const paymentsChangeSpan = document.querySelector(
       "#monthlyPaymentsValue + .change span"
     );
     if (paymentsChangeSpan) {
       if (paymentsChange > 0) {
-        newPaymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs( // Fixed typo here: newPaymentsChangeSpan -> paymentsChangeSpan
+        newPaymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(
           paymentsChange
         ).toFixed(1)}% from last month`;
         paymentsChangeSpan.closest(".change").className = "change positive";
@@ -504,6 +524,7 @@ function calculateStats(allLeads, payments) {
         paymentsChangeSpan.closest(".change").className = "change";
       }
     }
+    
 
 
     // Total Earnings Calculation (All-Time)
