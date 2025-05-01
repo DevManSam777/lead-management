@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Setup for stats summary toggle persistence
-  const statsDetails = document.querySelector("details");
+  const statsDetails = document.getElementById("detailsSection");
   if (statsDetails) {
     // Load saved state
     const isStatsOpen = localStorage.getItem("statsOpen");
@@ -134,6 +134,20 @@ document.addEventListener("DOMContentLoaded", async function () {
       localStorage.setItem("statsOpen", this.open);
     });
   }
+
+  const chartsDetails = document.getElementById("chartsSection");
+if (chartsDetails) {
+  // Load saved state
+  const isChartsOpen = localStorage.getItem("chartsOpen");
+  if (isChartsOpen !== null) {
+    chartsDetails.open = isChartsOpen === "true";
+  }
+
+  // Save state when toggled
+  chartsDetails.addEventListener("toggle", function () {
+    localStorage.setItem("chartsOpen", this.open);
+  });
+}
 
   // Load page size from localStorage if available
   const savedPageSize = localStorage.getItem("pageSize");
