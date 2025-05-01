@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Setup for stats summary toggle persistence
-  const statsDetails = document.getElementById("detailsSection");
+  const statsDetails = document.getElementById("statsSection");
   if (statsDetails) {
     // Load saved state
     const isStatsOpen = localStorage.getItem("statsOpen");
