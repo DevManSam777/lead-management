@@ -1152,7 +1152,7 @@ body {
   .leads-table th,
   .leads-table td {
     font-size: 1.2rem;
-    padding: 0.5rem;
+    padding-inline: 0.5rem;
     overflow-x: hidden;
   }
 
