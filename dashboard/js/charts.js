@@ -590,7 +590,7 @@ let revenueComparisonChart = null;
 
 // Initialize the charts functionality
 function initializeCharts() {
-    console.log("Initializing charts");
+    console.log("Initializing charts...");
 
     // Create the initial chart instances
     // These functions will now check for data and create the chart if data exists
@@ -601,16 +601,16 @@ function initializeCharts() {
     // Set up event listeners for chart update
     // These listeners will now trigger the updateAllCharts function
     // which will modify and update the *existing* chart instances.
+    // Ensure that the code dispatching these events updates window.allLeads and window.payments FIRST.
     window.addEventListener("leadSaved", updateAllCharts);
     window.addEventListener("leadDeleted", updateAllCharts);
     window.addEventListener("paymentsUpdated", updateAllCharts);
 
     // Also listen for theme changes
-    // This observer should still work as intended
     const observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
             if (mutation.attributeName === "data-theme") {
-                console.log("Theme changed, updating charts.");
+                console.log("Theme changed, triggering chart update.");
                 updateAllCharts(); // Trigger update to apply new theme colors/styles
             }
         });
@@ -623,14 +623,32 @@ function initializeCharts() {
     // Chart.js handles most responsiveness with responsive: true,
     // but updating options like font size on resize is good practice.
     window.addEventListener("resize", updateAllCharts);
+
+    console.log("Chart initialization complete. Event listeners attached.");
 }
 
-// Functions to create the initial chart instances
-// These functions also handle the "no data" state on initial load
+// Function to get responsive font size based on container width
+function getResponsiveFontSize(container) {
+    const width = container ? container.clientWidth : 600; // Add safety check for container
+    if (width < 480) return 10; // Small screens
+    if (width < 768) return 12; // Medium screens
+    return 14; // Large screens
+}
+
+// Helper to get theme-dependent colors
+function getThemeColor(cssVariable) {
+    return getComputedStyle(document.documentElement).getPropertyValue(cssVariable).trim();
+}
+
+
+// --- CHART CREATION FUNCTIONS ---
+// These functions are called once during initialization or if a chart needs to be created later.
+
 function createProjectStatusChart() {
     const container = document.getElementById("statusDistributionChart");
     if (!container) {
-        console.log("Status chart container not found for creation");
+        console.error("Status chart container not found for creation.");
+        projectStatusChart = null; // Ensure null if container is missing
         return;
     }
 
@@ -643,6 +661,13 @@ function createProjectStatusChart() {
          const canvas = document.createElement("canvas");
          container.appendChild(canvas);
          const ctx = canvas.getContext("2d");
+         if (!ctx) {
+             console.error("Failed to get canvas context for status chart.");
+             container.innerHTML = '<div class="chart-no-data">Error creating chart canvas.</div>';
+             projectStatusChart = null;
+             return;
+         }
+
 
         // Group leads by status
         const statusCounts = {
@@ -654,7 +679,12 @@ function createProjectStatusChart() {
         };
         leads.forEach((lead) => {
             const status = lead.status || "new";
-            statusCounts[status]++;
+            if (statusCounts.hasOwnProperty(status)) { // Safely check if status is one we track
+                 statusCounts[status]++;
+            } else {
+                console.warn("Untracked lead status:", status, "for lead:", lead);
+                // Optionally handle untracked statuses, maybe add to a 'misc' category
+            }
         });
         const totalProjects = leads.length;
 
@@ -684,10 +714,13 @@ function createProjectStatusChart() {
         };
 
         // Custom plugin for center text
+        // This plugin should access the chart's data directly to get the latest total
         const centerTextPlugin = {
             id: 'centerText',
             beforeDraw: function(chart) {
                 const ctx = chart.ctx;
+                if (!ctx) return; // Ensure context is valid
+
                 const width = chart.width;
                 const height = chart.height;
                 const centerX = width / 2;
@@ -697,11 +730,11 @@ function createProjectStatusChart() {
                 ctx.textBaseline = "middle";
                 ctx.textAlign = "center";
 
-                const textColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-                const textMutedColor = getComputedStyle(document.documentElement).getPropertyValue("--text-muted");
+                const textColor = getThemeColor("--text-color");
+                const textMutedColor = getThemeColor("--text-muted");
 
                 const headerText = "Total";
-                // Access the latest total from the data calculation
+                 // Get the latest total from the chart's current data
                  const currentTotal = chart.data.datasets[0].data.reduce((sum, val) => sum + val, 0);
                 const totalText = currentTotal.toString();
 
@@ -710,7 +743,7 @@ function createProjectStatusChart() {
                 const headerFontSize = baseFontSize * 1;
                 const totalFontSize = baseFontSize * 2.4;
 
-                const verticalOffset = -25;
+                const verticalOffset = -25; // Keep a reasonable default vertical offset
 
                 const headerY = centerY + verticalOffset - (totalFontSize * .45);
                 const totalY = centerY + verticalOffset + (totalFontSize * .55);
@@ -741,7 +774,7 @@ function createProjectStatusChart() {
                 legend: {
                     position: "bottom",
                     labels: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+                        color: getThemeColor("--text-color"),
                         font: {
                             size: getResponsiveFontSize(container),
                         },
@@ -749,10 +782,10 @@ function createProjectStatusChart() {
                     },
                 },
                 tooltip: {
-                    backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--card-background"),
-                    titleColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-                    bodyColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-                    borderColor: getComputedStyle(document.documentElement).getPropertyValue("--border-color"),
+                    backgroundColor: getThemeColor("--card-background"),
+                    titleColor: getThemeColor("--text-color"),
+                    bodyColor: getThemeColor("--text-color"),
+                    borderColor: getThemeColor("--border-color"),
                     borderWidth: 1,
                     callbacks: {
                         title: function (tooltipItems) {
@@ -772,15 +805,21 @@ function createProjectStatusChart() {
             },
         };
 
+        try {
+            // Create and store the chart instance
+            projectStatusChart = new Chart(ctx, {
+                type: "doughnut",
+                data: initialData,
+                options: initialOptions,
+                plugins: [centerTextPlugin] // Add the custom plugin here
+            });
+            console.log("Status chart created successfully.");
+        } catch (error) {
+             console.error("Error during status chart instantiation:", error);
+             container.innerHTML = '<div class="chart-no-data">Error creating chart instance.</div>';
+             projectStatusChart = null;
+        }
 
-        // Create and store the chart instance
-        projectStatusChart = new Chart(ctx, {
-            type: "doughnut",
-            data: initialData,
-            options: initialOptions,
-            plugins: [centerTextPlugin]
-        });
-        console.log("Status chart created successfully");
     } else {
         container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
         projectStatusChart = null; // Ensure the variable is null if no chart is created
@@ -790,7 +829,8 @@ function createProjectStatusChart() {
 function createNewProjectsChart() {
     const container = document.getElementById("newProjectsChart");
     if (!container) {
-        console.log("New projects chart container not found for creation");
+        console.error("New projects chart container not found for creation.");
+        newProjectsChart = null;
         return;
     }
 
@@ -801,7 +841,12 @@ function createNewProjectsChart() {
         const canvas = document.createElement("canvas");
         container.appendChild(canvas);
         const ctx = canvas.getContext("2d");
-
+         if (!ctx) {
+             console.error("Failed to get canvas context for new projects chart.");
+             container.innerHTML = '<div class="chart-no-data">Error creating chart canvas.</div>';
+             newProjectsChart = null;
+             return;
+         }
 
          // Group leads by month (data preparation)
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -815,9 +860,14 @@ function createNewProjectsChart() {
             const leadDate = new Date(lead.createdAt);
             if (leadDate.getFullYear() === currentYear) {
                 const monthIndex = leadDate.getMonth();
-                monthlyNewLeadCounts[monthIndex]++;
+                if(monthIndex >= 0 && monthIndex < 12) { // Basic month index validation
+                     monthlyNewLeadCounts[monthIndex]++;
+                }
                 if (lead.status === "closed-won") {
-                     monthlyClosedWonLeadCounts[monthIndex]++;
+                    // Using creation month for closed won for simplicity as in original logic
+                     if(monthIndex >= 0 && monthIndex < 12) {
+                         monthlyClosedWonLeadCounts[monthIndex]++;
+                     }
                 }
             }
         });
@@ -866,17 +916,17 @@ function createNewProjectsChart() {
             plugins: {
                 legend: {
                     labels: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+                        color: getThemeColor("--text-color"),
                         font: {
                             size: getResponsiveFontSize(container),
                         },
                     },
                 },
                 tooltip: {
-                    backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--card-background"),
-                    titleColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-                    bodyColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-                    borderColor: getComputedStyle(document.documentElement).getPropertyValue("--border-color"),
+                    backgroundColor: getThemeColor("--card-background"),
+                    titleColor: getThemeColor("--text-color"),
+                    bodyColor: getThemeColor("--text-color"),
+                    borderColor: getThemeColor("--border-color"),
                     borderWidth: 1,
                 },
             },
@@ -884,23 +934,24 @@ function createNewProjectsChart() {
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20",
+                        color: getThemeColor("--text-muted") + "20",
                         lineWidth: 0.5,
                     },
                     ticks: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+                        color: getThemeColor("--text-color"),
                         font: {
                             size: getResponsiveFontSize(container),
                         },
+                        precision: 0 // Ensure whole numbers for counts
                     },
                 },
                 x: {
                     grid: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20",
+                        color: getThemeColor("--text-muted") + "20",
                         lineWidth: 0.5,
                     },
                     ticks: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+                        color: getThemeColor("--text-color"),
                         font: {
                             size: getResponsiveFontSize(container),
                         },
@@ -910,13 +961,20 @@ function createNewProjectsChart() {
             },
         };
 
-        // Create and store the chart instance
-        newProjectsChart = new Chart(ctx, {
-            type: "line",
-            data: initialData,
-            options: initialOptions,
-        });
-        console.log("New projects chart created successfully");
+        try {
+            // Create and store the chart instance
+            newProjectsChart = new Chart(ctx, {
+                type: "line",
+                data: initialData,
+                options: initialOptions,
+            });
+            console.log("New projects chart created successfully.");
+        } catch (error) {
+            console.error("Error during new projects chart instantiation:", error);
+             container.innerHTML = '<div class="chart-no-data">Error creating chart instance.</div>';
+             newProjectsChart = null;
+        }
+
     } else {
         container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
         newProjectsChart = null;
@@ -926,7 +984,8 @@ function createNewProjectsChart() {
 function createRevenueComparisonChart() {
      const container = document.getElementById("revenueComparisonChart");
     if (!container) {
-        console.log("Revenue chart container not found for creation");
+        console.error("Revenue chart container not found for creation.");
+        revenueComparisonChart = null;
         return;
     }
 
@@ -937,7 +996,12 @@ function createRevenueComparisonChart() {
         const canvas = document.createElement("canvas");
         container.appendChild(canvas);
         const ctx = canvas.getContext("2d");
-
+         if (!ctx) {
+             console.error("Failed to get canvas context for revenue chart.");
+             container.innerHTML = '<div class="chart-no-data">Error creating chart canvas.</div>';
+             revenueComparisonChart = null;
+             return;
+         }
 
          // Group payments by month (data preparation)
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -954,11 +1018,15 @@ function createRevenueComparisonChart() {
             const paymentMonth = paymentDate.getMonth();
             const paymentAmount = parseFloat(payment.amount) || 0;
 
-            if (paymentYear === currentYear) {
-                currentYearMonthlyTotals[paymentMonth] += paymentAmount;
-            }
-            if (paymentYear === previousYear) {
-                previousYearMonthlyTotals[paymentMonth] += paymentAmount;
+             if (paymentMonth >= 0 && paymentMonth < 12) { // Basic month index validation
+                if (paymentYear === currentYear) {
+                    currentYearMonthlyTotals[paymentMonth] += paymentAmount;
+                }
+                if (paymentYear === previousYear) {
+                    previousYearMonthlyTotals[paymentMonth] += paymentAmount;
+                }
+            } else {
+                 console.warn("Invalid payment month:", paymentMonth, "for payment:", payment);
             }
         });
 
@@ -998,7 +1066,7 @@ function createRevenueComparisonChart() {
             plugins: {
                 legend: {
                     labels: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+                        color: getThemeColor("--text-color"),
                         font: {
                             size: getResponsiveFontSize(container),
                         },
@@ -1006,10 +1074,10 @@ function createRevenueComparisonChart() {
                     },
                 },
                 tooltip: {
-                    backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--card-background"),
-                    titleColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-                    bodyColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-                    borderColor: getComputedStyle(document.documentElement).getPropertyValue("--border-color"),
+                    backgroundColor: getThemeColor("--card-background"),
+                    titleColor: getThemeColor("--text-color"),
+                    bodyColor: getThemeColor("--text-color"),
+                    borderColor: getThemeColor("--border-color"),
                     borderWidth: 1,
                     callbacks: {
                         label: function(context) {
@@ -1022,14 +1090,14 @@ function createRevenueComparisonChart() {
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20",
+                        color: getThemeColor("--text-muted") + "20",
                         lineWidth: 0.5,
                     },
                     ticks: {
                         callback: function (value) {
                             return "$" + value.toLocaleString();
                         },
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+                        color: getThemeColor("--text-color"),
                         font: {
                             size: getResponsiveFontSize(container),
                         },
@@ -1037,11 +1105,11 @@ function createRevenueComparisonChart() {
                 },
                 x: {
                     grid: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20",
+                        color: getThemeColor("--text-muted") + "20",
                         lineWidth: 0.5,
                     },
                     ticks: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+                        color: getThemeColor("--text-color"),
                         font: {
                             size: getResponsiveFontSize(container),
                         },
@@ -1051,14 +1119,20 @@ function createRevenueComparisonChart() {
             },
         };
 
+        try {
+            // Create and store the chart instance
+            revenueComparisonChart = new Chart(ctx, {
+                type: "bar",
+                data: initialData,
+                options: initialOptions,
+            });
+            console.log("Revenue chart created successfully.");
+        } catch (error) {
+             console.error("Error during revenue comparison chart instantiation:", error);
+             container.innerHTML = '<div class="chart-no-data">Error creating chart instance.</div>';
+             revenueComparisonChart = null;
+        }
 
-        // Create and store the chart instance
-        revenueComparisonChart = new Chart(ctx, {
-            type: "bar",
-            data: initialData,
-            options: initialOptions,
-        });
-        console.log("Revenue chart created successfully");
     } else {
          container.innerHTML = '<div class="chart-no-data">No revenue data to display</div>';
          revenueComparisonChart = null;
@@ -1066,84 +1140,155 @@ function createRevenueComparisonChart() {
 }
 
 
+// --- CHART UPDATE FUNCTIONS ---
+// These functions update existing charts or create them if they don't exist.
+
 // Update all charts with current data
 // This function is called when the custom events or resize/theme changes occur
 function updateAllCharts() {
-    console.log("Updating charts");
+    console.log(">>> updateAllCharts triggered <<<");
 
     // Call the update functions for each chart
     // These functions will now modify existing chart instances and call .update()
+    // They also handle creating the chart if it doesn't exist or destroying if data is gone.
     updateProjectStatusChart();
     updateNewProjectsChart();
     updateRevenueComparisonChart();
+
+     console.log(">>> updateAllCharts finished <<<");
 }
 
 // Function to update the Project Status Distribution chart
 function updateProjectStatusChart() {
     const container = document.getElementById("statusDistributionChart");
+    if (!container) {
+        console.error("Status chart container not found for update.");
+        // If container is gone, destroy chart if it exists
+        if (projectStatusChart) {
+            projectStatusChart.destroy();
+            projectStatusChart = null;
+        }
+        return;
+    }
+
     const leads = window.allLeads || [];
+    const hasData = leads.length > 0;
+    const noDataMessageDiv = container.querySelector('.chart-no-data');
 
-    // Check if the chart instance exists
     if (projectStatusChart) {
-        console.log("Updating existing status chart");
+        // Chart exists, decide whether to update or destroy
+        if (hasData) {
+            console.log("Attempting to update existing status chart...");
 
-        if (leads.length > 0) {
             // --- Update Data ---
-            const statusCounts = {
-                new: 0,
-                contacted: 0,
-                "in-progress": 0,
-                "closed-won": 0,
-                "closed-lost": 0,
-            };
-            leads.forEach((lead) => {
-                const status = lead.status || "new";
-                statusCounts[status]++;
-            });
-            projectStatusChart.data.datasets[0].data = [
-                statusCounts["new"],
-                statusCounts["contacted"],
-                statusCounts["in-progress"],
-                statusCounts["closed-won"],
-                statusCounts["closed-lost"],
+             const statusCounts = {
+                 new: 0,
+                 contacted: 0,
+                 "in-progress": 0,
+                 "closed-won": 0,
+                 "closed-lost": 0,
+             };
+             leads.forEach((lead) => {
+                 const status = lead.status || "new";
+                  if (statusCounts.hasOwnProperty(status)) {
+                      statusCounts[status]++;
+                  } else {
+                       console.warn("Untracked lead status during update:", status, "for lead:", lead);
+                   }
+             });
+
+            const newChartData = [
+                 statusCounts["new"],
+                 statusCounts["contacted"],
+                 statusCounts["in-progress"],
+                 statusCounts["closed-won"],
+                 statusCounts["closed-lost"],
             ];
 
-             // Update options for responsiveness and theme changes
-             projectStatusChart.options.plugins.legend.labels.font.size = getResponsiveFontSize(container);
-             projectStatusChart.options.plugins.legend.labels.boxWidth = getResponsiveFontSize(container);
-             projectStatusChart.options.plugins.legend.labels.color = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             projectStatusChart.options.plugins.tooltip.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--card-background");
-             projectStatusChart.options.plugins.tooltip.titleColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             projectStatusChart.options.plugins.tooltip.bodyColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             projectStatusChart.options.plugins.tooltip.borderColor = getComputedStyle(document.documentElement).getPropertyValue("--border-color");
+             console.log("Status chart new data:", newChartData);
+             if (projectStatusChart.data && projectStatusChart.data.datasets && projectStatusChart.data.datasets[0]) {
+                  projectStatusChart.data.datasets[0].data = newChartData;
+             } else {
+                 console.error("Status chart data structure not as expected during update.");
+                 // Potentially destroy and recreate if data structure is invalid
+                 projectStatusChart.destroy();
+                 projectStatusChart = null;
+                 createProjectStatusChart();
+                 return; // Exit after attempting recreation
+             }
+
+
+            // --- Update Options (for responsiveness and theme changes) ---
+            // Create a new options object or carefully update existing properties
+            // Creating a new object can sometimes be more reliable for theme changes
+            const updatedOptions = {
+                 ...projectStatusChart.options, // Keep existing options
+                 responsive: true,
+                 maintainAspectRatio: false,
+                  layout: { padding: 10 },
+                 plugins: {
+                     ...projectStatusChart.options.plugins, // Keep existing plugins options
+                     legend: {
+                         ...projectStatusChart.options.plugins.legend,
+                         labels: {
+                             ...projectStatusChart.options.plugins.legend.labels,
+                             color: getThemeColor("--text-color"),
+                             font: { size: getResponsiveFontSize(container) },
+                             boxWidth: getResponsiveFontSize(container),
+                         },
+                     },
+                     tooltip: {
+                         ...projectStatusChart.options.plugins.tooltip,
+                         backgroundColor: getThemeColor("--card-background"),
+                         titleColor: getThemeColor("--text-color"),
+                         bodyColor: getThemeColor("--text-color"),
+                         borderColor: getThemeColor("--border-color"),
+                     },
+                     // Center text plugin options are handled within the plugin's beforeDraw,
+                     // accessing the latest chart data and theme colors directly.
+                 },
+                 cutout: "65%", // Ensure cutout is still set
+            };
+             projectStatusChart.options = updatedOptions;
+             console.log("Status chart updated options:", projectStatusChart.options);
+
 
             // Call update to redraw the chart
-            projectStatusChart.update();
+            try {
+                projectStatusChart.update();
+                 console.log("projectStatusChart.update() called successfully.");
+            } catch (error) {
+                 console.error("Error calling update() on status chart:", error);
+            }
 
-             // Ensure the "no data" message is not visible if the chart is displayed
-             const noDataMessage = container.querySelector('.chart-no-data');
-             if(noDataMessage) {
-                 noDataMessage.style.display = 'none';
+
+             // Hide the "no data" message if it was visible
+             if(noDataMessageDiv) {
+                 noDataMessageDiv.style.display = 'none';
              }
 
 
         } else {
-            // If chart exists but no data, destroy it and show message
-            console.log("No data for status chart, destroying existing chart");
+            // Chart exists but no data, destroy it and show message
+            console.log("No data for status chart, destroying existing chart.");
             projectStatusChart.destroy();
             projectStatusChart = null; // Clear the reference
             container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
         }
 
-    } else if (!projectStatusChart && leads.length > 0) {
-        // If chart doesn't exist but there's data, create it
-        console.log("Chart instance not found, creating status chart during update");
+    } else if (!projectStatusChart && hasData) {
+        // Chart doesn't exist but there's data, create it
+        console.log("Status chart instance not found but data exists, creating chart...");
         createProjectStatusChart(); // Call the creation function
 
-    } else if (!projectStatusChart && leads.length === 0) {
-         // If chart doesn't exist and no data, just ensure message is shown
-         console.log("No data and no status chart instance");
-         container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
+    } else if (!projectStatusChart && !hasData) {
+         // Chart doesn't exist and no data, just ensure message is shown
+         console.log("No data and no status chart instance. Showing no data message.");
+         if (!noDataMessageDiv) { // Only add message if it doesn't exist
+              container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
+         } else {
+             noDataMessageDiv.style.display = ''; // Ensure message is visible
+         }
          projectStatusChart = null; // Ensure null
     }
 }
@@ -1151,11 +1296,25 @@ function updateProjectStatusChart() {
 // Function to update the New Projects chart
 function updateNewProjectsChart() {
     const container = document.getElementById("newProjectsChart");
+    if (!container) {
+        console.error("New projects chart container not found for update.");
+         if (newProjectsChart) {
+             newProjectsChart.destroy();
+             newProjectsChart = null;
+         }
+        return;
+    }
+
     const leads = window.allLeads || [];
+    const hasData = leads.length > 0;
+    const noDataMessageDiv = container.querySelector('.chart-no-data');
+
 
     if (newProjectsChart) {
-        console.log("Updating existing new projects chart");
-         if (leads.length > 0) {
+        // Chart exists, decide whether to update or destroy
+         if (hasData) {
+            console.log("Attempting to update existing new projects chart...");
+
              // --- Update Data ---
               const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
               const monthlyNewLeadCounts = new Array(12).fill(0);
@@ -1168,59 +1327,123 @@ function updateNewProjectsChart() {
                   const leadDate = new Date(lead.createdAt);
                   if (leadDate.getFullYear() === currentYear) {
                       const monthIndex = leadDate.getMonth();
-                      monthlyNewLeadCounts[monthIndex]++;
+                       if(monthIndex >= 0 && monthIndex < 12) {
+                          monthlyNewLeadCounts[monthIndex]++;
+                      }
                       if (lead.status === "closed-won") {
-                          monthlyClosedWonLeadCounts[monthIndex]++;
+                           if(monthIndex >= 0 && monthIndex < 12) {
+                              monthlyClosedWonLeadCounts[monthIndex]++;
+                           }
                       }
                   }
               });
 
-             newProjectsChart.data.datasets[0].data = monthlyNewLeadCounts;
-             newProjectsChart.data.datasets[1].data = monthlyClosedWonLeadCounts;
+            const newLineData1 = monthlyNewLeadCounts;
+            const newLineData2 = monthlyClosedWonLeadCounts;
+
+             console.log("New projects chart new data - New:", newLineData1, "Won:", newLineData2);
+
+             if (newProjectsChart.data && newProjectsChart.data.datasets && newProjectsChart.data.datasets.length > 1) {
+                 newProjectsChart.data.datasets[0].data = newLineData1;
+                 newProjectsChart.data.datasets[1].data = newLineData2;
+             } else {
+                 console.error("New projects chart data structure not as expected during update.");
+                  newProjectsChart.destroy();
+                  newProjectsChart = null;
+                  createNewProjectsChart();
+                 return;
+             }
 
 
             // Update options for responsiveness and theme changes
-             newProjectsChart.options.plugins.legend.labels.font.size = getResponsiveFontSize(container);
-             newProjectsChart.options.plugins.legend.labels.color = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             newProjectsChart.options.plugins.tooltip.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--card-background");
-             newProjectsChart.options.plugins.tooltip.titleColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             newProjectsChart.options.plugins.tooltip.bodyColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             newProjectsChart.options.plugins.tooltip.borderColor = getComputedStyle(document.documentElement).getPropertyValue("--border-color");
-
-             // Update scale ticks colors and font sizes
-             newProjectsChart.options.scales.y.ticks.font.size = getResponsiveFontSize(container);
-             newProjectsChart.options.scales.y.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-              newProjectsChart.options.scales.y.grid.color = getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20";
-
-             newProjectsChart.options.scales.x.ticks.font.size = getResponsiveFontSize(container);
-             newProjectsChart.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-              newProjectsChart.options.scales.x.grid.color = getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20";
+             const updatedOptions = {
+                 ...newProjectsChart.options,
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 layout: { padding: 10 },
+                 plugins: {
+                     ...newProjectsChart.options.plugins,
+                     legend: {
+                         ...newProjectsChart.options.plugins.legend,
+                         labels: {
+                             ...newProjectsChart.options.plugins.legend.labels,
+                             color: getThemeColor("--text-color"),
+                             font: { size: getResponsiveFontSize(container) },
+                         },
+                     },
+                     tooltip: {
+                         ...newProjectsChart.options.plugins.tooltip,
+                         backgroundColor: getThemeColor("--card-background"),
+                         titleColor: getThemeColor("--text-color"),
+                         bodyColor: getThemeColor("--text-color"),
+                         borderColor: getThemeColor("--border-color"),
+                     },
+                 },
+                 scales: {
+                     y: {
+                         ...newProjectsChart.options.scales.y,
+                         grid: {
+                              ...newProjectsChart.options.scales.y.grid,
+                             color: getThemeColor("--text-muted") + "20",
+                         },
+                         ticks: {
+                              ...newProjectsChart.options.scales.y.ticks,
+                             color: getThemeColor("--text-color"),
+                             font: { size: getResponsiveFontSize(container) },
+                             precision: 0,
+                         },
+                     },
+                     x: {
+                         ...newProjectsChart.options.scales.x,
+                         grid: {
+                             ...newProjectsChart.options.scales.x.grid,
+                             color: getThemeColor("--text-muted") + "20",
+                         },
+                         ticks: {
+                              ...newProjectsChart.options.scales.x.ticks,
+                             color: getThemeColor("--text-color"),
+                             font: { size: getResponsiveFontSize(container) },
+                              autoSkip: false,
+                         },
+                     },
+                 },
+             };
+            newProjectsChart.options = updatedOptions;
+            console.log("New projects chart updated options:", newProjectsChart.options);
 
 
             // Call update to redraw the chart
-            newProjectsChart.update();
+             try {
+                newProjectsChart.update();
+                 console.log("newProjectsChart.update() called successfully.");
+             } catch (error) {
+                 console.error("Error calling update() on new projects chart:", error);
+             }
 
-             // Ensure the "no data" message is not visible
-              const noDataMessage = container.querySelector('.chart-no-data');
-             if(noDataMessage) {
-                 noDataMessage.style.display = 'none';
+             // Hide the "no data" message
+             if(noDataMessageDiv) {
+                 noDataMessageDiv.style.display = 'none';
              }
 
          } else {
-             // If chart exists but no data, destroy it and show message
-             console.log("No data for new projects chart, destroying existing chart");
+             // Chart exists but no data, destroy it and show message
+             console.log("No data for new projects chart, destroying existing chart.");
              newProjectsChart.destroy();
              newProjectsChart = null;
              container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
          }
 
-     } else if (!newProjectsChart && leads.length > 0) {
-         console.log("Chart instance not found, creating new projects chart during update");
+     } else if (!newProjectsChart && hasData) {
+         console.log("New projects chart instance not found but data exists, creating chart...");
          createNewProjectsChart();
-     }
-     else if (!newProjectsChart && leads.length === 0) {
-         console.log("No data and no new projects chart instance");
-         container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
+
+     } else if (!newProjectsChart && !hasData) {
+          console.log("No data and no new projects chart instance. Showing no data message.");
+          if (!noDataMessageDiv) {
+             container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
+          } else {
+              noDataMessageDiv.style.display = '';
+          }
          newProjectsChart = null;
      }
 }
@@ -1228,12 +1451,25 @@ function updateNewProjectsChart() {
 // Function to update the Revenue by Month Comparison chart
 function updateRevenueComparisonChart() {
     const container = document.getElementById("revenueComparisonChart");
+    if (!container) {
+        console.error("Revenue chart container not found for update.");
+         if (revenueComparisonChart) {
+             revenueComparisonChart.destroy();
+             revenueComparisonChart = null;
+         }
+        return;
+    }
+
     const payments = window.payments || [];
+     const hasData = payments.length > 0;
+     const noDataMessageDiv = container.querySelector('.chart-no-data');
+
 
     if (revenueComparisonChart) {
-        console.log("Updating existing revenue chart");
+        // Chart exists, decide whether to update or destroy
+         if (hasData) {
+            console.log("Attempting to update existing revenue chart...");
 
-         if (payments.length > 0) {
             // --- Update Data ---
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const currentDate = new Date();
@@ -1249,77 +1485,133 @@ function updateRevenueComparisonChart() {
                 const paymentMonth = paymentDate.getMonth();
                 const paymentAmount = parseFloat(payment.amount) || 0;
 
-                if (paymentYear === currentYear) {
-                    currentYearMonthlyTotals[paymentMonth] += paymentAmount;
-                }
-                if (paymentYear === previousYear) {
-                    previousYearMonthlyTotals[paymentMonth] += paymentAmount;
+                if (paymentMonth >= 0 && paymentMonth < 12) {
+                     if (paymentYear === currentYear) {
+                         currentYearMonthlyTotals[paymentMonth] += paymentAmount;
+                     }
+                     if (paymentYear === previousYear) {
+                         previousYearMonthlyTotals[paymentMonth] += paymentAmount;
+                     }
+                } else {
+                    console.warn("Invalid payment month during update:", paymentMonth, "for payment:", payment);
                 }
             });
 
-            revenueComparisonChart.data.datasets[0].data = previousYearMonthlyTotals;
-            revenueComparisonChart.data.datasets[1].data = currentYearMonthlyTotals;
-            // Update dataset labels for years
-            revenueComparisonChart.data.datasets[0].label = `${previousYear}`;
-            revenueComparisonChart.data.datasets[1].label = `${currentYear}`;
+            const newRevenueData1 = previousYearMonthlyTotals;
+            const newRevenueData2 = currentYearMonthlyTotals;
+
+             console.log("Revenue chart new data - Prev Year:", newRevenueData1, "Curr Year:", newRevenueData2);
 
 
-            // Update options for responsiveness and theme changes
-             revenueComparisonChart.options.plugins.legend.labels.font.size = getResponsiveFontSize(container);
-             revenueComparisonChart.options.plugins.legend.labels.boxWidth = getResponsiveFontSize(container);
-             revenueComparisonChart.options.plugins.legend.labels.color = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             revenueComparisonChart.options.plugins.tooltip.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--card-background");
-             revenueComparisonChart.options.plugins.tooltip.titleColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             revenueComparisonChart.options.plugins.tooltip.bodyColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-             revenueComparisonChart.options.plugins.tooltip.borderColor = getComputedStyle(document.documentElement).getPropertyValue("--border-color");
-
-             // Update scale ticks colors and font sizes
-             revenueComparisonChart.options.scales.y.ticks.font.size = getResponsiveFontSize(container);
-             revenueComparisonChart.options.scales.y.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-              revenueComparisonChart.options.scales.y.grid.color = getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20";
-
-             revenueComparisonChart.options.scales.x.ticks.font.size = getResponsiveFontSize(container);
-             revenueComparisonChart.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
-              revenueComparisonChart.options.scales.x.grid.color = getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20";
-
-
-            // Call update to redraw the chart
-            revenueComparisonChart.update();
-
-             // Ensure the "no data" message is not visible
-              const noDataMessage = container.querySelector('.chart-no-data');
-             if(noDataMessage) {
-                 noDataMessage.style.display = 'none';
+             if (revenueComparisonChart.data && revenueComparisonChart.data.datasets && revenueComparisonChart.data.datasets.length > 1) {
+                 revenueComparisonChart.data.datasets[0].data = newRevenueData1;
+                 revenueComparisonChart.data.datasets[1].data = newRevenueData2;
+                 revenueComparisonChart.data.datasets[0].label = `${previousYear}`; // Update labels in case year changes
+                 revenueComparisonChart.data.datasets[1].label = `${currentYear}`;
+             } else {
+                 console.error("Revenue chart data structure not as expected during update.");
+                  revenueComparisonChart.destroy();
+                  revenueComparisonChart = null;
+                  createRevenueComparisonChart();
+                 return;
              }
 
 
+            // Update options for responsiveness and theme changes
+             const updatedOptions = {
+                 ...revenueComparisonChart.options,
+                 responsive: true,
+                 maintainAspectRatio: false,
+                  layout: { padding: 10 },
+                 plugins: {
+                     ...revenueComparisonChart.options.plugins,
+                     legend: {
+                         ...revenueComparisonChart.options.plugins.legend,
+                         labels: {
+                             ...revenueComparisonChart.options.plugins.legend.labels,
+                             color: getThemeColor("--text-color"),
+                             font: { size: getResponsiveFontSize(container) },
+                             boxWidth: getResponsiveFontSize(container),
+                         },
+                     },
+                     tooltip: {
+                         ...revenueComparisonChart.options.plugins.tooltip,
+                         backgroundColor: getThemeColor("--card-background"),
+                         titleColor: getThemeColor("--text-color"),
+                         bodyColor: getThemeColor("--text-color"),
+                         borderColor: getThemeColor("--border-color"),
+                     },
+                 },
+                 scales: {
+                     y: {
+                         ...revenueComparisonChart.options.scales.y,
+                         grid: {
+                              ...revenueComparisonChart.options.scales.y.grid,
+                             color: getThemeColor("--text-muted") + "20",
+                         },
+                         ticks: {
+                              ...revenueComparisonChart.options.scales.y.ticks,
+                             color: getThemeColor("--text-color"),
+                             font: { size: getResponsiveFontSize(container) },
+                              // Callback for currency formatting remains
+                         },
+                     },
+                     x: {
+                         ...revenueComparisonChart.options.scales.x,
+                         grid: {
+                              ...revenueComparisonChart.options.scales.x.grid,
+                             color: getThemeColor("--text-muted") + "20",
+                         },
+                         ticks: {
+                             ...revenueComparisonChart.options.scales.x.ticks,
+                             color: getThemeColor("--text-color"),
+                             font: { size: getResponsiveFontSize(container) },
+                             autoSkip: false,
+                         },
+                     },
+                 },
+             };
+            revenueComparisonChart.options = updatedOptions;
+             console.log("Revenue chart updated options:", revenueComparisonChart.options);
+
+
+            // Call update to redraw the chart
+             try {
+                 revenueComparisonChart.update();
+                 console.log("revenueComparisonChart.update() called successfully.");
+             } catch (error) {
+                  console.error("Error calling update() on revenue chart:", error);
+             }
+
+
+             // Hide the "no data" message
+             if(noDataMessageDiv) {
+                 noDataMessageDiv.style.display = 'none';
+             }
+
          } else {
-            // If chart exists but no data, destroy it and show message
-             console.log("No data for revenue chart, destroying existing chart");
+            // Chart exists but no data, destroy it and show message
+             console.log("No data for revenue chart, destroying existing chart.");
              revenueComparisonChart.destroy();
              revenueComparisonChart = null;
              container.innerHTML = '<div class="chart-no-data">No revenue data to display</div>';
          }
 
-     } else if (!revenueComparisonChart && payments.length > 0) {
-         console.log("Chart instance not found, creating revenue chart during update");
+     } else if (!revenueComparisonChart && hasData) {
+         console.log("Revenue chart instance not found but data exists, creating chart...");
          createRevenueComparisonChart();
 
-     } else if (!revenueComparisonChart && payments.length === 0) {
-          console.log("No data and no revenue chart instance");
-         container.innerHTML = '<div class="chart-no-data">No revenue data to display</div>';
+     } else if (!revenueComparisonChart && !hasData) {
+          console.log("No data and no revenue chart instance. Showing no data message.");
+          if (!noDataMessageDiv) {
+              container.innerHTML = '<div class="chart-no-data">No revenue data to display</div>';
+          } else {
+              noDataMessageDiv.style.display = '';
+          }
          revenueComparisonChart = null;
      }
 }
 
-
-// Function to get responsive font size based on container width (remains the same)
-function getResponsiveFontSize(container) {
-    const width = container.clientWidth;
-    if (width < 480) return 10; // Small screens
-    if (width < 768) return 12; // Medium screens
-    return 14; // Large screens
-}
 
 // Make the initialization function globally accessible
 window.initializeCharts = initializeCharts;
