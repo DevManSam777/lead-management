@@ -1134,10 +1134,6 @@ function performCleanupAndCloseModal() {
 
   // explicitly reload page so that graphs show accurate data
   // window.location.reload();
-
-  setTimeout(() => {
-    window.location.reload();
-  }, 200);
 }
 
 /**
