@@ -29,13 +29,42 @@ function initializeCharts() {
 }
 
 // Update all charts with current data
+// function updateAllCharts() {
+//   console.log("Updating charts");
+
+//   // Call the update functions
+//   updateProjectStatusChart();
+//   updateNewProjectsChart();
+//   updateRevenueComparisonChart();
+// }
+
+// Update all charts with current data
 function updateAllCharts() {
   console.log("Updating charts");
 
-  // Call the update functions
-  updateProjectStatusChart();
-  updateNewProjectsChart();
-  updateRevenueComparisonChart();
+  // Clear all chart containers before redrawing
+  const chartContainers = [
+    document.getElementById("statusDistributionChart"),
+    document.getElementById("newProjectsChart"),
+    document.getElementById("revenueComparisonChart")
+  ];
+  
+  // Clear each container
+  chartContainers.forEach(container => {
+    if (container) {
+      container.innerHTML = "";
+    }
+  });
+
+  // Force a small delay to ensure DOM is updated
+  setTimeout(() => {
+    // Call the update functions
+    updateProjectStatusChart();
+    updateNewProjectsChart();
+    updateRevenueComparisonChart();
+    
+    console.log("Charts updated after data change");
+  }, 50);
 }
 
 // Function to get responsive font size based on container width
