@@ -469,7 +469,7 @@ async function saveLead() {
     window.closeLeadModal();
 
     // explicitly reload to update charts
-    window.location.reload();
+    // window.location.reload();
 
   } catch (error) {
     console.error("Error saving lead:", error);
