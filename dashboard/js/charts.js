@@ -602,7 +602,6 @@ function initializeCharts() {
   window.addEventListener("paymentsUpdated", updateAllCharts);
 
   // Also listen for theme changes using a MutationObserver
-  // This is already correctly implemented to trigger updates
   const observer = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       if (mutation.attributeName === "data-theme") {
@@ -616,7 +615,6 @@ function initializeCharts() {
   observer.observe(document.documentElement, { attributes: true });
 
   // Add window resize listener for responsive charts
-  // Destroy and recreate charts on resize to handle responsiveness correctly
   window.addEventListener("resize", debounce(function() {
     destroyAllCharts();
     updateAllCharts();
@@ -684,30 +682,29 @@ function updateProjectStatusChart() {
     const canvas = container.querySelector("canvas");
     const ctx = canvas ? canvas.getContext("2d") : null;
 
+    // Group leads by status
+    const statusCounts = {
+      new: 0,
+      contacted: 0,
+      "in-progress": 0,
+      "closed-won": 0,
+      "closed-lost": 0,
+    };
+
+    // Access allLeads from the global context
+    const leads = window.allLeads || [];
+
+    // Count leads in each status
+    leads.forEach((lead) => {
+      const status = lead.status || "new";
+      statusCounts[status]++;
+    });
+
+    const totalProjects = leads.length; // Calculate total projects
+
     // If the chart already exists, update its data and options
     if (projectStatusChartInstance && ctx) {
         console.log("Updating status chart");
-
-        // Group leads by status
-        const statusCounts = {
-          new: 0,
-          contacted: 0,
-          "in-progress": 0,
-          "closed-won": 0,
-          "closed-lost": 0,
-        };
-
-        // Access allLeads from the global context
-        const leads = window.allLeads || [];
-
-        // Count leads in each status
-        leads.forEach((lead) => {
-          const status = lead.status || "new";
-          statusCounts[status]++;
-        });
-
-        const totalProjects = leads.length; // Calculate total projects
-
 
         // Update chart data
         projectStatusChartInstance.data.datasets[0].data = [
@@ -727,15 +724,6 @@ function updateProjectStatusChart() {
         projectStatusChartInstance.options.plugins.tooltip.bodyColor = getComputedStyle(document.documentElement).getPropertyValue("--text-color");
         projectStatusChartInstance.options.plugins.tooltip.borderColor = getComputedStyle(document.documentElement).getPropertyValue("--border-color");
 
-
-        // Need to update the center text plugin's access to totalProjects and colors
-        // Re-adding the plugin or ensuring it accesses the latest totalProjects and colors is key.
-        // A simpler approach is to just re-create the chart on theme/resize change (handled in initializeCharts)
-        // For data updates, the center text plugin needs access to the current totalProjects.
-        // We can pass this via options or ensure the plugin function has access to the latest data.
-        // Modifying the plugin to access the chart's data directly is the most robust approach for data updates.
-        // Let's ensure the plugin definition below correctly references the chart instance's data.
-
         // Call update to re-render the chart
         projectStatusChartInstance.update();
 
@@ -746,30 +734,14 @@ function updateProjectStatusChart() {
              container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
          }
 
-
-    } else if (ctx) { // If chart does not exist, create a new one
+    } else if (leads.length > 0) { // If chart does not exist AND there is data, create a new one
       console.log("Creating status chart");
 
-       // Access allLeads from the global context
-       const leads = window.allLeads || [];
-
-       // Group leads by status
-       const statusCounts = {
-         new: 0,
-         contacted: 0,
-         "in-progress": 0,
-         "closed-won": 0,
-         "closed-lost": 0,
-       };
-
-       // Count leads in each status
-       leads.forEach((lead) => {
-         const status = lead.status || "new";
-         statusCounts[status]++;
-       });
-
-       const totalProjects = leads.length; // Calculate total projects
-
+      // Clear previous chart content before creating a new one (handles the no data message)
+      container.innerHTML = "";
+      const newCanvas = document.createElement("canvas");
+      container.appendChild(newCanvas);
+      const newCtx = newCanvas.getContext("2d");
 
       try {
         // Prepare data for chart with high-contrast, accessible colors
@@ -848,15 +820,6 @@ function updateProjectStatusChart() {
           }
         };
 
-
-        // Create the chart only if there are leads
-        if (leads.length > 0) {
-            // Clear previous chart content before creating a new one
-            container.innerHTML = "";
-            const newCanvas = document.createElement("canvas");
-            container.appendChild(newCanvas);
-            const newCtx = newCanvas.getContext("2d");
-
           projectStatusChartInstance = new Chart(newCtx, {
             type: "doughnut",
             data: data,
@@ -907,27 +870,18 @@ function updateProjectStatusChart() {
             plugins: [centerTextPlugin] // Add the custom plugin here
           });
           console.log("Status chart created successfully");
-        } else {
-          container.innerHTML =
-            '<div class="chart-no-data">No projects to display</div>';
-            projectStatusChartInstance = null; // Ensure instance is null if no data
-        }
+
       } catch (error) {
         console.error("Error creating status chart:", error);
         container.innerHTML =
           '<div class="chart-no-data">Error creating chart</div>';
           projectStatusChartInstance = null; // Ensure instance is null on error
       }
-    } else if (!canvas && !projectStatusChartInstance) {
-         // If no canvas and no chart instance, it means it was likely cleared due to no data previously.
-         // Attempt to create the chart if there is data now.
-        const leads = window.allLeads || [];
-         if (leads.length > 0) {
-             // Clear previous "no data" message
-             container.innerHTML = "";
-             // Re-run the function to create the chart
-             updateProjectStatusChart();
-         }
+    } else if (!projectStatusChartInstance) {
+         // If no chart instance and no data, show the no data message
+        container.innerHTML =
+            '<div class="chart-no-data">No projects to display</div>';
+         projectStatusChartInstance = null; // Ensure instance is null
     }
   }
 
@@ -943,37 +897,54 @@ function updateNewProjectsChart() {
   const canvas = container.querySelector("canvas");
   const ctx = canvas ? canvas.getContext("2d") : null;
 
+  // Access allLeads from the global context
+  const leads = window.allLeads || [];
+
+  // Group leads by month
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Initialize monthly counts for the entire year
+  const monthlyNewLeadCounts = new Array(12).fill(0);
+  const monthlyClosedWonLeadCounts = new Array(12).fill(0);
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+
+  // Process leads for the current year
+  leads.forEach((lead) => {
+    if (!lead.createdAt) return;
+
+    const leadDate = new Date(lead.createdAt);
+
+    // Only count leads from the current year
+    if (leadDate.getFullYear() === currentYear) {
+      const monthIndex = leadDate.getMonth();
+      monthlyNewLeadCounts[monthIndex]++;
+
+      // Check if lead is closed won
+      if (lead.status === "closed-won") {
+        // Use the month of lead creation as the closed month
+        monthlyClosedWonLeadCounts[monthIndex]++;
+      }
+    }
+  });
+
+
    // If the chart already exists, update its data and options
    if (newProjectsChartInstance && ctx) {
        console.log("Updating new projects chart");
-
-        // Access allLeads from the global context
-        const leads = window.allLeads || [];
-
-        // Group leads by month
-        const monthlyNewLeadCounts = new Array(12).fill(0);
-        const monthlyClosedWonLeadCounts = new Array(12).fill(0);
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-
-        // Process leads for the current year
-        leads.forEach((lead) => {
-          if (!lead.createdAt) return;
-
-          const leadDate = new Date(lead.createdAt);
-
-          // Only count leads from the current year
-          if (leadDate.getFullYear() === currentYear) {
-            const monthIndex = leadDate.getMonth();
-            monthlyNewLeadCounts[monthIndex]++;
-
-            // Check if lead is closed won
-            if (lead.status === "closed-won") {
-              // Use the month of lead creation as the closed month
-              monthlyClosedWonLeadCounts[monthIndex]++;
-            }
-          }
-        });
 
        // Update chart data
        newProjectsChartInstance.data.datasets[0].data = monthlyNewLeadCounts;
@@ -1011,65 +982,20 @@ function updateNewProjectsChart() {
         }
 
 
-   } else if (ctx) { // If chart does not exist, create a new one
+   } else if (leads.length > 0) { // If chart does not exist AND there is data, create a new one
       console.log("Creating new projects chart");
 
+       // Clear previous chart content before creating a new one (handles the no data message)
+       container.innerHTML = "";
+       const newCanvas = document.createElement("canvas");
+       container.appendChild(newCanvas);
+       const newCtx = newCanvas.getContext("2d");
+
     try {
-      // Access allLeads from the global context
-      const leads = window.allLeads || [];
-
-      // Group leads by month
-      const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-
-      // Initialize monthly counts for the entire year
-      const monthlyNewLeadCounts = new Array(12).fill(0);
-      const monthlyClosedWonLeadCounts = new Array(12).fill(0);
-      const currentDate = new Date();
-      const currentYear = currentDate.getFullYear();
-
-      // Process leads for the current year
-      leads.forEach((lead) => {
-        if (!lead.createdAt) return;
-
-        const leadDate = new Date(lead.createdAt);
-
-        // Only count leads from the current year
-        if (leadDate.getFullYear() === currentYear) {
-          const monthIndex = leadDate.getMonth();
-          monthlyNewLeadCounts[monthIndex]++;
-
-          // Check if lead is closed won
-          if (lead.status === "closed-won") {
-            // Use the month of lead creation as the closed month
-            monthlyClosedWonLeadCounts[monthIndex]++;
-          }
-        }
-      });
 
       // Debug logging
       console.log("New Leads Counts:", monthlyNewLeadCounts);
       console.log("Closed Won Leads Counts:", monthlyClosedWonLeadCounts);
-
-      // Create the chart only if there are leads
-      if (leads.length > 0) {
-          // Clear previous chart content before creating a new one
-          container.innerHTML = "";
-          const newCanvas = document.createElement("canvas");
-          container.appendChild(newCanvas);
-          const newCtx = newCanvas.getContext("2d");
 
         newProjectsChartInstance = new Chart(newCtx, {
           type: "line",
@@ -1166,27 +1092,18 @@ function updateNewProjectsChart() {
           },
         });
         console.log("New projects chart created successfully");
-      } else {
-        container.innerHTML =
-          '<div class="chart-no-data">No projects to display</div>';
-          newProjectsChartInstance = null; // Ensure instance is null if no data
-      }
+
     } catch (error) {
       console.error("Error creating new projects chart:", error);
       container.innerHTML =
         '<div class="chart-no-data">Error creating chart</div>';
         newProjectsChartInstance = null; // Ensure instance is null on error
     }
-   } else if (!canvas && !newProjectsChartInstance) {
-        // If no canvas and no chart instance, it means it was likely cleared due to no data previously.
-        // Attempt to create the chart if there is data now.
-       const leads = window.allLeads || [];
-        if (leads.length > 0) {
-            // Clear previous "no data" message
-            container.innerHTML = "";
-            // Re-run the function to create the chart
-            updateNewProjectsChart();
-        }
+   } else if (!newProjectsChartInstance) {
+        // If no chart instance and no data, show the no data message
+       container.innerHTML =
+           '<div class="chart-no-data">No projects to display</div>';
+        newProjectsChartInstance = null; // Ensure instance is null
    }
 }
 
@@ -1202,40 +1119,57 @@ function updateRevenueComparisonChart() {
   const canvas = container.querySelector("canvas");
   const ctx = canvas ? canvas.getContext("2d") : null;
 
+  // Access payments from the global context
+  const payments = window.payments || [];
+
+  // Group payments by month for current and previous year
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const previousYear = currentYear - 1;
+
+  // Initialize monthly totals
+  const currentYearMonthlyTotals = new Array(12).fill(0);
+  const previousYearMonthlyTotals = new Array(12).fill(0);
+
+  // Process payments for current and previous year
+  payments.forEach((payment) => {
+    if (!payment.paymentDate) return;
+
+    const paymentDate = new Date(payment.paymentDate);
+    const paymentYear = paymentDate.getFullYear();
+    const paymentMonth = paymentDate.getMonth();
+    const paymentAmount = parseFloat(payment.amount) || 0;
+
+    // Process current year payments
+    if (paymentYear === currentYear) {
+      currentYearMonthlyTotals[paymentMonth] += paymentAmount;
+    }
+
+    // Process previous year payments
+    if (paymentYear === previousYear) {
+      previousYearMonthlyTotals[paymentMonth] += paymentAmount;
+    }
+  });
+
+
    // If the chart already exists, update its data and options
    if (revenueComparisonChartInstance && ctx) {
        console.log("Updating revenue chart");
-
-       // Access payments from the global context
-       const payments = window.payments || [];
-
-       const currentDate = new Date();
-       const currentYear = currentDate.getFullYear();
-       const previousYear = currentYear - 1;
-
-       // Initialize monthly totals
-       const currentYearMonthlyTotals = new Array(12).fill(0);
-       const previousYearMonthlyTotals = new Array(12).fill(0);
-
-       // Process payments for current and previous year
-       payments.forEach((payment) => {
-         if (!payment.paymentDate) return;
-
-         const paymentDate = new Date(payment.paymentDate);
-         const paymentYear = paymentDate.getFullYear();
-         const paymentMonth = paymentDate.getMonth();
-         const paymentAmount = parseFloat(payment.amount) || 0;
-
-         // Process current year payments
-         if (paymentYear === currentYear) {
-           currentYearMonthlyTotals[paymentMonth] += paymentAmount;
-         }
-
-         // Process previous year payments
-         if (paymentYear === previousYear) {
-           previousYearMonthlyTotals[paymentMonth] += paymentAmount;
-         }
-       });
 
        // Update chart data
        revenueComparisonChartInstance.data.datasets[0].data = previousYearMonthlyTotals;
@@ -1278,65 +1212,16 @@ function updateRevenueComparisonChart() {
         }
 
 
-   } else if (ctx) { // If chart does not exist, create a new one
+   } else if (payments.length > 0) { // If chart does not exist AND there is data, create a new one
       console.log("Creating revenue chart");
 
+       // Clear previous chart content before creating a new one (handles the no data message)
+       container.innerHTML = "";
+       const newCanvas = document.createElement("canvas");
+       container.appendChild(newCanvas);
+       const newCtx = newCanvas.getContext("2d");
+
     try {
-      // Access payments from the global context
-      const payments = window.payments || [];
-
-      // Group payments by month for current and previous year
-      const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-
-      const currentDate = new Date();
-      const currentYear = currentDate.getFullYear();
-      const previousYear = currentYear - 1;
-
-      // Initialize monthly totals
-      const currentYearMonthlyTotals = new Array(12).fill(0);
-      const previousYearMonthlyTotals = new Array(12).fill(0);
-
-      // Process payments for current and previous year
-      payments.forEach((payment) => {
-        if (!payment.paymentDate) return;
-
-        const paymentDate = new Date(payment.paymentDate);
-        const paymentYear = paymentDate.getFullYear();
-        const paymentMonth = paymentDate.getMonth();
-        const paymentAmount = parseFloat(payment.amount) || 0;
-
-        // Process current year payments
-        if (paymentYear === currentYear) {
-          currentYearMonthlyTotals[paymentMonth] += paymentAmount;
-        }
-
-        // Process previous year payments
-        if (paymentYear === previousYear) {
-          previousYearMonthlyTotals[paymentMonth] += paymentAmount;
-        }
-      });
-
-      // Create the chart only if there are payments
-      if (payments.length > 0) {
-          // Clear previous chart content before creating a new one
-          container.innerHTML = "";
-          const newCanvas = document.createElement("canvas");
-          container.appendChild(newCanvas);
-          const newCtx = newCanvas.getContext("2d");
-
         revenueComparisonChartInstance = new Chart(newCtx, {
           type: "bar",
           data: {
@@ -1437,27 +1322,18 @@ function updateRevenueComparisonChart() {
           },
         });
         console.log("Revenue chart created successfully");
-      } else {
-        container.innerHTML =
-          '<div class="chart-no-data">No revenue data to display</div>';
-          revenueComparisonChartInstance = null; // Ensure instance is null if no data
-      }
+
     } catch (error) {
       console.error("Error creating revenue chart:", error);
       container.innerHTML =
         '<div class="chart-no-data">Error creating chart</div>';
         revenueComparisonChartInstance = null; // Ensure instance is null on error
     }
-   } else if (!canvas && !revenueComparisonChartInstance) {
-        // If no canvas and no chart instance, it means it was likely cleared due to no data previously.
-        // Attempt to create the chart if there is data now.
-       const payments = window.payments || [];
-        if (payments.length > 0) {
-            // Clear previous "no data" message
-            container.innerHTML = "";
-            // Re-run the function to create the chart
-            updateRevenueComparisonChart();
-        }
+   } else if (!revenueComparisonChartInstance) {
+        // If no chart instance and no data, show the no data message
+       container.innerHTML =
+           '<div class="chart-no-data">No revenue data to display</div>';
+        revenueComparisonChartInstance = null; // Ensure instance is null
    }
 }
 
