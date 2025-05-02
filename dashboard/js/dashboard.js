@@ -136,18 +136,18 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   const chartsDetails = document.getElementById("chartsSection");
-if (chartsDetails) {
-  // Load saved state
-  const isChartsOpen = localStorage.getItem("chartsOpen");
-  if (isChartsOpen !== null) {
-    chartsDetails.open = isChartsOpen === "true";
-  }
+  if (chartsDetails) {
+    // Load saved state
+    const isChartsOpen = localStorage.getItem("chartsOpen");
+    if (isChartsOpen !== null) {
+      chartsDetails.open = isChartsOpen === "true";
+    }
 
-  // Save state when toggled
-  chartsDetails.addEventListener("toggle", function () {
-    localStorage.setItem("chartsOpen", this.open);
-  });
-}
+    // Save state when toggled
+    chartsDetails.addEventListener("toggle", function () {
+      localStorage.setItem("chartsOpen", this.open);
+    });
+  }
 
   // Load page size from localStorage if available
   const savedPageSize = localStorage.getItem("pageSize");
@@ -415,88 +415,118 @@ if (chartsDetails) {
   // });
 
   // Event listeners for lead updates
-window.addEventListener("leadSaved", function (event) {
-  const { lead, isNew } = event.detail;
+  window.addEventListener("leadSaved", function (event) {
+    const { lead, isNew } = event.detail;
 
-  // Update allLeads array
-  if (isNew) {
-    allLeads.push(lead);
-  } else {
-    const index = allLeads.findIndex((l) => l._id === lead._id);
-    if (index !== -1) {
-      // Check if status has changed from closed-won to something else
-      const oldStatus = allLeads[index].status;
-      const newStatus = lead.status;
-      
-      // Replace the lead in the array
-      allLeads[index] = lead;
-      
-      // If this was a status change involving closed-won status, force chart update
-      if ((oldStatus === "closed-won" && newStatus !== "closed-won") || 
-          (oldStatus !== "closed-won" && newStatus === "closed-won")) {
-        console.log("Status changed involving closed-won, updating charts");
-        if (typeof window.updateAllCharts === "function") {
-          window.updateAllCharts();
+    // Update allLeads array
+    if (isNew) {
+      allLeads.push(lead);
+    } else {
+      const index = allLeads.findIndex((l) => l._id === lead._id);
+      if (index !== -1) {
+        // Check if status has changed from closed-won to something else
+        const oldStatus = allLeads[index].status;
+        const newStatus = lead.status;
+
+        // Replace the lead in the array
+        allLeads[index] = lead;
+
+        // If this was a status change involving closed-won status, force chart update
+        if (
+          (oldStatus === "closed-won" && newStatus !== "closed-won") ||
+          (oldStatus !== "closed-won" && newStatus === "closed-won")
+        ) {
+          console.log("Status changed involving closed-won, updating charts");
+          if (typeof window.updateAllCharts === "function") {
+            window.updateAllCharts();
+          }
         }
       }
     }
-  }
 
-  // Reset to first page when adding a new lead
-  if (isNew) {
-    currentPage = 1;
-  }
-
-  // Re-render and update stats
-  const filteredLeads = getFilteredLeads();
-  renderPaginatedLeads(filteredLeads);
-  UI.calculateStats(allLeads, payments);
-});
-
-window.addEventListener("leadDeleted", function (event) {
-  const { leadId } = event.detail;
-  
-  // Check if the deleted lead was closed-won before removing it
-  const deletedLead = allLeads.find((lead) => lead._id === leadId);
-  const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
-
-  // Remove lead from array
-  allLeads = allLeads.filter((lead) => lead._id !== leadId);
-
-  // Reset to first page if we're on a page higher than max pages
-  if (currentPage > Math.ceil(allLeads.length / pageSize)) {
-    currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
-  }
-
-  // Re-render and update stats
-  const filteredLeads = getFilteredLeads();
-  renderPaginatedLeads(filteredLeads);
-  UI.calculateStats(allLeads, payments);
-  
-  // Force chart update if this was a closed-won lead
-  if (wasClosedWon) {
-    console.log("Deleted a closed-won lead, updating charts");
-    if (typeof window.updateAllCharts === "function") {
-      window.updateAllCharts();
-    }
-  }
-});
-
-  window.addEventListener("leadDeleted", function (event) {
-    const { leadId } = event.detail;
-
-    // Remove lead from array
-    allLeads = allLeads.filter((lead) => lead._id !== leadId);
-
-    // Reset to first page if we're on a page higher than max pages
-    if (currentPage > Math.ceil(allLeads.length / pageSize)) {
-      currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
+    // Reset to first page when adding a new lead
+    if (isNew) {
+      currentPage = 1;
     }
 
     // Re-render and update stats
     const filteredLeads = getFilteredLeads();
     renderPaginatedLeads(filteredLeads);
     UI.calculateStats(allLeads, payments);
+  });
+
+  // window.addEventListener("leadDeleted", function (event) {
+  //   const { leadId } = event.detail;
+
+  //   // Check if the deleted lead was closed-won before removing it
+  //   const deletedLead = allLeads.find((lead) => lead._id === leadId);
+  //   const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
+
+  //   // Remove lead from array
+  //   allLeads = allLeads.filter((lead) => lead._id !== leadId);
+
+  //   // Reset to first page if we're on a page higher than max pages
+  //   if (currentPage > Math.ceil(allLeads.length / pageSize)) {
+  //     currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
+  //   }
+
+  //   // Re-render and update stats
+  //   const filteredLeads = getFilteredLeads();
+  //   renderPaginatedLeads(filteredLeads);
+  //   UI.calculateStats(allLeads, payments);
+
+  //   // Force chart update if this was a closed-won lead
+  //   if (wasClosedWon) {
+  //     console.log("Deleted a closed-won lead, updating charts");
+  //     if (typeof window.updateAllCharts === "function") {
+  //       window.updateAllCharts();
+  //     }
+  //   }
+  // });
+
+  //   window.addEventListener("leadDeleted", function (event) {
+  //     const { leadId } = event.detail;
+
+  //     // Remove lead from array
+  //     allLeads = allLeads.filter((lead) => lead._id !== leadId);
+
+  //     // Reset to first page if we're on a page higher than max pages
+  //     if (currentPage > Math.ceil(allLeads.length / pageSize)) {
+  //       currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
+  //     }
+
+  //     // Re-render and update stats
+  //     const filteredLeads = getFilteredLeads();
+  //     renderPaginatedLeads(filteredLeads);
+  //     UI.calculateStats(allLeads, payments);
+  //   });
+
+  // Replace both existing "leadDeleted" event listeners with this single one
+  window.addEventListener("leadDeleted", function (event) {
+    const { leadId } = event.detail;
+
+    // Check if the deleted lead was closed-won before removing it (from first listener)
+    const deletedLead = allLeads.find((lead) => lead._id === leadId);
+    const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
+
+    // Remove lead from array (common to both listeners)
+    allLeads = allLeads.filter((lead) => lead._id !== leadId);
+
+    // Reset to first page if we're on a page higher than max pages (common to both)
+    if (currentPage > Math.ceil(allLeads.length / pageSize)) {
+      currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
+    }
+
+    // Re-render and update stats (common to both)
+    const filteredLeads = getFilteredLeads();
+    renderPaginatedLeads(filteredLeads);
+    UI.calculateStats(allLeads, payments);
+
+    // Always update charts for all lead deletions (missing in second listener)
+    console.log("Lead deleted, updating charts");
+    if (typeof window.updateAllCharts === "function") {
+      window.updateAllCharts();
+    }
   });
 
   // month-leads stat card
@@ -518,7 +548,9 @@ window.addEventListener("leadDeleted", function (event) {
   const currentMonth = monthNames[now.getMonth()];
 
   const leadsHeader = document.getElementById("month-leads");
-  const monthlyRevenueHeader = document.getElementById("monthly-revenue-header");
+  const monthlyRevenueHeader = document.getElementById(
+    "monthly-revenue-header"
+  );
 
   if (leadsHeader) {
     leadsHeader.innerHTML = `${currentMonth} ${leadsHeader.innerHTML}`;
