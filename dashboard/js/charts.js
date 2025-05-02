@@ -1,3 +1,8 @@
+// Global chart instance references
+let statusDistributionChartInstance = null;
+let newProjectsChartInstance = null;
+let revenueComparisonChartInstance = null;
+
 // Initialize the charts functionality
 function initializeCharts() {
   console.log("Initializing charts");
@@ -29,42 +34,13 @@ function initializeCharts() {
 }
 
 // Update all charts with current data
-// function updateAllCharts() {
-//   console.log("Updating charts");
-
-//   // Call the update functions
-//   updateProjectStatusChart();
-//   updateNewProjectsChart();
-//   updateRevenueComparisonChart();
-// }
-
-// Update all charts with current data
 function updateAllCharts() {
-  console.log("Updating charts");
+  console.log("Updating all charts with latest data");
 
-  // Clear all chart containers before redrawing
-  const chartContainers = [
-    document.getElementById("statusDistributionChart"),
-    document.getElementById("newProjectsChart"),
-    document.getElementById("revenueComparisonChart")
-  ];
-  
-  // Clear each container
-  chartContainers.forEach(container => {
-    if (container) {
-      container.innerHTML = "";
-    }
-  });
-
-  // Force a small delay to ensure DOM is updated
-  setTimeout(() => {
-    // Call the update functions
-    updateProjectStatusChart();
-    updateNewProjectsChart();
-    updateRevenueComparisonChart();
-    
-    console.log("Charts updated after data change");
-  }, 50);
+  // Call the update functions
+  updateProjectStatusChart();
+  updateNewProjectsChart();
+  updateRevenueComparisonChart();
 }
 
 // Function to get responsive font size based on container width
@@ -83,16 +59,7 @@ function updateProjectStatusChart() {
     return;
   }
 
-  console.log("Creating status chart");
-
-  // Clear previous chart
-  container.innerHTML = "";
-
-  // Create a canvas
-  const canvas = document.createElement("canvas");
-  container.appendChild(canvas);
-
-  const ctx = canvas.getContext("2d");
+  console.log("Updating status distribution chart");
 
   try {
     // Group leads by status
@@ -106,6 +73,8 @@ function updateProjectStatusChart() {
 
     // Access allLeads from the global context
     const leads = window.allLeads || [];
+    
+    console.log("Updating status chart with", leads.length, "leads");
 
     // Count leads in each status
     leads.forEach((lead) => {
@@ -172,12 +141,10 @@ function updateProjectStatusChart() {
         const totalFontSize = baseFontSize * 2.4;
 
         // Adjust the vertical offset for the text block from the center
-        // I'm adding a small positive offset to try and move it down slightly from the last "worse" position
         const verticalOffset = -25; // Adjusted vertical offset
 
         // Calculate vertical positions for the two lines of text
         // Position the header and total relative to the adjusted center
-        // Adjust these multipliers if the spacing between Total and the number needs tweaking
         const headerY = centerY + verticalOffset - totalFontSize * 0.45; // Adjusted header Y offset multiplier
         const totalY = centerY + verticalOffset + totalFontSize * 0.55; // Adjusted total Y offset multiplier
 
@@ -195,9 +162,37 @@ function updateProjectStatusChart() {
       },
     };
 
-    // Create the chart only if there are leads
-    if (leads.length > 0) {
-      const chart = new Chart(ctx, {
+    // Ensure we have a canvas element
+    let canvas = container.querySelector('canvas');
+    
+    // If no canvas exists, create one
+    if (!canvas) {
+      container.innerHTML = ''; // Clear container first
+      canvas = document.createElement("canvas");
+      container.appendChild(canvas);
+    }
+    
+    const ctx = canvas.getContext("2d");
+
+    // If we already have a chart instance, update it
+    if (statusDistributionChartInstance) {
+      console.log("Updating existing status chart");
+      
+      // Update chart data
+      statusDistributionChartInstance.data = data;
+      
+      // Update and render
+      statusDistributionChartInstance.update();
+    } else {
+      // If no leads, show no data message
+      if (leads.length === 0) {
+        container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
+        return;
+      }
+      
+      // Create a new chart instance
+      console.log("Creating new status chart instance");
+      statusDistributionChartInstance = new Chart(ctx, {
         type: "doughnut",
         data: data,
         options: {
@@ -254,17 +249,12 @@ function updateProjectStatusChart() {
         plugins: [centerTextPlugin], // Add the custom plugin here
       });
       console.log("Status chart created successfully");
-    } else {
-      container.innerHTML =
-        '<div class="chart-no-data">No projects to display</div>';
     }
   } catch (error) {
-    console.error("Error creating status chart:", error);
-    container.innerHTML =
-      '<div class="chart-no-data">Error creating chart</div>';
+    console.error("Error creating/updating status chart:", error);
+    container.innerHTML = '<div class="chart-no-data">Error creating chart</div>';
   }
 }
-
 
 // CHART 2: New Projects vs Closed Won Projects Over Time (Line Chart)
 function updateNewProjectsChart() {
@@ -274,20 +264,12 @@ function updateNewProjectsChart() {
     return;
   }
 
-  console.log("Creating new projects chart");
-
-  // Clear previous chart
-  container.innerHTML = "";
-
-  // Create a canvas
-  const canvas = document.createElement("canvas");
-  container.appendChild(canvas);
-
-  const ctx = canvas.getContext("2d");
+  console.log("Updating new projects chart");
 
   try {
     // Access allLeads from the global context
     const leads = window.allLeads || [];
+    console.log("Updating new projects chart with", leads.length, "leads");
 
     // Group leads by month
     const monthNames = [
@@ -334,111 +316,142 @@ function updateNewProjectsChart() {
     console.log("New Leads Counts:", monthlyNewLeadCounts);
     console.log("Closed Won Leads Counts:", monthlyClosedWonLeadCounts);
 
-    // Create the chart only if there are leads
-    if (leads.length > 0) {
-      const chart = new Chart(ctx, {
+    // Prepare chart data
+    const chartData = {
+      labels: monthNames,
+      datasets: [
+        {
+          label: "New",
+          data: monthlyNewLeadCounts,
+          backgroundColor: "rgba(54, 162, 235, 0.2)",   // Blue
+          borderColor: "#36A2EB",
+          tension: 0.4,
+          fill: true,
+          borderWidth: 2,
+          pointBackgroundColor: "#36A2EB",
+          pointBorderWidth: 0,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointStyle: "rectRot",
+        },
+        {
+          label: "Won",
+          data: monthlyClosedWonLeadCounts,
+          backgroundColor: "rgba(40, 167, 69, 0.2)",    // Green
+          borderColor: "#28A745",
+          tension: 0.4,
+          fill: true,
+          borderWidth: 2,
+          pointBackgroundColor: "#28A745",
+          pointBorderWidth: 0,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointStyle: "rectRot",
+        },
+      ],
+    };
+
+    // Ensure we have a canvas element
+    let canvas = container.querySelector('canvas');
+    
+    // If no canvas exists, create one
+    if (!canvas) {
+      container.innerHTML = ''; // Clear container first
+      canvas = document.createElement("canvas");
+      container.appendChild(canvas);
+    }
+    
+    const ctx = canvas.getContext("2d");
+
+    // Chart options
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: 10,
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: getComputedStyle(
+              document.documentElement
+            ).getPropertyValue("--text-color"),
+            font: {
+              size: getResponsiveFontSize(container),
+            },
+          },
+        },
+        tooltip: {
+          backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--card-background"),
+          titleColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+          bodyColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue("--border-color"),
+          borderWidth: 1,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20",
+            lineWidth: 0.5,
+          },
+          ticks: {
+            color: getComputedStyle(
+              document.documentElement
+            ).getPropertyValue("--text-color"),
+            font: {
+              size: getResponsiveFontSize(container),
+            },
+          },
+        },
+        x: {
+          grid: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20",
+            lineWidth: 0.5,
+          },
+          ticks: {
+            color: getComputedStyle(
+              document.documentElement
+            ).getPropertyValue("--text-color"),
+            font: {
+              size: getResponsiveFontSize(container),
+            },
+            autoSkip: false,
+          },
+        },
+      },
+    };
+
+    // Check if we already have a chart instance
+    if (newProjectsChartInstance) {
+      console.log("Updating existing new projects chart");
+      
+      // Update chart data and options
+      newProjectsChartInstance.data = chartData;
+      newProjectsChartInstance.options = chartOptions;
+      
+      // Update and render
+      newProjectsChartInstance.update();
+    } else {
+      // If no leads, show no data message
+      if (leads.length === 0) {
+        container.innerHTML = '<div class="chart-no-data">No projects to display</div>';
+        return;
+      }
+      
+      // Create a new chart instance
+      console.log("Creating new projects chart instance");
+      newProjectsChartInstance = new Chart(ctx, {
         type: "line",
-        data: {
-          labels: monthNames,
-          datasets: [
-            {
-              label: "New",
-              data: monthlyNewLeadCounts,
-              backgroundColor: "rgba(54, 162, 235, 0.2)",   // Blue
-              borderColor: "#36A2EB",
-              tension: 0.4,
-              fill: true,
-              borderWidth: 2,
-              pointBackgroundColor: "#36A2EB",
-              pointBorderWidth: 0,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              pointStyle: "rectRot",
-            },
-            {
-              label: "Won",
-              data: monthlyClosedWonLeadCounts,
-              backgroundColor: "rgba(40, 167, 69, 0.2)",    // Green
-              borderColor: "#28A745",
-              tension: 0.4,
-              fill: true,
-              borderWidth: 2,
-              pointBackgroundColor: "#28A745",
-              pointBorderWidth: 0,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              pointStyle: "rectRot",
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: {
-            padding: 10,
-          },
-          plugins: {
-            legend: {
-              labels: {
-                color: getComputedStyle(
-                  document.documentElement
-                ).getPropertyValue("--text-color"),
-                font: {
-                  size: getResponsiveFontSize(container),
-                },
-              },
-            },
-            tooltip: {
-              backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--card-background"),
-              titleColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-              bodyColor: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-              borderColor: getComputedStyle(document.documentElement).getPropertyValue("--border-color"),
-              borderWidth: 1,
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20",
-                lineWidth: 0.5,
-              },
-              ticks: {
-                color: getComputedStyle(
-                  document.documentElement
-                ).getPropertyValue("--text-color"),
-                font: {
-                  size: getResponsiveFontSize(container),
-                },
-              },
-            },
-            x: {
-              grid: {
-                color: getComputedStyle(document.documentElement).getPropertyValue("--text-muted") + "20",
-                lineWidth: 0.5,
-              },
-              ticks: {
-                color: getComputedStyle(
-                  document.documentElement
-                ).getPropertyValue("--text-color"),
-                font: {
-                  size: getResponsiveFontSize(container),
-                },
-                autoSkip: false,
-              },
-            },
-          },
-        },
+        data: chartData,
+        options: chartOptions
       });
       console.log("New projects chart created successfully");
-    } else {
-      container.innerHTML =
-        '<div class="chart-no-data">No projects to display</div>';
     }
   } catch (error) {
-    console.error("Error creating new projects chart:", error);
-    container.innerHTML =
-      '<div class="chart-no-data">Error creating chart</div>';
+    console.error("Error creating/updating new projects chart:", error);
+    container.innerHTML = '<div class="chart-no-data">Error creating chart</div>';
   }
 }
 
@@ -450,35 +463,17 @@ function updateRevenueComparisonChart() {
     return;
   }
 
-  console.log("Creating revenue chart");
-
-  // Clear previous chart
-  container.innerHTML = "";
-
-  // Create a canvas
-  const canvas = document.createElement("canvas");
-  container.appendChild(canvas);
-
-  const ctx = canvas.getContext("2d");
+  console.log("Updating revenue comparison chart");
 
   try {
     // Access payments from the global context
     const payments = window.payments || [];
+    console.log("Updating revenue chart with", payments.length, "payments");
 
     // Group payments by month for current and previous year
     const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
 
     const currentDate = new Date();
@@ -509,134 +504,183 @@ function updateRevenueComparisonChart() {
       }
     });
 
-    // Create the chart only if there are payments
-    if (payments.length > 0) {
-      const chart = new Chart(ctx, {
+    // Prepare chart data
+    const chartData = {
+      labels: monthNames,
+      datasets: [
+        {
+          label: `${previousYear}`,
+          data: previousYearMonthlyTotals,
+          backgroundColor: "rgba(153, 102, 255, 0.6)", // Blue
+          borderColor: "#9966FF",
+          borderWidth: 2,
+          borderRadius: 3,
+          barPercentage: 0.7,
+          categoryPercentage: 0.85,
+        },
+        {
+          label: `${currentYear}`,
+          data: currentYearMonthlyTotals,
+          backgroundColor: "rgba(255, 159, 64, 0.6)", // Orange
+          borderColor: "#FF9F40",
+          borderWidth: 2,
+          borderRadius: 3,
+          barPercentage: 0.7,
+          categoryPercentage: 0.85,
+        },
+      ],
+    };
+
+    // Ensure we have a canvas element
+    let canvas = container.querySelector('canvas');
+    
+    // If no canvas exists, create one
+    if (!canvas) {
+      container.innerHTML = ''; // Clear container first
+      canvas = document.createElement("canvas");
+      container.appendChild(canvas);
+    }
+    
+    const ctx = canvas.getContext("2d");
+
+    // Chart options
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: 10,
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: getComputedStyle(
+              document.documentElement
+            ).getPropertyValue("--text-color"),
+            font: {
+              size: getResponsiveFontSize(container),
+            },
+            boxWidth: getResponsiveFontSize(container),
+          },
+        },
+        tooltip: {
+          backgroundColor: getComputedStyle(
+            document.documentElement
+          ).getPropertyValue("--card-background"),
+          titleColor: getComputedStyle(
+            document.documentElement
+          ).getPropertyValue("--text-color"),
+          bodyColor: getComputedStyle(
+            document.documentElement
+          ).getPropertyValue("--text-color"),
+          borderColor: getComputedStyle(
+            document.documentElement
+          ).getPropertyValue("--border-color"),
+          borderWidth: 1,
+          callbacks: {
+            label: function (context) {
+              return `${
+                context.dataset.label
+              }: $${context.raw.toLocaleString()}`;
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color:
+              getComputedStyle(document.documentElement).getPropertyValue(
+                "--text-muted"
+              ) + "20", // Very subtle grid lines
+            lineWidth: 0.5,
+          },
+          ticks: {
+            callback: function (value) {
+              return "$" + value.toLocaleString();
+            },
+            color: getComputedStyle(
+              document.documentElement
+            ).getPropertyValue("--text-color"),
+            font: {
+              size: getResponsiveFontSize(container),
+            },
+          },
+        },
+        x: {
+          grid: {
+            color:
+              getComputedStyle(document.documentElement).getPropertyValue(
+                "--text-muted"
+              ) + "20", // Very subtle grid lines
+            lineWidth: 0.5,
+          },
+          ticks: {
+            color: getComputedStyle(
+              document.documentElement
+            ).getPropertyValue("--text-color"),
+            font: {
+              size: getResponsiveFontSize(container),
+            },
+            autoSkip: false,
+          },
+        },
+      },
+    };
+
+    // Check if we already have a chart instance
+    if (revenueComparisonChartInstance) {
+      console.log("Updating existing revenue chart");
+      
+      // Update chart data and options
+      revenueComparisonChartInstance.data = chartData;
+      revenueComparisonChartInstance.options = chartOptions;
+      
+      // Update and render
+      revenueComparisonChartInstance.update();
+    } else {
+      // If no payments, show no data message
+      if (payments.length === 0) {
+        container.innerHTML = '<div class="chart-no-data">No revenue data to display</div>';
+        return;
+      }
+      
+      // Create a new chart instance
+      console.log("Creating revenue chart instance");
+      revenueComparisonChartInstance = new Chart(ctx, {
         type: "bar",
-        data: {
-          labels: monthNames,
-          datasets: [
-            {
-              label: `${previousYear}`,
-              data: previousYearMonthlyTotals,
-              // backgroundColor: "rgba(255, 159, 64, 0.6)",   // Orange
-              // borderColor: "#FF9F40",
-              backgroundColor: "rgba(153, 102, 255, 0.6)", // Blue
-              borderColor: "#9966FF",
-              borderWidth: 2,
-              borderRadius: 3,
-              barPercentage: 0.7,
-              categoryPercentage: 0.85,
-            },
-            {
-              label: `${currentYear}`,
-              data: currentYearMonthlyTotals,
-              // backgroundColor: "rgba(153, 102, 255, 0.6)",   // Blue
-              // borderColor: "#9966FF",
-              backgroundColor: "rgba(255, 159, 64, 0.6)", // Orange
-              borderColor: "#FF9F40",
-              borderWidth: 2,
-              borderRadius: 3,
-              barPercentage: 0.7,
-              categoryPercentage: 0.85,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: {
-            padding: 10,
-          },
-          plugins: {
-            legend: {
-              labels: {
-                color: getComputedStyle(
-                  document.documentElement
-                ).getPropertyValue("--text-color"),
-                font: {
-                  size: getResponsiveFontSize(container),
-                },
-                boxWidth: getResponsiveFontSize(container),
-              },
-            },
-            tooltip: {
-              backgroundColor: getComputedStyle(
-                document.documentElement
-              ).getPropertyValue("--card-background"),
-              titleColor: getComputedStyle(
-                document.documentElement
-              ).getPropertyValue("--text-color"),
-              bodyColor: getComputedStyle(
-                document.documentElement
-              ).getPropertyValue("--text-color"),
-              borderColor: getComputedStyle(
-                document.documentElement
-              ).getPropertyValue("--border-color"),
-              borderWidth: 1,
-              callbacks: {
-                label: function (context) {
-                  return `${
-                    context.dataset.label
-                  }: $${context.raw.toLocaleString()}`;
-                },
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color:
-                  getComputedStyle(document.documentElement).getPropertyValue(
-                    "--text-muted"
-                  ) + "20", // Very subtle grid lines
-                lineWidth: 0.5,
-              },
-              ticks: {
-                callback: function (value) {
-                  return "$" + value.toLocaleString();
-                },
-                color: getComputedStyle(
-                  document.documentElement
-                ).getPropertyValue("--text-color"),
-                font: {
-                  size: getResponsiveFontSize(container),
-                },
-              },
-            },
-            x: {
-              grid: {
-                color:
-                  getComputedStyle(document.documentElement).getPropertyValue(
-                    "--text-muted"
-                  ) + "20", // Very subtle grid lines
-                lineWidth: 0.5,
-              },
-              ticks: {
-                color: getComputedStyle(
-                  document.documentElement
-                ).getPropertyValue("--text-color"),
-                font: {
-                  size: getResponsiveFontSize(container),
-                },
-                autoSkip: false,
-              },
-            },
-          },
-        },
+        data: chartData,
+        options: chartOptions
       });
       console.log("Revenue chart created successfully");
-    } else {
-      container.innerHTML =
-        '<div class="chart-no-data">No revenue data to display</div>';
     }
   } catch (error) {
-    console.error("Error creating revenue chart:", error);
-    container.innerHTML =
-      '<div class="chart-no-data">Error creating chart</div>';
+    console.error("Error creating/updating revenue chart:", error);
+    container.innerHTML = '<div class="chart-no-data">Error creating chart</div>';
   }
 }
 
-// Make the initialization function globally accessible
+// Function to destroy all chart instances (useful for hard resets)
+function destroyAllCharts() {
+  console.log("Destroying all chart instances for reset");
+  
+  if (statusDistributionChartInstance) {
+    statusDistributionChartInstance.destroy();
+    statusDistributionChartInstance = null;
+  }
+  
+  if (newProjectsChartInstance) {
+    newProjectsChartInstance.destroy();
+    newProjectsChartInstance = null;
+  }
+  
+  if (revenueComparisonChartInstance) {
+    revenueComparisonChartInstance.destroy();
+    revenueComparisonChartInstance = null;
+  }
+}
+
+// Make functions globally accessible
 window.initializeCharts = initializeCharts;
+window.updateAllCharts = updateAllCharts;
+window.destroyAllCharts = destroyAllCharts;
