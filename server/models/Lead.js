@@ -109,6 +109,9 @@ const leadSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  closedAt:{ 
+    type: Date,
+  },
   lastContactedAt: {
     type: Date,
   },

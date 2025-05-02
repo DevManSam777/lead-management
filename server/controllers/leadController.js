@@ -94,6 +94,49 @@ exports.createLead = async (req, res) => {
 };
 
 // Update lead
+// exports.updateLead = async (req, res) => {
+//   try {
+//     const lead = await Lead.findById(req.params.id);
+
+//     if (!lead) {
+//       return res.status(404).json({ message: "Lead not found" });
+//     }
+
+//     if (req.body.$pull) {
+//       // Handle removing items from arrays
+//       if (req.body.$pull.associatedForms) {
+//         await Lead.findByIdAndUpdate(req.params.id, {
+//           $pull: { associatedForms: req.body.$pull.associatedForms }
+//         });
+        
+//         // Remove the $pull operation from the regular update
+//         delete req.body.$pull;
+//       }
+//     }
+
+
+// if (req.body.status === "contacted" && lead.status !== "contacted") {
+//   req.body.lastContactedAt = Date.now();
+// }
+
+// // If total budget is being updated, calculate remaining balance
+// if (req.body.totalBudget !== undefined) {
+//   const totalBudget = parseFloat(req.body.totalBudget);
+//   const paidAmount = lead.paidAmount || 0;
+//   req.body.remainingBalance = Math.max(0, totalBudget - paidAmount);
+// }
+
+// const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
+//   new: true,
+// });
+
+// res.json(updatedLead);
+// } catch (error) {
+// console.error(error);
+// res.status(400).json({ message: error.message });
+// }
+// };
+
 exports.updateLead = async (req, res) => {
   try {
     const lead = await Lead.findById(req.params.id);
@@ -102,40 +145,29 @@ exports.updateLead = async (req, res) => {
       return res.status(404).json({ message: "Lead not found" });
     }
 
-    if (req.body.$pull) {
-      // Handle removing items from arrays
-      if (req.body.$pull.associatedForms) {
-        await Lead.findByIdAndUpdate(req.params.id, {
-          $pull: { associatedForms: req.body.$pull.associatedForms }
-        });
-        
-        // Remove the $pull operation from the regular update
-        delete req.body.$pull;
-      }
+    // If the status is changing to a closed status, set the closedAt date
+    if ((req.body.status === "closed-won" || req.body.status === "closed-lost") && 
+        lead.status !== "closed-won" && lead.status !== "closed-lost") {
+      req.body.closedAt = Date.now();
     }
 
+    // Existing contacted status handling
+    if (req.body.status === "contacted" && lead.status !== "contacted") {
+      req.body.lastContactedAt = Date.now();
+    }
 
-if (req.body.status === "contacted" && lead.status !== "contacted") {
-  req.body.lastContactedAt = Date.now();
-}
+    // Rest of your existing update code...
+    const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
-// If total budget is being updated, calculate remaining balance
-if (req.body.totalBudget !== undefined) {
-  const totalBudget = parseFloat(req.body.totalBudget);
-  const paidAmount = lead.paidAmount || 0;
-  req.body.remainingBalance = Math.max(0, totalBudget - paidAmount);
-}
-
-const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
-  new: true,
-});
-
-res.json(updatedLead);
-} catch (error) {
-console.error(error);
-res.status(400).json({ message: error.message });
-}
+    res.json(updatedLead);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
+  }
 };
+
 
 // Delete lead
 exports.deleteLead = async (req, res) => {
