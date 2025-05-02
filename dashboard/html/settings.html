@@ -32,7 +32,8 @@
       onAuthStateChanged(auth, (user) => {
         if (!user) {
           if (!window.location.pathname.endsWith("/dashboard")) {
-            window.location.href = "/dashboard";
+            // window.location.href = "/dashboard";
+            window.location.href = "/login";
           }
         } else {
           document.body.style.display = "block";
@@ -46,6 +47,7 @@
           signOut(auth)
             .then(() => {
               console.log("User signed out.");
+              // window.location.href = "/dashboard";
               window.location.href = "/dashboard";
             })
             .catch((error) => {

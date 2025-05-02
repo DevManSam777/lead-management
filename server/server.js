@@ -73,7 +73,8 @@ app.use(
 );
 
 // Handle login page
-app.get(["/dashboard", "/dashboard/"], (req, res) => {
+// app.get(["/dashboard", "/dashboard/"], (req, res) => {
+  app.get(["/dashboard", "/login/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/index.html"));
 });
 
@@ -100,7 +101,8 @@ app.get(["/dashboard/settings", "/dashboard/settings/"], (req, res) => {
 
 // Redirect root to dashboard
 app.get(["/", "/index.html"], (req, res) => {
-  res.redirect("/dashboard");
+  // res.redirect("/dashboard");
+  res.redirect("/login");
 });
 
 app.get("/", (req, res) => {
