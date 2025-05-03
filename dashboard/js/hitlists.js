@@ -251,7 +251,6 @@ async function fetchAndRenderHitlists() {
   }
 }
 
-
 function renderHitlists(hitlists) {
   const hitlistsList = document.getElementById("hitlistsList");
 
@@ -741,11 +740,11 @@ async function convertBusinessToLead(business) {
   try {
     // Prepare lead data from business information
     const nameParts = (business.contactName || "").split(" ");
-    
+
     // Create a new Date object for the current date (set to noon to avoid timezone issues)
     const currentDate = new Date();
     currentDate.setHours(12, 0, 0, 0);
-    
+
     // Set lastContactedAt to current date
     const lastContactedAt = currentDate;
 
@@ -766,8 +765,21 @@ async function convertBusinessToLead(business) {
       status: mapBusinessStatusToLeadStatus(business.status),
       notes: business.notes || "",
       lastContactedAt: lastContactedAt, // Set current date as the last contacted date
-      source: `Converted from Hitlist: ${business.hitlistId || currentHitlistId}`,
+      source: `Converted from Hitlist: ${
+        business.hitlistId || currentHitlistId
+      }`,
       message: `Converted from business hitlist`,
+      // Add billing address from business address
+      billingAddress: business.address
+        ? {
+            street: business.address.street || "",
+            aptUnit: business.address.aptUnit || "",
+            city: business.address.city || "",
+            state: business.address.state || "",
+            zipCode: business.address.zipCode || "",
+            country: business.address.country || "",
+          }
+        : {},
     };
 
     // Basic validation
@@ -786,9 +798,9 @@ async function convertBusinessToLead(business) {
     // Update business status to converted and set last contacted date
     const businessUpdateData = {
       status: "converted",
-      lastContactedDate: currentDate // Set the same current date for the business
+      lastContactedDate: currentDate, // Set the same current date for the business
     };
-    
+
     await API.updateBusiness(business._id, businessUpdateData);
 
     // Show success message
@@ -1021,6 +1033,15 @@ async function handleBusinessSubmit(event) {
     priority: document.getElementById("priority").value,
     notes: document.getElementById("notes").value.trim(),
     hitlistId: hitlistId,
+    // Add address fields
+    address: {
+      street: document.getElementById("businessStreet").value.trim(),
+      aptUnit: document.getElementById("businessAptUnit").value.trim(),
+      city: document.getElementById("businessCity").value.trim(),
+      state: document.getElementById("businessState").value.trim(),
+      zipCode: document.getElementById("businessZipCode").value.trim(),
+      country: document.getElementById("businessCountry").value.trim(),
+    },
   };
 
   // Handle date - get the value directly from the hidden input
@@ -1273,6 +1294,21 @@ function openViewBusinessModal(business) {
 
   document.getElementById("viewBusinessEmail").textContent =
     business.businessEmail || "N/A";
+
+  // Display address if available
+  const address = business.address || {};
+  document.getElementById("viewBusinessStreet").textContent =
+    address.street || "N/A";
+  document.getElementById("viewBusinessAptUnit").textContent =
+    address.aptUnit || "N/A";
+  document.getElementById("viewBusinessCity").textContent =
+    address.city || "N/A";
+  document.getElementById("viewBusinessState").textContent =
+    address.state || "N/A";
+  document.getElementById("viewBusinessZipCode").textContent =
+    address.zipCode || "N/A";
+  document.getElementById("viewBusinessCountry").textContent =
+    address.country || "N/A";
 
   // Corrected websiteUrl link creation for display
   const websiteLinkHtml = business.websiteUrl
