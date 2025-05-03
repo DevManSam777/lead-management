@@ -1,7 +1,12 @@
-// Wait for the DOM to be fully loaded
 document.addEventListener("DOMContentLoaded", function () {
   // Get the form element
   const form = document.getElementById("inquiry-form");
+  
+  // CONFIGURATION: Set default theme mode
+  const DEFAULT_THEME = 'system'; // <-- Choose 'light', 'dark', or 'system' 
+
+  // Initialize dark mode based on configuration
+  initializeDarkMode(DEFAULT_THEME);
 
   // Initialize auto-resize for textareas
   initializeAutoResizeTextareas();
@@ -426,8 +431,9 @@ formObject.billingAddress = {
     formObject.isFormSubmission = true;
 
     try {
-      // const response = await fetch("http://localhost:5000/api/leads", {
-        const response = await fetch("https://lead-management-8u3l.onrender.com", {
+      // Replace url with production url
+        // const response = await fetch("http://localhost:5000/api/leads",  {
+        const response = await fetch("http://devleads.site/api/leads",  {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -457,4 +463,49 @@ formObject.billingAddress = {
       showToast("Error: " + error.message);
     }
   });
+  
+  // Dark mode initialization function
+  function initializeDarkMode(theme) {
+    const body = document.body;
+    const formContainer = document.querySelector('.form-container');
+    
+    // Always apply the setting immediately, regardless of system preference
+    if (theme === 'dark') {
+      body.classList.add('dark-mode');
+      if (formContainer) {
+        formContainer.classList.add('dark-mode');
+      }
+    } else if (theme === 'light') {
+      body.classList.remove('dark-mode');
+      if (formContainer) {
+        formContainer.classList.remove('dark-mode');
+      }
+    } else { // 'system' mode
+      const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+      
+      function applySystemTheme() {
+        if (prefersDarkScheme.matches) {
+          body.classList.add('dark-mode');
+          if (formContainer) {
+            formContainer.classList.add('dark-mode');
+          }
+        } else {
+          body.classList.remove('dark-mode');
+          if (formContainer) {
+            formContainer.classList.remove('dark-mode');
+          }
+        }
+      }
+      
+      // Initial application
+      applySystemTheme();
+      
+      // Listen for system changes
+      if (prefersDarkScheme.addEventListener) {
+        prefersDarkScheme.addEventListener('change', applySystemTheme);
+      } else if (prefersDarkScheme.addListener) {
+        prefersDarkScheme.addListener(applySystemTheme);
+      }
+    }
+  }
 });
