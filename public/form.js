@@ -433,7 +433,7 @@ formObject.billingAddress = {
     try {
       // Replace url with production url
         // const response = await fetch("http://localhost:5000/api/leads",  {
-        const response = await fetch("http://devleads.site/api/leads",  {
+        const response = await fetch("https://devleads.site/api/leads",  {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
