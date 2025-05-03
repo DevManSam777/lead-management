@@ -938,7 +938,7 @@ async function printForm(formId) {
     printWindow.focus();
     printWindow.print();
   } catch (error) {
-    console.error("Error printing form:", error);
+    console.error("Error printing form: allow browswer pop-ups", error);
     Utils.showToast("Error: " + error.message);
   }
 }

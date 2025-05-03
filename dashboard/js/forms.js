@@ -1278,7 +1278,7 @@ async function printForm(formId) {
     printWindow.print();
   } catch (error) {
     console.error("Error printing form:", error);
-    Utils.showToast("Error: " + error.message);
+    Utils.showToast("Error printing form: allow browswer pop-ups" + error.message);
   }
 }
 
