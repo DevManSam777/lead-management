@@ -938,8 +938,8 @@ async function printForm(formId) {
     printWindow.focus();
     printWindow.print();
   } catch (error) {
-    console.error("Error printing form: allow browswer pop-ups", error);
-    Utils.showToast("Error: " + error.message);
+    console.error("Error printing form:", error);
+    Utils.showToast("Error printing form: Allow browswer pop-ups - " + error.message);
   }
 }
 
