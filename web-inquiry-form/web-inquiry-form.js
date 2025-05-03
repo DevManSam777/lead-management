@@ -594,7 +594,6 @@ class WebInquiryForm extends HTMLElement {
                 type="text"
                 id="billingCountry"
                 name="billingCountry"
-                value="USA"
                 required
               />
             </div>
