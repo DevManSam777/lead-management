@@ -5,9 +5,32 @@ class WebInquiryForm extends HTMLElement {
     this.attachShadow({ mode: 'open' });
   }
 
+  static get observedAttributes() {
+    return ['theme'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'theme') {
+      this.updateTheme();
+    }
+  }
+
   connectedCallback() {
     this.render();
     this.initializeEvents();
+    this.updateTheme();
+  }
+
+  updateTheme() {
+    const explicitTheme = this.getAttribute('theme');
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // If there's an explicit theme attribute, use it; otherwise, use browser preference
+    if (explicitTheme === 'dark' || (explicitTheme !== 'light' && prefersDarkScheme)) {
+      this.shadowRoot.querySelector('.form-container').classList.add('dark-mode');
+    } else {
+      this.shadowRoot.querySelector('.form-container').classList.remove('dark-mode');
+    }
   }
 
   render() {
@@ -61,6 +84,8 @@ class WebInquiryForm extends HTMLElement {
           border-radius: 4px;
           box-sizing: border-box;
           transition: border-color 0.3s, background-color 0.3s;
+          background-color: #fff;
+          color: #333;
         }
         
         textarea {
@@ -235,31 +260,6 @@ class WebInquiryForm extends HTMLElement {
           transform: translateX(0);
         }
         
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-          h1 {
-            font-size: 24px;
-          }
-          
-          .form-container {
-            padding: 20px;
-          }
-          
-          .radio-group {
-            flex-direction: column;
-            gap: 10px;
-          }
-          
-          fieldset {
-            padding: 15px;
-          }
-          
-          .extension-field {
-            margin-left: 0;
-            margin-top: 5px;
-          }
-        }
-
         .extension-option {
           margin-top: 5px;
           display: flex;
@@ -293,6 +293,132 @@ class WebInquiryForm extends HTMLElement {
           font-size: 12px;
         }
         
+        /* Dark mode styles */
+        .form-container.dark-mode {
+          background-color: #1e2026;
+          color: #e9ecef;
+        }
+        
+        .dark-mode h1 {
+          color: #f8f9fa;
+        }
+        
+        .dark-mode label {
+          color: #e9ecef;
+        }
+        
+        .dark-mode input[type="text"],
+        .dark-mode input[type="email"],
+        .dark-mode input[type="tel"],
+        .dark-mode input[type="url"],
+        .dark-mode select,
+        .dark-mode textarea {
+          background-color: #343a40;
+          color: #e9ecef;
+          border-color: #495057;
+        }
+        
+        .dark-mode input[type="text"]:focus,
+        .dark-mode input[type="email"]:focus,
+        .dark-mode input[type="tel"]:focus,
+        .dark-mode input[type="url"]:focus,
+        .dark-mode select:focus,
+        .dark-mode textarea:focus {
+          border-color: #5c7cfa;
+          box-shadow: 0 0 3px rgba(92, 124, 250, 0.3);
+        }
+        
+        .dark-mode input:not(.invalid):hover,
+        .dark-mode textarea:not(.invalid):hover {
+          border-color: #5c7cfa;
+        }
+        
+        .dark-mode fieldset {
+          border-color: #495057;
+          background-color: #252830;
+        }
+        
+        .dark-mode legend {
+          color: #f8f9fa;
+        }
+        
+        .dark-mode .btn-submit {
+          background-color: #5c7cfa;
+        }
+        
+        .dark-mode .btn-submit:hover {
+          background-color: #4c6fe5;
+        }
+        
+        .dark-mode .toast-notification {
+          background-color: #155c24;
+          color: #ffffff;
+        }
+        
+        .dark-mode .error-message {
+          color: #f06595;
+        }
+        
+        .dark-mode .invalid {
+          border-color: #f06595 !important;
+          background-color: rgba(240, 101, 149, 0.1);
+        }
+        
+        .dark-mode input.invalid:focus,
+        .dark-mode textarea.invalid:focus {
+          border-color: #f06595 !important;
+          box-shadow: 0 0 3px rgba(240, 101, 149, 0.3);
+        }
+        
+        .dark-mode input[required]:valid:not(.invalid):not(:placeholder-shown),
+        .dark-mode textarea[required]:valid:not(.invalid):not(:placeholder-shown) {
+          border-color: #4fd1c5;
+          background-color: rgba(79, 209, 197, 0.1);
+        }
+        
+        .dark-mode input.valid,
+        .dark-mode textarea.valid {
+          border-color: #4fd1c5;
+          background-color: rgba(79, 209, 197, 0.1);
+        }
+        
+        .dark-mode small {
+          color: #adb5bd;
+        }
+        
+        .dark-mode .asterisk {
+          color: #f06595;
+        }
+        
+        .dark-mode .required::after {
+          color: #f06595;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+          h1 {
+            font-size: 24px;
+          }
+          
+          .form-container {
+            padding: 20px;
+          }
+          
+          .radio-group {
+            flex-direction: column;
+            gap: 10px;
+          }
+          
+          fieldset {
+            padding: 15px;
+          }
+          
+          .extension-field {
+            margin-left: 0;
+            margin-top: 5px;
+          }
+        }
+
         @media (max-width: 480px) {
           :host {
             padding-inline: 0;
