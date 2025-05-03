@@ -490,7 +490,8 @@ async function viewForm(formId, isEditMode) {
       });
   } catch (error) {
     console.error("Error viewing form:", error);
-    Utils.showToast("Error: " + error.message);
+    // Utils.showToast("Error: " + error.message);
+    Utils.showToast("Error: Please enable pop-ups in browser");
   }
 }
 
