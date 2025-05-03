@@ -625,19 +625,50 @@ document.addEventListener("DOMContentLoaded", async function () {
     monthlyRevenueHeader.innerHTML = `${currentMonth} ${monthlyRevenueHeader.innerHTML}`;
   }
 
+  // window.addEventListener("paymentsUpdated", async function () {
+  //   // Refresh all payments data
+  //   try {
+  //     console.log("Payment update detected, refreshing data...");
+  //     payments = await API.fetchPayments();
+
+  //     // Force recalculation of stats
+  //     UI.calculateStats(allLeads, payments);
+
+  //     // Refresh lead list display
+  //     const filteredLeads = getFilteredLeads();
+  //     renderPaginatedLeads(filteredLeads);
+
+  //     console.log("Dashboard data refreshed after payment update");
+  //   } catch (error) {
+  //     console.error("Error updating payments:", error);
+  //   }
+  // });
+
   window.addEventListener("paymentsUpdated", async function () {
-    // Refresh all payments data
     try {
       console.log("Payment update detected, refreshing data...");
       payments = await API.fetchPayments();
-
+      
+      // Update the global window.payments variable that charts.js uses
+      window.payments = payments;
+      
       // Force recalculation of stats
       UI.calculateStats(allLeads, payments);
-
+      
+      // Explicitly update the data watcher to trigger chart rebuilds
+      if (typeof window.updateDataWatcher === 'function') {
+        window.updateDataWatcher();
+      } else {
+        // Direct fallback to update charts if watcher not available
+        if (typeof window.updateAllCharts === 'function') {
+          window.updateAllCharts();
+        }
+      }
+      
       // Refresh lead list display
       const filteredLeads = getFilteredLeads();
       renderPaginatedLeads(filteredLeads);
-
+      
       console.log("Dashboard data refreshed after payment update");
     } catch (error) {
       console.error("Error updating payments:", error);
