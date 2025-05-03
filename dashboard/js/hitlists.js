@@ -597,7 +597,7 @@ function openEditBusinessModal(business) {
   document.getElementById("businessState").value = address.state || "";
   document.getElementById("businessZipCode").value = address.zipCode || "";
   document.getElementById("businessCountry").value =
-    address.country || "United States";
+    address.country || "USA";
 
   document.getElementById("status").value = business.status || "not-contacted";
   document.getElementById("priority").value = business.priority || "medium";
