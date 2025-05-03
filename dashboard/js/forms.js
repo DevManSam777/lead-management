@@ -1277,8 +1277,8 @@ async function printForm(formId) {
     printWindow.focus();
     printWindow.print();
   } catch (error) {
-    console.error("Error printing form:", error);
-    Utils.showToast("Error printing form: Allow browser pop-ups - " + error.message);
+      Utils.showToast("Pop-up blocked. Please allow pop-ups for this site to view the form.");
+      console.warn("Pop-up blocked by the browser.");
   }
 }
 
