@@ -247,10 +247,16 @@ async function viewDocument(documentId, fileName) {
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
     window.open(blobUrl, '_blank');
-  } catch (error) {
-    console.error("Error viewing document:", error);
-    Utils.showToast("Error: " + error.message);
-  }
+    printWindow.focus();
+        printWindow.print();
+      } catch (error) {
+        console.error("Error printing form:", error);
+        Utils.showToast("Error printing form: Allow browswer pop-ups - " + error.message);
+      }
+  // } catch (error) {
+  //   console.error("Error viewing document:", error);
+  //   Utils.showToast("Error: " + error.message);
+  // }
 }
 
 async function deleteDocument(documentId, leadId) {
