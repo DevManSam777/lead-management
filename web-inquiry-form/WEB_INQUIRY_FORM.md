@@ -10,6 +10,7 @@ A reusable web component for collecting web development inquiries from potential
 - **Phone Number Formatting**: Automatic formatting using Cleave.js
 - **Conditional Fields**: Show/hide fields based on user selections
 - **Customizable API Endpoint**: Specify your own API endpoint
+- **Customizable Theme**: Specify "Light", "Dark", or use system preferences
 - **Custom Events**: Listen for form-related events in your application
 - **Toast Notifications**: Built-in feedback mechanism
 
@@ -54,6 +55,23 @@ Set a custom API endpoint for form submission:
 ```html
 <web-inquiry-form api-url="https://your-api-endpoint.com/api/leads"></web-inquiry-form>
 ```
+
+### Theme Selection
+
+Set theme preference attribute:
+
+```html
+<web-inquiry-form theme="light" api-url="https://your-api-endpoint.com/api/leads"></web-inquiry-form>
+```
+_or_
+
+```html
+<web-inquiry-form theme="dark" api-url="https://your-api-endpoint.com/api/leads"></web-inquiry-form>
+```
+
+_or_
+
+Leave blank and theme will obey user's browser preferences
 
 ### Styling
 
