@@ -389,30 +389,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // Event listeners for lead updates
-  // window.addEventListener("leadSaved", function (event) {
-  //   const { lead, isNew } = event.detail;
-
-  //   // Update allLeads array
-  //   if (isNew) {
-  //     allLeads.push(lead);
-  //   } else {
-  //     const index = allLeads.findIndex((l) => l._id === lead._id);
-  //     if (index !== -1) {
-  //       allLeads[index] = lead;
-  //     }
-  //   }
-
-  //   // Reset to first page when adding a new lead
-  //   if (isNew) {
-  //     currentPage = 1;
-  //   }
-
-  //   // Re-render and update stats
-  //   const filteredLeads = getFilteredLeads();
-  //   renderPaginatedLeads(filteredLeads);
-  //   UI.calculateStats(allLeads, payments);
-  // });
 
   // Event listeners for lead updates
   window.addEventListener("leadSaved", function (event) {
@@ -455,86 +431,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     UI.calculateStats(allLeads, payments);
   });
 
-  // window.addEventListener("leadDeleted", function (event) {
-  //   const { leadId } = event.detail;
-
-  //   // Check if the deleted lead was closed-won before removing it
-  //   const deletedLead = allLeads.find((lead) => lead._id === leadId);
-  //   const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
-
-  //   // Remove lead from array
-  //   allLeads = allLeads.filter((lead) => lead._id !== leadId);
-
-  //   // Reset to first page if we're on a page higher than max pages
-  //   if (currentPage > Math.ceil(allLeads.length / pageSize)) {
-  //     currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
-  //   }
-
-  //   // Re-render and update stats
-  //   const filteredLeads = getFilteredLeads();
-  //   renderPaginatedLeads(filteredLeads);
-  //   UI.calculateStats(allLeads, payments);
-
-  //   // Force chart update if this was a closed-won lead
-  //   if (wasClosedWon) {
-  //     console.log("Deleted a closed-won lead, updating charts");
-  //     if (typeof window.updateAllCharts === "function") {
-  //       window.updateAllCharts();
-  //     }
-  //   }
-  // });
-
-  //   window.addEventListener("leadDeleted", function (event) {
-  //     const { leadId } = event.detail;
-
-  //     // Remove lead from array
-  //     allLeads = allLeads.filter((lead) => lead._id !== leadId);
-
-  //     // Reset to first page if we're on a page higher than max pages
-  //     if (currentPage > Math.ceil(allLeads.length / pageSize)) {
-  //       currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
-  //     }
-
-  //     // Re-render and update stats
-  //     const filteredLeads = getFilteredLeads();
-  //     renderPaginatedLeads(filteredLeads);
-  //     UI.calculateStats(allLeads, payments);
-  //   });
-
-  // // Replace both existing "leadDeleted" event listeners with this single one
-  // window.addEventListener("leadDeleted", function (event) {
-  //   const { leadId } = event.detail;
-
-  //   // Check if the deleted lead was closed-won before removing it
-  //   const deletedLead = allLeads.find((lead) => lead._id === leadId);
-  //   const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
-
-  //   // Remove lead from array
-  //   allLeads = allLeads.filter((lead) => lead._id !== leadId);
-
-  //   // Reset to first page if we're on a page higher than max pages
-  //   if (currentPage > Math.ceil(allLeads.length / pageSize)) {
-  //     currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
-  //   }
-
-  //   // Re-render and update stats
-  //   const filteredLeads = getFilteredLeads();
-  //   renderPaginatedLeads(filteredLeads);
-  //   UI.calculateStats(allLeads, payments);
-
-  //   // IMPORTANT: Dispatch a new event specifically for chart updates
-  //   // This ensures charts.js will receive the event even if window.updateAllCharts isn't accessible
-  //   const chartUpdateEvent = new Event("leadDeleted");
-  //   window.dispatchEvent(chartUpdateEvent);
-
-  //   // Also try direct function call
-  //   console.log("Lead deleted, attempting direct chart update");
-  //   if (typeof window.updateAllCharts === "function") {
-  //     window.updateAllCharts();
-  //   } else {
-  //     console.error("updateAllCharts function not found on window object");
-  //   }
-  // });
 
   window.addEventListener("leadDeleted", function (event) {
     const { leadId } = event.detail;
@@ -625,24 +521,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     monthlyRevenueHeader.innerHTML = `${currentMonth} ${monthlyRevenueHeader.innerHTML}`;
   }
 
-  // window.addEventListener("paymentsUpdated", async function () {
-  //   // Refresh all payments data
-  //   try {
-  //     console.log("Payment update detected, refreshing data...");
-  //     payments = await API.fetchPayments();
-
-  //     // Force recalculation of stats
-  //     UI.calculateStats(allLeads, payments);
-
-  //     // Refresh lead list display
-  //     const filteredLeads = getFilteredLeads();
-  //     renderPaginatedLeads(filteredLeads);
-
-  //     console.log("Dashboard data refreshed after payment update");
-  //   } catch (error) {
-  //     console.error("Error updating payments:", error);
-  //   }
-  // });
 
   window.addEventListener("paymentsUpdated", async function () {
     try {
@@ -1130,68 +1008,6 @@ function hideLeadsLoadingSpinner() {
     spinner.classList.add("hidden");
   }
 }
-
-/**
- * Fetch leads from API and render them
- */
-// async function fetchLeadsAndRender() {
-//   try {
-//     // Show loading spinner
-//     showLeadsLoadingSpinner();
-
-//     // Fetch leads
-//     allLeads = await API.fetchLeads();
-//     window.allLeads = allLeads;
-//     console.log("Made leads globally available:", window.allLeads.length);
-
-//     // Reset to page 1 when loading fresh data
-//     currentPage = 1;
-
-//     // Render leads with pagination
-//     renderPaginatedLeads(allLeads);
-
-//     // Fetch payments
-//     payments = await API.fetchPayments();
-//     window.payments = payments;
-//     console.log("Made payments globally available:", window.payments.length);
-
-//     window.initializeCharts();
-
-//     // Calculate and update stats
-//     UI.calculateStats(allLeads, payments);
-
-//     // Hide loading spinner
-//     hideLeadsLoadingSpinner();
-//   } catch (error) {
-//     console.error("Error in fetchLeadsAndRender:", error);
-
-//     // Hide loading spinner even on error
-//     hideLeadsLoadingSpinner();
-
-//     // Display error message in UI
-//     const leadCardsElement = document.getElementById("leadCards");
-//     if (leadCardsElement) {
-//       leadCardsElement.innerHTML = `<div class="lead-card"><p>Error loading leads: ${error.message}</p></div>`;
-//     }
-
-//     // Set default values for statistics
-//     Utils.safeSetTextContent("totalLeadsValue", "0");
-//     Utils.safeSetTextContent("newLeadsValue", "0");
-//     Utils.safeSetTextContent("conversionRateValue", "0%");
-//     Utils.safeSetTextContent(
-//       "monthlyPaymentsValue",
-//       Utils.formatCurrency(0, "USD")
-//     );
-
-//     // Set all change indicators to 0%
-//     Utils.safeUpdateChangeIndicator("totalLeadsChange", 0, "month");
-//     Utils.safeUpdateChangeIndicator("newLeadsChange", 0, "");
-//     Utils.safeUpdateChangeIndicator("conversionChange", 0, "month");
-//     Utils.safeUpdateChangeIndicator("paymentsChange", 0, "month");
-
-//     Utils.showToast("Error fetching leads: " + error.message);
-//   }
-// }
 
 async function fetchLeadsAndRender() {
   try {

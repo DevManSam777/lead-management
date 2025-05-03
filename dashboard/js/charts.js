@@ -1,5 +1,3 @@
-// charts.js - Complete implementation with data watcher approach
-
 // Global chart instances
 let statusDistributionChartInstance = null;
 let newProjectsChartInstance = null;
@@ -222,9 +220,6 @@ function getThemeColors() {
   };
 }
 
-// ========================
-// STATUS CHART FUNCTIONS
-// ========================
 
 // CHART 1: Project Status Distribution (Donut Chart)
 function createStatusChart() {
@@ -404,9 +399,7 @@ function createStatusChart() {
   }
 }
 
-// ========================
-// PROJECTS CHART FUNCTIONS
-// ========================
+
 
 // CHART 2: New Projects vs Closed Won Projects Over Time (Line Chart)
 function createProjectsChart() {
@@ -578,10 +571,6 @@ function createProjectsChart() {
     container.innerHTML = '<div class="chart-no-data">Error creating chart</div>';
   }
 }
-
-// ========================
-// REVENUE CHART FUNCTIONS
-// ========================
 
 // CHART 3: Revenue by Month Comparison (Bar Chart)
 function createRevenueChart() {
