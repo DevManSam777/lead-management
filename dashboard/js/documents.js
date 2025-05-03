@@ -223,6 +223,36 @@ async function loadLeadDocuments(leadId) {
   }
 }
 
+// async function viewDocument(documentId, fileName) {
+//   try {
+//     const user = auth.currentUser;
+//     if (!user) {
+//       throw new Error("User is not authenticated");
+//     }
+//     const token = await user.getIdToken();
+
+//     // Open the document in a new tab with the Authorization header
+//     const documentUrl = `${API.getBaseUrl()}/api/documents/${documentId}`;
+//     const response = await fetch(documentUrl, {
+//       method: 'GET',
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch document");
+//     }
+
+//     const blob = await response.blob();
+//     const blobUrl = URL.createObjectURL(blob);
+//     window.open(blobUrl, '_blank');
+//   } catch (error) {
+//     console.error("Error viewing document:", error);
+//     Utils.showToast("Error: " + error.message);
+//   }
+// }
+
 async function viewDocument(documentId, fileName) {
   try {
     const user = auth.currentUser;
@@ -231,7 +261,6 @@ async function viewDocument(documentId, fileName) {
     }
     const token = await user.getIdToken();
 
-    // Open the document in a new tab with the Authorization header
     const documentUrl = `${API.getBaseUrl()}/api/documents/${documentId}`;
     const response = await fetch(documentUrl, {
       method: 'GET',
@@ -241,22 +270,23 @@ async function viewDocument(documentId, fileName) {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch document");
+      throw new Error(`Failed to fetch document: ${response.status} - ${response.statusText}`);
     }
 
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
-    window.open(blobUrl, '_blank');
-    window.focus();
-        window.print();
-      } catch (error) {
-        console.error("Error printing document:", error);
-        Utils.showToast("Error printing form: Allow browswer pop-ups - " + error.message);
-      }
-  // } catch (error) {
-  //   console.error("Error viewing document:", error);
-  //   Utils.showToast("Error: " + error.message);
-  // }
+    const newWindow = window.open(blobUrl, '_blank');
+
+    // Check if the new window was successfully opened
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      Utils.showToast("Pop-up blocked. Please allow pop-ups for this site to view the document.");
+      console.warn("Pop-up blocked by the browser.");
+    }
+
+  } catch (error) {
+    console.error("Error viewing document:", error);
+    Utils.showToast(`Error: ${error.message}`);
+  }
 }
 
 async function deleteDocument(documentId, leadId) {
