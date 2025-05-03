@@ -587,6 +587,42 @@ function validateAllTabs() {
 //   }
 // }
 
+// async function deleteLeadAction(leadId) {
+//   try {
+//     // Close the modal first to avoid UI issues
+//     window.closeLeadModal();
+
+//     // Delete the lead
+//     await deleteLead(leadId);
+
+//     // Signal that a lead was deleted - will be caught in dashboard.js
+//     window.dispatchEvent(
+//       new CustomEvent("leadDeleted", {
+//         detail: { leadId },
+//       })
+//     );
+
+//     // Show success toast
+//     showToast("Project deleted successfully");
+    
+//     // DIRECTLY force chart updates
+//     console.log("Forcing chart update after lead deletion");
+//     if (typeof window.updateAllCharts === "function") {
+//       window.updateAllCharts();
+//     } else {
+//       console.error("updateAllCharts function not available");
+//       // Try to reinitialize charts as a fallback
+//       if (typeof window.initializeCharts === "function") {
+//         window.initializeCharts();
+//       }
+//     }
+    
+//   } catch (error) {
+//     console.error("Error deleting lead:", error);
+//     showToast("Error: " + error.message);
+//   }
+// }
+
 async function deleteLeadAction(leadId) {
   try {
     // Close the modal first to avoid UI issues
@@ -602,21 +638,20 @@ async function deleteLeadAction(leadId) {
       })
     );
 
+    // CRITICAL: Directly update the data watcher to force chart updates
+    if (typeof window.updateDataWatcher === 'function') {
+      console.log("Explicitly updating data watcher after lead deletion");
+      window.updateDataWatcher();
+    }
+
+    // Also try direct update if watcher fails
+    if (typeof window.updateAllCharts === 'function') {
+      console.log("Directly calling updateAllCharts for backup");
+      window.updateAllCharts();
+    }
+
     // Show success toast
     showToast("Project deleted successfully");
-    
-    // DIRECTLY force chart updates
-    console.log("Forcing chart update after lead deletion");
-    if (typeof window.updateAllCharts === "function") {
-      window.updateAllCharts();
-    } else {
-      console.error("updateAllCharts function not available");
-      // Try to reinitialize charts as a fallback
-      if (typeof window.initializeCharts === "function") {
-        window.initializeCharts();
-      }
-    }
-    
   } catch (error) {
     console.error("Error deleting lead:", error);
     showToast("Error: " + error.message);

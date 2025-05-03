@@ -501,7 +501,41 @@ document.addEventListener("DOMContentLoaded", async function () {
   //     UI.calculateStats(allLeads, payments);
   //   });
 
-  // Replace both existing "leadDeleted" event listeners with this single one
+  // // Replace both existing "leadDeleted" event listeners with this single one
+  // window.addEventListener("leadDeleted", function (event) {
+  //   const { leadId } = event.detail;
+
+  //   // Check if the deleted lead was closed-won before removing it
+  //   const deletedLead = allLeads.find((lead) => lead._id === leadId);
+  //   const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
+
+  //   // Remove lead from array
+  //   allLeads = allLeads.filter((lead) => lead._id !== leadId);
+
+  //   // Reset to first page if we're on a page higher than max pages
+  //   if (currentPage > Math.ceil(allLeads.length / pageSize)) {
+  //     currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
+  //   }
+
+  //   // Re-render and update stats
+  //   const filteredLeads = getFilteredLeads();
+  //   renderPaginatedLeads(filteredLeads);
+  //   UI.calculateStats(allLeads, payments);
+
+  //   // IMPORTANT: Dispatch a new event specifically for chart updates
+  //   // This ensures charts.js will receive the event even if window.updateAllCharts isn't accessible
+  //   const chartUpdateEvent = new Event("leadDeleted");
+  //   window.dispatchEvent(chartUpdateEvent);
+
+  //   // Also try direct function call
+  //   console.log("Lead deleted, attempting direct chart update");
+  //   if (typeof window.updateAllCharts === "function") {
+  //     window.updateAllCharts();
+  //   } else {
+  //     console.error("updateAllCharts function not found on window object");
+  //   }
+  // });
+
   window.addEventListener("leadDeleted", function (event) {
     const { leadId } = event.detail;
 
@@ -511,6 +545,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Remove lead from array
     allLeads = allLeads.filter((lead) => lead._id !== leadId);
+
+    // Update the global variable to ensure it's accessible to charts
+    window.allLeads = allLeads;
+    console.log(
+      "Updated global allLeads array, now has",
+      allLeads.length,
+      "leads"
+    );
 
     // Reset to first page if we're on a page higher than max pages
     if (currentPage > Math.ceil(allLeads.length / pageSize)) {
@@ -522,17 +564,33 @@ document.addEventListener("DOMContentLoaded", async function () {
     renderPaginatedLeads(filteredLeads);
     UI.calculateStats(allLeads, payments);
 
-    // IMPORTANT: Dispatch a new event specifically for chart updates
-    // This ensures charts.js will receive the event even if window.updateAllCharts isn't accessible
-    const chartUpdateEvent = new Event("leadDeleted");
-    window.dispatchEvent(chartUpdateEvent);
-
-    // Also try direct function call
-    console.log("Lead deleted, attempting direct chart update");
-    if (typeof window.updateAllCharts === "function") {
-      window.updateAllCharts();
+    // CRITICAL: Update the data watcher to force chart rebuilds
+    if (typeof window.updateDataWatcher === "function") {
+      console.log("Updating data watcher after lead deletion");
+      window.updateDataWatcher();
     } else {
-      console.error("updateAllCharts function not found on window object");
+      console.warn(
+        "updateDataWatcher function not found, trying fallback methods"
+      );
+
+      // Try direct chart updates as a fallback
+      if (typeof window.updateAllCharts === "function") {
+        console.log("Directly calling updateAllCharts as fallback");
+        window.updateAllCharts();
+      } else {
+        console.error("No chart update mechanisms available!");
+
+        // Last resort: Force a chart rebuild using a custom event
+        try {
+          console.log("Trying custom chartUpdate event as last resort");
+          const chartUpdateEvent = new CustomEvent("chartUpdate", {
+            detail: { source: "leadDeleted", leadCount: allLeads.length },
+          });
+          window.dispatchEvent(chartUpdateEvent);
+        } catch (e) {
+          console.error("Failed to dispatch custom event:", e);
+        }
+      }
     }
   });
 
@@ -1104,9 +1162,6 @@ function hideLeadsLoadingSpinner() {
 //   }
 // }
 
-/**
- * Fetch leads from API and render them
- */
 async function fetchLeadsAndRender() {
   try {
     // Show loading spinner
@@ -1129,16 +1184,20 @@ async function fetchLeadsAndRender() {
     console.log("Made payments globally available:", window.payments.length);
 
     // Initialize charts with the fresh data
+    console.log("Initializing charts after data load");
     if (typeof window.initializeCharts === "function") {
-      console.log("Initializing charts from fetchLeadsAndRender");
       window.initializeCharts();
     } else {
-      console.log("Loading charts via standard method");
-      window.initializeCharts();
+      console.error("Chart initialization function not available");
     }
 
     // Calculate and update stats
     UI.calculateStats(allLeads, payments);
+
+    // Update data watcher to ensure charts are in sync
+    if (typeof window.updateDataWatcher === "function") {
+      window.updateDataWatcher();
+    }
 
     // Hide loading spinner
     hideLeadsLoadingSpinner();
