@@ -882,41 +882,110 @@ async function deleteHitlist(hitlistId) {
   }
 }
 
+// async function convertBusinessToLead(business) {
+//   try {
+//     // Prepare lead data from business information
+//     const nameParts = (business.contactName || "").split(" ");
+
+//     let lastContactedAt = null;
+//     if (business.lastContactedDate) {
+//       const dateStr = new Date(business.lastContactedDate)
+//         .toISOString()
+//         .split("T")[0];
+//       const [year, month, day] = dateStr.split("-").map(Number);
+
+//       lastContactedAt = new Date(year, month - 1, day, 12, 0, 0);
+//     }
+
+//     const leadData = {
+//       firstName: nameParts[0] || "Not specified",
+//       lastName: nameParts.slice(1).join(" ") || "Not specified",
+//       email: business.businessEmail || "example@email.com",
+//       phone: business.businessPhone || "",
+//       phoneExt: business.businessPhoneExt || "", // Add phone extension
+//       businessName: business.businessName,
+//       businessPhone: business.businessPhone || "",
+//       businessPhoneExt: business.businessPhoneExt || "", // Add business phone extension
+//       businessEmail: business.businessEmail || "",
+//       businessServices: business.typeOfBusiness || "",
+//       websiteAddress: business.websiteUrl || "", // Add website URL
+//       serviceDesired: "Web Development", // Default service
+//       hasWebsite: business.websiteUrl ? "yes" : "no", // Set hasWebsite based on URL
+//       status: mapBusinessStatusToLeadStatus(business.status),
+//       notes: business.notes || "",
+//       lastContactedAt: lastContactedAt,
+//       source: `Converted from Hitlist: ${
+//         business.hitlistId || currentHitlistId
+//       }`,
+//       message: `Converted from business hitlist`,
+//     };
+
+//     // Basic validation
+//     if (!leadData.businessName) {
+//       Utils.showToast("Business Name is required for conversion.");
+//       return;
+//     }
+//     if (leadData.email === "Not specified" && !leadData.phone) {
+//       Utils.showToast("Either Email or Phone is required for conversion.");
+//       return;
+//     }
+
+//     // Create the lead
+//     const createdLead = await API.createLead(leadData);
+
+//     // Update business status to converted
+//     if (business.status !== "converted") {
+//       await API.updateBusiness(business._id, { status: "converted" });
+//     }
+
+//     // Show success message
+//     Utils.showToast(
+//       `Business "${business.businessName}" successfully converted to lead!`
+//     );
+
+//     // Refresh the business list in the modal
+//     const hitlistId = business.hitlistId || currentHitlistId;
+//     if (hitlistId) {
+//       setTimeout(() => {
+//         openBusinessListModal(hitlistId);
+//       }, 300);
+//     }
+//   } catch (error) {
+//     console.error("Error converting business to lead:", error);
+//     Utils.showToast(`Error converting business to lead: ${error.message}`);
+//   }
+// }
+
 async function convertBusinessToLead(business) {
   try {
     // Prepare lead data from business information
     const nameParts = (business.contactName || "").split(" ");
-
-    let lastContactedAt = null;
-    if (business.lastContactedDate) {
-      const dateStr = new Date(business.lastContactedDate)
-        .toISOString()
-        .split("T")[0];
-      const [year, month, day] = dateStr.split("-").map(Number);
-
-      lastContactedAt = new Date(year, month - 1, day, 12, 0, 0);
-    }
+    
+    // Create a new Date object for the current date (set to noon to avoid timezone issues)
+    const currentDate = new Date();
+    currentDate.setHours(12, 0, 0, 0);
+    
+    // Set lastContactedAt to current date
+    const lastContactedAt = currentDate;
 
     const leadData = {
       firstName: nameParts[0] || "Not specified",
       lastName: nameParts.slice(1).join(" ") || "Not specified",
       email: business.businessEmail || "example@email.com",
       phone: business.businessPhone || "",
-      phoneExt: business.businessPhoneExt || "", // Add phone extension
+      phoneExt: business.businessPhoneExt || "",
       businessName: business.businessName,
       businessPhone: business.businessPhone || "",
-      businessPhoneExt: business.businessPhoneExt || "", // Add business phone extension
+      businessPhoneExt: business.businessPhoneExt || "",
       businessEmail: business.businessEmail || "",
       businessServices: business.typeOfBusiness || "",
-      websiteAddress: business.websiteUrl || "", // Add website URL
+      websiteAddress: business.websiteUrl || "",
       serviceDesired: "Web Development", // Default service
-      hasWebsite: business.websiteUrl ? "yes" : "no", // Set hasWebsite based on URL
+      hasWebsite: business.websiteUrl ? "yes" : "no",
       status: mapBusinessStatusToLeadStatus(business.status),
       notes: business.notes || "",
-      lastContactedAt: lastContactedAt,
-      source: `Converted from Hitlist: ${
-        business.hitlistId || currentHitlistId
-      }`,
+      lastContactedAt: lastContactedAt, // Set current date as the last contacted date
+      source: `Converted from Hitlist: ${business.hitlistId || currentHitlistId}`,
       message: `Converted from business hitlist`,
     };
 
@@ -933,10 +1002,13 @@ async function convertBusinessToLead(business) {
     // Create the lead
     const createdLead = await API.createLead(leadData);
 
-    // Update business status to converted
-    if (business.status !== "converted") {
-      await API.updateBusiness(business._id, { status: "converted" });
-    }
+    // Update business status to converted and set last contacted date
+    const businessUpdateData = {
+      status: "converted",
+      lastContactedDate: currentDate // Set the same current date for the business
+    };
+    
+    await API.updateBusiness(business._id, businessUpdateData);
 
     // Show success message
     Utils.showToast(
