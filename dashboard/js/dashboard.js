@@ -432,63 +432,129 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
 
-  window.addEventListener("leadDeleted", function (event) {
-    const { leadId } = event.detail;
+  // window.addEventListener("leadDeleted", function (event) {
+  //   const { leadId } = event.detail;
 
-    // Check if the deleted lead was closed-won before removing it
-    const deletedLead = allLeads.find((lead) => lead._id === leadId);
-    const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
+  //   // Check if the deleted lead was closed-won before removing it
+  //   const deletedLead = allLeads.find((lead) => lead._id === leadId);
+  //   const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
 
-    // Remove lead from array
-    allLeads = allLeads.filter((lead) => lead._id !== leadId);
+  //   // Remove lead from array
+  //   allLeads = allLeads.filter((lead) => lead._id !== leadId);
 
-    // Update the global variable to ensure it's accessible to charts
-    window.allLeads = allLeads;
-    console.log(
+  //   // Update the global variable to ensure it's accessible to charts
+  //   window.allLeads = allLeads;
+  //   console.log(
+  //     "Updated global allLeads array, now has",
+  //     allLeads.length,
+  //     "leads"
+  //   );
+
+  //   // Reset to first page if we're on a page higher than max pages
+  //   if (currentPage > Math.ceil(allLeads.length / pageSize)) {
+  //     currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
+  //   }
+
+  //   // Re-render and update stats
+  //   const filteredLeads = getFilteredLeads();
+  //   renderPaginatedLeads(filteredLeads);
+  //   UI.calculateStats(allLeads, payments);
+
+  //   // CRITICAL: Update the data watcher to force chart rebuilds
+  //   if (typeof window.updateDataWatcher === "function") {
+  //     console.log("Updating data watcher after lead deletion");
+  //     window.updateDataWatcher();
+  //   } else {
+  //     console.warn(
+  //       "updateDataWatcher function not found, trying fallback methods"
+  //     );
+
+  //     // Try direct chart updates as a fallback
+  //     if (typeof window.updateAllCharts === "function") {
+  //       console.log("Directly calling updateAllCharts as fallback");
+  //       window.updateAllCharts();
+  //     } else {
+  //       console.error("No chart update mechanisms available!");
+
+  //       // Last resort: Force a chart rebuild using a custom event
+  //       try {
+  //         console.log("Trying custom chartUpdate event as last resort");
+  //         const chartUpdateEvent = new CustomEvent("chartUpdate", {
+  //           detail: { source: "leadDeleted", leadCount: allLeads.length },
+  //         });
+  //         window.dispatchEvent(chartUpdateEvent);
+  //       } catch (e) {
+  //         console.error("Failed to dispatch custom event:", e);
+  //       }
+  //     }
+  //   }
+  // });
+
+
+window.addEventListener("leadDeleted", function (event) {
+  const { leadId } = event.detail;
+
+  // Check if the deleted lead was closed-won before removing it
+  const deletedLead = allLeads.find((lead) => lead._id === leadId);
+  const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
+
+  // Remove lead from array
+  allLeads = allLeads.filter((lead) => lead._id !== leadId);
+
+  // IMPORTANT ADDITION: Remove payments associated with this lead
+  if (payments && payments.length > 0) {
+      payments = payments.filter((payment) => payment.leadId !== leadId);
+      // Update the global payments variable to ensure charts have access to the updated data
+      window.payments = payments;
+  }
+
+  // Update the global variable to ensure it's accessible to charts
+  window.allLeads = allLeads;
+  console.log(
       "Updated global allLeads array, now has",
       allLeads.length,
       "leads"
-    );
+  );
 
-    // Reset to first page if we're on a page higher than max pages
-    if (currentPage > Math.ceil(allLeads.length / pageSize)) {
+  // Reset to first page if we're on a page higher than max pages
+  if (currentPage > Math.ceil(allLeads.length / pageSize)) {
       currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
-    }
+  }
 
-    // Re-render and update stats
-    const filteredLeads = getFilteredLeads();
-    renderPaginatedLeads(filteredLeads);
-    UI.calculateStats(allLeads, payments);
+  // Re-render and update stats
+  const filteredLeads = getFilteredLeads();
+  renderPaginatedLeads(filteredLeads);
+  UI.calculateStats(allLeads, payments);
 
-    // CRITICAL: Update the data watcher to force chart rebuilds
-    if (typeof window.updateDataWatcher === "function") {
+  // CRITICAL: Update the data watcher to force chart rebuilds
+  if (typeof window.updateDataWatcher === "function") {
       console.log("Updating data watcher after lead deletion");
       window.updateDataWatcher();
-    } else {
+  } else {
       console.warn(
-        "updateDataWatcher function not found, trying fallback methods"
+          "updateDataWatcher function not found, trying fallback methods"
       );
 
       // Try direct chart updates as a fallback
       if (typeof window.updateAllCharts === "function") {
-        console.log("Directly calling updateAllCharts as fallback");
-        window.updateAllCharts();
+          console.log("Directly calling updateAllCharts as fallback");
+          window.updateAllCharts();
       } else {
-        console.error("No chart update mechanisms available!");
+          console.error("No chart update mechanisms available!");
 
-        // Last resort: Force a chart rebuild using a custom event
-        try {
-          console.log("Trying custom chartUpdate event as last resort");
-          const chartUpdateEvent = new CustomEvent("chartUpdate", {
-            detail: { source: "leadDeleted", leadCount: allLeads.length },
-          });
-          window.dispatchEvent(chartUpdateEvent);
-        } catch (e) {
-          console.error("Failed to dispatch custom event:", e);
-        }
+          // Last resort: Force a chart rebuild using a custom event
+          try {
+              console.log("Trying custom chartUpdate event as last resort");
+              const chartUpdateEvent = new CustomEvent("chartUpdate", {
+                  detail: { source: "leadDeleted", leadCount: allLeads.length },
+              });
+              window.dispatchEvent(chartUpdateEvent);
+          } catch (e) {
+              console.error("Failed to dispatch custom event:", e);
+          }
       }
-    }
-  });
+  }
+});
 
   // month-leads stat card
   const monthNames = [
