@@ -247,10 +247,10 @@ async function viewDocument(documentId, fileName) {
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
     window.open(blobUrl, '_blank');
-    printWindow.focus();
-        printWindow.print();
+    window.focus();
+        window.print();
       } catch (error) {
-        console.error("Error printing form:", error);
+        console.error("Error printing document:", error);
         Utils.showToast("Error printing form: Allow browswer pop-ups - " + error.message);
       }
   // } catch (error) {
