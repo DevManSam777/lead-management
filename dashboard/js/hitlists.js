@@ -588,6 +588,17 @@ function openEditBusinessModal(business) {
     business.businessPhoneExt || ""; // Add Extension
   document.getElementById("businessEmail").value = business.businessEmail || "";
   document.getElementById("websiteUrl").value = business.websiteUrl || "";
+
+  // Populate address fields
+  const address = business.address || {};
+  document.getElementById("businessStreet").value = address.street || "";
+  document.getElementById("businessAptUnit").value = address.aptUnit || "";
+  document.getElementById("businessCity").value = address.city || "";
+  document.getElementById("businessState").value = address.state || "";
+  document.getElementById("businessZipCode").value = address.zipCode || "";
+  document.getElementById("businessCountry").value =
+    address.country || "United States";
+
   document.getElementById("status").value = business.status || "not-contacted";
   document.getElementById("priority").value = business.priority || "medium";
   document.getElementById("notes").value = business.notes || "";
