@@ -67,13 +67,43 @@
     </style>
     <script>
       (function () {
-        // Original theme setup from localStorage
-        const savedTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme) {
+          // User has a saved preference
+          document.documentElement.setAttribute("data-theme", savedTheme);
+        } else {
+          // No saved preference, use system preference
+          const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+            .matches
             ? "dark"
-            : "light");
-        document.documentElement.setAttribute("data-theme", savedTheme);
+            : "light";
+          document.documentElement.setAttribute("data-theme", systemTheme);
+
+          // Save the detected preference for consistency
+          localStorage.setItem("theme", systemTheme);
+        }
+
+        // Listen for system theme changes
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // Watch for changes in system preference only if no saved preference exists
+        function handleSystemThemeChange(e) {
+          if (!localStorage.getItem("theme")) {
+            const newTheme = e.matches ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+          }
+        }
+
+        // Add listener for system theme changes
+        mediaQuery.addListener(handleSystemThemeChange);
+
+        // For modern browsers, use addEventListener
+        if (mediaQuery.addEventListener) {
+          mediaQuery.addEventListener("change", handleSystemThemeChange);
+        }
 
         document.addEventListener("DOMContentLoaded", function () {
           // Get references to sidebar and main content
@@ -115,7 +145,10 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="icon" href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee">
+    <link
+      rel="icon"
+      href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee"
+    />
     <link rel="stylesheet" href="/dashboard/css/theme.css" />
     <link rel="stylesheet" href="/dashboard/css/components.css" />
     <link rel="stylesheet" href="/dashboard/css/dashboard.css" />

@@ -63,39 +63,72 @@
         transition: opacity 0.5s ease;
       }
     </style>
-    <script>
-      (function () {
-        // Original theme setup from localStorage
-        const savedTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
+   <script>
+    (function () {
+      // Check for saved theme preference
+      const savedTheme = localStorage.getItem("theme");
+
+      if (savedTheme) {
+        // User has a saved preference
         document.documentElement.setAttribute("data-theme", savedTheme);
+      } else {
+        // No saved preference, use system preference
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
+          ? "dark"
+          : "light";
+        document.documentElement.setAttribute("data-theme", systemTheme);
 
-        document.addEventListener("DOMContentLoaded", function () {
-          // Get references to sidebar and main content
-          const sidebar = document.querySelector(".sidebar");
-          const mainContent = document.querySelector(".main-content");
+        // Save the detected preference for consistency
+        localStorage.setItem("theme", systemTheme);
+      }
 
-          // Set initial state based on localStorage
-          const isSidebarCollapsed =
-            localStorage.getItem("sidebarCollapsed") === "true";
+      // Listen for system theme changes
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-          if (isSidebarCollapsed) {
-            sidebar.classList.add("collapsed");
-            mainContent.classList.add("expanded");
-          }
+      // Watch for changes in system preference only if no saved preference exists
+      function handleSystemThemeChange(e) {
+        if (!localStorage.getItem("theme")) {
+          const newTheme = e.matches ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", newTheme);
+          localStorage.setItem("theme", newTheme);
+        }
+      }
 
-          // Give a short delay to ensure all layout calculations are done
-          setTimeout(function () {
-            // Make sidebar and content visible
-            sidebar.style.opacity = "1";
-            mainContent.style.opacity = "1";
-          }, 300);
-        });
-      })();
-    </script>
+      // Add listener for system theme changes
+      mediaQuery.addListener(handleSystemThemeChange);
+
+      // For modern browsers, use addEventListener
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener("change", handleSystemThemeChange);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get references to sidebar and main content
+        const sidebar = document.querySelector(".sidebar");
+        const mainContent = document.querySelector(".main-content");
+
+        // Set initial state based on localStorage
+        const isSidebarCollapsed =
+          localStorage.getItem("sidebarCollapsed") === "true";
+
+        if (isSidebarCollapsed) {
+          sidebar.classList.add("collapsed");
+          mainContent.classList.add("expanded");
+        } else {
+          sidebar.classList.remove("collapsed");
+          mainContent.classList.remove("expanded");
+        }
+
+        // Give a short delay to ensure all layout calculations are done
+        setTimeout(function () {
+          // Make sidebar and content visible
+          sidebar.style.opacity = "1";
+          mainContent.style.opacity = "1";
+        }, 300);
+      });
+    })();
+  </script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"

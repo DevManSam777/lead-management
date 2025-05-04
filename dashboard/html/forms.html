@@ -65,13 +65,43 @@
     </style>
     <script>
       (function () {
-        // Original theme setup from localStorage
-        const savedTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme) {
+          // User has a saved preference
+          document.documentElement.setAttribute("data-theme", savedTheme);
+        } else {
+          // No saved preference, use system preference
+          const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+            .matches
             ? "dark"
-            : "light");
-        document.documentElement.setAttribute("data-theme", savedTheme);
+            : "light";
+          document.documentElement.setAttribute("data-theme", systemTheme);
+
+          // Save the detected preference for consistency
+          localStorage.setItem("theme", systemTheme);
+        }
+
+        // Listen for system theme changes
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // Watch for changes in system preference only if no saved preference exists
+        function handleSystemThemeChange(e) {
+          if (!localStorage.getItem("theme")) {
+            const newTheme = e.matches ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+          }
+        }
+
+        // Add listener for system theme changes
+        mediaQuery.addListener(handleSystemThemeChange);
+
+        // For modern browsers, use addEventListener
+        if (mediaQuery.addEventListener) {
+          mediaQuery.addEventListener("change", handleSystemThemeChange);
+        }
 
         document.addEventListener("DOMContentLoaded", function () {
           // Get references to sidebar and main content
@@ -85,6 +115,9 @@
           if (isSidebarCollapsed) {
             sidebar.classList.add("collapsed");
             mainContent.classList.add("expanded");
+          } else {
+            sidebar.classList.remove("collapsed");
+            mainContent.classList.remove("expanded");
           }
 
           // Give a short delay to ensure all layout calculations are done

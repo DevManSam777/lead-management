@@ -242,3 +242,27 @@ function setupSidebarToggle() {
     setupSidebarToggle();
   }
 });
+
+// Theme segment event listeners
+themeSegments.forEach(segment => {
+  segment.addEventListener('click', function() {
+      const newTheme = this.getAttribute('data-theme');
+      
+      // Apply theme immediately
+      setTheme(newTheme);
+      
+      // Save to server
+      updateSetting('theme', newTheme);
+      
+      // Save to localStorage
+      localStorage.setItem('theme', newTheme);
+      
+      // Update active segment
+      updateActiveThemeSegment(newTheme);
+      
+      // Dispatch event to notify other parts of the app
+      window.dispatchEvent(new CustomEvent('settingsUpdated', {
+          detail: { key: 'theme', value: newTheme }
+      }));
+  });
+});
