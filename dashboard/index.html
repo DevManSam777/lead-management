@@ -9,18 +9,10 @@
     <link rel="stylesheet" href="/dashboard/css/login.css" />
     <script>
       (function() {
-        // Check for saved theme preference
-        const savedTheme = localStorage.getItem('theme');
-        
-        if (savedTheme) {
-          // User has a saved preference
-          document.documentElement.setAttribute('data-theme', savedTheme);
-        } else {
-          // No saved preference, use system preference
           const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
           document.documentElement.setAttribute('data-theme', systemTheme);
         }
-      })();
+      )();
     </script>
     <style>
       :root {
