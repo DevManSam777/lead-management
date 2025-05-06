@@ -884,9 +884,6 @@ details[open] .stats-cards {
   font-size: 2.4rem;
   color: var(--primary);
   margin-right: 15px;
-  /* display: flex;
-  align-items: center;
-  justify-content: center; */
   align-self: flex-start;
 }
 
