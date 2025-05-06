@@ -144,7 +144,6 @@
 
 .lead-card.clickable:hover {
   transform: translateY(-0.5rem);
-  /* box-shadow: var(--hover-shadow); */
 }
 
 /* Modals */

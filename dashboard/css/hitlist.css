@@ -474,8 +474,9 @@
   transition: all var(--transition-speed) ease;
 }
 
-#importJsonBtn:hover {
-  background-color:  #d11149;
+#importJsonBtn:hover, #addBusinessBtn {
+  opacity: 0.8;
+  color: var(--text-muted);
 }
 
 /* File upload progress indicator */
