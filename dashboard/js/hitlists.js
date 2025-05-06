@@ -194,6 +194,8 @@ async function fetchAndRenderHitlists() {
 
     allHitlists = await API.fetchHitlists();
 
+    allHitlists = sortHitlistsAlphabetically(allHitlists);
+
     // Initialize pagination with all hitlists
     const paginationInfo = Pagination.initPagination(
       allHitlists,
@@ -452,8 +454,9 @@ async function openBusinessListModal(hitlistId) {
 
   try {
     const businesses = await API.fetchBusinessesByHitlist(hitlistId);
-    originalBusinesses = [...businesses]; // Store the original complete list
-    currentBusinesses = [...businesses]; // Initialize the current filtered list
+    const sortedBusinesses = sortBusinessesAlphabetically(businesses);
+    originalBusinesses = [...sortedBusinesses];
+    currentBusinesses = [...sortedBusinesses];
 
     // Reset filter inputs when opening the modal
     document.getElementById("businessSearchInput").value = "";
@@ -869,7 +872,7 @@ function filterHitlists() {
       (hitlist.description &&
         hitlist.description.toLowerCase().includes(searchTerm))
   );
-  renderHitlists(filteredHitlists);
+  renderHitlists(sortHitlistsAlphabetically(filteredHitlists));
 }
 
 function filterBusinesses() {
@@ -899,6 +902,7 @@ function filterBusinesses() {
     return matchesSearch && matchesStatus;
   });
 
+  currentBusinesses = sortBusinessesAlphabetically(currentBusinesses);
   // Render the filtered list
   renderBusinesses(currentBusinesses);
 }
@@ -1030,118 +1034,6 @@ function setupJsonUploader() {
   });
 }
 
-// async function processScrapedBusinesses(businesses) {
-//   // Validate current hitlist
-//   if (!currentHitlistId) {
-//     Utils.showToast("Please select a hitlist first");
-//     return;
-//   }
-
-//   try {
-//     let successCount = 0;
-//     let errorCount = 0;
-//     let processingCount = 0;
-//     const totalBusinesses = businesses.length;
-
-//     // Create upload progress container
-//     const businessesList = document.getElementById("businessesList");
-//     if (businessesList) {
-//       businessesList.innerHTML = `
-//         <div class="loading-indicator">
-//           <i class="fas fa-spinner fa-spin"></i> Importing businesses...
-//         </div>
-//         <div class="upload-progress-container">
-//           <div class="upload-progress">
-//             <div class="upload-progress-bar" style="width: 0%"></div>
-//           </div>
-//           <div class="upload-status">Processed 0 of ${totalBusinesses} businesses</div>
-//         </div>`;
-//     }
-
-//     // Process each business in sequence
-//     for (const scrapedBusiness of businesses) {
-//       try {
-//         // Format phone number using the helper function
-//         let phone = scrapedBusiness.phone || "";
-//         // Remove all non-digit characters first
-//         phone = phone.replace(/\D/g, "");
-//         if (phone && phone.length >= 10) {
-//           // Format as XXX-XXX-XXXX properly
-//           phone = formatPhoneNumber(phone);
-//         }
-
-//         // Extract phone extension if it exists
-//         let phoneExt = "";
-//         if (scrapedBusiness.phone) {
-//           const extMatch = scrapedBusiness.phone.match(/(?:\s+ext\.?|\s+x)(\s*\d+)$/i);
-//           if (extMatch && extMatch[1]) {
-//             phoneExt = extMatch[1].trim();
-//           }
-//         }
-
-//         // Format website URL
-//         let websiteUrl = scrapedBusiness.website || "";
-//         if (websiteUrl && !websiteUrl.startsWith('http')) {
-//           websiteUrl = 'https://' + websiteUrl;
-//         }
-
-//         // Map the scraped business to our business model
-//         const businessData = {
-//           businessName: scrapedBusiness.businessName || "",
-//           typeOfBusiness: scrapedBusiness.businessType || "",
-//           contactName: "",  // YellowPages data doesn't typically include contact names
-//           businessPhone: phone,
-//           businessPhoneExt: phoneExt || "",
-//           businessEmail: scrapedBusiness.businessEmail || "",
-//           websiteUrl: websiteUrl,
-//           address: {
-//             street: scrapedBusiness.streetAddress || "",
-//             aptUnit: "",
-//             city: scrapedBusiness.city || "",
-//             state: scrapedBusiness.state || "",
-//             zipCode: scrapedBusiness.zipCode || "",
-//             country: "USA"
-//           },
-//           status: "not-contacted",
-//           priority: "low",
-//           notes: `Imported from JSON on ${new Date().toLocaleDateString()}`
-//         };
-
-//         // Create the business in the hitlist
-//         await API.createBusiness(currentHitlistId, businessData);
-//         successCount++;
-
-//         // Update progress
-//         processingCount++;
-//         updateImportProgress(processingCount, totalBusinesses, successCount, errorCount);
-
-//       } catch (error) {
-//         console.error("Error importing business:", error);
-//         errorCount++;
-
-//         // Update progress even on error
-//         processingCount++;
-//         updateImportProgress(processingCount, totalBusinesses, successCount, errorCount);
-//       }
-//     }
-
-//     // Update the hitlist card on the main view to show the updated business count
-//     updateHitlistBusinessCount(currentHitlistId);
-
-//     // Reload the businesses
-//     const updatedBusinesses = await API.fetchBusinessesByHitlist(currentHitlistId);
-//     originalBusinesses = [...updatedBusinesses];
-//     currentBusinesses = [...updatedBusinesses];
-//     renderBusinesses(currentBusinesses);
-
-//     // Show success message
-//     Utils.showToast(`Import complete: ${successCount} businesses added, ${errorCount} failed`);
-//   } catch (error) {
-//     console.error("Error processing businesses:", error);
-//     Utils.showToast("Error processing businesses: " + error.message);
-//   }
-// }
-
 async function processScrapedBusinesses(businesses) {
   // Validate current hitlist
   if (!currentHitlistId) {
@@ -1256,8 +1148,9 @@ async function processScrapedBusinesses(businesses) {
     const updatedBusinesses = await API.fetchBusinessesByHitlist(
       currentHitlistId
     );
-    originalBusinesses = [...updatedBusinesses];
-    currentBusinesses = [...updatedBusinesses];
+    const sortedBusinesses = sortBusinessesAlphabetically(updatedBusinesses);
+    originalBusinesses = [...sortedBusinesses];
+    currentBusinesses = [...sortedBusinesses];
     renderBusinesses(currentBusinesses);
 
     // Show success message
@@ -1302,6 +1195,40 @@ function formatPhoneNumber(phoneNumber) {
 
   // Return original if we couldn't format it
   return phoneNumber;
+}
+
+/**
+ * Sorts hitlists alphabetically by name
+ * @param {Array} hitlists - Array of hitlist objects
+ * @returns {Array} - Sorted array of hitlists
+ */
+function sortHitlistsAlphabetically(hitlists) {
+  if (!hitlists || !Array.isArray(hitlists) || hitlists.length === 0) {
+    return hitlists;
+  }
+
+  return [...hitlists].sort((a, b) => {
+    const nameA = (a.name || "").toLowerCase();
+    const nameB = (b.name || "").toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
+}
+
+/**
+ * Sorts businesses alphabetically by business name
+ * @param {Array} businesses - Array of business objects
+ * @returns {Array} - Sorted array of businesses
+ */
+function sortBusinessesAlphabetically(businesses) {
+  if (!businesses || !Array.isArray(businesses) || businesses.length === 0) {
+    return businesses;
+  }
+
+  return [...businesses].sort((a, b) => {
+    const nameA = (a.businessName || "").toLowerCase();
+    const nameB = (b.businessName || "").toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
 }
 
 /**
@@ -1443,6 +1370,9 @@ async function handleBusinessSubmit(event) {
       // Add to both arrays
       currentBusinesses.push(savedBusiness);
       originalBusinesses.push(savedBusiness);
+
+      currentBusinesses = sortBusinessesAlphabetically(currentBusinesses);
+      originalBusinesses = sortBusinessesAlphabetically(originalBusinesses);
 
       // Update the hitlist card on the main view to show the updated business count
       updateHitlistBusinessCount(hitlistId);
@@ -1836,4 +1766,6 @@ export {
   convertBusinessToLead,
   openEditBusinessModal,
   openViewBusinessModal,
+  sortHitlistsAlphabetically,
+  sortBusinessesAlphabetically
 };
