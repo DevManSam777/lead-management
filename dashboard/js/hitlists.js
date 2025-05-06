@@ -1109,7 +1109,7 @@ async function processScrapedBusinesses(businesses) {
             country: "USA",
           },
           status: "not-contacted",
-          priority: "medium",
+          priority: "low",
           notes: `Imported from JSON on ${new Date().toLocaleDateString()}`,
         };
 
@@ -1388,36 +1388,6 @@ async function handleBusinessSubmit(event) {
   }
 }
 
-// async function updateHitlistBusinessCount(hitlistId) {
-//   try {
-//     // Find the hitlist card for this hitlist
-//     const hitlistCard = document.querySelector(
-//       `.hitlist-card[data-id="${hitlistId}"]`
-//     );
-//     if (!hitlistCard) return;
-
-//     // Find the business stat element
-//     const businessStat = hitlistCard.querySelector(".hitlist-stat:first-child");
-//     if (!businessStat) return;
-
-//     // Fetch the current hitlist
-//     const hitlist = allHitlists.find((h) => h._id === hitlistId);
-//     if (!hitlist) return;
-
-//     // If businesses array doesn't exist, create it
-//     if (!hitlist.businesses) {
-//       hitlist.businesses = [];
-//     }
-
-//     // Increment the business count in our local data
-//     hitlist.businesses.push({ _id: "temp-" + Date.now() }); // Add a temporary business
-
-//     // Update the UI
-//     businessStat.innerHTML = `<i class="fas fa-building"></i> ${hitlist.businesses.length} businesses`;
-//   } catch (error) {
-//     console.error("Error updating hitlist business count:", error);
-//   }
-// }
 
 async function updateHitlistBusinessCount(hitlistId, addedCount = 1) {
   try {

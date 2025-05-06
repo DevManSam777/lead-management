@@ -77,7 +77,7 @@ const businessSchema = new mongoose.Schema({
   priority: {
     type: String,
     enum: ["high", "medium", "low"],
-    default: "medium",
+    default: "low",
   },
   notes: {
     type: String,
