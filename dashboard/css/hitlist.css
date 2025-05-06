@@ -469,15 +469,13 @@
 
 /* Import JSON button styling */
 #importJsonBtn {
-  background-color: var(--light);
-  color: var(--text-muted);
-  border: 0.1rem solid var(--primary);
+  background-color: var(--primary);
+  color: white;
   transition: all var(--transition-speed) ease;
 }
 
 #importJsonBtn:hover {
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--secondary)
 }
 
 /* File upload progress indicator */
