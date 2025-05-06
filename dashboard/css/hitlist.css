@@ -469,13 +469,13 @@
 
 /* Import JSON button styling */
 #importJsonBtn {
-  background-color: var(--primary);
+  background-color: var(--danger);
   color: white;
   transition: all var(--transition-speed) ease;
 }
 
 #importJsonBtn:hover {
-  background-color: var(--secondary)
+  background-color:  #d11149;
 }
 
 /* File upload progress indicator */
