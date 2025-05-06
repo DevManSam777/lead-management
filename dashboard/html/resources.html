@@ -63,77 +63,80 @@
         transition: opacity 0.5s ease;
       }
     </style>
-   <script>
-    (function () {
-      // Check for saved theme preference
-      const savedTheme = localStorage.getItem("theme");
+    <script>
+      (function () {
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem("theme");
 
-      if (savedTheme) {
-        // User has a saved preference
-        document.documentElement.setAttribute("data-theme", savedTheme);
-      } else {
-        // No saved preference, use system preference
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-          .matches
-          ? "dark"
-          : "light";
-        document.documentElement.setAttribute("data-theme", systemTheme);
-
-        // Save the detected preference for consistency
-        localStorage.setItem("theme", systemTheme);
-      }
-
-      // Listen for system theme changes
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-      // Watch for changes in system preference only if no saved preference exists
-      function handleSystemThemeChange(e) {
-        if (!localStorage.getItem("theme")) {
-          const newTheme = e.matches ? "dark" : "light";
-          document.documentElement.setAttribute("data-theme", newTheme);
-          localStorage.setItem("theme", newTheme);
-        }
-      }
-
-      // Add listener for system theme changes
-      mediaQuery.addListener(handleSystemThemeChange);
-
-      // For modern browsers, use addEventListener
-      if (mediaQuery.addEventListener) {
-        mediaQuery.addEventListener("change", handleSystemThemeChange);
-      }
-
-      document.addEventListener("DOMContentLoaded", function () {
-        // Get references to sidebar and main content
-        const sidebar = document.querySelector(".sidebar");
-        const mainContent = document.querySelector(".main-content");
-
-        // Set initial state based on localStorage
-        const isSidebarCollapsed =
-          localStorage.getItem("sidebarCollapsed") === "true";
-
-        if (isSidebarCollapsed) {
-          sidebar.classList.add("collapsed");
-          mainContent.classList.add("expanded");
+        if (savedTheme) {
+          // User has a saved preference
+          document.documentElement.setAttribute("data-theme", savedTheme);
         } else {
-          sidebar.classList.remove("collapsed");
-          mainContent.classList.remove("expanded");
+          // No saved preference, use system preference
+          const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+            .matches
+            ? "dark"
+            : "light";
+          document.documentElement.setAttribute("data-theme", systemTheme);
+
+          // Save the detected preference for consistency
+          localStorage.setItem("theme", systemTheme);
         }
 
-        // Give a short delay to ensure all layout calculations are done
-        setTimeout(function () {
-          // Make sidebar and content visible
-          sidebar.style.opacity = "1";
-          mainContent.style.opacity = "1";
-        }, 300);
-      });
-    })();
-  </script>
+        // Listen for system theme changes
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // Watch for changes in system preference only if no saved preference exists
+        function handleSystemThemeChange(e) {
+          if (!localStorage.getItem("theme")) {
+            const newTheme = e.matches ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+          }
+        }
+
+        // Add listener for system theme changes
+        mediaQuery.addListener(handleSystemThemeChange);
+
+        // For modern browsers, use addEventListener
+        if (mediaQuery.addEventListener) {
+          mediaQuery.addEventListener("change", handleSystemThemeChange);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          // Get references to sidebar and main content
+          const sidebar = document.querySelector(".sidebar");
+          const mainContent = document.querySelector(".main-content");
+
+          // Set initial state based on localStorage
+          const isSidebarCollapsed =
+            localStorage.getItem("sidebarCollapsed") === "true";
+
+          if (isSidebarCollapsed) {
+            sidebar.classList.add("collapsed");
+            mainContent.classList.add("expanded");
+          } else {
+            sidebar.classList.remove("collapsed");
+            mainContent.classList.remove("expanded");
+          }
+
+          // Give a short delay to ensure all layout calculations are done
+          setTimeout(function () {
+            // Make sidebar and content visible
+            sidebar.style.opacity = "1";
+            mainContent.style.opacity = "1";
+          }, 300);
+        });
+      })();
+    </script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="icon" href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee">
+    <link
+      rel="icon"
+      href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee"
+    />
     <link rel="stylesheet" href="/dashboard/css/theme.css" />
     <link rel="stylesheet" href="/dashboard/css/components.css" />
     <link rel="stylesheet" href="/dashboard/css/dashboard.css" />
@@ -491,6 +494,22 @@
               <ul class="resource-list">
                 <li>
                   <a
+                    href="https://cron-job.org/"
+                    target="_blank"
+                    class="resource-link"
+                  >
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <div class="resource-info">
+                      <h4>cron-job.org</h4>
+                      <p>
+                        Schedule and automate tasks, such as making HTTP
+                        requests to specific URLs
+                      </p>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a
                     href="https://github.com/"
                     target="_blank"
                     class="resource-link"
@@ -533,21 +552,6 @@
                 </li>
                 <li>
                   <a
-                    href="https://www.netlify.com/"
-                    target="_blank"
-                    class="resource-link"
-                  >
-                    <i class="fas fa-server"></i>
-                    <div class="resource-info">
-                      <h4>Netlify</h4>
-                      <p>
-                        All-in-one platform for automating modern web projects
-                      </p>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a
                     href="https://www.postman.com/"
                     target="_blank"
                     class="resource-link"
@@ -568,7 +572,10 @@
                     <i class="fas fa-globe"></i>
                     <div class="resource-info">
                       <h4>Render</h4>
-                      <p>Cloud platform for easily deploying and hosting full-stack apps</p>
+                      <p>
+                        Cloud platform for easily deploying and hosting
+                        full-stack apps
+                      </p>
                     </div>
                   </a>
                 </li>
