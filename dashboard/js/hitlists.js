@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   setupSidebarToggle();
   setupEventListeners();
   fetchAndRenderHitlists();
+  setupJsonUploader();
 
   // Add the settings update event listener
   window.addEventListener("settingsUpdated", function (event) {
@@ -967,28 +968,226 @@ function setupBusinessModalListeners() {
   }
 }
 
+function setupJsonUploader() {
+  // Create the upload button next to the Add Business button
+  const addBusinessBtn = document.getElementById("addBusinessBtn");
+  if (!addBusinessBtn) return;
+  
+  // Create the Import JSON button
+  const importJsonBtn = document.createElement("button");
+  importJsonBtn.id = "importJsonBtn";
+  importJsonBtn.className = "btn btn-outline";
+  importJsonBtn.innerHTML = '<i class="fas fa-file-import"></i> Import JSON';
+  
+  // Insert it after the Add Business button
+  addBusinessBtn.parentNode.insertBefore(importJsonBtn, addBusinessBtn.nextSibling);
+  
+  // Create a hidden file input
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.id = "jsonFileInput";
+  fileInput.accept = ".json";
+  fileInput.style.display = "none";
+  document.body.appendChild(fileInput);
+  
+  // Add click event to the import button to trigger file input
+  importJsonBtn.addEventListener("click", function() {
+    fileInput.click();
+  });
+  
+  // Handle file selection
+  fileInput.addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        // Parse the JSON content
+        const jsonData = JSON.parse(e.target.result);
+        
+        // Check if it's an array
+        if (!Array.isArray(jsonData)) {
+          Utils.showToast("Invalid JSON format: File must contain an array of businesses");
+          return;
+        }
+        
+        // Process the businesses from YellowPages scraper
+        await processScrapedBusinesses(jsonData);
+        
+        // Clear the file input for future use
+        fileInput.value = "";
+      } catch (error) {
+        console.error("Error processing JSON file:", error);
+        Utils.showToast("Error processing JSON file: " + error.message);
+      }
+    };
+    
+    reader.readAsText(file);
+  });
+}
+
+/**
+ * Process the businesses from the scraped JSON file
+ * @param {Array} businesses - Array of business objects from scraper
+ */
+async function processScrapedBusinesses(businesses) {
+  // Validate current hitlist
+  if (!currentHitlistId) {
+    Utils.showToast("Please select a hitlist first");
+    return;
+  }
+  
+  try {
+    let successCount = 0;
+    let errorCount = 0;
+    
+    // Show loading indicator
+    const businessesList = document.getElementById("businessesList");
+    if (businessesList) {
+      businessesList.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Importing businesses...</div>';
+    }
+    
+    // Process each business in sequence
+    for (const scrapedBusiness of businesses) {
+      try {
+        // Format phone number if needed
+        let phone = scrapedBusiness.phone || "";
+        if (phone && !phone.includes("-")) {
+          phone = formatPhoneNumber(phone);
+        }
+        
+        // Extract phone extension if it exists
+        let phoneExt = "";
+        if (phone) {
+          const extMatch = phone.match(/(?:\s+ext\.?|\s+x)(\s*\d+)$/i);
+          if (extMatch && extMatch[1]) {
+            phoneExt = extMatch[1].trim();
+            // Remove extension from main phone
+            phone = phone.replace(/(?:\s+ext\.?|\s+x)(\s*\d+)$/i, "").trim();
+          }
+        }
+        
+        // Format website URL
+        let websiteUrl = scrapedBusiness.website || "";
+        if (websiteUrl && !websiteUrl.startsWith('http')) {
+          websiteUrl = 'https://' + websiteUrl;
+        }
+        
+        // Map the scraped business to our business model
+        const businessData = {
+          businessName: scrapedBusiness.businessName || "",
+          typeOfBusiness: scrapedBusiness.businessType || "",
+          contactName: "",  // YellowPages data doesn't typically include contact names
+          businessPhone: phone,
+          businessPhoneExt: phoneExt || scrapedBusiness.businessPhoneExt || "",
+          businessEmail: scrapedBusiness.businessEmail || "",
+          websiteUrl: websiteUrl,
+          address: {
+            street: scrapedBusiness.streetAddress || "",
+            aptUnit: "",
+            city: scrapedBusiness.city || "",
+            state: scrapedBusiness.state || "",
+            zipCode: scrapedBusiness.zipCode || "",
+            country: "USA"
+          },
+          status: "not-contacted",
+          priority: "medium",
+          notes: `Imported from web scraper on ${new Date().toLocaleDateString()}`
+        };
+        
+        // Create the business in the hitlist
+        await API.createBusiness(currentHitlistId, businessData);
+        successCount++;
+      } catch (error) {
+        console.error("Error importing business:", error);
+        errorCount++;
+      }
+    }
+    
+    // Update the hitlist card on the main view to show the updated business count
+    updateHitlistBusinessCount(currentHitlistId);
+    
+    // Reload the businesses
+    const updatedBusinesses = await API.fetchBusinessesByHitlist(currentHitlistId);
+    originalBusinesses = [...updatedBusinesses];
+    currentBusinesses = [...updatedBusinesses];
+    renderBusinesses(currentBusinesses);
+    
+    // Show success message
+    Utils.showToast(`Import complete: ${successCount} businesses added, ${errorCount} failed`);
+  } catch (error) {
+    console.error("Error processing businesses:", error);
+    Utils.showToast("Error processing businesses: " + error.message);
+  }
+}
+
+
 // Helper function to format phone numbers if needed
+// function formatPhoneNumber(phoneNumber) {
+//   if (!phoneNumber) return "";
+
+//   // Remove all non-digit characters
+//   const cleaned = ("" + phoneNumber).replace(/\D/g, "");
+
+//   // Check if we have at least 10 digits
+//   if (cleaned.length >= 10) {
+//     // Format the first 10 digits as 000-000-0000
+//     return (
+//       cleaned.substring(0, 3) +
+//       "-" +
+//       cleaned.substring(3, 6) +
+//       "-" +
+//       cleaned.substring(6, 10)
+//     );
+//   }
+
+//   // Return original if we couldn't format it
+//   return phoneNumber;
+// }
+
 function formatPhoneNumber(phoneNumber) {
   if (!phoneNumber) return "";
-
+  
   // Remove all non-digit characters
   const cleaned = ("" + phoneNumber).replace(/\D/g, "");
-
+  
   // Check if we have at least 10 digits
   if (cleaned.length >= 10) {
     // Format the first 10 digits as 000-000-0000
-    return (
-      cleaned.substring(0, 3) +
-      "-" +
-      cleaned.substring(3, 6) +
-      "-" +
-      cleaned.substring(6, 10)
-    );
+    return cleaned.substring(0, 3) + "-" + cleaned.substring(3, 6) + "-" + cleaned.substring(6, 10);
   }
-
+  
   // Return original if we couldn't format it
   return phoneNumber;
 }
+
+/**
+ * Format website URL to display just the domain
+ * @param {string} url - The full website URL
+ * @returns {string} - Formatted URL for display
+ */
+function formatWebsiteUrlForDisplay(url) {
+  if (!url) return "";
+  
+  try {
+    // Add https:// if no protocol specified
+    let fullUrl = url;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      fullUrl = 'https://' + url;
+    }
+    
+    // Parse the URL to get just the hostname
+    const urlObject = new URL(fullUrl);
+    return urlObject.hostname;
+  } catch (e) {
+    // If URL parsing fails, just return the original
+    console.error("Error parsing URL:", e);
+    return url;
+  }
+}
+
+
 
 async function handleBusinessSubmit(event) {
   event.preventDefault();
@@ -1150,6 +1349,132 @@ async function updateHitlistBusinessCount(hitlistId) {
   }
 }
 
+// function renderBusinesses(businesses) {
+//   // Get dateFormat from window object (set in settings)
+//   const dateFormat = window.dateFormat || "MM/DD/YYYY";
+
+//   const businessesList = document.getElementById("businessesList");
+
+//   if (!businessesList) {
+//     console.error("Businesses list container not found");
+//     return;
+//   }
+
+//   if (!businesses || businesses.length === 0) {
+//     businessesList.innerHTML =
+//       '<div class="no-businesses-message">No businesses found with current filters. Try adjusting your search criteria.</div>';
+//     return;
+//   }
+
+//   businessesList.innerHTML = businesses
+//     .map((business) => {
+//       // Format phone number for display if needed
+//       let displayPhone = business.businessPhone || "";
+//       if (displayPhone && !displayPhone.includes("-")) {
+//         displayPhone = formatPhoneNumber(displayPhone);
+//       }
+
+//       // Add extension if available
+//       if (business.businessPhoneExt) {
+//         displayPhone += ` Ext: ${business.businessPhoneExt}`;
+//       }
+
+//       return `
+//   <div class="business-item ${
+//     business.status === "converted" ? "converted" : ""
+//   }" data-id="${business._id}">
+//     <div class="business-info">
+//       <div class="business-header">
+//         <span class="business-title">${business.businessName}</span>
+//         <span class="status-badge status-${business.status}">${formatStatus(
+//         business.status
+//       )}</span>
+//         <span class="priority-badge priority-${business.priority}">${
+//         business.priority
+//       }</span>
+//       </div>
+//       <div class="business-details">
+//         ${
+//           business.contactName
+//             ? `<div class="business-detail"><i class="fas fa-user"></i> ${business.contactName}</div>`
+//             : ""
+//         }
+//         ${
+//           displayPhone
+//             ? `<div class="business-detail"><i class="fas fa-phone"></i> ${displayPhone}</div>`
+//             : ""
+//         }
+//         ${
+//           business.businessEmail
+//             ? `<div class="business-detail"><i class="fas fa-envelope"></i> ${business.businessEmail}</div>`
+//             : ""
+//         }
+//         // ${
+//           business.websiteUrl
+//            ? `<div class="business-detail"><i class="fas fa-globe"></i> <a href="${business.websiteUrl}" target="_blank">${formatWebsiteUrlForDisplay(business.websiteUrl)}</a></div>`
+//             : ""
+//         }
+//         ${
+//           business.lastContactedDate
+//             ? `
+//           <div class="business-detail"><i class="fas fas fa-clock"></i> Last contact: ${(() => {
+//             const fetchedDate = new Date(business.lastContactedDate);
+//             // Check if fetchedDate is a valid Date object
+//             if (fetchedDate && !isNaN(fetchedDate.getTime())) {
+//               // Create local date at noon to avoid timezone issues
+//               const localDateForDisplay = new Date(
+//                 fetchedDate.getUTCFullYear(),
+//                 fetchedDate.getUTCMonth(),
+//                 fetchedDate.getUTCDate(),
+//                 12,
+//                 0,
+//                 0
+//               );
+//               return Utils.formatDate(localDateForDisplay, dateFormat);
+//             } else {
+//               console.error(
+//                 "Invalid lastContactedDate for business ID",
+//                 business._id,
+//                 ":",
+//                 business.lastContactedDate
+//               );
+//               return "N/A"; // Display N/A or similar for invalid dates
+//             }
+//           })()}</div>
+//         `
+//             : ""
+//         }
+//       </div>
+//     </div>
+//     <div class="business-actions">
+//       <button class="btn-icon view-business" title="View Business Details">
+//         <i class="fas fa-eye"></i>
+//       </button>
+//       ${
+//         business.status !== "converted"
+//           ? `<button class="btn-icon convert-to-lead" title="Convert to Lead">
+//           <i class="fas fa-user-plus"></i>
+//         </button>`
+//           : `<button class="btn-icon" disabled title="Already Converted" style="cursor: not-allowed; opacity: 0.5;">
+//           <i class="fas fa-check"></i>
+//         </button>`
+//       }
+//       <button class="btn-icon edit-business" title="Edit">
+//         <i class="fas fa-edit"></i>
+//       </button>
+//       <button class="btn-icon delete-business" title="Delete">
+//         <i class="fas fa-trash"></i>
+//       </button>
+//     </div>
+//   </div>
+// `;
+//     })
+//     .join("");
+
+//   // Add event listeners after rendering
+//   attachBusinessActionListeners(businesses);
+// }
+
 function renderBusinesses(businesses) {
   // Get dateFormat from window object (set in settings)
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
@@ -1178,6 +1503,27 @@ function renderBusinesses(businesses) {
       // Add extension if available
       if (business.businessPhoneExt) {
         displayPhone += ` Ext: ${business.businessPhoneExt}`;
+      }
+
+      // Format website URL for display - show just the domain
+      let displayWebsite = "";
+      let fullWebsiteUrl = "";
+      
+      if (business.websiteUrl) {
+        // Store the full URL for the href
+        fullWebsiteUrl = business.websiteUrl;
+        if (!fullWebsiteUrl.startsWith("http://") && !fullWebsiteUrl.startsWith("https://")) {
+          fullWebsiteUrl = "https://" + fullWebsiteUrl;
+        }
+        
+        // Create simplified display URL (just domain)
+        try {
+          const urlObj = new URL(fullWebsiteUrl);
+          displayWebsite = urlObj.hostname;
+        } catch (error) {
+          // If URL parsing fails, just use the original
+          displayWebsite = business.websiteUrl;
+        }
       }
 
       return `
@@ -1212,7 +1558,7 @@ function renderBusinesses(businesses) {
         }
         ${
           business.websiteUrl
-            ? `<div class="business-detail"><i class="fas fa-globe"></i> <a href="${business.websiteUrl}" target="_blank">${business.websiteUrl}</a></div>`
+            ? `<div class="business-detail"><i class="fas fa-globe"></i> <a href="${fullWebsiteUrl}" target="_blank">${displayWebsite}</a></div>`
             : ""
         }
         ${
@@ -1276,6 +1622,113 @@ function renderBusinesses(businesses) {
   attachBusinessActionListeners(businesses);
 }
 
+// function openViewBusinessModal(business) {
+//   // Get dateFormat from window object (set in settings)
+//   const dateFormat = window.dateFormat || "MM/DD/YYYY";
+
+//   document.getElementById("viewBusinessName").textContent =
+//     business.businessName || "N/A";
+//   document.getElementById("viewTypeOfBusiness").textContent =
+//     business.typeOfBusiness || "N/A";
+
+//   // Split contact name
+//   const nameParts = (business.contactName || "").split(" ");
+//   document.getElementById("viewContactFirstName").textContent =
+//     nameParts[0] || "N/A";
+//   document.getElementById("viewContactLastName").textContent =
+//     nameParts.slice(1).join(" ") || "N/A";
+
+//   // Format phone number for view modal
+//   let displayPhone = business.businessPhone || "N/A";
+//   if (displayPhone !== "N/A" && !displayPhone.includes("-")) {
+//     displayPhone = formatPhoneNumber(displayPhone);
+//   }
+//   document.getElementById("viewBusinessPhone").textContent = displayPhone;
+
+//   // Add extension display
+//   document.getElementById("viewBusinessPhoneExt").textContent =
+//     business.businessPhoneExt ? `Ext: ${business.businessPhoneExt}` : "";
+
+//   document.getElementById("viewBusinessEmail").textContent =
+//     business.businessEmail || "N/A";
+
+//   // Display address if available
+//   const address = business.address || {};
+//   document.getElementById("viewBusinessStreet").textContent =
+//     address.street || "N/A";
+//   document.getElementById("viewBusinessAptUnit").textContent =
+//     address.aptUnit || "N/A";
+//   document.getElementById("viewBusinessCity").textContent =
+//     address.city || "N/A";
+//   document.getElementById("viewBusinessState").textContent =
+//     address.state || "N/A";
+//   document.getElementById("viewBusinessZipCode").textContent =
+//     address.zipCode || "N/A";
+//   document.getElementById("viewBusinessCountry").textContent =
+//     address.country || "N/A";
+
+//   // Corrected websiteUrl link creation for display
+//   const websiteLinkHtml = business.websiteUrl
+//     ? (() => {
+//         let displayUrl = business.websiteUrl;
+//         if (
+//           !displayUrl.startsWith("http://") &&
+//           !displayUrl.startsWith("https://")
+//         ) {
+//           displayUrl = `https://${displayUrl}`;
+//         }
+//         try {
+//           const url = new URL(displayUrl);
+//           return `<a href="${url.href}" target="_blank">${url.hostname}</a>`; // Link text is just the hostname
+//         } catch (e) {
+//           console.error("Invalid URL for display:", business.websiteUrl);
+//           return business.websiteUrl; // Fallback to just showing the text if invalid
+//         }
+//       })()
+//     : "N/A";
+
+//   document.getElementById("viewWebsiteUrl").innerHTML = websiteLinkHtml;
+
+//   document.getElementById("viewStatus").textContent = formatStatus(
+//     business.status
+//   );
+//   document.getElementById("viewPriority").textContent = business.priority;
+
+//   // Last contacted date - use the global date format from settings
+//   const lastContactedDisplayDate = business.lastContactedDate
+//     ? new Date(business.lastContactedDate)
+//     : null;
+
+//   let formattedLastContacted = "N/A";
+
+//   if (lastContactedDisplayDate && !isNaN(lastContactedDisplayDate.getTime())) {
+//     // Using UTC components to create local date at noon, consistent with other date displays
+//     const localDateForDisplay = new Date(
+//       lastContactedDisplayDate.getUTCFullYear(),
+//       lastContactedDisplayDate.getUTCMonth(),
+//       lastContactedDisplayDate.getUTCDate(),
+//       12,
+//       0,
+//       0
+//     );
+//     formattedLastContacted = Utils.formatDate(localDateForDisplay, dateFormat);
+//   } else if (business.lastContactedDate) {
+//     console.error(
+//       "Invalid lastContactedDate received for business (viewing):",
+//       business._id,
+//       business.lastContactedDate
+//     );
+//   }
+
+//   document.getElementById("viewLastContactedDate").textContent =
+//     formattedLastContacted;
+
+//   document.getElementById("viewNotes").textContent = business.notes || "N/A";
+
+//   // Show the view modal
+//   document.getElementById("businessViewModal").style.display = "block";
+// }
+
 function openViewBusinessModal(business) {
   // Get dateFormat from window object (set in settings)
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
@@ -1321,19 +1774,23 @@ function openViewBusinessModal(business) {
   document.getElementById("viewBusinessCountry").textContent =
     address.country || "N/A";
 
-  // Corrected websiteUrl link creation for display
+  // Improved website URL display logic
   const websiteLinkHtml = business.websiteUrl
     ? (() => {
-        let displayUrl = business.websiteUrl;
-        if (
-          !displayUrl.startsWith("http://") &&
-          !displayUrl.startsWith("https://")
-        ) {
-          displayUrl = `https://${displayUrl}`;
+        // Create the full URL with protocol for the href
+        let fullUrl = business.websiteUrl;
+        if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
+          fullUrl = `https://${fullUrl}`;
         }
+        
+        // Create a simplified display URL (just the domain)
+        let displayUrl = business.websiteUrl;
         try {
-          const url = new URL(displayUrl);
-          return `<a href="${url.href}" target="_blank">${url.hostname}</a>`; // Link text is just the hostname
+          // Try to parse the URL to get just the hostname
+          const url = new URL(fullUrl);
+          displayUrl = url.hostname;
+          
+          return `<a href="${fullUrl}" target="_blank">${displayUrl}</a>`;
         } catch (e) {
           console.error("Invalid URL for display:", business.websiteUrl);
           return business.websiteUrl; // Fallback to just showing the text if invalid

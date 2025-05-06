@@ -256,11 +256,22 @@
     <div id="businessListModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeBusinessListModal">&times;</span>
-        <div class="modal-header">
+        <!-- <div class="modal-header">
           <h3 id="businessListTitle">Businesses</h3>
           <button id="addBusinessBtn" class="btn btn-primary">
             <i class="fas fa-plus"></i> Add Business
           </button>
+        </div> -->
+        <div class="modal-header">
+          <h3 id="businessListTitle">Businesses</h3>
+          <div class="business-actions-container" style="display: flex; gap: 1rem;">
+            <button id="addBusinessBtn" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Add Business
+            </button>
+            <button id="importJsonBtn" class="btn btn-outline">
+              <i class="fas fa-file-import"></i> Import JSON
+            </button>
+          </div>
         </div>
         <div class="business-filters">
           <div class="search-box">
