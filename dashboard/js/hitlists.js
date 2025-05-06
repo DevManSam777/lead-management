@@ -597,11 +597,10 @@ function openEditBusinessModal(business) {
   document.getElementById("businessCity").value = address.city || "";
   document.getElementById("businessState").value = address.state || "";
   document.getElementById("businessZipCode").value = address.zipCode || "";
-  document.getElementById("businessCountry").value =
-    address.country || "USA";
+  document.getElementById("businessCountry").value = address.country || "USA";
 
   document.getElementById("status").value = business.status || "not-contacted";
-  document.getElementById("priority").value = business.priority || "medium";
+  document.getElementById("priority").value = business.priority || "low";
   document.getElementById("notes").value = business.notes || "";
 
   // Set last contacted date
@@ -970,18 +969,20 @@ function setupBusinessModalListeners() {
 
 function setupJsonUploader() {
   // Find the business actions container instead of directly next to the Add Business button
-  const businessActionsContainer = document.querySelector('.business-actions-container');
+  const businessActionsContainer = document.querySelector(
+    ".business-actions-container"
+  );
   if (!businessActionsContainer) return;
-  
+
   // Create the Import JSON button with proper styling to match other buttons
   const importJsonBtn = document.createElement("button");
   importJsonBtn.id = "importJsonBtn";
   importJsonBtn.className = "btn btn-primary";
   importJsonBtn.innerHTML = '<i class="fas fa-file-import"></i> Import JSON';
-  
+
   // Add to the business actions container
   businessActionsContainer.appendChild(importJsonBtn);
-  
+
   // Create a hidden file input
   const fileInput = document.createElement("input");
   fileInput.type = "file";
@@ -989,32 +990,34 @@ function setupJsonUploader() {
   fileInput.accept = ".json";
   fileInput.style.display = "none";
   document.body.appendChild(fileInput);
-  
+
   // Add click event to the import button to trigger file input
-  importJsonBtn.addEventListener("click", function() {
+  importJsonBtn.addEventListener("click", function () {
     fileInput.click();
   });
-  
+
   // Handle file selection
-  fileInput.addEventListener("change", function(event) {
+  fileInput.addEventListener("change", function (event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
-    reader.onload = async function(e) {
+    reader.onload = async function (e) {
       try {
         // Parse the JSON content
         const jsonData = JSON.parse(e.target.result);
-        
+
         // Check if it's an array
         if (!Array.isArray(jsonData)) {
-          Utils.showToast("Invalid JSON format: File must contain an array of businesses");
+          Utils.showToast(
+            "Invalid JSON format: File must contain an array of businesses"
+          );
           return;
         }
-        
+
         // Process the businesses from the JSON file
         await processScrapedBusinesses(jsonData);
-        
+
         // Clear the file input for future use
         fileInput.value = "";
       } catch (error) {
@@ -1022,11 +1025,10 @@ function setupJsonUploader() {
         Utils.showToast("Error processing JSON file: " + error.message);
       }
     };
-    
+
     reader.readAsText(file);
   });
 }
-
 
 // async function processScrapedBusinesses(businesses) {
 //   // Validate current hitlist
@@ -1034,13 +1036,13 @@ function setupJsonUploader() {
 //     Utils.showToast("Please select a hitlist first");
 //     return;
 //   }
-  
+
 //   try {
 //     let successCount = 0;
 //     let errorCount = 0;
 //     let processingCount = 0;
 //     const totalBusinesses = businesses.length;
-    
+
 //     // Create upload progress container
 //     const businessesList = document.getElementById("businessesList");
 //     if (businessesList) {
@@ -1055,7 +1057,7 @@ function setupJsonUploader() {
 //           <div class="upload-status">Processed 0 of ${totalBusinesses} businesses</div>
 //         </div>`;
 //     }
-    
+
 //     // Process each business in sequence
 //     for (const scrapedBusiness of businesses) {
 //       try {
@@ -1067,7 +1069,7 @@ function setupJsonUploader() {
 //           // Format as XXX-XXX-XXXX properly
 //           phone = formatPhoneNumber(phone);
 //         }
-        
+
 //         // Extract phone extension if it exists
 //         let phoneExt = "";
 //         if (scrapedBusiness.phone) {
@@ -1076,13 +1078,13 @@ function setupJsonUploader() {
 //             phoneExt = extMatch[1].trim();
 //           }
 //         }
-        
+
 //         // Format website URL
 //         let websiteUrl = scrapedBusiness.website || "";
 //         if (websiteUrl && !websiteUrl.startsWith('http')) {
 //           websiteUrl = 'https://' + websiteUrl;
 //         }
-        
+
 //         // Map the scraped business to our business model
 //         const businessData = {
 //           businessName: scrapedBusiness.businessName || "",
@@ -1104,34 +1106,34 @@ function setupJsonUploader() {
 //           priority: "low",
 //           notes: `Imported from JSON on ${new Date().toLocaleDateString()}`
 //         };
-        
+
 //         // Create the business in the hitlist
 //         await API.createBusiness(currentHitlistId, businessData);
 //         successCount++;
-        
+
 //         // Update progress
 //         processingCount++;
 //         updateImportProgress(processingCount, totalBusinesses, successCount, errorCount);
-        
+
 //       } catch (error) {
 //         console.error("Error importing business:", error);
 //         errorCount++;
-        
+
 //         // Update progress even on error
 //         processingCount++;
 //         updateImportProgress(processingCount, totalBusinesses, successCount, errorCount);
 //       }
 //     }
-    
+
 //     // Update the hitlist card on the main view to show the updated business count
 //     updateHitlistBusinessCount(currentHitlistId);
-    
+
 //     // Reload the businesses
 //     const updatedBusinesses = await API.fetchBusinessesByHitlist(currentHitlistId);
 //     originalBusinesses = [...updatedBusinesses];
 //     currentBusinesses = [...updatedBusinesses];
 //     renderBusinesses(currentBusinesses);
-    
+
 //     // Show success message
 //     Utils.showToast(`Import complete: ${successCount} businesses added, ${errorCount} failed`);
 //   } catch (error) {
@@ -1146,13 +1148,13 @@ async function processScrapedBusinesses(businesses) {
     Utils.showToast("Please select a hitlist first");
     return;
   }
-  
+
   try {
     let successCount = 0;
     let errorCount = 0;
     let processingCount = 0;
     const totalBusinesses = businesses.length;
-    
+
     // Create upload progress container
     const businessesList = document.getElementById("businessesList");
     if (businessesList) {
@@ -1167,7 +1169,7 @@ async function processScrapedBusinesses(businesses) {
           <div class="upload-status">Processed 0 of ${totalBusinesses} businesses</div>
         </div>`;
     }
-    
+
     // Process each business in sequence
     for (const scrapedBusiness of businesses) {
       try {
@@ -1179,27 +1181,29 @@ async function processScrapedBusinesses(businesses) {
           // Format as XXX-XXX-XXXX properly
           phone = formatPhoneNumber(phone);
         }
-        
+
         // Extract phone extension if it exists
         let phoneExt = "";
         if (scrapedBusiness.phone) {
-          const extMatch = scrapedBusiness.phone.match(/(?:\s+ext\.?|\s+x)(\s*\d+)$/i);
+          const extMatch = scrapedBusiness.phone.match(
+            /(?:\s+ext\.?|\s+x)(\s*\d+)$/i
+          );
           if (extMatch && extMatch[1]) {
             phoneExt = extMatch[1].trim();
           }
         }
-        
+
         // Format website URL
         let websiteUrl = scrapedBusiness.website || "";
-        if (websiteUrl && !websiteUrl.startsWith('http')) {
-          websiteUrl = 'https://' + websiteUrl;
+        if (websiteUrl && !websiteUrl.startsWith("http")) {
+          websiteUrl = "https://" + websiteUrl;
         }
-        
+
         // Map the scraped business to our business model
         const businessData = {
           businessName: scrapedBusiness.businessName || "",
           typeOfBusiness: scrapedBusiness.businessType || "",
-          contactName: "",  // YellowPages data doesn't typically include contact names
+          contactName: "", // YellowPages data doesn't typically include contact names
           businessPhone: phone,
           businessPhoneExt: phoneExt || "",
           businessEmail: scrapedBusiness.businessEmail || "",
@@ -1210,43 +1214,56 @@ async function processScrapedBusinesses(businesses) {
             city: scrapedBusiness.city || "",
             state: scrapedBusiness.state || "",
             zipCode: scrapedBusiness.zipCode || "",
-            country: "USA"
+            country: "USA",
           },
           status: "not-contacted",
           priority: "medium",
-          notes: `Imported from JSON on ${new Date().toLocaleDateString()}`
+          notes: `Imported from JSON on ${new Date().toLocaleDateString()}`,
         };
-        
+
         // Create the business in the hitlist
         await API.createBusiness(currentHitlistId, businessData);
         successCount++;
-        
+
         // Update progress
         processingCount++;
-        updateImportProgress(processingCount, totalBusinesses, successCount, errorCount);
-        
+        updateImportProgress(
+          processingCount,
+          totalBusinesses,
+          successCount,
+          errorCount
+        );
       } catch (error) {
         console.error("Error importing business:", error);
         errorCount++;
-        
+
         // Update progress even on error
         processingCount++;
-        updateImportProgress(processingCount, totalBusinesses, successCount, errorCount);
+        updateImportProgress(
+          processingCount,
+          totalBusinesses,
+          successCount,
+          errorCount
+        );
       }
     }
-    
+
     // Update the hitlist card on the main view to show the updated business count
     // Pass the actual success count instead of defaulting to 1
     updateHitlistBusinessCount(currentHitlistId, successCount);
-    
+
     // Reload the businesses
-    const updatedBusinesses = await API.fetchBusinessesByHitlist(currentHitlistId);
+    const updatedBusinesses = await API.fetchBusinessesByHitlist(
+      currentHitlistId
+    );
     originalBusinesses = [...updatedBusinesses];
     currentBusinesses = [...updatedBusinesses];
     renderBusinesses(currentBusinesses);
-    
+
     // Show success message
-    Utils.showToast(`Import complete: ${successCount} businesses added, ${errorCount} failed`);
+    Utils.showToast(
+      `Import complete: ${successCount} businesses added, ${errorCount} failed`
+    );
   } catch (error) {
     console.error("Error processing businesses:", error);
     Utils.showToast("Error processing businesses: " + error.message);
@@ -1255,16 +1272,15 @@ async function processScrapedBusinesses(businesses) {
 
 // Helper function to update the import progress bar
 function updateImportProgress(current, total, successes, errors) {
-  const progressBar = document.querySelector('.upload-progress-bar');
-  const statusText = document.querySelector('.upload-status');
-  
+  const progressBar = document.querySelector(".upload-progress-bar");
+  const statusText = document.querySelector(".upload-status");
+
   if (progressBar && statusText) {
     const percentage = Math.round((current / total) * 100);
     progressBar.style.width = `${percentage}%`;
     statusText.textContent = `Processed ${current} of ${total} businesses (${successes} succeeded, ${errors} failed)`;
   }
 }
-
 
 function formatPhoneNumber(phoneNumber) {
   if (!phoneNumber) return "";
@@ -1295,14 +1311,14 @@ function formatPhoneNumber(phoneNumber) {
  */
 function formatWebsiteUrlForDisplay(url) {
   if (!url) return "";
-  
+
   try {
     // Add https:// if no protocol specified
     let fullUrl = url;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      fullUrl = 'https://' + url;
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      fullUrl = "https://" + url;
     }
-    
+
     // Parse the URL to get just the hostname
     const urlObject = new URL(fullUrl);
     return urlObject.hostname;
@@ -1312,8 +1328,6 @@ function formatWebsiteUrlForDisplay(url) {
     return url;
   }
 }
-
-
 
 async function handleBusinessSubmit(event) {
   event.preventDefault();
@@ -1508,7 +1522,6 @@ async function updateHitlistBusinessCount(hitlistId, addedCount = 1) {
   }
 }
 
-
 function renderBusinesses(businesses) {
   // Get dateFormat from window object (set in settings)
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
@@ -1542,14 +1555,17 @@ function renderBusinesses(businesses) {
       // Format website URL for display - show just the domain
       let displayWebsite = "";
       let fullWebsiteUrl = "";
-      
+
       if (business.websiteUrl) {
         // Store the full URL for the href
         fullWebsiteUrl = business.websiteUrl;
-        if (!fullWebsiteUrl.startsWith("http://") && !fullWebsiteUrl.startsWith("https://")) {
+        if (
+          !fullWebsiteUrl.startsWith("http://") &&
+          !fullWebsiteUrl.startsWith("https://")
+        ) {
           fullWebsiteUrl = "https://" + fullWebsiteUrl;
         }
-        
+
         // Create simplified display URL (just domain)
         try {
           const urlObj = new URL(fullWebsiteUrl);
@@ -1709,14 +1725,14 @@ function openViewBusinessModal(business) {
         if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
           fullUrl = `https://${fullUrl}`;
         }
-        
+
         // Create a simplified display URL (just the domain)
         let displayUrl = business.websiteUrl;
         try {
           // Try to parse the URL to get just the hostname
           const url = new URL(fullUrl);
           displayUrl = url.hostname;
-          
+
           return `<a href="${fullUrl}" target="_blank">${displayUrl}</a>`;
         } catch (e) {
           console.error("Invalid URL for display:", business.websiteUrl);
