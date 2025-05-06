@@ -763,8 +763,8 @@ async function convertBusinessToLead(business) {
     const lastContactedAt = currentDate;
 
     const leadData = {
-      firstName: nameParts[0] || "Not specified",
-      lastName: nameParts.slice(1).join(" ") || "Not specified",
+      firstName: nameParts[0] || "@",
+      lastName: nameParts.slice(1).join(" ") || business.businessName,
       email: business.businessEmail || "example@email.com",
       phone: business.businessPhone || "",
       phoneExt: business.businessPhoneExt || "",
