@@ -1101,7 +1101,7 @@ async function processScrapedBusinesses(businesses) {
             country: "USA"
           },
           status: "not-contacted",
-          priority: "medium",
+          priority: "low",
           notes: `Imported from JSON on ${new Date().toLocaleDateString()}`
         };
         
