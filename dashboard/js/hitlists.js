@@ -1028,6 +1028,118 @@ function setupJsonUploader() {
 }
 
 
+// async function processScrapedBusinesses(businesses) {
+//   // Validate current hitlist
+//   if (!currentHitlistId) {
+//     Utils.showToast("Please select a hitlist first");
+//     return;
+//   }
+  
+//   try {
+//     let successCount = 0;
+//     let errorCount = 0;
+//     let processingCount = 0;
+//     const totalBusinesses = businesses.length;
+    
+//     // Create upload progress container
+//     const businessesList = document.getElementById("businessesList");
+//     if (businessesList) {
+//       businessesList.innerHTML = `
+//         <div class="loading-indicator">
+//           <i class="fas fa-spinner fa-spin"></i> Importing businesses...
+//         </div>
+//         <div class="upload-progress-container">
+//           <div class="upload-progress">
+//             <div class="upload-progress-bar" style="width: 0%"></div>
+//           </div>
+//           <div class="upload-status">Processed 0 of ${totalBusinesses} businesses</div>
+//         </div>`;
+//     }
+    
+//     // Process each business in sequence
+//     for (const scrapedBusiness of businesses) {
+//       try {
+//         // Format phone number using the helper function
+//         let phone = scrapedBusiness.phone || "";
+//         // Remove all non-digit characters first
+//         phone = phone.replace(/\D/g, "");
+//         if (phone && phone.length >= 10) {
+//           // Format as XXX-XXX-XXXX properly
+//           phone = formatPhoneNumber(phone);
+//         }
+        
+//         // Extract phone extension if it exists
+//         let phoneExt = "";
+//         if (scrapedBusiness.phone) {
+//           const extMatch = scrapedBusiness.phone.match(/(?:\s+ext\.?|\s+x)(\s*\d+)$/i);
+//           if (extMatch && extMatch[1]) {
+//             phoneExt = extMatch[1].trim();
+//           }
+//         }
+        
+//         // Format website URL
+//         let websiteUrl = scrapedBusiness.website || "";
+//         if (websiteUrl && !websiteUrl.startsWith('http')) {
+//           websiteUrl = 'https://' + websiteUrl;
+//         }
+        
+//         // Map the scraped business to our business model
+//         const businessData = {
+//           businessName: scrapedBusiness.businessName || "",
+//           typeOfBusiness: scrapedBusiness.businessType || "",
+//           contactName: "",  // YellowPages data doesn't typically include contact names
+//           businessPhone: phone,
+//           businessPhoneExt: phoneExt || "",
+//           businessEmail: scrapedBusiness.businessEmail || "",
+//           websiteUrl: websiteUrl,
+//           address: {
+//             street: scrapedBusiness.streetAddress || "",
+//             aptUnit: "",
+//             city: scrapedBusiness.city || "",
+//             state: scrapedBusiness.state || "",
+//             zipCode: scrapedBusiness.zipCode || "",
+//             country: "USA"
+//           },
+//           status: "not-contacted",
+//           priority: "low",
+//           notes: `Imported from JSON on ${new Date().toLocaleDateString()}`
+//         };
+        
+//         // Create the business in the hitlist
+//         await API.createBusiness(currentHitlistId, businessData);
+//         successCount++;
+        
+//         // Update progress
+//         processingCount++;
+//         updateImportProgress(processingCount, totalBusinesses, successCount, errorCount);
+        
+//       } catch (error) {
+//         console.error("Error importing business:", error);
+//         errorCount++;
+        
+//         // Update progress even on error
+//         processingCount++;
+//         updateImportProgress(processingCount, totalBusinesses, successCount, errorCount);
+//       }
+//     }
+    
+//     // Update the hitlist card on the main view to show the updated business count
+//     updateHitlistBusinessCount(currentHitlistId);
+    
+//     // Reload the businesses
+//     const updatedBusinesses = await API.fetchBusinessesByHitlist(currentHitlistId);
+//     originalBusinesses = [...updatedBusinesses];
+//     currentBusinesses = [...updatedBusinesses];
+//     renderBusinesses(currentBusinesses);
+    
+//     // Show success message
+//     Utils.showToast(`Import complete: ${successCount} businesses added, ${errorCount} failed`);
+//   } catch (error) {
+//     console.error("Error processing businesses:", error);
+//     Utils.showToast("Error processing businesses: " + error.message);
+//   }
+// }
+
 async function processScrapedBusinesses(businesses) {
   // Validate current hitlist
   if (!currentHitlistId) {
@@ -1101,7 +1213,7 @@ async function processScrapedBusinesses(businesses) {
             country: "USA"
           },
           status: "not-contacted",
-          priority: "low",
+          priority: "medium",
           notes: `Imported from JSON on ${new Date().toLocaleDateString()}`
         };
         
@@ -1124,7 +1236,8 @@ async function processScrapedBusinesses(businesses) {
     }
     
     // Update the hitlist card on the main view to show the updated business count
-    updateHitlistBusinessCount(currentHitlistId);
+    // Pass the actual success count instead of defaulting to 1
+    updateHitlistBusinessCount(currentHitlistId, successCount);
     
     // Reload the businesses
     const updatedBusinesses = await API.fetchBusinessesByHitlist(currentHitlistId);
@@ -1331,7 +1444,38 @@ async function handleBusinessSubmit(event) {
   }
 }
 
-async function updateHitlistBusinessCount(hitlistId) {
+// async function updateHitlistBusinessCount(hitlistId) {
+//   try {
+//     // Find the hitlist card for this hitlist
+//     const hitlistCard = document.querySelector(
+//       `.hitlist-card[data-id="${hitlistId}"]`
+//     );
+//     if (!hitlistCard) return;
+
+//     // Find the business stat element
+//     const businessStat = hitlistCard.querySelector(".hitlist-stat:first-child");
+//     if (!businessStat) return;
+
+//     // Fetch the current hitlist
+//     const hitlist = allHitlists.find((h) => h._id === hitlistId);
+//     if (!hitlist) return;
+
+//     // If businesses array doesn't exist, create it
+//     if (!hitlist.businesses) {
+//       hitlist.businesses = [];
+//     }
+
+//     // Increment the business count in our local data
+//     hitlist.businesses.push({ _id: "temp-" + Date.now() }); // Add a temporary business
+
+//     // Update the UI
+//     businessStat.innerHTML = `<i class="fas fa-building"></i> ${hitlist.businesses.length} businesses`;
+//   } catch (error) {
+//     console.error("Error updating hitlist business count:", error);
+//   }
+// }
+
+async function updateHitlistBusinessCount(hitlistId, addedCount = 1) {
   try {
     // Find the hitlist card for this hitlist
     const hitlistCard = document.querySelector(
@@ -1343,7 +1487,7 @@ async function updateHitlistBusinessCount(hitlistId) {
     const businessStat = hitlistCard.querySelector(".hitlist-stat:first-child");
     if (!businessStat) return;
 
-    // Fetch the current hitlist
+    // Find the hitlist in our data
     const hitlist = allHitlists.find((h) => h._id === hitlistId);
     if (!hitlist) return;
 
@@ -1352,8 +1496,10 @@ async function updateHitlistBusinessCount(hitlistId) {
       hitlist.businesses = [];
     }
 
-    // Increment the business count in our local data
-    hitlist.businesses.push({ _id: "temp-" + Date.now() }); // Add a temporary business
+    // Add the specified number of businesses to our local data
+    for (let i = 0; i < addedCount; i++) {
+      hitlist.businesses.push({ _id: "temp-" + Date.now() + i }); // Add temporary businesses
+    }
 
     // Update the UI
     businessStat.innerHTML = `<i class="fas fa-building"></i> ${hitlist.businesses.length} businesses`;
