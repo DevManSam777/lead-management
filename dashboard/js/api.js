@@ -1,15 +1,34 @@
 import { authApi } from "./authApi.js";
 
-// const API_URL = "http://localhost:5000/api";
-// const API_URL = "https://lead-management-8u3l.onrender.com/api";
-const API_URL = "/api";
+// Function to determine the appropriate API URL based on the environment
+function getApiUrl() {
+  // Check if we're running locally (localhost) or on the production server
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // For local development, use the local API
+    return "http://localhost:5000/api";
+  } else {
+    // For production (Render or any other host), use relative URL
+    return "/api";
+  }
+}
 
-// Helper function to get base URL
+// Set the API_URL based on the environment
+const API_URL = getApiUrl();
+
+// Helper function to get base URL (also environment-aware)
 function getBaseUrl() {
-  // return "http://localhost:5000";
-  // return "https://lead-management-8u3l.onrender.com";
-  // return "https://devleads.site";
-  return window.location.origin;
+  // Check if we're running locally (localhost) or on the production server
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // For local development
+    return "http://localhost:5000";
+  } else {
+    // For production, use current origin
+    return window.location.origin;
+  }
 }
 
 /**
@@ -609,6 +628,7 @@ async function deleteBusiness(businessId) {
 
 export {
   getBaseUrl,
+  getApiUrl,
   fetchLeads,
   fetchLeadById,
   createLead,

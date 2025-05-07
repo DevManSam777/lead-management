@@ -15,25 +15,51 @@ const auth = require("./middleware/auth");
 const app = express();
 
 // --- Force canonical domain (www.devleads.site) ---
-app.use((req, res, next) => {
-  const host = req.headers.host;
-  // Redirect non-www to www (adjust as needed)
-  if (host === "devleads.site") {
-    return res.redirect(301, "https://www.devleads.site" + req.originalUrl);
-  }
-  next();
-});
+// But only in production, not in development
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    const host = req.headers.host;
+    // Redirect non-www to www (adjust as needed)
+    if (host === "devleads.site") {
+      return res.redirect(301, "https://www.devleads.site" + req.originalUrl);
+    }
+    next();
+  });
+}
 
 // -------------------- CORS & API ROUTES FIRST --------------------
-app.use(
-  cors({
-    origin: true, // Reflects the request origin, works for same-origin and local dev
-    credentials: true,
-  })
-);
+// Enhanced CORS configuration to work in both environments
+const corsOptions = {
+  origin: function (origin, callback) {
+    // List of allowed origins (add your local development URLs)
+    const allowedOrigins = [
+      // Production URLs
+      'https://www.devleads.site',
+      'https://devleads.site',
+      // Development URLs
+      'http://localhost:3000',
+      'http://localhost:5000',
+      'http://127.0.0.1:5000',
+      'http://127.0.0.1:3000'
+    ];
+    
+    // Allow requests with no origin (like mobile apps, curl requests, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 
 // Explicitly handle preflight requests
-app.options("*", cors());
+app.options("*", cors(corsOptions));
 
 app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
 
@@ -73,12 +99,15 @@ app.use(
 );
 
 // Handle login page
-// app.get(["/dashboard", "/dashboard/"], (req, res) => {
-  app.get(["/dashboard", "/login/"], (req, res) => {
+app.get(["/login", "/login/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/index.html"));
 });
 
 // Handle dashboard pages
+app.get(["/dashboard", "/dashboard/"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../dashboard/html/dashboard.html"));
+});
+
 app.get(["/dashboard/home", "/dashboard/home/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/dashboard.html"));
 });
@@ -101,11 +130,13 @@ app.get(["/dashboard/settings", "/dashboard/settings/"], (req, res) => {
 
 // Redirect root to dashboard
 app.get(["/", "/index.html"], (req, res) => {
-  // res.redirect("/dashboard");
   res.redirect("/login");
 });
 
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
+  // Get the PORT for URL construction
+  const PORT = process.env.PORT || 5000;
+  
   res.json({
     message: `🍕 Congratulations! Freelance Lead Management API is now running on port ${PORT}! 🍕`,
     status: "Active",
@@ -116,48 +147,48 @@ app.get("/", (req, res) => {
     },
 
     endpoints: {
-      allLeads: `http://localhost:${PORT}/api/leads`,
-      leadById: `http://localhost:${PORT}/api/leads/:id`,
-      searchLeads: `http://localhost:${PORT}/api/leads/search?query=term`,
+      allLeads: `${getBaseUrl(PORT)}/api/leads`,
+      leadById: `${getBaseUrl(PORT)}/api/leads/:id`,
+      searchLeads: `${getBaseUrl(PORT)}/api/leads/search?query=term`,
     },
     paymentEndpoints: {
-      allPayments: `http://localhost:${PORT}/api/payments`,
-      paymentsByLead: `http://localhost:${PORT}/api/payments/lead/:leadId`,
-      createPayment: `http://localhost:${PORT}/api/payments`,
-      updatePayment: `http://localhost:${PORT}/api/payments/:id`,
-      deletePayment: `http://localhost:${PORT}/api/payments/:id`,
+      allPayments: `${getBaseUrl(PORT)}/api/payments`,
+      paymentsByLead: `${getBaseUrl(PORT)}/api/payments/lead/:leadId`,
+      createPayment: `${getBaseUrl(PORT)}/api/payments`,
+      updatePayment: `${getBaseUrl(PORT)}/api/payments/:id`,
+      deletePayment: `${getBaseUrl(PORT)}/api/payments/:id`,
     },
     settingsEndpoints: {
-      allSettings: `http://localhost:${PORT}/api/settings`,
-      settingByKey: `http://localhost:${PORT}/api/settings/:key`,
-      updateSetting: `http://localhost:${PORT}/api/settings/:key`,
+      allSettings: `${getBaseUrl(PORT)}/api/settings`,
+      settingByKey: `${getBaseUrl(PORT)}/api/settings/:key`,
+      updateSetting: `${getBaseUrl(PORT)}/api/settings/:key`,
     },
     formEndpoints: {
-      allForms: `http://localhost:${PORT}/api/forms`,
-      formById: `http://localhost:${PORT}/api/forms/:id`,
-      searchForms: `http://localhost:${PORT}/api/forms/search?query=term`,
-      createForm: `http://localhost:${PORT}/api/forms`,
-      updateForm: `http://localhost:${PORT}/api/forms/:id`,
-      deleteForm: `http://localhost:${PORT}/api/forms/:id`,
-      cloneTemplate: `http://localhost:${PORT}/api/forms/:id/clone`,
-      generateForm: `http://localhost:${PORT}/api/forms/:id/generate`,
+      allForms: `${getBaseUrl(PORT)}/api/forms`,
+      formById: `${getBaseUrl(PORT)}/api/forms/:id`,
+      searchForms: `${getBaseUrl(PORT)}/api/forms/search?query=term`,
+      createForm: `${getBaseUrl(PORT)}/api/forms`,
+      updateForm: `${getBaseUrl(PORT)}/api/forms/:id`,
+      deleteForm: `${getBaseUrl(PORT)}/api/forms/:id`,
+      cloneTemplate: `${getBaseUrl(PORT)}/api/forms/:id/clone`,
+      generateForm: `${getBaseUrl(PORT)}/api/forms/:id/generate`,
     },
     documentEndpoints: {
-      allDocumentsByLead: `http://localhost:${PORT}/api/documents/lead/:leadId`,
-      documentById: `http://localhost:${PORT}/api/documents/:id`,
-      uploadDocument: `http://localhost:${PORT}/api/documents/lead/:leadId`,
-      deleteDocument: `http://localhost:${PORT}/api/documents/:id`,
+      allDocumentsByLead: `${getBaseUrl(PORT)}/api/documents/lead/:leadId`,
+      documentById: `${getBaseUrl(PORT)}/api/documents/:id`,
+      uploadDocument: `${getBaseUrl(PORT)}/api/documents/lead/:leadId`,
+      deleteDocument: `${getBaseUrl(PORT)}/api/documents/:id`,
     },
     hitlistEndpoints: {
-      allHitlists: `http://localhost:${PORT}/api/hitlists`,
-      hitlistById: `http://localhost:${PORT}/api/hitlists/:id`,
-      createHitlist: `http://localhost:${PORT}/api/hitlists`,
-      updateHitlist: `http://localhost:${PORT}/api/hitlists/:id`,
-      deleteHitlist: `http://localhost:${PORT}/api/hitlists/:id`,
-      businessesByHitlist: `http://localhost:${PORT}/api/hitlists/:hitlistId/businesses`,
-      createBusiness: `http://localhost:${PORT}/api/hitlists/:hitlistId/businesses`,
-      updateBusiness: `http://localhost:${PORT}/api/hitlists/businesses/:id`,
-      deleteBusiness: `http://localhost:${PORT}/api/hitlists/businesses/:id`,
+      allHitlists: `${getBaseUrl(PORT)}/api/hitlists`,
+      hitlistById: `${getBaseUrl(PORT)}/api/hitlists/:id`,
+      createHitlist: `${getBaseUrl(PORT)}/api/hitlists`,
+      updateHitlist: `${getBaseUrl(PORT)}/api/hitlists/:id`,
+      deleteHitlist: `${getBaseUrl(PORT)}/api/hitlists/:id`,
+      businessesByHitlist: `${getBaseUrl(PORT)}/api/hitlists/:hitlistId/businesses`,
+      createBusiness: `${getBaseUrl(PORT)}/api/hitlists/:hitlistId/businesses`,
+      updateBusiness: `${getBaseUrl(PORT)}/api/hitlists/businesses/:id`,
+      deleteBusiness: `${getBaseUrl(PORT)}/api/hitlists/businesses/:id`,
     },
     documentation: {
       description: "LEADS REST API",
@@ -694,6 +725,14 @@ app.get("/", (req, res) => {
     },
   });
 });
+
+// Helper function to get the base URL for examples
+function getBaseUrl(port) {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return isProduction 
+    ? "https://www.devleads.site" 
+    : `http://localhost:${port}`;
+}
 
 // This function ensures the correct sequence: Connect -> Seed -> Start Server
 async function startServer() {

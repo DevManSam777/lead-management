@@ -31,9 +31,23 @@ try {
 
 // Get auth instance
 const auth = getAuth(firebaseApp);
-// const API_URL = "http://localhost:5000/api";
-// const API_URL = "https://lead-management-8u3l.onrender.com/api";
-const API_URL = "/api";
+
+// Function to determine the appropriate API URL based on the environment
+function getApiUrl() {
+  // Check if we're running locally (localhost) or on the production server
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // For local development, use the local API
+    return "http://localhost:5000/api";
+  } else {
+    // For production (Render or any other host), use relative URL
+    return "/api";
+  }
+}
+
+// Set the API_URL based on the environment
+const API_URL = getApiUrl();
 
 // Store the original fetch function
 const originalFetch = window.fetch;
@@ -42,8 +56,18 @@ const originalFetch = window.fetch;
 window.fetch = async function(url, options = {}) {
   console.log(`Intercepted fetch to: ${url}`);
   
+  // Determine if this is a request to our API
+  let isApiRequest = false;
+  
+  // Check for both absolute and relative URLs
+  if (url.includes('/api/')) {
+    isApiRequest = true;
+  } else if (url.includes('localhost:5000/api')) {
+    isApiRequest = true;
+  }
+  
   // Only add auth headers for API calls to our backend
-  if (url.includes('localhost:5000/api') || url.includes('/api/')) {
+  if (isApiRequest) {
     const user = auth.currentUser;
     
     if (!user) {
@@ -177,6 +201,7 @@ async function makeAuthenticatedCall(endpoint, method, data, user) {
       options.body = JSON.stringify(data);
     }
     
+    // Use the dynamic API URL
     console.log(`Sending request to ${API_URL}${endpoint}...`);
     const response = await fetch(`${API_URL}${endpoint}`, options);
     
