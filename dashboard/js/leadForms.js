@@ -524,15 +524,18 @@ function openEditContentModal(form) {
             <span class="variable-tag" data-variable="firstName">First Name</span>
             <span class="variable-tag" data-variable="lastName">Last Name</span>
             <span class="variable-tag" data-variable="fullName">Full Name</span>
-            <span class="variable-tag" data-variable="email">Email</span>
-            <span class="variable-tag" data-variable="phone">Phone</span>
+            <span class="variable-tag" data-variable="email">Personal Email</span>
+            <span class="variable-tag" data-variable="phone">Personal Phone</span>
             <span class="variable-tag" data-variable="businessName">Business Name</span>
             <span class="variable-tag" data-variable="businessEmail">Business Email</span>
             <span class="variable-tag" data-variable="businessPhone">Business Phone</span>
+            <span class="variable-tag" data-variable="billingAddress" >Billing Address</span>
             <span class="variable-tag" data-variable="preferredContact">Contact Preference</span>
             <span class="variable-tag" data-variable="serviceDesired">Service Desired</span>
             <span class="variable-tag" data-variable="estimatedBudget">Estimated Budget</span>
             <span class="variable-tag" data-variable="totalBudget">Total Billed</span>
+            <span class="variable-tag" data-variable="paidAmount">Paid Amount</span>
+            <span class="variable-tag" data-variable="remainingBalance">Remaining Balance</span>
             <span class="variable-tag" data-variable="currentDate">Current Date</span>
             <span class="variable-tag" data-variable="createdAt">Project Origin Date</span>
           </div>
@@ -769,7 +772,6 @@ async function saveFormContent(formId, content) {
 // Function to delete a form
 async function deleteForm(formId, leadId) {
   try {
-    
     // Call API to delete the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
       method: "DELETE",
@@ -938,8 +940,10 @@ async function printForm(formId) {
     printWindow.focus();
     printWindow.print();
   } catch (error) {
-      Utils.showToast("Pop-up blocked. Please allow pop-ups for this site to view the form.");
-      console.warn("Pop-up blocked by the browser.");
+    Utils.showToast(
+      "Pop-up blocked. Please allow pop-ups for this site to view the form."
+    );
+    console.warn("Pop-up blocked by the browser.");
   }
 }
 
