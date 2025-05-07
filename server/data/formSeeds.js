@@ -17,10 +17,13 @@
       "businessName",
       "businessEmail",
       "businessPhone",
+      "billingAddress"
       "preferredContact",
       "serviceDesired",
       "estimatedBudget",
       "totalBudget",
+      "paidAmount",
+      "remainingBalance",
       "currentDate",
       "createdAt"
         ],
@@ -398,6 +401,7 @@ Signed by {{fullName}}, {{currentDate}}  `,
       "email",
       "phone",
       "preferredContact",
+      "remainingBalance",
     ],
   },
   {
