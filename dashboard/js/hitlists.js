@@ -763,8 +763,8 @@ async function convertBusinessToLead(business) {
     const lastContactedAt = currentDate;
 
     const leadData = {
-      firstName: nameParts[0] || "@",
-      lastName: nameParts.slice(1).join(" ") || business.businessName,
+      firstName: nameParts[0] || "???",
+      lastName: nameParts.slice(1).join(" ") || "???",
       email: business.businessEmail || "example@email.com",
       phone: business.businessPhone || "",
       phoneExt: business.businessPhoneExt || "",
@@ -1388,7 +1388,6 @@ async function handleBusinessSubmit(event) {
   }
 }
 
-
 async function updateHitlistBusinessCount(hitlistId, addedCount = 1) {
   try {
     // Find the hitlist card for this hitlist
@@ -1737,5 +1736,5 @@ export {
   openEditBusinessModal,
   openViewBusinessModal,
   sortHitlistsAlphabetically,
-  sortBusinessesAlphabetically
+  sortBusinessesAlphabetically,
 };
