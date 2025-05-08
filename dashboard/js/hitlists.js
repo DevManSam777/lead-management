@@ -1034,6 +1034,7 @@ function setupJsonUploader() {
   });
 }
 
+
 async function processScrapedBusinesses(businesses) {
   // Validate current hitlist
   if (!currentHitlistId) {
@@ -1046,8 +1047,10 @@ async function processScrapedBusinesses(businesses) {
     let errorCount = 0;
     let processingCount = 0;
     const totalBusinesses = businesses.length;
+    const batchSize = 100; // process businesses in batches of 100 
+    const delayBetweenBatches = 5000; // 5 seconds between batches
 
-    // Create upload progress container
+    //  upload progress container
     const businessesList = document.getElementById("businessesList");
     if (businessesList) {
       businessesList.innerHTML = `
@@ -1062,81 +1065,114 @@ async function processScrapedBusinesses(businesses) {
         </div>`;
     }
 
-    // Process each business in sequence
-    for (const scrapedBusiness of businesses) {
-      try {
-        // Format phone number using the helper function
-        let phone = scrapedBusiness.phone || "";
-        // Remove all non-digit characters first
-        phone = phone.replace(/\D/g, "");
-        if (phone && phone.length >= 10) {
-          // Format as XXX-XXX-XXXX properly
-          phone = formatPhoneNumber(phone);
-        }
+    // Process businesses in batches
+    for (let i = 0; i < businesses.length; i += batchSize) {
+      const batch = businesses.slice(i, i + batchSize);
 
-        // Extract phone extension if it exists
-        let phoneExt = "";
-        if (scrapedBusiness.phone) {
-          const extMatch = scrapedBusiness.phone.match(
-            /(?:\s+ext\.?|\s+x)(\s*\d+)$/i
+      // Process each business in the current batch
+      for (const scrapedBusiness of batch) {
+        try {
+          // Format phone number using the helper function
+          let phone = scrapedBusiness.phone || "";
+          // Remove all non-digit characters first
+          phone = phone.replace(/\D/g, "");
+          if (phone && phone.length >= 10) {
+            // Format as XXX-XXX-XXXX properly
+            phone = formatPhoneNumber(phone);
+          }
+
+          // Extract phone extension if it exists
+          let phoneExt = "";
+          if (scrapedBusiness.phone) {
+            const extMatch = scrapedBusiness.phone.match(
+              /(?:\s+ext\.?|\s+x)(\s*\d+)$/i
+            );
+            if (extMatch && extMatch[1]) {
+              phoneExt = extMatch[1].trim();
+            }
+          }
+
+          // Format website URL
+          let websiteUrl = scrapedBusiness.website || "";
+          if (websiteUrl && !websiteUrl.startsWith("http")) {
+            websiteUrl = "https://" + websiteUrl;
+          }
+
+          // Map the scraped business to our business model
+          const businessData = {
+            businessName: scrapedBusiness.businessName || "",
+            typeOfBusiness: scrapedBusiness.businessType || "",
+            contactName: "", // YellowPages data doesn't typically include contact names
+            businessPhone: phone,
+            businessPhoneExt: phoneExt || "",
+            businessEmail: scrapedBusiness.businessEmail || "",
+            websiteUrl: websiteUrl,
+            address: {
+              street: scrapedBusiness.streetAddress || "",
+              aptUnit: "",
+              city: scrapedBusiness.city || "",
+              state: scrapedBusiness.state || "",
+              zipCode: scrapedBusiness.zipCode || "",
+              country: "USA",
+            },
+            status: "not-contacted",
+            priority: "low",
+            notes: `Imported from JSON on ${new Date().toLocaleDateString()}`,
+          };
+
+          // Create the business in the hitlist with exponential backoff
+          await API.createBusiness(currentHitlistId, businessData);
+          successCount++;
+
+          // Update progress
+          processingCount++;
+          updateImportProgress(
+            processingCount,
+            totalBusinesses,
+            successCount,
+            errorCount
           );
-          if (extMatch && extMatch[1]) {
-            phoneExt = extMatch[1].trim();
+        } catch (error) {
+          console.error("Error importing business:", error);
+          errorCount++;
+
+          // Update progress even on error
+          processingCount++;
+          updateImportProgress(
+            processingCount,
+            totalBusinesses,
+            successCount,
+            errorCount
+          );
+
+          // If we hit a quota error, wait longer before continuing
+          if (error.message && error.message.includes("quota")) {
+            await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait 10 seconds
           }
         }
+      }
 
-        // Format website URL
-        let websiteUrl = scrapedBusiness.website || "";
-        if (websiteUrl && !websiteUrl.startsWith("http")) {
-          websiteUrl = "https://" + websiteUrl;
+      // Wait between batches to avoid rate limits
+      if (i + batchSize < businesses.length) {
+        // Show a waiting message in the status area
+        const statusText = document.querySelector(".upload-status");
+        if (statusText) {
+          const originalText = statusText.textContent;
+          statusText.textContent = `Processed ${processingCount} of ${totalBusinesses} businesses - Waiting for rate limits...`;
+
+          // Wait between batches
+          await new Promise((resolve) =>
+            setTimeout(resolve, delayBetweenBatches)
+          );
+
+          // Restore status text
+          statusText.textContent = originalText;
+        } else {
+          // No status element, just wait
+          await new Promise((resolve) =>
+            setTimeout(resolve, delayBetweenBatches)
+          );
         }
-
-        // Map the scraped business to our business model
-        const businessData = {
-          businessName: scrapedBusiness.businessName || "",
-          typeOfBusiness: scrapedBusiness.businessType || "",
-          contactName: "", // YellowPages data doesn't typically include contact names
-          businessPhone: phone,
-          businessPhoneExt: phoneExt || "",
-          businessEmail: scrapedBusiness.businessEmail || "",
-          websiteUrl: websiteUrl,
-          address: {
-            street: scrapedBusiness.streetAddress || "",
-            aptUnit: "",
-            city: scrapedBusiness.city || "",
-            state: scrapedBusiness.state || "",
-            zipCode: scrapedBusiness.zipCode || "",
-            country: "USA",
-          },
-          status: "not-contacted",
-          priority: "low",
-          notes: `Imported from JSON on ${new Date().toLocaleDateString()}`,
-        };
-
-        // Create the business in the hitlist
-        await API.createBusiness(currentHitlistId, businessData);
-        successCount++;
-
-        // Update progress
-        processingCount++;
-        updateImportProgress(
-          processingCount,
-          totalBusinesses,
-          successCount,
-          errorCount
-        );
-      } catch (error) {
-        console.error("Error importing business:", error);
-        errorCount++;
-
-        // Update progress even on error
-        processingCount++;
-        updateImportProgress(
-          processingCount,
-          totalBusinesses,
-          successCount,
-          errorCount
-        );
       }
     }
 

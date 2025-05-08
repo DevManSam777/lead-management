@@ -49,6 +49,11 @@ function getApiUrl() {
 // Set the API_URL based on the environment
 const API_URL = getApiUrl();
 
+// Token caching variables
+let cachedToken = null;
+let tokenExpiration = null;
+const TOKEN_BUFFER = 5 * 60 * 1000; // 5 minute buffer before expiration
+
 // Store the original fetch function
 const originalFetch = window.fetch;
 
@@ -96,32 +101,81 @@ window.fetch = async function(url, options = {}) {
           throw new Error('User not authenticated after waiting');
         }
         
-        // Get token
-        const token = await user.getIdToken();
+        // Use cached token if available and not expired
+        const now = Date.now();
+        if (!cachedToken || !tokenExpiration || now >= tokenExpiration - TOKEN_BUFFER) {
+          console.log('Token expired or not cached, getting new token');
+          // Get a new token, but do NOT force refresh
+          cachedToken = await user.getIdToken(false);
+          
+          // Calculate expiration from token
+          const tokenParts = cachedToken.split('.');
+          if (tokenParts.length === 3) {
+            try {
+              const payload = JSON.parse(atob(tokenParts[1]));
+              tokenExpiration = payload.exp * 1000; // Convert to milliseconds
+            } catch (e) {
+              // Fallback if we can't parse the token
+              tokenExpiration = now + 55 * 60 * 1000; // 55 minutes
+            }
+          } else {
+            tokenExpiration = now + 55 * 60 * 1000; // 55 minutes fallback
+          }
+          console.log('New token obtained, expires in', 
+            Math.floor((tokenExpiration - now) / 60000), 'minutes');
+        } else {
+          console.log('Using cached token, expires in', 
+            Math.floor((tokenExpiration - now) / 60000), 'minutes');
+        }
         
         // Create headers if they don't exist
         options.headers = options.headers || {};
         
         // Add authorization header
-        options.headers.Authorization = `Bearer ${token}`;
+        options.headers.Authorization = `Bearer ${cachedToken}`;
         
-        console.log(`Added auth token to request for ${user.email}`);
+        console.log(`Used cached/new token for ${user.email}`);
       } catch (error) {
         console.error('Error getting auth token:', error);
         throw error;
       }
     } else {
-      // User is already authenticated, get the token
+      // User is already authenticated, get or use cached token
       try {
-        const token = await user.getIdToken();
+        // Check if we have a valid cached token
+        const now = Date.now();
+        if (!cachedToken || !tokenExpiration || now >= tokenExpiration - TOKEN_BUFFER) {
+          console.log('Token expired or not cached, getting new token');
+          // Get a new token, but do NOT force refresh
+          cachedToken = await user.getIdToken(false);
+          
+          // Calculate expiration from token
+          const tokenParts = cachedToken.split('.');
+          if (tokenParts.length === 3) {
+            try {
+              const payload = JSON.parse(atob(tokenParts[1]));
+              tokenExpiration = payload.exp * 1000; // Convert to milliseconds
+            } catch (e) {
+              // Fallback if we can't parse the token
+              tokenExpiration = now + 55 * 60 * 1000; // 55 minutes
+            }
+          } else {
+            tokenExpiration = now + 55 * 60 * 1000; // 55 minutes fallback
+          }
+          console.log('New token obtained, expires in', 
+            Math.floor((tokenExpiration - now) / 60000), 'minutes');
+        } else {
+          console.log('Using cached token, expires in', 
+            Math.floor((tokenExpiration - now) / 60000), 'minutes');
+        }
         
         // Create headers if they don't exist
         options.headers = options.headers || {};
         
         // Add authorization header
-        options.headers.Authorization = `Bearer ${token}`;
+        options.headers.Authorization = `Bearer ${cachedToken}`;
         
-        console.log(`Added auth token to request for ${user.email}`);
+        console.log(`Used cached/new token for ${user.email}`);
       } catch (error) {
         console.error('Error getting auth token:', error);
         throw error;
@@ -133,7 +187,7 @@ window.fetch = async function(url, options = {}) {
   return originalFetch(url, options);
 };
 
-console.log('Authenticated fetch interceptor installed');
+console.log('Authenticated fetch interceptor installed with token caching');
 
 /**
  * Base function to make authenticated API calls
@@ -184,16 +238,38 @@ async function apiCall(endpoint, method = 'GET', data = null) {
  */
 async function makeAuthenticatedCall(endpoint, method, data, user) {
   try {
-    // Get the Firebase ID token
-    console.log('Getting ID token for user:', user.email);
-    const token = await user.getIdToken(true);
-    console.log('Got token successfully');
+    // Check if we have a valid cached token
+    const now = Date.now();
+    if (!cachedToken || !tokenExpiration || now >= tokenExpiration - TOKEN_BUFFER) {
+      console.log('Getting ID token for user:', user.email);
+      // Get a new token, but DO NOT force refresh
+      cachedToken = await user.getIdToken(false);
+      
+      // Calculate expiration from token
+      const tokenParts = cachedToken.split('.');
+      if (tokenParts.length === 3) {
+        try {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          tokenExpiration = payload.exp * 1000; // Convert to milliseconds
+        } catch (e) {
+          // Fallback if we can't parse the token
+          tokenExpiration = now + 55 * 60 * 1000; // 55 minutes
+        }
+      } else {
+        tokenExpiration = now + 55 * 60 * 1000; // 55 minutes fallback
+      }
+      console.log('New token obtained, expires in', 
+        Math.floor((tokenExpiration - now) / 60000), 'minutes');
+    } else {
+      console.log('Using cached token, expires in', 
+        Math.floor((tokenExpiration - now) / 60000), 'minutes');
+    }
     
     const options = {
       method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${cachedToken}`
       }
     };
     
@@ -219,10 +295,57 @@ async function makeAuthenticatedCall(endpoint, method, data, user) {
   }
 }
 
+// Helper function for exponential backoff retry
+async function retryWithBackoff(fn, maxRetries = 3, initialDelay = 1000) {
+  let retries = 0;
+  while (true) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (retries >= maxRetries || !(error.message && error.message.includes("quota"))) {
+        throw error; // Don't retry if max retries reached or not quota error
+      }
+      
+      const delay = initialDelay * Math.pow(2, retries);
+      console.log(`Quota error, retrying after ${delay}ms (retry ${retries + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      retries++;
+    }
+  }
+}
+
+// Circuit breaker pattern
+let isCircuitBroken = false;
+let circuitResetTimeout = null;
+
+async function safeApiCall(fn) {
+  if (isCircuitBroken) {
+    throw new Error("Circuit breaker is open due to recent quota issues. Try again later.");
+  }
+  
+  try {
+    return await fn();
+  } catch (error) {
+    if (error.message && error.message.includes("quota")) {
+      // Open the circuit breaker
+      isCircuitBroken = true;
+      
+      // Reset after 1 minute
+      clearTimeout(circuitResetTimeout);
+      circuitResetTimeout = setTimeout(() => {
+        isCircuitBroken = false;
+      }, 60000);
+      
+      throw new Error("Rate limit exceeded. Please wait a minute before trying again.");
+    }
+    throw error;
+  }
+}
+
 // Create convenience methods for common API operations
 export const authApi = {
-  get: (endpoint) => apiCall(endpoint, 'GET'),
-  post: (endpoint, data) => apiCall(endpoint, 'POST', data),
-  put: (endpoint, data) => apiCall(endpoint, 'PUT', data),
-  delete: (endpoint) => apiCall(endpoint, 'DELETE')
+  get: (endpoint) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'GET'))),
+  post: (endpoint, data) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'POST', data))),
+  put: (endpoint, data) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'PUT', data))),
+  delete: (endpoint) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'DELETE')))
 };
