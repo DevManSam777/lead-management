@@ -1511,6 +1511,17 @@ function renderBusinesses(businesses) {
         }
       }
 
+      // Create address for map link
+      const address = business.address || {};
+      let addressForMap = '';
+      if (address.street) {
+        addressForMap += address.street;
+        if (address.aptUnit) addressForMap += ` ${address.aptUnit}`;
+        if (address.city) addressForMap += `, ${address.city}`;
+        if (address.state) addressForMap += `, ${address.state}`;
+        if (address.zipCode) addressForMap += ` ${address.zipCode}`;
+      }
+      
       return `
   <div class="business-item ${
     business.status === "converted" ? "converted" : ""
@@ -1544,6 +1555,15 @@ function renderBusinesses(businesses) {
         ${
           business.websiteUrl
             ? `<div class="business-detail"><i class="fas fa-globe"></i> <a href="${fullWebsiteUrl}" target="_blank">${displayWebsite}</a></div>`
+            : ""
+        }
+        ${
+          addressForMap
+            ? `<div class="business-detail">
+                <i class="fas fa-map-marker-alt"></i> 
+                <a href="https://maps.google.com/?q=${encodeURIComponent(addressForMap)}" 
+                   target="_blank">View on Map</a>
+              </div>` 
             : ""
         }
         ${
@@ -1677,6 +1697,54 @@ function openViewBusinessModal(business) {
     : "N/A";
 
   document.getElementById("viewWebsiteUrl").innerHTML = websiteLinkHtml;
+  
+  // Add map link if we have a street and city
+  if (address.street && address.city) {
+    // Create the full address
+    let fullAddress = address.street;
+    if (address.aptUnit) fullAddress += ` ${address.aptUnit}`;
+    if (address.city) fullAddress += `, ${address.city}`;
+    if (address.state) fullAddress += `, ${address.state}`;
+    if (address.zipCode) fullAddress += ` ${address.zipCode}`;
+    
+    // Create map link HTML
+    const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`;
+    
+    // Find an appropriate container for the map link
+    // Try multiple possible containers based on your DOM structure
+    const viewBusinessStreet = document.getElementById("viewBusinessStreet");
+    let addressContainer = null;
+    
+    if (viewBusinessStreet) {
+      // Go up to find an appropriate parent container
+      addressContainer = viewBusinessStreet.closest('.form-section') || 
+                         viewBusinessStreet.closest('.form-group') ||
+                         viewBusinessStreet.parentElement.parentElement;
+    }
+    
+    if (addressContainer) {
+      // Check if map link already exists and remove it
+      const existingLink = document.getElementById('businessViewMapLink');
+      if (existingLink) existingLink.remove();
+      
+      // Create a new div for the map link
+      const mapLinkContainer = document.createElement('div');
+      mapLinkContainer.id = 'businessViewMapLink';
+      mapLinkContainer.className = 'business-map-link';
+      mapLinkContainer.style.marginTop = '1rem';
+      mapLinkContainer.style.textAlign = 'right';
+      
+      //  map link
+      mapLinkContainer.innerHTML = `
+  <a href="${mapUrl}" target="_blank" class="btn btn-outline map-button">
+    <i class="fas fa-map-marker-alt"></i><span class="map-text">View on Google Maps</span>
+  </a>
+`;
+      
+      // map link to the address container
+      addressContainer.appendChild(mapLinkContainer);
+    }
+  }
 
   document.getElementById("viewStatus").textContent = formatStatus(
     business.status

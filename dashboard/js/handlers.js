@@ -115,6 +115,73 @@ function setupFormValidation() {
       }
     });
   }
+
+  // Setup address fields change listeners for map link
+  setupAddressMapListeners();
+}
+
+function setupAddressMapListeners() {
+  const addressFields = [
+    "billingStreet",
+    "billingAptUnit",
+    "billingCity",
+    "billingState",
+    "billingZipCode",
+  ];
+
+  addressFields.forEach((fieldId) => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.addEventListener("change", addAddressMapButton);
+    }
+  });
+}
+
+function addAddressMapButton() {
+  // Get address elements
+  const street = document.getElementById("billingStreet").value || "";
+  const aptUnit = document.getElementById("billingAptUnit").value || "";
+  const city = document.getElementById("billingCity").value || "";
+  const state = document.getElementById("billingState").value || "";
+  const zipCode = document.getElementById("billingZipCode").value || "";
+
+  // Create the full address (include apt/unit if it exists)
+  let fullAddress = street;
+  if (aptUnit) fullAddress += ` ${aptUnit}`;
+  if (city) fullAddress += `, ${city}`;
+  if (state) fullAddress += `, ${state}`;
+  if (zipCode) fullAddress += ` ${zipCode}`;
+
+  // Only create the map link if we have a minimally valid address (street and city)
+  if (street && city) {
+    // Find or create the container for the map link
+    let mapLinkContainer = document.getElementById("addressMapLink");
+    if (!mapLinkContainer) {
+      // Create container if it doesn't exist
+      const addressSection = document.querySelector(
+        "#address-tab .form-section"
+      );
+      if (!addressSection) return;
+
+      mapLinkContainer = document.createElement("div");
+      mapLinkContainer.id = "addressMapLink";
+      mapLinkContainer.className = "address-map-link";
+      mapLinkContainer.style.marginTop = "1rem";
+      mapLinkContainer.style.textAlign = "right";
+
+      addressSection.appendChild(mapLinkContainer);
+    }
+
+    // Create the map link
+    const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(
+      fullAddress
+    )}`;
+    mapLinkContainer.innerHTML = `
+  <a href="${mapUrl}" target="_blank" class="btn btn-outline map-button">
+    <i class="fas fa-map-marker-alt"></i><span class="map-text">View on Google Maps</span>
+  </a>
+`;
+  }
 }
 
 /**
@@ -222,7 +289,6 @@ function validateUrl(input) {
     );
   }
 }
-
 
 /**
  * Budget validation
@@ -339,7 +405,6 @@ async function validateAndSaveLead(event) {
   }
 }
 
-
 /**
  * Save lead data to the server
  */
@@ -391,7 +456,7 @@ async function saveLead() {
   // Process website address - add http:// if needed
   if (document.getElementById("websiteAddress").value) {
     const websiteUrl = document.getElementById("websiteAddress").value.trim();
-    
+
     // Add http:// prefix if it doesn't have a protocol
     if (!/^https?:\/\//i.test(websiteUrl)) {
       leadData.websiteAddress = "http://" + websiteUrl;
@@ -470,7 +535,6 @@ async function saveLead() {
 
     // explicitly reload to update charts
     // window.location.reload();
-
   } catch (error) {
     console.error("Error saving lead:", error);
     showToast("Error: " + error.message);
@@ -580,13 +644,13 @@ async function deleteLeadAction(leadId) {
     );
 
     // CRITICAL: Directly update the data watcher to force chart updates
-    if (typeof window.updateDataWatcher === 'function') {
+    if (typeof window.updateDataWatcher === "function") {
       console.log("Explicitly updating data watcher after lead deletion");
       window.updateDataWatcher();
     }
 
     // Also try direct update if watcher fails
-    if (typeof window.updateAllCharts === 'function') {
+    if (typeof window.updateAllCharts === "function") {
       console.log("Directly calling updateAllCharts for backup");
       window.updateAllCharts();
     }
@@ -706,26 +770,24 @@ function openAddLeadModal() {
   if (addFormBtn) {
     addFormBtn.style.display = "none";
   }
-   // Hide upload pdf since we are making a new lead
+  // Hide upload pdf since we are making a new lead
   const docUploadArea = document.querySelector(".document-upload-area");
   if (docUploadArea) {
     docUploadArea.style.display = "none";
   }
-
 }
 
 function formatWebsiteUrl(url) {
   if (!url) return "";
-  
+
   // Check if URL already has a protocol prefix
   if (!/^https?:\/\//i.test(url)) {
     // Add http:// prefix if missing
     return "http://" + url;
   }
-  
+
   return url;
 }
-
 
 /**
  * Open the lead modal to view/edit a lead
@@ -782,29 +844,31 @@ async function openLeadModal(leadId, allLeads) {
     // Create a container to hold the link
     const websiteField = document.getElementById("websiteAddress");
     const parentDiv = websiteField.parentNode;
-    
+
     // Remove any existing link container
     const existingLink = parentDiv.querySelector(".website-link-container");
     if (existingLink) {
       parentDiv.removeChild(existingLink);
     }
-    
+
     // Create new link container
     const linkContainer = document.createElement("div");
     linkContainer.className = "website-link-container";
-    
+
     // Format the URL with http:// if needed
     const formattedUrl = formatWebsiteUrl(lead.websiteAddress);
-    
+
     // Create the link
-    linkContainer.innerHTML = 
-      `<a href="${formattedUrl}" target="_blank" rel="noopener noreferrer" class="website-link">
+    linkContainer.innerHTML = `<a href="${formattedUrl}" target="_blank" rel="noopener noreferrer" class="website-link">
         <i class="fas fa-external-link-alt"></i> Visit Website
       </a>`;
-    
+
     // Add the link below the input field
     parentDiv.appendChild(linkContainer);
   }
+
+  // Add the map button
+  setTimeout(addAddressMapButton, 100);
 
   document.getElementById("message").value = lead.message || "";
   document.getElementById("status").value = lead.status || "new";
@@ -863,7 +927,7 @@ async function openLeadModal(leadId, allLeads) {
 
     // Load forms for this lead
     loadLeadForms(lead._id);
-    
+
     // Load documents for this lead
     loadLeadDocuments(lead._id);
     initDocumentUpload(lead._id);
@@ -907,7 +971,7 @@ async function openLeadModal(leadId, allLeads) {
   document.getElementById("leadModal").style.display = "block";
 
   initializeModalTabs();
-  
+
   // Then setup the auto-resize for textareas
   // Important: This needs to be after setting the display to "block" to work properly
   const textareas = document.querySelectorAll("#leadModal textarea");
@@ -1022,5 +1086,6 @@ export {
   initializeModalTabs,
   activateTab,
   validateAllTabs,
-  formatWebsiteUrl
-}
+  formatWebsiteUrl,
+  addAddressMapButton,
+};
