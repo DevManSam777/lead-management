@@ -297,6 +297,10 @@
   flex-shrink: 0;
 }
 
+.business-info {
+  margin-bottom: 1rem;
+}
+
 /* General Icon Button Styles */
 .btn-icon {
   width: 3.6rem;
@@ -575,6 +579,10 @@
   #addBusinessBtn,
   #importJsonBtn {
     width: 100%;
+  }
+
+  .business-info {
+    margin-bottom: 0;
   }
 }
 
