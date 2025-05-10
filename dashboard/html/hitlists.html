@@ -160,8 +160,7 @@
               </a>
             </li>
             <li>
-              <a
-                href="/dashboard/hitlists"
+                <a href="/dashboard/hitlists"
                 id="hitlists-link"
                 title="Hitlists"
                 class="active"
@@ -256,21 +255,12 @@
     <div id="businessListModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeBusinessListModal">&times;</span>
-        <!-- <div class="modal-header">
-          <h3 id="businessListTitle">Businesses</h3>
-          <button id="addBusinessBtn" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Business
-          </button>
-        </div> -->
         <div class="modal-header">
           <h3 id="businessListTitle">Businesses</h3>
           <div class="business-actions-container" style="display: flex; gap: 1rem;">
             <button id="addBusinessBtn" class="btn btn-primary">
               <i class="fas fa-plus"></i> Add Business
             </button>
-            <!-- <button id="importJsonBtn" class="btn btn-outline">
-              <i class="fas fa-file-import"></i> Import JSON
-            </button> -->
           </div>
         </div>
         <div class="business-filters">
@@ -330,7 +320,6 @@
             </div>
           </div>
 
-          <!-- This is the section that needs to be updated in hitlist.html -->
           <div class="form-row">
             <div class="form-group">
               <label for="businessPhone">Business Phone</label>
@@ -348,7 +337,6 @@
               <input type="email" id="businessEmail" />
             </div>
           </div>
-          <!-- Remove the "Has Website" field completely -->
           <div class="form-row">
             <div class="form-group">
               <label for="websiteUrl">Website</label>
@@ -463,7 +451,7 @@
       </div>
     </div>
 
-    <!-- Add this modal right after the Business Modal -->
+    <!-- Business View Modal -->
     <div id="businessViewModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeBusinessViewModal">&times;</span>
@@ -481,70 +469,72 @@
               <div class="date-display-readonly" id="viewTypeOfBusiness"></div>
             </div>
           </div>
-
+        
           <div class="form-section">
             <div class="form-group">
               <label>First Name</label>
-              <div
-                class="date-display-readonly"
-                id="viewContactFirstName"
-              ></div>
+              <div class="date-display-readonly" id="viewContactFirstName"></div>
             </div>
             <div class="form-group">
               <label>Last Name</label>
               <div class="date-display-readonly" id="viewContactLastName"></div>
             </div>
           </div>
-
+        
           <div class="form-section">
             <div class="form-group">
               <label>Business Phone</label>
-                <div class="date-display-readonly" id="viewBusinessPhone"></div>
+              <div class="date-display-readonly" id="viewBusinessPhone"></div>
               <label class="ext-label">Ext:</label>
-                <div class="date-display-readonly" id="viewBusinessPhoneExt"></div>
-              </div>
+              <div class="date-display-readonly" id="viewBusinessPhoneExt"></div>
             </div>
             <div class="form-group">
               <label>Business Email</label>
               <div id="viewBusinessEmail"></div>
             </div>
           </div>
-
+        
+          <!-- Website Section - Updated to show both URL and link button -->
+          <div class="form-section">
+            <div class="form-group">
+              <label>Website</label>
+              <div class="date-display-readonly" id="viewWebsiteUrlText"></div>
+              <div id="viewWebsiteUrl"></div>
+            </div>
+          </div>
+        
           <!-- Address Fields -->
-          <div class="form-group">
-            <label>Street Address</label>
-            <div class="date-display-readonly" id="viewBusinessStreet"></div>
-          </div>
-          <div class="form-group">
-            <label>Apartment/Unit</label>
-            <div class="date-display-readonly" id="viewBusinessAptUnit"></div>
-          </div>
-          <div class="form-row">
+          <div class="form-section">
             <div class="form-group">
-              <label>City</label>
-              <div class="date-display-readonly" id="viewBusinessCity"></div>
+              <label>Street Address</label>
+              <div class="date-display-readonly" id="viewBusinessStreet"></div>
             </div>
             <div class="form-group">
-              <label>State</label>
-              <div class="date-display-readonly" id="viewBusinessState"></div>
+              <label>Apartment/Unit</label>
+              <div class="date-display-readonly" id="viewBusinessAptUnit"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>City</label>
+                <div class="date-display-readonly" id="viewBusinessCity"></div>
+              </div>
+              <div class="form-group">
+                <label>State</label>
+                <div class="date-display-readonly" id="viewBusinessState"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>ZIP Code</label>
+                <div class="date-display-readonly" id="viewBusinessZipCode"></div>
+              </div>
+              <div class="form-group">
+                <label>Country</label>
+                <div class="date-display-readonly" id="viewBusinessCountry"></div>
+              </div>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>ZIP Code</label>
-              <div class="date-display-readonly" id="viewBusinessZipCode"></div>
-            </div>
-            <div class="form-group">
-              <label>Country</label>
-              <div class="date-display-readonly" id="viewBusinessCountry"></div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Website</label>
-            <div id="viewWebsiteUrl"></div>
-          </div>
-
+        
           <div class="form-section">
             <div class="form-group">
               <label>Status</label>
@@ -555,17 +545,14 @@
               <div class="date-display-readonly" id="viewPriority"></div>
             </div>
           </div>
-
+        
           <div class="form-section">
             <div class="form-group">
               <label>Last Contacted</label>
-              <div
-                class="date-display-readonly"
-                id="viewLastContactedDate"
-              ></div>
+              <div class="date-display-readonly" id="viewLastContactedDate"></div>
             </div>
           </div>
-
+        
           <div class="form-section">
             <div class="form-group">
               <label>Notes</label>

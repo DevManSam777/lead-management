@@ -1034,7 +1034,6 @@ function setupJsonUploader() {
   });
 }
 
-
 async function processScrapedBusinesses(businesses) {
   // Validate current hitlist
   if (!currentHitlistId) {
@@ -1047,7 +1046,7 @@ async function processScrapedBusinesses(businesses) {
     let errorCount = 0;
     let processingCount = 0;
     const totalBusinesses = businesses.length;
-    const batchSize = 100; // process businesses in batches of 100 
+    const batchSize = 100; // process businesses in batches of 100
     const delayBetweenBatches = 5000; // 5 seconds between batches
 
     //  upload progress container
@@ -1513,7 +1512,7 @@ function renderBusinesses(businesses) {
 
       // Create address for map link
       const address = business.address || {};
-      let addressForMap = '';
+      let addressForMap = "";
       if (address.street) {
         addressForMap += address.street;
         if (address.aptUnit) addressForMap += ` ${address.aptUnit}`;
@@ -1521,7 +1520,7 @@ function renderBusinesses(businesses) {
         if (address.state) addressForMap += `, ${address.state}`;
         if (address.zipCode) addressForMap += ` ${address.zipCode}`;
       }
-      
+
       return `
   <div class="business-item ${
     business.status === "converted" ? "converted" : ""
@@ -1561,9 +1560,11 @@ function renderBusinesses(businesses) {
           addressForMap
             ? `<div class="business-detail">
                 <i class="fas fa-map-marker-alt"></i> 
-                <a href="https://maps.google.com/?q=${encodeURIComponent(addressForMap)}" 
+                <a href="https://maps.google.com/?q=${encodeURIComponent(
+                  addressForMap
+                )}" 
                    target="_blank">View on Map</a>
-              </div>` 
+              </div>`
             : ""
         }
         ${
@@ -1672,32 +1673,33 @@ function openViewBusinessModal(business) {
   document.getElementById("viewBusinessCountry").textContent =
     address.country || "N/A";
 
-  // Improved website URL display logic
-  const websiteLinkHtml = business.websiteUrl
-    ? (() => {
-        // Create the full URL with protocol for the href
-        let fullUrl = business.websiteUrl;
-        if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
-          fullUrl = `https://${fullUrl}`;
-        }
+  // Display both website URL text and visit website link
+  if (business.websiteUrl) {
+    // Display the raw URL text
+    document.getElementById("viewWebsiteUrlText").textContent =
+      business.websiteUrl;
 
-        // Create a simplified display URL (just the domain)
-        let displayUrl = business.websiteUrl;
-        try {
-          // Try to parse the URL to get just the hostname
-          const url = new URL(fullUrl);
-          displayUrl = url.hostname;
+    // Create the full URL with protocol for the href
+    let fullUrl = business.websiteUrl;
+    if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
+      fullUrl = `https://${fullUrl}`;
+    }
 
-          return `<a href="${fullUrl}" target="_blank">${displayUrl}</a>`;
-        } catch (e) {
-          console.error("Invalid URL for display:", business.websiteUrl);
-          return business.websiteUrl; // Fallback to just showing the text if invalid
-        }
-      })()
-    : "N/A";
+    // Create website link container and styled link like in lead modal
+    const websiteLinkHtml = `
+      <div class="website-link-container">
+        <a href="${fullUrl}" target="_blank" rel="noopener noreferrer" class="website-link">
+          <i class="fas fa-external-link-alt"></i> Visit Website
+        </a>
+      </div>
+    `;
 
-  document.getElementById("viewWebsiteUrl").innerHTML = websiteLinkHtml;
-  
+    document.getElementById("viewWebsiteUrl").innerHTML = websiteLinkHtml;
+  } else {
+    document.getElementById("viewWebsiteUrlText").textContent = "N/A";
+    document.getElementById("viewWebsiteUrl").textContent = "";
+  }
+
   // Add map link if we have a street and city
   if (address.street && address.city) {
     // Create the full address
@@ -1706,42 +1708,45 @@ function openViewBusinessModal(business) {
     if (address.city) fullAddress += `, ${address.city}`;
     if (address.state) fullAddress += `, ${address.state}`;
     if (address.zipCode) fullAddress += ` ${address.zipCode}`;
-    
+
     // Create map link HTML
-    const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`;
-    
+    const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(
+      fullAddress
+    )}`;
+
     // Find an appropriate container for the map link
     // Try multiple possible containers based on your DOM structure
     const viewBusinessStreet = document.getElementById("viewBusinessStreet");
     let addressContainer = null;
-    
+
     if (viewBusinessStreet) {
       // Go up to find an appropriate parent container
-      addressContainer = viewBusinessStreet.closest('.form-section') || 
-                         viewBusinessStreet.closest('.form-group') ||
-                         viewBusinessStreet.parentElement.parentElement;
+      addressContainer =
+        viewBusinessStreet.closest(".form-section") ||
+        viewBusinessStreet.closest(".form-group") ||
+        viewBusinessStreet.parentElement.parentElement;
     }
-    
+
     if (addressContainer) {
       // Check if map link already exists and remove it
-      const existingLink = document.getElementById('businessViewMapLink');
+      const existingLink = document.getElementById("businessViewMapLink");
       if (existingLink) existingLink.remove();
-      
+
       // Create a new div for the map link
-      const mapLinkContainer = document.createElement('div');
-      mapLinkContainer.id = 'businessViewMapLink';
-      mapLinkContainer.className = 'business-map-link';
-      mapLinkContainer.style.marginTop = '1rem';
-      mapLinkContainer.style.textAlign = 'right';
-      
-      //  map link
+      const mapLinkContainer = document.createElement("div");
+      mapLinkContainer.id = "businessViewMapLink";
+      mapLinkContainer.className = "business-map-link";
+      mapLinkContainer.style.marginTop = "1rem";
+      mapLinkContainer.style.textAlign = "right";
+
+      // Add the map link
       mapLinkContainer.innerHTML = `
-  <a href="${mapUrl}" target="_blank" class="btn btn-outline map-button">
-    <i class="fas fa-map-marker-alt"></i><span class="map-text">View on Google Maps</span>
-  </a>
-`;
-      
-      // map link to the address container
+        <a href="${mapUrl}" target="_blank" class="btn btn-outline map-button">
+          <i class="fas fa-map-marker-alt"></i><span class="map-text">View on Google Maps</span>
+        </a>
+      `;
+
+      // Add the new map link to the address container
       addressContainer.appendChild(mapLinkContainer);
     }
   }
@@ -1785,7 +1790,6 @@ function openViewBusinessModal(business) {
   // Show the view modal
   document.getElementById("businessViewModal").style.display = "block";
 }
-
 function initializeDateInputs() {
   // Get dateFormat from window object (set in settings)
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
