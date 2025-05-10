@@ -69,7 +69,8 @@
   font-size: 2.4rem;
 }
 
-.hitlist-card i, .hitlist-card .fa-bullseye {
+.hitlist-card i,
+.hitlist-card .fa-bullseye {
   color: var(--primary);
 }
 
@@ -205,7 +206,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 0.5rem;
+  margin-block: 1rem 1.5rem;
 }
 
 .business-title {
@@ -292,7 +293,7 @@
 .business-actions {
   display: flex;
   gap: 0.5rem;
-  margin-left: 1rem;
+  margin: 0.5rem 0 1rem 1rem;
   flex-shrink: 0;
 }
 
@@ -474,7 +475,8 @@
   transition: all var(--transition-speed) ease;
 }
 
-#importJsonBtn:hover, #addBusinessBtn:hover {
+#importJsonBtn:hover,
+#addBusinessBtn:hover {
   opacity: 0.8;
 }
 
@@ -519,7 +521,6 @@
   color: var(--text-muted);
   text-align: center;
 }
-
 
 @media (max-width: 992px) {
   #createHitlistBtn {
@@ -570,7 +571,7 @@
     flex-direction: column;
     width: 100%;
   }
-  
+
   #addBusinessBtn,
   #importJsonBtn {
     width: 100%;
