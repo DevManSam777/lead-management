@@ -23,29 +23,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/**
- * Set authentication persistence to session-only (browserSessionPersistence)
- *
- * This means:
- * - Users will stay logged in as they navigate between pages in the app
- * - Users will stay logged in if they refresh the page
- * - Users will stay logged in if they open new tabs to the app
- * - Users will be logged out when they close the browser completely
- * - When they reopen the browser, they'll need to log in again
- *
- * This provides better security than the default localStorage persistence
- * which keeps users logged in for months, while still maintaining good
- * user experience during active usage.
- */
-
 // Handle login form submission
 const loginForm = document.getElementById("loginForm");
 const errorMessage = document.getElementById("errorMessage");
 const loginContainer = document.querySelector(".login-container");
+const emailInput = document.getElementById("email");
 
 loginForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  const email = document.getElementById("email").value;
+  const email = emailInput.value;
   const password = document.getElementById("password").value;
 
   // Clear previous error messages
@@ -66,7 +52,7 @@ loginForm.addEventListener("submit", (e) => {
     .then(() => {
       // Replace the current history entry with the dashboard instead of adding a new one
       window.history.replaceState(null, "", "/dashboard/home");
-      
+
       // Then navigate to the dashboard
       window.location.href = "/dashboard/home";
     })
@@ -87,74 +73,49 @@ loginForm.addEventListener("submit", (e) => {
     });
 });
 
-// Password Reset Modal
-const resetModal = document.getElementById("resetPasswordModal");
+// Handle forgot password link
 const forgotPasswordLink = document.getElementById("forgotPasswordLink");
-const closeResetModal = document.getElementById("closeResetModal");
-const resetPasswordForm = document.getElementById("resetPasswordForm");
-const resetErrorMessage = document.getElementById("resetErrorMessage");
-const resetFormContainer = document.getElementById("resetFormContainer");
-const resetConfirmationContainer = document.getElementById(
-  "resetConfirmationContainer"
-);
-const confirmedEmail = document.getElementById("confirmedEmail");
 
-// Show reset password modal
-forgotPasswordLink.addEventListener("click", () => {
-  resetModal.style.display = "flex";
-  document.getElementById("resetEmail").value =
-    document.getElementById("email").value;
-  resetErrorMessage.style.display = "none";
-  resetFormContainer.style.display = "block";
-  resetConfirmationContainer.style.display = "none";
-});
+forgotPasswordLink.addEventListener("click", async () => {
+  const email = emailInput.value.trim();
 
-// Close reset password modal
-closeResetModal.addEventListener("click", () => {
-  resetModal.style.display = "none";
-});
-
-// Close modal when clicking outside
-window.addEventListener("click", (e) => {
-  if (e.target === resetModal) {
-    resetModal.style.display = "none";
+  if (!email) {
+    errorMessage.textContent = "Please enter your email address first.";
+    errorMessage.style.display = "block";
+    errorMessage.style.backgroundColor = "rgba(220, 53, 69, 0.08)";
+    errorMessage.style.color = "#dc3545";
+    return;
   }
-});
 
-// Handle password reset form submission
-resetPasswordForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const email = document.getElementById("resetEmail").value;
+  // Clear previous messages
+  errorMessage.style.display = "none";
 
-  // Reset error messages
-  resetErrorMessage.style.display = "none";
+  // Disable the login button to prevent multiple submissions
+  const submitBtn = loginForm.querySelector(".login-btn");
+  const originalButtonText = submitBtn.textContent;
+  submitBtn.textContent = "Processing...";
+  submitBtn.disabled = true;
 
-  // Show loading state
-  const resetBtn = resetPasswordForm.querySelector(".login-btn");
-  const originalButtonText = resetBtn.textContent;
-  resetBtn.textContent = "Sending...";
-  resetBtn.disabled = true;
+  try {
+    await sendPasswordResetEmail(auth, email);
 
-  // Send password reset email
-  sendPasswordResetEmail(auth, email)
-    .then(() => {
-      // Show success confirmation and hide form
-      resetFormContainer.style.display = "none";
-      confirmedEmail.textContent = email;
-      resetConfirmationContainer.style.display = "block";
-
-      // Close modal after a delay
-      setTimeout(() => {
-        resetModal.style.display = "none";
-      }, 3000);
-    })
-    .catch((error) => {
-      // Show error message
-      resetErrorMessage.textContent = getErrorMessage(error.code);
-      resetErrorMessage.style.display = "block";
-      resetBtn.textContent = originalButtonText;
-      resetBtn.disabled = false;
-    });
+    // Show success message
+    errorMessage.textContent = "Password reset email sent. Check your inbox.";
+    errorMessage.style.display = "block";
+    errorMessage.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
+    errorMessage.style.color = "#28a745";
+  } catch (error) {
+    // Show error message
+    errorMessage.textContent =
+      "Failed to send reset email. " + getErrorMessage(error.code);
+    errorMessage.style.display = "block";
+    errorMessage.style.backgroundColor = "rgba(220, 53, 69, 0.08)";
+    errorMessage.style.color = "#dc3545";
+  } finally {
+    // Re-enable the login button
+    submitBtn.textContent = originalButtonText;
+    submitBtn.disabled = false;
+  }
 });
 
 // Function to get user-friendly error messages
@@ -182,7 +143,7 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     // Replace the current history entry with the dashboard instead of adding a new one
     window.history.replaceState(null, "", "/dashboard/home");
-    
+
     // Then navigate to the dashboard
     window.location.href = "/dashboard/home";
   }

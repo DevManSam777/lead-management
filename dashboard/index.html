@@ -66,66 +66,6 @@
         <button type="submit" class="login-btn">Sign In</button>
       </form>
     </div>
-
-    <!-- Password Reset Modal -->
-    <div id="resetPasswordModal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal" id="closeResetModal">&times;</span>
-        <!-- Reset Form Container -->
-        <div id="resetFormContainer">
-          <h2>Reset Password</h2>
-          <p>
-            Enter your email address and we'll send you a link to reset your
-            password.
-          </p>
-          <form id="resetPasswordForm">
-            <div class="form-group">
-              <label for="resetEmail">Email Address</label>
-              <div class="input-with-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
-                  />
-                </svg>
-                <input
-                  type="email"
-                  id="resetEmail"
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-            </div>
-            <div class="error-message" id="resetErrorMessage"></div>
-            <button type="submit" class="login-btn" id="resetPasswordBtn">
-              Send Reset Link
-            </button>
-          </form>
-        </div>
-
-        <!-- Reset Confirmation Container -->
-        <div
-          id="resetConfirmationContainer"
-          style="display: none; text-align: center"
-        >
-          <h2>Reset Password</h2>
-          <div class="email-display">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              style="width: 20px; height: 20px; fill: #666; margin-right: 8px"
-            >
-              <path
-                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
-              />
-            </svg>
-            <span id="confirmedEmail"></span>
-          </div>
-          <p class="confirmation-message">
-            Password reset email sent! Check your inbox for instructions.
-          </p>
-        </div>
-      </div>
-    </div>
-    <script type="module" src="/dashboard/js/login.js"></script>
   </body>
+  <script type="module" src="/dashboard/js/login.js"></script>
 </html>
