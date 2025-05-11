@@ -11,7 +11,6 @@ import {
   deletePayment,
 } from "./api.js";
 
-
 /**
  * Render lead payments in the UI.
  * @param {Array<Object>} leadPayments - Array of payment objects for the lead.
@@ -32,13 +31,14 @@ function renderLeadPayments(leadPayments, leadId) {
   paymentsContainer.innerHTML = "";
 
   // Make sure we have valid payments for this lead
-  const filteredPayments = leadPayments.filter(payment => {
+  const filteredPayments = leadPayments.filter((payment) => {
     return payment && payment.leadId === leadId;
   });
 
   // If no payments for this lead
   if (!filteredPayments || filteredPayments.length === 0) {
-    paymentsContainer.innerHTML = '<p class="no-payments-message">No payments found.  Click "Add Payment" to add one.</p>';
+    paymentsContainer.innerHTML =
+      '<p class="no-payments-message">No payments found.  Click "Add Payment" to add one.</p>';
     return;
   }
 
@@ -47,18 +47,23 @@ function renderLeadPayments(leadPayments, leadId) {
     // Directly compare Date objects created from the UTC strings
     const dateA = new Date(a.paymentDate);
     const dateB = new Date(b.paymentDate);
-    return dateB.getTime() - dateA.getTime();  // Compare timestamps for accuracy
+    return dateB.getTime() - dateA.getTime(); // Compare timestamps for accuracy
   });
 
   // Check if we're in edit mode (Lead modal is open and in edit mode)
   const leadModal = document.getElementById("leadModal");
   // Check if the lead modal is open and has a submit button that is visible (indicating edit mode)
-  const submitButton = leadModal ? leadModal.querySelector('button[type="submit"]') : null;
-  const isEditMode = leadModal && leadModal.style.display !== 'none' && submitButton && getComputedStyle(submitButton).display !== "none";
-
+  const submitButton = leadModal
+    ? leadModal.querySelector('button[type="submit"]')
+    : null;
+  const isEditMode =
+    leadModal &&
+    leadModal.style.display !== "none" &&
+    submitButton &&
+    getComputedStyle(submitButton).display !== "none";
 
   // Render each payment
-  sortedPayments.forEach(payment => {
+  sortedPayments.forEach((payment) => {
     let formattedDate = "Not recorded";
 
     if (payment.paymentDate) {
@@ -67,26 +72,30 @@ function renderLeadPayments(leadPayments, leadId) {
 
       // Check if the date is valid before proceeding
       if (!isNaN(paymentDateUTC.getTime())) {
-           // Create a *local* Date object representing the same date as the UTC date at local midnight
-           // This is the standard way to display a date stored in UTC in the local timezone.
-           const localDateForDisplay = new Date(
-             paymentDateUTC.getUTCFullYear(),
-             paymentDateUTC.getUTCMonth(),
-             paymentDateUTC.getUTCDate() // Use UTC date components to construct local date
-           );
+        // Create a *local* Date object representing the same date as the UTC date at local midnight
+        // This is the standard way to display a date stored in UTC in the local timezone.
+        const localDateForDisplay = new Date(
+          paymentDateUTC.getUTCFullYear(),
+          paymentDateUTC.getUTCMonth(),
+          paymentDateUTC.getUTCDate() // Use UTC date components to construct local date
+        );
 
-           // Format the local date for display
-           formattedDate = formatDate(localDateForDisplay, dateFormat);
+        // Format the local date for display
+        formattedDate = formatDate(localDateForDisplay, dateFormat);
 
-           // Debug log to compare dates
-           console.log(`Render Payment Date: Original='${payment.paymentDate}', UTC Parsed='${paymentDateUTC.toISOString()}', Local Display Date='${localDateForDisplay.toLocaleDateString()}'`);
-
+        // Debug log to compare dates
+        console.log(
+          `Render Payment Date: Original='${
+            payment.paymentDate
+          }', UTC Parsed='${paymentDateUTC.toISOString()}', Local Display Date='${localDateForDisplay.toLocaleDateString()}'`
+        );
       } else {
-          console.warn(`Invalid payment date format received: ${payment.paymentDate}`);
-          formattedDate = "Invalid Date"; // Display something if the date is invalid
+        console.warn(
+          `Invalid payment date format received: ${payment.paymentDate}`
+        );
+        formattedDate = "Invalid Date"; // Display something if the date is invalid
       }
     }
-
 
     // Create payment item element
     const paymentItem = document.createElement("div");
@@ -130,7 +139,7 @@ function renderLeadPayments(leadPayments, leadId) {
       const editButton = document.createElement("button");
       editButton.innerHTML = '<i class="fas fa-edit"></i>';
       editButton.title = "Edit Payment"; // Add title for better UX
-      editButton.addEventListener("click", function(e) {
+      editButton.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
         // Pass leadId and paymentId to open the modal in edit mode
@@ -141,8 +150,8 @@ function renderLeadPayments(leadPayments, leadId) {
       // Delete button
       const deleteButton = document.createElement("button");
       deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-       deleteButton.title = "Delete Payment"; // Add title for better UX
-      deleteButton.addEventListener("click", function(e) {
+      deleteButton.title = "Delete Payment"; // Add title for better UX
+      deleteButton.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
         if (confirm("Are you sure you want to delete this payment?")) {
@@ -158,13 +167,13 @@ function renderLeadPayments(leadPayments, leadId) {
 
     // Add the payment item to the container (This should always happen)
     paymentsContainer.appendChild(paymentItem); // <--- MOVED THIS LINE OUTSIDE THE IF/ELSE
-
   });
 
   // Log the rendered payments
-  console.log(`Rendered ${filteredPayments.length} payments for lead ID: ${leadId}`);
+  console.log(
+    `Rendered ${filteredPayments.length} payments for lead ID: ${leadId}`
+  );
 }
-
 
 /**
  * Open the payment modal for adding or editing a payment
@@ -194,11 +203,14 @@ function openPaymentModal(leadId, paymentId = null) {
     return;
   }
 
-  console.log(`Opening payment modal for lead ID: ${leadId} ${paymentId ? '(Editing Payment ID: ' + paymentId + ')' : '(New Payment)'}`);
+  console.log(
+    `Opening payment modal for lead ID: ${leadId} ${
+      paymentId ? "(Editing Payment ID: " + paymentId + ")" : "(New Payment)"
+    }`
+  );
   document.getElementById("paymentLeadId").value = leadId;
 
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
-
 
   // --- Handle Editing an existing payment ---
   if (paymentId) {
@@ -228,15 +240,17 @@ function openPaymentModal(leadId, paymentId = null) {
           // Create a *local* Date object representing the same date as the UTC date at local midnight
           // This gives us the correct local date to format for the input field.
           const localDateForInput = new Date(
-             paymentDateUTC.getUTCFullYear(),
-             paymentDateUTC.getUTCMonth(),
-             paymentDateUTC.getUTCDate() // Use UTC date components
+            paymentDateUTC.getUTCFullYear(),
+            paymentDateUTC.getUTCMonth(),
+            paymentDateUTC.getUTCDate() // Use UTC date components
           );
 
           // Format the local Date object as YYYY-MM-DD for the input[type="date"] field
           const year = localDateForInput.getFullYear();
-          const month = (localDateForInput.getMonth() + 1).toString().padStart(2, '0');
-          const day = localDateForInput.getDate().toString().padStart(2, '0'); // NO +1 here
+          const month = (localDateForInput.getMonth() + 1)
+            .toString()
+            .padStart(2, "0");
+          const day = localDateForInput.getDate().toString().padStart(2, "0"); // NO +1 here
 
           const formattedDateForInput = `${year}-${month}-${day}`;
           document.getElementById("paymentDate").value = formattedDateForInput;
@@ -247,9 +261,12 @@ function openPaymentModal(leadId, paymentId = null) {
             dateDisplay.textContent = formatDate(localDateForInput, dateFormat);
           }
 
-           // Debug log for editing date
-          console.log(`Opening for Edit - Payment Date: Original='${payment.paymentDate}', UTC Parsed='${paymentDateUTC.toISOString()}', Local Date for Input='${localDateForInput.toLocaleDateString()}', Formatted for Input='${formattedDateForInput}'`);
-
+          // Debug log for editing date
+          console.log(
+            `Opening for Edit - Payment Date: Original='${
+              payment.paymentDate
+            }', UTC Parsed='${paymentDateUTC.toISOString()}', Local Date for Input='${localDateForInput.toLocaleDateString()}', Formatted for Input='${formattedDateForInput}'`
+          );
         }
 
         // Set notes content
@@ -278,8 +295,8 @@ function openPaymentModal(leadId, paymentId = null) {
 
     // Format today's date for the input field as YYYY-MM-DD (local time)
     const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const day = today.getDate().toString().padStart(2, '0');
+    const month = (today.getMonth() + 1).toString().padStart(2, "0");
+    const day = today.getDate().toString().padStart(2, "0");
     const todayFormattedForInput = `${year}-${month}-${day}`;
     document.getElementById("paymentDate").value = todayFormattedForInput;
 
@@ -306,16 +323,15 @@ function openPaymentModal(leadId, paymentId = null) {
   if (paymentDateInput) {
     // Remove any existing listeners to avoid duplicates
     const oldInput = paymentDateInput;
-     const newInput = oldInput.cloneNode(true);
-     oldInput.parentNode.replaceChild(newInput, oldInput);
-     // Re-get the element reference
-     const updatedPaymentDateInput = document.getElementById("paymentDate");
-
+    const newInput = oldInput.cloneNode(true);
+    oldInput.parentNode.replaceChild(newInput, oldInput);
+    // Re-get the element reference
+    const updatedPaymentDateInput = document.getElementById("paymentDate");
 
     updatedPaymentDateInput.addEventListener("change", function () {
       if (this.value) {
         // The input value is YYYY-MM-DD local date string
-        const dateParts = this.value.split('-');
+        const dateParts = this.value.split("-");
         const year = parseInt(dateParts[0]);
         const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JS
         const day = parseInt(dateParts[2]);
@@ -334,29 +350,32 @@ function openPaymentModal(leadId, paymentId = null) {
     });
   }
 
-
   // Set up textarea auto-resize
   const paymentNotesTextarea = document.getElementById("paymentNotes");
   if (paymentNotesTextarea) {
-     // Add input event listener for auto-resize (remove and add again for safety)
-     const oldTextarea = paymentNotesTextarea;
-     const newTextarea = oldTextarea.cloneNode(true);
-     oldTextarea.parentNode.replaceChild(newTextarea, oldTextarea);
-     // Re-get the element reference
-     const updatedPaymentNotesTextarea = document.getElementById("paymentNotes");
+    // Add input event listener for auto-resize (remove and add again for safety)
+    const oldTextarea = paymentNotesTextarea;
+    const newTextarea = oldTextarea.cloneNode(true);
+    oldTextarea.parentNode.replaceChild(newTextarea, oldTextarea);
+    // Re-get the element reference
+    const updatedPaymentNotesTextarea = document.getElementById("paymentNotes");
 
-     updatedPaymentNotesTextarea.removeEventListener("input", autoResizePaymentTextarea);
-     updatedPaymentNotesTextarea.addEventListener("input", autoResizePaymentTextarea);
+    updatedPaymentNotesTextarea.removeEventListener(
+      "input",
+      autoResizePaymentTextarea
+    );
+    updatedPaymentNotesTextarea.addEventListener(
+      "input",
+      autoResizePaymentTextarea
+    );
 
-     // Trigger resize once on open
-     autoResizePaymentTextarea();
+    // Trigger resize once on open
+    autoResizePaymentTextarea();
   }
-
 
   // Initialize monetary inputs in the payment modal
   initializeMonetaryInputs();
 }
-
 
 /**
  * Auto-resize payment notes textarea
@@ -401,6 +420,7 @@ function closePaymentModal() {
   }
 }
 
+
 async function validateAndSavePayment(event) {
   event.preventDefault();
 
@@ -408,10 +428,10 @@ async function validateAndSavePayment(event) {
   const paymentId = document.getElementById("paymentId").value;
   const leadId = document.getElementById("paymentLeadId").value;
   const amountStr = document.getElementById("paymentAmount").value;
-  const paymentDateString = document.getElementById("paymentDate").value; // Get the YYYY-MM-DD string
+  const paymentDateString = document.getElementById("paymentDate").value;
   const notes = document.getElementById("paymentNotes").value;
 
-  // Validate data
+  // Validation checks (unchanged)
   if (!leadId) {
     showToast("Error: Missing lead ID");
     return;
@@ -430,39 +450,66 @@ async function validateAndSavePayment(event) {
     return;
   }
 
-  // --- Correct Date Handling: Convert local date input to UTC ISO string ---
-
-  // paymentDateString is in YYYY-MM-DD format (e.g., "2025-05-01")
-  const [year, month, day] = paymentDateString.split("-").map(Number);
-
-  // Create a Date object representing midnight of that date in the *local* timezone
-  const paymentDateLocalMidnight = new Date(year, month - 1, day);
-
-  // Convert this local Date object to its UTC ISO string representation for saving
-  const paymentDateForSaving = paymentDateLocalMidnight.toISOString();
-
-  // --- End Correct Date Handling ---
-
-
-  // Prepare payment data
-  const paymentData = {
-    leadId,
-    amount,
-    paymentDate: paymentDateForSaving, // Use the correctly formatted UTC string here
-    notes,
-  };
+  // First - Get the current totalBudget value from the form
+  const totalBudgetStr = document.getElementById("totalBudget").value;
+  const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
 
   try {
-    let result;
+    // Step 1: First save the totalBudget to ensure it's up-to-date
+    // Use the globally exposed function through the window object
+    const leadData = {
+      totalBudget: totalBudget,
+    };
 
+    // First try to use the global window function
+    if (typeof window.updateLead === "function") {
+      await window.updateLead(leadId, leadData);
+    }
+    // Or try to use the imported function based on how it's imported in your file
+    else if (
+      typeof window.API !== "undefined" &&
+      typeof window.API.updateLead === "function"
+    ) {
+      await window.API.updateLead(leadId, leadData);
+    }
+    // Fallback to direct fetch if neither is available
+    else {
+      const response = await fetch(`${getApiUrl()}/leads/${leadId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(leadData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update lead: ${response.status}`);
+      }
+    }
+
+    console.log("Saved totalBudget before processing payment:", totalBudget);
+
+    // Step 2: Continue with your existing payment code
+    // Prepare date format the way you were already doing it
+    const [year, month, day] = paymentDateString.split("-").map(Number);
+    const paymentDateLocalMidnight = new Date(year, month - 1, day);
+    const paymentDateForSaving = paymentDateLocalMidnight.toISOString();
+
+    // Prepare payment data
+    const paymentData = {
+      leadId,
+      amount,
+      paymentDate: paymentDateForSaving,
+      notes,
+    };
+
+    let result;
     if (paymentId) {
       // Update existing payment
       result = await updatePayment(paymentId, paymentData);
-      console.log("Updated payment:", result);
     } else {
       // Create new payment
       result = await createPayment(paymentData);
-      console.log("Created payment:", result);
     }
 
     // Close the payment modal
@@ -470,7 +517,6 @@ async function validateAndSavePayment(event) {
 
     // Get updated payments list for this lead
     const updatedLeadPayments = await fetchLeadPayments(leadId);
-    console.log("Updated payments for lead:", updatedLeadPayments);
 
     // Calculate the total paid for this lead
     const totalPaid = updatedLeadPayments.reduce((sum, payment) => {
@@ -478,26 +524,47 @@ async function validateAndSavePayment(event) {
       return sum + amount;
     }, 0);
 
+    // Step 3: Calculate remaining balance
+    const remainingBalance = Math.max(0, totalBudget - totalPaid);
 
-    // Update paid amount field on the lead form/modal
+    // Step 4: Update the lead with both the paidAmount and remainingBalance
+    // Use the safest method that will work based on what's available
+    const finalUpdateData = {
+      paidAmount: totalPaid,
+      remainingBalance: remainingBalance,
+    };
+
+    // Try each possible method for updating the lead
+    if (typeof window.updateLead === "function") {
+      await window.updateLead(leadId, finalUpdateData);
+    } else if (
+      typeof window.API !== "undefined" &&
+      typeof window.API.updateLead === "function"
+    ) {
+      await window.API.updateLead(leadId, finalUpdateData);
+    } else {
+      const response = await fetch(`${getApiUrl()}/leads/${leadId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(finalUpdateData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update lead: ${response.status}`);
+      }
+    }
+
+    // Update UI fields with the latest values
     const paidAmountField = document.getElementById("paidAmount");
     if (paidAmountField) {
       paidAmountField.value = formatCurrency(totalPaid);
     }
 
-    // Update remaining balance field on the lead form/modal
     const remainingBalanceField = document.getElementById("remainingBalance");
     if (remainingBalanceField) {
-      const totalBudgetStr = document.getElementById("totalBudget").value;
-      const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
-      const remainingBalance = totalBudget - totalPaid;
       remainingBalanceField.value = formatCurrency(remainingBalance);
-
-      console.log("Updated payment amounts:", {
-        totalBudget,
-        totalPaid,
-        remainingBalance
-      });
     }
 
     // Render updated payment list in the modal
@@ -510,14 +577,27 @@ async function validateAndSavePayment(event) {
 
     // Signal that ALL payments have been updated (for dashboard stats)
     window.dispatchEvent(new CustomEvent("paymentsUpdated"));
-
   } catch (error) {
     console.error("Error saving payment:", error);
     showToast("Error: " + (error.message || "An unknown error occurred"));
   }
 }
 
+// Helper function to get API URL if needed
+function getApiUrl() {
+  // Try to use the existing function if available
+  if (typeof window.getApiUrl === "function") {
+    return window.getApiUrl();
+  }
 
+  // Fallback implementation
+  const hostname = window.location.hostname;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return "http://localhost:5000/api";
+  } else {
+    return "/api";
+  }
+}
 
 async function deletePaymentAction(paymentId, leadId) {
   try {
@@ -526,7 +606,8 @@ async function deletePaymentAction(paymentId, leadId) {
     }
 
     // Store the lead modal state before any operations
-    const leadModalDisplayStyle = document.getElementById("leadModal").style.display;
+    const leadModalDisplayStyle =
+      document.getElementById("leadModal").style.display;
 
     // Delete the payment
     const response = await deletePayment(paymentId);
@@ -555,7 +636,8 @@ async function deletePaymentAction(paymentId, leadId) {
     if (remainingBalanceField) {
       // Get the total budget from the form
       const totalBudgetStr = document.getElementById("totalBudget").value;
-      const totalBudget = parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
+      const totalBudget =
+        parseFloat(totalBudgetStr.replace(/[^\d.-]/g, "")) || 0;
       const remainingBalance = totalBudget - totalPaid;
       remainingBalanceField.value = formatCurrency(remainingBalance);
     }
