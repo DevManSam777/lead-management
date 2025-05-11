@@ -49,30 +49,37 @@ app.use("/api/leads", (req, res, next) => {
 });
 
 // General CORS configuration for other routes
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     // List of allowed origins (add your local development URLs)
+//     const allowedOrigins = [
+//       // Production URLs
+//       "https://www.devleads.site",
+//       "https://devleads.site",
+//       // Development URLs
+//       "http://localhost:3000",
+//       "http://localhost:5000",
+//       "http://127.0.0.1:5000",
+//       "http://127.0.0.1:3000",
+//       "https://cdpn.io",
+//     ];
+
+//     // Allow requests with no origin (like mobile apps, curl requests, etc.)
+//     if (!origin) return callback(null, true);
+
+//     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+//       callback(null, true);
+//     } else {
+//       console.log("CORS blocked origin:", origin);
+//       callback(new Error("Not allowed by CORS"));
+//     }
+//   },
+//   credentials: true,
+// };
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // List of allowed origins (add your local development URLs)
-    const allowedOrigins = [
-      // Production URLs
-      "https://www.devleads.site",
-      "https://devleads.site",
-      // Development URLs
-      "http://localhost:3000",
-      "http://localhost:5000",
-      "http://127.0.0.1:5000",
-      "http://127.0.0.1:3000",
-      "https://cdpn.io",
-    ];
-
-    // Allow requests with no origin (like mobile apps, curl requests, etc.)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      console.log("CORS blocked origin:", origin);
-      callback(new Error("Not allowed by CORS"));
-    }
+    callback(null, true); // This will allow all origins
   },
   credentials: true,
 };
