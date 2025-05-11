@@ -14,7 +14,7 @@ const auth = require("./middleware/auth");
 
 const app = express();
 
-// --- Force canonical domain (www.devleads.site) ---
+// Force canonical domain (www.devleads.site) 
 // But only in production, not in development
 if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
@@ -27,8 +27,8 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// -------------------- CORS & API ROUTES FIRST --------------------
-// Special middleware just for the leads API endpoint to ensure it works with your web component
+// CORS & API ROUTES FIRST
+// Special middleware just for the leads API endpoint to work with web component
 app.use("/api/leads", (req, res, next) => {
   // Allow requests from any origin
   res.header("Access-Control-Allow-Origin", "*");
@@ -48,6 +48,7 @@ app.use("/api/leads", (req, res, next) => {
   next();
 });
 
+// use this for production
 // General CORS configuration for other routes
 // const corsOptions = {
 //   origin: function (origin, callback) {
@@ -130,7 +131,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// -------------------- STATIC FILES & REDIRECTS AFTER --------------------
+// STATIC FILES & REDIRECTS AFTER
 // Serve static files from the dashboard directory with proper MIME types
 app.use(
   "/dashboard",
@@ -633,12 +634,12 @@ app.get("/api", (req, res) => {
             type: "multipart/form-data", // File uploads typically use multipart/form-data
             description: "Form data containing the file to upload.",
             schema:
-              "File data under a specific form field name (e.g., 'document')", // Example field name
+              "File data under a specific form field name (e.g., 'document')", 
           },
           response:
             "JSON object confirming the upload and returning document metadata.",
           exampleResponse:
-            "{ message: 'Document uploaded successfully', document: { _id: '...', filename: '...', ... } }", // Example placeholder
+            "{ message: 'Document uploaded successfully', document: { _id: '...', filename: '...', ... } }", 
         },
         {
           method: "DELETE",
@@ -653,7 +654,7 @@ app.get("/api", (req, res) => {
             },
           ],
           response: "JSON success message or error.",
-          exampleResponse: "{ message: 'Document deleted successfully' }", // Example placeholder
+          exampleResponse: "{ message: 'Document deleted successfully' }",
         },
         // Hitlist Endpoints
         {
