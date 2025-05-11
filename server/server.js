@@ -16,7 +16,7 @@ const app = express();
 
 // --- Force canonical domain (www.devleads.site) ---
 // But only in production, not in development
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     const host = req.headers.host;
     // Redirect non-www to www (adjust as needed)
@@ -29,19 +29,22 @@ if (process.env.NODE_ENV === 'production') {
 
 // -------------------- CORS & API ROUTES FIRST --------------------
 // Special middleware just for the leads API endpoint to ensure it works with your web component
-app.use('/api/leads', (req, res, next) => {
+app.use("/api/leads", (req, res, next) => {
   // Allow requests from any origin
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header("Access-Control-Allow-Origin", "*");
   // Allow the necessary methods
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   // Allow the necessary headers
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+
   // Handle preflight requests immediately
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
-  
+
   next();
 });
 
@@ -51,26 +54,27 @@ const corsOptions = {
     // List of allowed origins (add your local development URLs)
     const allowedOrigins = [
       // Production URLs
-      'https://www.devleads.site',
-      'https://devleads.site',
+      "https://www.devleads.site",
+      "https://devleads.site",
       // Development URLs
-      'http://localhost:3000',
-      'http://localhost:5000',
-      'http://127.0.0.1:5000',
-      'http://127.0.0.1:3000'
+      "http://localhost:3000",
+      "http://localhost:5000",
+      "http://127.0.0.1:5000",
+      "http://127.0.0.1:3000",
+      "https://cdpn.io",
     ];
-    
+
     // Allow requests with no origin (like mobile apps, curl requests, etc.)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      console.log("CORS blocked origin:", origin);
+      callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -83,16 +87,19 @@ app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
 // Add cache control headers for navigation protection
 app.use((req, res, next) => {
   // Skip cache control for your public API endpoints that need CORS support
-  if (req.originalUrl.includes('/api/leads') && req.method === 'POST') {
+  if (req.originalUrl.includes("/api/leads") && req.method === "POST") {
     next();
     return;
   }
 
   // Apply cache control to all other routes
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.setHeader('Surrogate-Control', 'no-store');
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  res.setHeader("Surrogate-Control", "no-store");
   next();
 });
 
@@ -169,7 +176,7 @@ app.get(["/", "/index.html"], (req, res) => {
 app.get("/api", (req, res) => {
   // Get the PORT for URL construction
   const PORT = process.env.PORT || 5000;
-  
+
   res.json({
     message: `🍕 Congratulations! Freelance Lead Management API is now running on port ${PORT}! 🍕`,
     status: "Active",
@@ -218,7 +225,9 @@ app.get("/api", (req, res) => {
       createHitlist: `${getBaseUrl(PORT)}/api/hitlists`,
       updateHitlist: `${getBaseUrl(PORT)}/api/hitlists/:id`,
       deleteHitlist: `${getBaseUrl(PORT)}/api/hitlists/:id`,
-      businessesByHitlist: `${getBaseUrl(PORT)}/api/hitlists/:hitlistId/businesses`,
+      businessesByHitlist: `${getBaseUrl(
+        PORT
+      )}/api/hitlists/:hitlistId/businesses`,
       createBusiness: `${getBaseUrl(PORT)}/api/hitlists/:hitlistId/businesses`,
       updateBusiness: `${getBaseUrl(PORT)}/api/hitlists/businesses/:id`,
       deleteBusiness: `${getBaseUrl(PORT)}/api/hitlists/businesses/:id`,
@@ -761,9 +770,9 @@ app.get("/api", (req, res) => {
 
 // Helper function to get the base URL for examples
 function getBaseUrl(port) {
-  const isProduction = process.env.NODE_ENV === 'production';
-  return isProduction 
-    ? "https://www.devleads.site" 
+  const isProduction = process.env.NODE_ENV === "production";
+  return isProduction
+    ? "https://www.devleads.site"
     : `http://localhost:${port}`;
 }
 

@@ -20,16 +20,19 @@ class WebInquiryForm extends HTMLElement {
     this.initializeEvents();
     this.updateTheme();
   }
-
   updateTheme() {
+    // Get the form container - add null check to prevent errors
+    const container = this.shadowRoot.querySelector('.form-container');
+    if (!container) return; // Skip if element doesn't exist yet
+    
     const explicitTheme = this.getAttribute('theme');
     const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
     // If there's an explicit theme attribute, use it; otherwise, use browser preference
     if (explicitTheme === 'dark' || (explicitTheme !== 'light' && prefersDarkScheme)) {
-      this.shadowRoot.querySelector('.form-container').classList.add('dark-mode');
+      container.classList.add('dark-mode');
     } else {
-      this.shadowRoot.querySelector('.form-container').classList.remove('dark-mode');
+      container.classList.remove('dark-mode');
     }
   }
 
