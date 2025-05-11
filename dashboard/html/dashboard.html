@@ -31,14 +31,13 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          if (!window.location.pathname.endsWith("/dashboard")) {
-            // window.location.href = "/dashboard";
-            window.location.href = "/login";
-          }
+          // Before redirecting, clear the history by replacing current state with login
+          window.history.replaceState(null, "", "/login");
+
+          // Then redirect to login page
+          window.location.href = "/login";
         } else {
           document.body.style.display = "block";
-          // log user info to console
-          console.log(user);
         }
       });
 

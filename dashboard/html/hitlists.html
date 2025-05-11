@@ -31,10 +31,11 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // window.location.href = "/dashboard";
+          // Before redirecting, clear the history by replacing current state with login
+          window.history.replaceState(null, "", "/login");
+
+          // Then redirect to login page
           window.location.href = "/login";
-          // Redirect to sign in
-          // window.location.href = "/index.html";
         } else {
           document.body.style.display = "block";
         }
@@ -137,7 +138,10 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="icon" href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee">
+    <link
+      rel="icon"
+      href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee"
+    />
     <link rel="stylesheet" href="/dashboard/css/theme.css" />
     <link rel="stylesheet" href="/dashboard/css/components.css" />
     <link rel="stylesheet" href="/dashboard/css/dashboard.css" />
@@ -160,7 +164,8 @@
               </a>
             </li>
             <li>
-                <a href="/dashboard/hitlists"
+              <a
+                href="/dashboard/hitlists"
                 id="hitlists-link"
                 title="Hitlists"
                 class="active"
@@ -175,7 +180,11 @@
               </a>
             </li>
             <li>
-              <a href="/dashboard/resources" id="resources-link" title="Resources">
+              <a
+                href="/dashboard/resources"
+                id="resources-link"
+                title="Resources"
+              >
                 <i class="fa-solid fa-toolbox"></i><span>Resources</span>
               </a>
             </li>
@@ -186,7 +195,8 @@
             </li>
             <li class="sign-out-item" title="Sign Out">
               <button class="sign-out">
-                <i class="fa-solid fa-right-from-bracket"></i><span>Sign out</span>
+                <i class="fa-solid fa-right-from-bracket"></i
+                ><span>Sign out</span>
               </button>
             </li>
           </ul>
@@ -257,7 +267,10 @@
         <span class="close-modal" id="closeBusinessListModal">&times;</span>
         <div class="modal-header">
           <h3 id="businessListTitle">Businesses</h3>
-          <div class="business-actions-container" style="display: flex; gap: 1rem;">
+          <div
+            class="business-actions-container"
+            style="display: flex; gap: 1rem"
+          >
             <button id="addBusinessBtn" class="btn btn-primary">
               <i class="fas fa-plus"></i> Add Business
             </button>
@@ -330,7 +343,7 @@
               <input type="text" id="businessPhoneExt" placeholder="Optional" />
             </div>
           </div>
-          
+
           <div class="form-row">
             <div class="form-group">
               <label for="businessEmail">Business Email</label>
@@ -368,19 +381,11 @@
           <div class="form-row">
             <div class="form-group">
               <label for="businessCity">City</label>
-              <input
-                type="text"
-                id="businessCity"
-                placeholder="Enter city"
-              />
+              <input type="text" id="businessCity" placeholder="Enter city" />
             </div>
             <div class="form-group">
               <label for="businessState">State</label>
-              <input
-                type="text"
-                id="businessState"
-                placeholder="Enter state"
-              />
+              <input type="text" id="businessState" placeholder="Enter state" />
             </div>
           </div>
           <div class="form-row">
@@ -469,31 +474,37 @@
               <div class="date-display-readonly" id="viewTypeOfBusiness"></div>
             </div>
           </div>
-        
+
           <div class="form-section">
             <div class="form-group">
               <label>First Name</label>
-              <div class="date-display-readonly" id="viewContactFirstName"></div>
+              <div
+                class="date-display-readonly"
+                id="viewContactFirstName"
+              ></div>
             </div>
             <div class="form-group">
               <label>Last Name</label>
               <div class="date-display-readonly" id="viewContactLastName"></div>
             </div>
           </div>
-        
+
           <div class="form-section">
             <div class="form-group">
               <label>Business Phone</label>
               <div class="date-display-readonly" id="viewBusinessPhone"></div>
               <label class="ext-label">Ext:</label>
-              <div class="date-display-readonly" id="viewBusinessPhoneExt"></div>
+              <div
+                class="date-display-readonly"
+                id="viewBusinessPhoneExt"
+              ></div>
             </div>
             <div class="form-group">
               <label>Business Email</label>
               <div id="viewBusinessEmail"></div>
             </div>
           </div>
-        
+
           <!-- Website Section - Updated to show both URL and link button -->
           <div class="form-section">
             <div class="form-group">
@@ -502,7 +513,7 @@
               <div id="viewWebsiteUrl"></div>
             </div>
           </div>
-        
+
           <!-- Address Fields -->
           <div class="form-section">
             <div class="form-group">
@@ -526,15 +537,21 @@
             <div class="form-row">
               <div class="form-group">
                 <label>ZIP Code</label>
-                <div class="date-display-readonly" id="viewBusinessZipCode"></div>
+                <div
+                  class="date-display-readonly"
+                  id="viewBusinessZipCode"
+                ></div>
               </div>
               <div class="form-group">
                 <label>Country</label>
-                <div class="date-display-readonly" id="viewBusinessCountry"></div>
+                <div
+                  class="date-display-readonly"
+                  id="viewBusinessCountry"
+                ></div>
               </div>
             </div>
           </div>
-        
+
           <div class="form-section">
             <div class="form-group">
               <label>Status</label>
@@ -545,14 +562,17 @@
               <div class="date-display-readonly" id="viewPriority"></div>
             </div>
           </div>
-        
+
           <div class="form-section">
             <div class="form-group">
               <label>Last Contacted</label>
-              <div class="date-display-readonly" id="viewLastContactedDate"></div>
+              <div
+                class="date-display-readonly"
+                id="viewLastContactedDate"
+              ></div>
             </div>
           </div>
-        
+
           <div class="form-section">
             <div class="form-group">
               <label>Notes</label>

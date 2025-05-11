@@ -31,10 +31,11 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          if (!window.location.pathname.endsWith("/dashboard")) {
-            // window.location.href = "/dashboard";
-            window.location.href = "/login";
-          }
+          // Before redirecting, clear the history by replacing current state with login
+          window.history.replaceState(null, "", "/login");
+
+          // Then redirect to login page
+          window.location.href = "/login";
         } else {
           document.body.style.display = "block";
         }
@@ -134,7 +135,10 @@
       rel="stylesheet"
     />
     <!-- Include basic styles -->
-    <link rel="icon" href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee">
+    <link
+      rel="icon"
+      href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee"
+    />
     <link rel="stylesheet" href="/dashboard/css/theme.css" />
     <link rel="stylesheet" href="/dashboard/css/components.css" />
     <link rel="stylesheet" href="/dashboard/css/dashboard.css" />
