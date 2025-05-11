@@ -1,5 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { 
+  getAuth, 
+  onAuthStateChanged,
+  browserSessionPersistence,
+  setPersistence 
+} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -31,6 +36,15 @@ try {
 
 // Get auth instance
 const auth = getAuth(firebaseApp);
+
+// NEW: Set up persistence immediately when this module loads
+setPersistence(auth, browserSessionPersistence)
+  .then(() => {
+    console.log("Firebase persistence set to browserSessionPersistence");
+  })
+  .catch((error) => {
+    console.error("Error setting auth persistence:", error);
+  });
 
 // Function to determine the appropriate API URL based on the environment
 function getApiUrl() {
@@ -349,3 +363,30 @@ export const authApi = {
   put: (endpoint, data) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'PUT', data))),
   delete: (endpoint) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'DELETE')))
 };
+
+// NEW: Add history management functions
+export function handleAuthStateChange() {
+  // Set up listener for auth state changes to manage history correctly
+  auth.onAuthStateChanged((user) => {
+    const isLoginPage = window.location.pathname === '/login' || 
+                        window.location.pathname === '/' ||
+                        window.location.pathname === '/index.html';
+    
+    const isDashboardPage = window.location.pathname.includes('/dashboard');
+    
+    if (!user && isDashboardPage) {
+      // Not authenticated and trying to access dashboard
+      console.log('User not authenticated, redirecting to login');
+      window.history.replaceState(null, "", "/login");
+      window.location.href = "/login";
+    } else if (user && isLoginPage) {
+      // Already authenticated and on login page
+      console.log('User already authenticated, redirecting to dashboard');
+      window.history.replaceState(null, "", "/dashboard/home");
+      window.location.href = "/dashboard/home";
+    }
+  });
+}
+
+// Initialize the auth state listener when this module is loaded
+handleAuthStateChange();

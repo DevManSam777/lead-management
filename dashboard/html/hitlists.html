@@ -31,12 +31,11 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // Before redirecting, clear the history by replacing current state with login
+          // User is not authenticated - replace history state to prevent back button access
           window.history.replaceState(null, "", "/login");
-
-          // Then redirect to login page
           window.location.href = "/login";
         } else {
+          // User is authenticated, show content
           document.body.style.display = "block";
         }
       });
@@ -48,10 +47,9 @@
           signOut(auth)
             .then(() => {
               console.log("User signed out.");
-              // window.location.href = "/dashboard";
+              // Replace state to prevent back navigation to dashboard
+              window.history.replaceState(null, "", "/login");
               window.location.href = "/login";
-              // Redirect to sign in
-              // window.location.href = "/index.html";
             })
             .catch((error) => {
               console.error("Error signing out:", error);

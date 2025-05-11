@@ -28,7 +28,24 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // -------------------- CORS & API ROUTES FIRST --------------------
-// Enhanced CORS configuration to work in both environments
+// Special middleware just for the leads API endpoint to ensure it works with your web component
+app.use('/api/leads', (req, res, next) => {
+  // Allow requests from any origin
+  res.header('Access-Control-Allow-Origin', '*');
+  // Allow the necessary methods
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  // Allow the necessary headers
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Handle preflight requests immediately
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
+// General CORS configuration for other routes
 const corsOptions = {
   origin: function (origin, callback) {
     // List of allowed origins (add your local development URLs)
@@ -62,6 +79,22 @@ app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
 app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
+
+// Add cache control headers for navigation protection
+app.use((req, res, next) => {
+  // Skip cache control for your public API endpoints that need CORS support
+  if (req.originalUrl.includes('/api/leads') && req.method === 'POST') {
+    next();
+    return;
+  }
+
+  // Apply cache control to all other routes
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+  next();
+});
 
 // API routes BEFORE static/redirects
 app.use("/api/leads", leadRoutes);

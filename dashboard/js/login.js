@@ -139,12 +139,26 @@ function getErrorMessage(errorCode) {
 }
 
 // Redirect to dashboard if already logged in
+// Check at page load time and redirect if needed
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    // User is already logged in
+    console.log("User already authenticated:", user.email);
+
     // Replace the current history entry with the dashboard instead of adding a new one
     window.history.replaceState(null, "", "/dashboard/home");
 
     // Then navigate to the dashboard
     window.location.href = "/dashboard/home";
+  } else {
+    // User is not logged in, stay on login page
+    console.log("User not authenticated, staying on login page");
+
+    // Ensure any back navigation from protected pages redirects back to login
+    const referrer = document.referrer;
+    if (referrer && referrer.includes("/dashboard")) {
+      // We got here from a protected page, make sure to replace state to prevent back navigation
+      window.history.replaceState(null, "", "/login");
+    }
   }
 });
