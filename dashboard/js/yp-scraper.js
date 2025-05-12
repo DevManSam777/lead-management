@@ -188,12 +188,11 @@ class YPScraperComponent extends HTMLElement {
             position: relative;
           }
           
-          /* Fixed close button styling - NO CIRCLE */
           .close-modal {
             position: absolute;
             top: 10px;
             right: 20px;
-            color: #ffffff;
+            color: #6c757d;
             font-size: 2.8rem;
             font-weight: bold;
             cursor: pointer;
@@ -207,7 +206,6 @@ class YPScraperComponent extends HTMLElement {
             opacity: 1;
           }
           
-          /* Container for the iframe with MORE space at top */
           .iframe-container {
             flex: 1;
             position: relative;
