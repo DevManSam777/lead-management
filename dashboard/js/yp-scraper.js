@@ -1,119 +1,122 @@
 class YPScraperComponent extends HTMLElement {
-    // Specify observed attributes to react to attribute changes
-    static get observedAttributes() {
-      return ['src'];
-    }
-  
-    constructor() {
-      super();
-      
-      // Create a shadow DOM
-      this.attachShadow({ mode: 'open' });
-      
-      // No default src - must be provided as an attribute
+  // Specify observed attributes to react to attribute changes
+  static get observedAttributes() {
+    return ["src"];
+  }
+
+  constructor() {
+    super();
+
+    // Create a shadow DOM
+    this.attachShadow({ mode: "open" });
+
+    // No default src, must be provided as an attribute
     //   this._src = '';
-      
-      // Set up the internal structure
-      this.render();
-      
-      // Bind methods
-      this.openModal = this.openModal.bind(this);
-      this.closeModal = this.closeModal.bind(this);
-      this.handleOutsideClick = this.handleOutsideClick.bind(this);
-      this.updateButtonStyle = this.updateButtonStyle.bind(this);
+
+    // Set up the internal structure
+    this.render();
+
+    // Bind methods
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+    this.handleOutsideClick = this.handleOutsideClick.bind(this);
+    this.updateButtonStyle = this.updateButtonStyle.bind(this);
+  }
+
+  // Lifecycle: When the element is added to the DOM
+  connectedCallback() {
+    // Check if src attribute is provided
+    if (!this.hasAttribute("src")) {
+      console.error(
+        "Error: src attribute is required for yp-scraper component"
+      );
+    } else {
+      this._src = this.getAttribute("src");
     }
-    
-    // Lifecycle: When the element is added to the DOM
-    connectedCallback() {
-      // Check if src attribute is provided
-      if (!this.hasAttribute('src')) {
-        console.error('Error: src attribute is required for yp-scraper component');
-      } else {
-        this._src = this.getAttribute('src');
-      }
-      
-      // Add event listeners
-      const button = this.shadowRoot.querySelector('.yp-button');
-      const closeBtn = this.shadowRoot.querySelector('.close-modal');
-      const modal = this.shadowRoot.querySelector('.modal');
-      
-      button.addEventListener('click', this.openModal);
-      closeBtn.addEventListener('click', this.closeModal);
-      modal.addEventListener('click', this.handleOutsideClick);
-      
-      // Update styles based on theme
+
+    // Add event listeners
+    const button = this.shadowRoot.querySelector(".yp-button");
+    const closeBtn = this.shadowRoot.querySelector(".close-modal");
+    const modal = this.shadowRoot.querySelector(".modal");
+
+    button.addEventListener("click", this.openModal);
+    closeBtn.addEventListener("click", this.closeModal);
+    modal.addEventListener("click", this.handleOutsideClick);
+
+    // Update styles based on theme
+    this.updateStyles();
+
+    // Handle initial button style immediately
+    this.updateButtonStyle();
+
+    // Watch for theme changes
+    const observer = new MutationObserver(() => {
       this.updateStyles();
-      
-      // Handle initial button style immediately
-      this.updateButtonStyle();
-      
-      // Watch for theme changes
-      const observer = new MutationObserver(() => {
-        this.updateStyles();
-      });
-      
-      // Observe the document element for attribute changes (for theme switches)
-      observer.observe(document.documentElement, { attributes: true });
-      
-      // Handle window resize for responsive adjustments
-      window.addEventListener('resize', this.updateButtonStyle);
+    });
+
+    // Observe the document element for attribute changes (for theme switches)
+    observer.observe(document.documentElement, { attributes: true });
+
+    // Handle window resize for responsive adjustments
+    window.addEventListener("resize", this.updateButtonStyle);
+  }
+
+  // Update button style based on screen width
+  updateButtonStyle() {
+    // IMPORTANT: We need to adjust the host element, not just the button
+    // This allows the component to fit the layout properly
+    if (window.innerWidth <= 992) {
+      // On small screens - make component take full width
+      this.style.cssText = "display: block; width: 100%; max-width: 100%;";
+    } else {
+      // On large screens - make component take only button width
+      this.style.cssText =
+        "display: inline-block; width: auto; max-width: fit-content;";
     }
-    
-    // Update button style based on screen width
-    updateButtonStyle() {
-      // IMPORTANT: We need to adjust the host element, not just the button
-      // This allows the component to fit the layout properly
-      if (window.innerWidth <= 992) {
-        // On small screens - make component take full width
-        this.style.cssText = "display: block; width: 100%; max-width: 100%;";
-      } else {
-        // On large screens - make component take only button width
-        this.style.cssText = "display: inline-block; width: auto; max-width: fit-content;";
-      }
-      
-      // Then update the button inside
-      const button = this.shadowRoot.querySelector('.yp-button');
-      if (window.innerWidth <= 992) {
-        button.style.cssText = "width: 100%; justify-content: center;";
-      } else {
-        button.style.cssText = "width: auto; justify-content: flex-start;";
-      }
+
+    // Then update the button inside
+    const button = this.shadowRoot.querySelector(".yp-button");
+    if (window.innerWidth <= 992) {
+      button.style.cssText = "width: 100%; justify-content: center;";
+    } else {
+      button.style.cssText = "width: auto; justify-content: flex-start;";
     }
-    
-    // Lifecycle: When the element is removed from the DOM
-    disconnectedCallback() {
-      // Remove event listeners to prevent memory leaks
-      const button = this.shadowRoot.querySelector('.yp-button');
-      const closeBtn = this.shadowRoot.querySelector('.close-modal');
-      const modal = this.shadowRoot.querySelector('.modal');
-      
-      button.removeEventListener('click', this.openModal);
-      closeBtn.removeEventListener('click', this.closeModal);
-      modal.removeEventListener('click', this.handleOutsideClick);
-      
-      // Remove window resize listener
-      window.removeEventListener('resize', this.updateButtonStyle);
+  }
+
+  // Lifecycle: When the element is removed from the DOM
+  disconnectedCallback() {
+    // Remove event listeners to prevent memory leaks
+    const button = this.shadowRoot.querySelector(".yp-button");
+    const closeBtn = this.shadowRoot.querySelector(".close-modal");
+    const modal = this.shadowRoot.querySelector(".modal");
+
+    button.removeEventListener("click", this.openModal);
+    closeBtn.removeEventListener("click", this.closeModal);
+    modal.removeEventListener("click", this.handleOutsideClick);
+
+    // Remove window resize listener
+    window.removeEventListener("resize", this.updateButtonStyle);
+  }
+
+  // Lifecycle: When attributes change
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) return;
+
+    if (name === "src" && newValue) {
+      this._src = newValue;
     }
-    
-    // Lifecycle: When attributes change
-    attributeChangedCallback(name, oldValue, newValue) {
-      if (oldValue === newValue) return;
-      
-      if (name === 'src' && newValue) {
-        this._src = newValue;
-      }
-    }
-    
-    // Get CSS variables from the main document
-    updateStyles() {
-      const styles = getComputedStyle(document.documentElement);
-      const primary = styles.getPropertyValue('--primary') || '#4361ee';
-      const secondary = styles.getPropertyValue('--secondary') || '#3f37c9';
-      
-      // Update component styles
-      const styleElement = this.shadowRoot.querySelector('#dynamic-styles');
-      if (styleElement) {
-        styleElement.textContent = `
+  }
+
+  // Get CSS variables from the main document
+  updateStyles() {
+    const styles = getComputedStyle(document.documentElement);
+    const primary = styles.getPropertyValue("--primary") || "#4361ee";
+    const secondary = styles.getPropertyValue("--secondary") || "#3f37c9";
+
+    // Update component styles
+    const styleElement = this.shadowRoot.querySelector("#dynamic-styles");
+    if (styleElement) {
+      styleElement.textContent = `
           .yp-button {
             background-color: ${primary};
             color: #ffffff;
@@ -123,16 +126,16 @@ class YPScraperComponent extends HTMLElement {
             background-color: ${secondary};
           }
         `;
-      }
-      
-      // Update button style for current screen size
-      this.updateButtonStyle();
     }
-    
-    // Render the component
-    render() {
-      // HTML template for the component
-      this.shadowRoot.innerHTML = `
+
+    // Update button style for current screen size
+    this.updateButtonStyle();
+  }
+
+  // Render the component
+  render() {
+    // HTML template for the component
+    this.shadowRoot.innerHTML = `
         <style>
           :host {
             display: inline-block;
@@ -145,7 +148,6 @@ class YPScraperComponent extends HTMLElement {
             border-radius: 0.5rem;
             padding: 1rem 1.5rem;
             font-size: 1.4rem;
-            font-weight: 500;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -156,8 +158,8 @@ class YPScraperComponent extends HTMLElement {
           
           /* Search icon SVG */
           .search-icon {
-            width: 16px;
-            height: 16px;
+            width: 1.3rem;
+            height: 1.3rem;
             fill: white;
           }
           
@@ -221,7 +223,7 @@ class YPScraperComponent extends HTMLElement {
             overflow: auto;
           }
           
-          /* Responsive styles */
+   
           @media (max-width: 768px) {
             .modal-content {
               width: 95%;
@@ -233,7 +235,13 @@ class YPScraperComponent extends HTMLElement {
               margin-top: 30px;
             }
           }
-          
+
+          @media (max-width: 576px) {
+            .yp-button {
+            font-size: 1.3rem;
+          }
+        }
+
           @media (max-width: 480px) {
             .modal-content {
               width: 90%;
@@ -273,56 +281,58 @@ class YPScraperComponent extends HTMLElement {
           </div>
         </div>
       `;
+  }
+
+  // Open the modal
+  openModal() {
+    // Check if src attribute is provided
+    if (!this._src) {
+      console.error(
+        "Error: src attribute is required for yp-scraper component"
+      );
+      return;
     }
-    
-    // Open the modal
-    openModal() {
-      // Check if src attribute is provided
-      if (!this._src) {
-        console.error('Error: src attribute is required for yp-scraper component');
-        return;
-      }
-      
-      const modal = this.shadowRoot.querySelector('.modal');
-      modal.style.display = 'block';
-      
-      // Create iframe when the modal opens
-      const container = this.shadowRoot.querySelector('.iframe-container');
-      
-      // Clear any existing iframe
-      container.innerHTML = '';
-      
-      // Create a new iframe with the src from the attribute
-      const iframe = document.createElement('iframe');
-      iframe.src = this._src;
-      iframe.setAttribute('frameborder', '0');
-      iframe.setAttribute('allowfullscreen', 'true');
-      iframe.setAttribute('allow', 'clipboard-write');
-      
-      // Make sure iframe allows scrolling
-      iframe.style.overflow = 'auto';
-      
-      // Add the iframe to the container
-      container.appendChild(iframe);
-    }
-    
-    // Close the modal
-    closeModal() {
-      const modal = this.shadowRoot.querySelector('.modal');
-      modal.style.display = 'none';
-      
-      // Remove iframe when closing to free resources
-      const container = this.shadowRoot.querySelector('.iframe-container');
-      container.innerHTML = '';
-    }
-    
-    // Handle clicks outside the modal content
-    handleOutsideClick(event) {
-      if (event.target.classList.contains('modal')) {
-        this.closeModal();
-      }
+
+    const modal = this.shadowRoot.querySelector(".modal");
+    modal.style.display = "block";
+
+    // Create iframe when the modal opens
+    const container = this.shadowRoot.querySelector(".iframe-container");
+
+    // Clear any existing iframe
+    container.innerHTML = "";
+
+    // Create a new iframe with the src from the attribute
+    const iframe = document.createElement("iframe");
+    iframe.src = this._src;
+    iframe.setAttribute("frameborder", "0");
+    iframe.setAttribute("allowfullscreen", "true");
+    iframe.setAttribute("allow", "clipboard-write");
+
+    // Make sure iframe allows scrolling
+    iframe.style.overflow = "auto";
+
+    // Add the iframe to the container
+    container.appendChild(iframe);
+  }
+
+  // Close the modal
+  closeModal() {
+    const modal = this.shadowRoot.querySelector(".modal");
+    modal.style.display = "none";
+
+    // Remove iframe when closing to free resources
+    const container = this.shadowRoot.querySelector(".iframe-container");
+    container.innerHTML = "";
+  }
+
+  // Handle clicks outside the modal content
+  handleOutsideClick(event) {
+    if (event.target.classList.contains("modal")) {
+      this.closeModal();
     }
   }
-  
-  // Register the component
-  customElements.define('yp-scraper', YPScraperComponent);
+}
+
+// Register the component
+customElements.define("yp-scraper", YPScraperComponent);
