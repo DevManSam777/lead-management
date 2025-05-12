@@ -419,18 +419,30 @@ async function handleHitlistSubmit(event) {
   };
 
   try {
+    let savedHitlistId;
+
     if (hitlistId) {
       // Edit existing hitlist
       await API.updateHitlist(hitlistId, hitlistData);
       Utils.showToast("Hitlist updated successfully");
+      savedHitlistId = hitlistId;
     } else {
       // Create NEW hitlist
-      await API.createHitlist(hitlistData); // This is the correct API call for creating a hitlist
+      const newHitlist = await API.createHitlist(hitlistData); // Store the returned hitlist
       Utils.showToast("Hitlist created successfully");
+      savedHitlistId = newHitlist._id; // Get the ID of the newly created hitlist
     }
 
     closeHitlistModal(); // Close the Hitlist Modal
-    fetchAndRenderHitlists(); // Refresh the list of hitlists
+
+    // Refresh the list of hitlists and wait for it to complete
+    await fetchAndRenderHitlists();
+
+    // If this was a new hitlist (or we're editing), automatically open the business list modal
+    if (savedHitlistId) {
+      // No need for setTimeout - we've already awaited the fetching and rendering
+      openBusinessListModal(savedHitlistId);
+    }
   } catch (error) {
     console.error("Error saving hitlist:", error); // Correct error logging
     Utils.showToast("Error saving hitlist"); // Correct toast message
