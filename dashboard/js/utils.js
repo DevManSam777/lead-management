@@ -150,11 +150,19 @@ function initializeMonetaryInputs() {
       });
       
       // When the field gains focus, convert from formatted currency to plain number
+      // AND select all text to make it easier to replace
       input.addEventListener('focus', function() {
+        // First select all text for easy replacement
+        this.select();
+        
         if (this.value) {
           // Remove currency formatting
           const numStr = this.value.replace(/[^\d.]/g, '');
           this.value = numStr;
+          
+          // Re-select all text after changing the value
+          // This is needed because changing the value can deselect the text in some browsers
+          setTimeout(() => this.select(), 0);
         }
       });
     }

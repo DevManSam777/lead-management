@@ -405,6 +405,7 @@ async function validateAndSaveLead(event) {
   }
 }
 
+
 /**
  * Save lead data to the server
  */
@@ -494,6 +495,9 @@ async function saveLead() {
       // Store the budget value as a number
       leadData.budget = numericBudgetValue;
     }
+  } else if (budgetInput) {
+    // Explicitly set to 0 when the field is empty
+    leadData.budget = 0;
   }
 
   // Handle billed amount/total budget (what you're charging)
@@ -507,6 +511,9 @@ async function saveLead() {
       // Store the total budget value as a number
       leadData.totalBudget = numericTotalValue;
     }
+  } else if (totalBudgetInput) {
+    // Explicitly set to 0 when the field is empty
+    leadData.totalBudget = 0;
   }
 
   try {
@@ -540,6 +547,7 @@ async function saveLead() {
     showToast("Error: " + error.message);
   }
 }
+
 
 // TRUE causes first tab to be active when modal opens
 function initializeModalTabs(forceFirstTab = true) {
@@ -789,6 +797,7 @@ function formatWebsiteUrl(url) {
   return url;
 }
 
+
 /**
  * Open the lead modal to view/edit a lead
  * @param {string} leadId - ID of the lead to open
@@ -876,24 +885,22 @@ async function openLeadModal(leadId, allLeads) {
 
   // Handle estimated budget field
   if (document.getElementById("budget")) {
-    const budgetValue =
-      lead.budget !== undefined ? parseFloat(lead.budget) : "";
-    document.getElementById("budget").value = budgetValue
-      ? formatCurrency(budgetValue)
+    const budgetValue = lead.budget !== undefined ? parseFloat(lead.budget) : "";
+    document.getElementById("budget").value = budgetValue !== "" 
+      ? formatCurrency(budgetValue) 
       : "";
   }
 
   // Handle payment fields
   if (document.getElementById("totalBudget")) {
-    const totalBudgetValue =
-      lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
-    document.getElementById("totalBudget").value = totalBudgetValue
-      ? formatCurrency(totalBudgetValue)
+    const totalBudgetValue = lead.totalBudget !== undefined ? parseFloat(lead.totalBudget) : "";
+    document.getElementById("totalBudget").value = totalBudgetValue !== "" 
+      ? formatCurrency(totalBudgetValue) 
       : "";
   }
 
   if (document.getElementById("paidAmount")) {
-    const paidAmount = lead.paidAmount ? parseFloat(lead.paidAmount) : 0;
+    const paidAmount = lead.paidAmount !== undefined ? parseFloat(lead.paidAmount) : 0;
     document.getElementById("paidAmount").value = formatCurrency(paidAmount);
   }
 
