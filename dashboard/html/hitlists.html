@@ -136,6 +136,9 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
+    <!--Comment this out if you are not using the Docker Yellow Pages Scraper-->
+    <script src="/dashboard/js/yp-scraper.js"></script>
+
     <link
       rel="icon"
       href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee"
@@ -214,6 +217,11 @@
                 placeholder="Search hitlists..."
               />
             </div>
+
+            <!--Comment this out if you are not using the Docker Yellow Pages Scraper-->
+            <!--Add the URL of your deployed Docker Yellow Pages Scraper in the src-->
+            <yp-scraper src="https://yp-scraper.onrender.com/login"></yp-scraper>
+
             <button id="createHitlistBtn" class="btn btn-primary blue-border">
               <i class="fas fa-plus"></i> Create Hitlist
             </button>
@@ -580,6 +588,24 @@
         </div>
       </div>
     </div>
+
+    <!-- Comment out this entire div if you are not using scraper-->
+    <!-- <div id="scraperModal" class="modal">
+      <div class="modal-content scraper-modal-content">
+        <span class="close-modal" id="closeScraperModal">&times;</span>
+        <div class="modal-header">
+          <h3>Yellow Pages Scraper</h3>
+        </div>
+        <div class="scraper-container"> -->
+          <!--Change the src to the src of your deployed dockerized scraper-->
+          <!-- <iframe
+            id="scraperIframe"
+            src="https://yp-scraper.onrender.com/login"
+            frameborder="0"
+          ></iframe>
+        </div>
+      </div>
+    </div> -->
 
     <!-- Toast Notification -->
     <div class="toast" id="toast">
