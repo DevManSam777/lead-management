@@ -1,206 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Development Inquiry Form - Local Development</title>
-  <style>
-    html {
-      font-size: 62.5%;
-    }
-    
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      padding: 2rem;
-      background-color: #f0f2f5;
-      color: #333;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    header {
-      margin-bottom: 3rem;
-      text-align: center;
-      padding: 2rem;
-      background-color: #2c3e50;
-      color: white;
-      border-radius: 0.8rem;
-    }
-    
-    h1 {
-      font-size: 3.2rem;
-      margin-bottom: 1rem;
-    }
-    
-    .subtitle {
-      font-size: 1.8rem;
-      opacity: 0.9;
-    }
-    
-    .description {
-      font-size: 1.6rem;
-      margin: 2rem 0;
-      line-height: 1.6;
-    }
-    
-    .development-notice {
-      background-color: #fff3cd;
-      color: #856404;
-      padding: 1rem;
-      border-radius: 0.4rem;
-      margin: 2rem 0;
-      font-size: 1.4rem;
-      border-left: 5px solid #ffeeba;
-    }
-    
-  
-    
-    footer {
-      margin-top: 3rem;
-      text-align: center;
-      font-size: 1.4rem;
-      color: #7f8c8d;
-      padding: 2rem;
-    }
-    
-    .server-status {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      border-radius: 2rem;
-      font-weight: bold;
-      margin-left: 1rem;
-      font-size: 1.2rem;
-    }
-    
-    .status-connected {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    
-    .status-disconnected {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-    
-    .server-info {
-      margin-bottom: 1rem;
-    }
-    
-    #check-connection {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 0.4rem;
-      cursor: pointer;
-      font-size: 1.4rem;
-      margin-bottom: 2rem;
-    }
-    
-    #check-connection:hover {
-      background-color: #2980b9;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Development Inquiry Form - Local Development</title>
+    <style>
+      html {
+        font-size: 62.5%;
+      }
 
-    @media (max-width: 350px){
       body {
-       padding: 2rem 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 2rem;
+        background-color: #f0f2f5;
+        color: #333;
       }
-    }
-  </style>
-  <!-- Load the web component script -->
-  <!-- <script src="web-inquiry-form.js" defer></script> -->
-   <!-- <script src="https://cdn.jsdelivr.net/gh/DevManSam777/lead-management@main/web-inquiry-form/web-inquiry-form.js" defer></script> -->
 
-   <!-- use for production -->
-   <!-- <script src="https://rawcdn.githack.com/DevManSam777/lead-management/071375d7e29dc657aae93b0aee1bcea7c1b693fc/web-inquiry-form/web-inquiry-form.js" defer></script> -->
-   <!-- use for dev -->
-   <script src="https://raw.githack.com/DevManSam777/lead-management/main/web-inquiry-form/web-inquiry-form.js" defer></script>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>Web Development Inquiry Form</h1>
-      <div class="subtitle">Local Development Environment</div>
-    </header>
-    
-    <div class="description">
-      This is a demonstration of the Web Inquiry Form component configured to connect to your local development server.
-    </div>
-    
-    <div class="development-notice">
-      <strong>Development Notice:</strong> This form is configured to submit data to <code>http://localhost:5000/api/leads</code>. 
-      Make sure the local server is running before testing form submission.
-    </div>
-    
-    <div class="server-info">
-      <button id="check-connection">Check Server Connection</button>
-      <span id="server-status"></span>
-    </div>
-    
-    <div class="form-container">
-      <!-- Web Inquiry Form Component with local API endpoint -->
-      <web-inquiry-form api-url="http://localhost:5000/api/leads"></web-inquiry-form>
-    </div>
-    
-    <footer>
-      <p>© <span id="year-span"></span> Samir Shuman. For testing purposes only.</p>
-    </footer>
-  </div>
-  
-  <script>
-    const yearSpan = document.getElementById("year-span");
-    yearSpan.innerText = new Date().getFullYear();
-    
-    // Function to check if the server is running
-    async function checkServerConnection() {
-      const statusElement = document.getElementById('server-status');
-      
-      try {
-        const response = await fetch('http://localhost:5000', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
-        
-        if (response.ok) {
-          statusElement.textContent = 'Connected';
-          statusElement.className = 'server-status status-connected';
-          console.log('Server is running');
-        } else {
-          statusElement.textContent = 'Error: ' + response.status;
-          statusElement.className = 'server-status status-disconnected';
-          console.error('Server error:', response.status);
-        }
-      } catch (error) {
-        statusElement.textContent = 'Disconnected';
-        statusElement.className = 'server-status status-disconnected';
-        console.error('Cannot connect to server:', error);
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
       }
-    }
-    
-    // Add event listener to check connection button
-    document.getElementById('check-connection').addEventListener('click', checkServerConnection);
-    
-    // Check connection when page loads
-    document.addEventListener('DOMContentLoaded', checkServerConnection);
-    
-    // Event listeners for the web component's custom events
-    document.addEventListener('form-submit', (event) => {
-      console.log('Form data submitted:', event.detail);
-    });
-    
-    document.addEventListener('form-success', (event) => {
-      console.log('Form submitted successfully:', event.detail);
-    });
-    
-    document.addEventListener('form-error', (event) => {
-      console.error('Error submitting form:', event.detail);
-      alert('Error submitting form. Make sure your local server is running at http://localhost:5000');
-    });
-  </script>
-</body>
+
+      header {
+        margin-bottom: 3rem;
+        text-align: center;
+        padding: 2rem;
+        background-color: #2c3e50;
+        color: white;
+        border-radius: 0.8rem;
+      }
+
+      h1 {
+        font-size: 3.2rem;
+        margin-bottom: 1rem;
+      }
+
+      .subtitle {
+        font-size: 1.8rem;
+        opacity: 0.9;
+      }
+
+      .description {
+        font-size: 1.6rem;
+        margin: 2rem 0;
+        line-height: 1.6;
+      }
+
+      .development-notice {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 0.4rem;
+        margin: 2rem 0;
+        font-size: 1.4rem;
+        border-left: 5px solid #ffeeba;
+      }
+
+      footer {
+        margin-top: 3rem;
+        text-align: center;
+        font-size: 1.4rem;
+        color: #7f8c8d;
+        padding: 2rem;
+      }
+
+      .server-status {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-weight: bold;
+        margin-left: 1rem;
+        font-size: 1.2rem;
+      }
+
+      .status-connected {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-disconnected {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .server-info {
+        margin-bottom: 1rem;
+      }
+
+      #check-connection {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.4rem;
+        cursor: pointer;
+        font-size: 1.4rem;
+        margin-bottom: 2rem;
+      }
+
+      #check-connection:hover {
+        background-color: #2980b9;
+      }
+
+      @media (max-width: 350px) {
+        body {
+          padding: 2rem 0;
+        }
+      }
+    </style>
+    <!-- Load the web component script -->
+    <!-- <script src="web-inquiry-form.js" defer></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/gh/DevManSam777/lead-management@main/web-inquiry-form/web-inquiry-form.js" defer></script> -->
+
+    <!-- use for production -->
+    <!-- <script src="https://rawcdn.githack.com/DevManSam777/lead-management/071375d7e29dc657aae93b0aee1bcea7c1b693fc/web-inquiry-form/web-inquiry-form.js" defer></script> -->
+    <!-- use for dev -->
+    <!-- <script src="https://raw.githack.com/DevManSam777/lead-management/main/web-inquiry-form/web-inquiry-form.js" defer></script> -->
+    <script src="web-inquiry-form.js" defer></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Web Development Inquiry Form</h1>
+        <div class="subtitle">Local Development Environment</div>
+      </header>
+
+      <div class="description">
+        This is a demonstration of the Web Inquiry Form component configured to
+        connect to your local development server.
+      </div>
+
+      <div class="development-notice">
+        <strong>Development Notice:</strong> This form is configured to submit
+        data to <code>http://localhost:5000/api/leads</code>. Make sure the
+        local server is running before testing form submission.
+      </div>
+
+      <div class="server-info">
+        <button id="check-connection">Check Server Connection</button>
+        <span id="server-status"></span>
+      </div>
+
+      <div class="form-container">
+        <!-- Web Inquiry Form Component with local API endpoint -->
+        <web-inquiry-form
+          api-url="http://localhost:5000/api/leads"
+        ></web-inquiry-form>
+      </div>
+
+      <footer>
+        <p>
+          © <span id="year-span"></span> Samir Shuman. For testing purposes
+          only.
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      const yearSpan = document.getElementById("year-span");
+      yearSpan.innerText = new Date().getFullYear();
+
+      // Function to check if the server is running
+      async function checkServerConnection() {
+        const statusElement = document.getElementById("server-status");
+
+        try {
+          const response = await fetch("http://localhost:5000", {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+          });
+
+          if (response.ok) {
+            statusElement.textContent = "Connected";
+            statusElement.className = "server-status status-connected";
+            console.log("Server is running");
+          } else {
+            statusElement.textContent = "Error: " + response.status;
+            statusElement.className = "server-status status-disconnected";
+            console.error("Server error:", response.status);
+          }
+        } catch (error) {
+          statusElement.textContent = "Disconnected";
+          statusElement.className = "server-status status-disconnected";
+          console.error("Cannot connect to server:", error);
+        }
+      }
+
+      // Add event listener to check connection button
+      document
+        .getElementById("check-connection")
+        .addEventListener("click", checkServerConnection);
+
+      // Check connection when page loads
+      document.addEventListener("DOMContentLoaded", checkServerConnection);
+
+      // Event listeners for the web component's custom events
+      document.addEventListener("form-submit", (event) => {
+        console.log("Form data submitted:", event.detail);
+      });
+
+      document.addEventListener("form-success", (event) => {
+        console.log("Form submitted successfully:", event.detail);
+      });
+
+      document.addEventListener("form-error", (event) => {
+        console.error("Error submitting form:", event.detail);
+        alert(
+          "Error submitting form. Make sure your local server is running at http://localhost:5000"
+        );
+      });
+    </script>
+  </body>
 </html>
