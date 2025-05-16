@@ -2,17 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee">
+    <link
+      rel="icon"
+      href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevLeads Login</title>
     <link rel="stylesheet" href="/dashboard/css/dashboard.css" />
     <link rel="stylesheet" href="/dashboard/css/login.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap"
+      rel="stylesheet"
+    />
     <script>
-      (function() {
-          const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          document.documentElement.setAttribute('data-theme', systemTheme);
-        }
-      )();
+      (function () {
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
+          ? "dark"
+          : "light";
+        document.documentElement.setAttribute("data-theme", systemTheme);
+      })();
     </script>
   </head>
   <body>
@@ -24,7 +35,7 @@
           />
         </svg>
       </div>
-      <h1>DevLeads Login</h1>
+      <h1 class="zen-dots">DevLeads</h1>
       <form id="loginForm">
         <div class="form-group">
           <label for="email">Email</label>
