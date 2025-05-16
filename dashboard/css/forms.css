@@ -210,7 +210,6 @@
   color: white;
 }
 
-/* Template preview modal styles */
 .template-preview {
   padding: 1rem 0;
   height: 50vh;
@@ -232,7 +231,6 @@
   margin-top: 2rem;
 }
 
-/* Form editor container */
 .form-editor-container {
   display: flex;
   height: 600px;
@@ -278,7 +276,6 @@
   max-height: 800px;
 }
 
-/* Modal Content Styles */
 #formEditorModal .modal-content,
 #formPreviewModal .modal-content,
 #generatedFormModal .modal-content,
@@ -332,7 +329,6 @@ div.editor-section {
   justify-content: flex-end;
 }
 
-/* Tab UI for editor/preview */
 .editor-tabs {
   display: flex;
   margin-bottom: 1rem;
@@ -367,7 +363,6 @@ div.editor-section {
   margin-top: 1rem;
 }
 
-/* Generated form modal styles */
 #generatedFormModal .form-editor-container {
   display: flex;
   flex-direction: column;
@@ -423,7 +418,6 @@ div.editor-section {
   border-radius: var(--card-border-radius);
 }
 
-/* Variables related styles */
 .variables-list {
   margin-top: 1rem;
   display: flex;
@@ -446,7 +440,6 @@ div.editor-section {
   color: var(--text-muted);
 }
 
-/* Empty state styles */
 .empty-state {
   color: var(--text-muted);
   border: 2px dashed var(--text-muted);
@@ -455,7 +448,6 @@ div.editor-section {
   text-align: center;
 }
 
-/* Markdown content styles */
 .markdown-content img {
   max-width: 100%;
 }
@@ -540,13 +532,8 @@ div.editor-section {
   overflow-y: auto;
 }
 
-/* Media Queries */
 @media (max-width: 992px) {
-  /* .template-cards {
-    grid-template-columns: 1fr;
-  } */
-
-  #addFormBtnFormsPage {
+ #addFormBtnFormsPage {
     width: 100%;
   }
 }
@@ -566,7 +553,6 @@ div.editor-section {
   .template-icon {
     margin-right: 0;
     margin-bottom: 1rem;
-    /* font-size: 3rem; */
   }
 
   .template-actions {

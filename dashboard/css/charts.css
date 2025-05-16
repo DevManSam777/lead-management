@@ -14,8 +14,7 @@
     display: flex;
     flex-direction: column;
     transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
-    min-width: 0; /* Important for preventing overflow */
-    ;
+    min-width: 0; 
   }
   
   .chart-card h3 {
@@ -31,7 +30,7 @@
     flex: 1;
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9; /* More rectangular aspect ratio */
+    aspect-ratio: 16 / 9; 
     min-height: 20rem;
     max-height: 35rem;
   }
@@ -44,8 +43,13 @@
     color: var(--text-muted);
     font-style: italic;
   }
-  
-  /* Responsive adjustments */
+
+    canvas {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+  }
+
   @media (max-width: 1200px) {
     .charts-cards {
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -94,7 +98,7 @@
     }
   
     .chart-container {
-      aspect-ratio: 4 / 3; /* Slightly less wide on very small screens */
+      aspect-ratio: 4 / 3; 
       height: 25rem;
     }
   }
@@ -133,11 +137,5 @@
       font-size: 1.1rem;
       margin-bottom: 0.5rem;
     }
-  }
-  
-  canvas {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
   }
   

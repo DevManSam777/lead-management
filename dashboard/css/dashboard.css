@@ -27,12 +27,10 @@ body {
   position: relative;
 }
 
-/* Common Utility Classes */
 .clickable {
   cursor: pointer;
 }
 
-/* Sidebar */
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--sidebar-bg);
@@ -68,7 +66,6 @@ body {
   display: none;
 }
 
-/* Sidebar Toggle Button */
 .sidebar-toggle {
   position: absolute;
   top: 3.5rem;
@@ -95,22 +92,21 @@ body {
 }
 
 .sidebar .sidebar-toggle .fa-angles-right {
-  display: none; /* Hide right arrow by default */
+  display: none; 
 }
 
 .sidebar .sidebar-toggle .fa-angles-left {
-  display: block; /* Show left arrow by default */
+  display: block; 
 }
 
 .sidebar.collapsed .sidebar-toggle .fa-angles-right {
-  display: block; /* Show right arrow when collapsed */
+  display: block; 
 }
 
 .sidebar.collapsed .sidebar-toggle .fa-angles-left {
-  display: none; /* Hide left arrow when collapsed */
+  display: none; 
 }
 
-/* Sidebar Menu */
 .sidebar-menu {
   padding: 2rem;
   height: 100%;
@@ -156,7 +152,6 @@ body {
   overflow: hidden;
 }
 
-/* Sidebar Collapsed State */
 .sidebar.collapsed .sidebar-menu span, .sidebar.collapsed .sidebar-menu .sign-out span {
   display: none;
 } 
@@ -170,7 +165,6 @@ body {
   font-size: 2rem;
 }
 
-/* Sign out button styling */
 .sidebar-menu .sign-out {
   background: none;
   border: none;
@@ -181,7 +175,6 @@ body {
 }
 
 
-/* Main Content */
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-width);
@@ -196,7 +189,6 @@ body {
   width: calc(100% - var(--sidebar-collapsed-width));
 }
 
-/* Header */
 .header {
   display: flex;
   flex-wrap: wrap;
@@ -215,7 +207,6 @@ body {
   color: var(--text-color);
 }
 
-/* Search and Filter Container */
 .search-filter-sort {
   display: flex;
   flex-wrap: wrap;
@@ -249,7 +240,6 @@ body {
   color: var(--text-muted);
 }
 
-/* Leads Container */
 .leads-container {
   background-color: var(--card-background);
   border-radius: var(--card-border-radius);
@@ -275,14 +265,12 @@ body {
   color: var(--text-color);
 }
 
-/* Grid View */
 .lead-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
   gap: 2rem;
 }
 
-/* Stats Cards */
 .stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
@@ -290,13 +278,11 @@ body {
   margin-bottom: 3rem;
 }
 
-/* Mobile buttons - hidden by default */
 .mobile-settings-btn,
 .mobile-back-btn {
   display: none;
 }
 
-/* Submit button */
 #leadForm button[type="submit"] {
   margin: 2rem auto 1rem;
   padding: 1rem 2rem;
@@ -305,24 +291,24 @@ body {
 
 .leads-table th:nth-child(1),
 .leads-table td:nth-child(1) {
-  width: 30%; /* Name column - make it wider */
+  width: 30%; 
 }
 
 .leads-table th:nth-child(2),
 .leads-table td:nth-child(2) {
-  width: 30%; /* Business column - make it wider */
+  width: 30%; 
 }
 
 .leads-table th:nth-child(3),
 .leads-table td:nth-child(3) {
-  width: 20%; /* Last Contact column */
+  width: 20%; 
   white-space: nowrap;
   overflow: hidden;
 }
 
 .leads-table th:nth-child(4),
 .leads-table td:nth-child(4) {
-  width: 20%; /* Status column */
+  width: 20%;
   text-align: left;
   overflow-x: visible;
 }
@@ -362,7 +348,6 @@ body {
   cursor: pointer;
 }
 
-/* Visual date display */
 .date-display {
   position: absolute;
   left: 0;
@@ -379,18 +364,16 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Hide the default date format shown when not focused */
 .date-input-container input[type="date"]:not(:focus)::-webkit-datetime-edit {
   color: transparent;
   background-color: transparent;
 }
 
-/* Show the default date format when focused */
 .date-input-container input[type="date"]:focus::-webkit-datetime-edit {
   color: var(--input-text);
 }
 
-/* For Firefox and other browsers that don't support ::-webkit-datetime-edit */
+
 .date-input-container input[type="date"]:not(:focus) {
   color: transparent;
 }
@@ -399,12 +382,10 @@ body {
   color: var(--input-text);
 }
 
-/* Hide the display when input is focused */
 .date-input-container input[type="date"]:focus + .date-display {
   display: none;
 }
 
-/* Forms list in the lead modal */
 .forms-list {
   margin-bottom: 1rem;
 }
@@ -558,7 +539,7 @@ body {
 }
 
 .modal-tabs::-webkit-scrollbar {
-  display: none; /* WebKit */
+  display: none; 
 }
 
 .tab-content {
@@ -570,7 +551,7 @@ body {
 }
 
 .modal-tabs-dropdown {
-  display: none; /* Hidden by default, shown on mobile */
+  display: none; 
   position: relative;
   width: 100%;
   margin-bottom: 2rem;
@@ -668,7 +649,6 @@ body {
   opacity: 0;
 }
 
-/* Hide action buttons by default in read-only mode */
 .lead-modal-readonly .form-actions button,
 .lead-modal-readonly .payment-actions button {
   display: none;
@@ -687,20 +667,22 @@ body {
   display: none;
 }
 
-/* Show the messages only in edit mode */
+.lead-modal-readonly .website-link-container {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 .lead-modal-edit .no-payments-message,
 .lead-modal-edit .no-forms-message {
   display: block;
 }
 
-/* Show action buttons in edit mode */
 .lead-modal-edit .form-actions,
 .lead-modal-edit .payment-actions,
 .lead-modal-edit #addFormBtn {
   display: flex;
 }
 
-/* Buttons visible when the form is in edit mode */
 .lead-modal-edit .form-actions button,
 .lead-modal-edit .payment-actions button {
   opacity: 1;
@@ -837,7 +819,6 @@ body {
   border-radius: 5px;
 }
 
-/* Document preview modal */
 #documentPreviewModal .modal-content {
   width: 95%;
   height: 90%;
@@ -871,7 +852,7 @@ body {
 
 @media (max-width: 1080px) {
   .stats-cards {
-    grid-template-columns: 1fr 1fr; /* Two columns */
+    grid-template-columns: 1fr 1fr; 
   }
 }
 
@@ -911,7 +892,6 @@ body {
 }
 
 @media (max-width: 992px) {
-  /* Position header at top in mobile view */
   .header {
     flex-direction: column;
     align-items: flex-start;
@@ -934,14 +914,12 @@ body {
     width: 100%;
   }
 
-  /* Full width elements on mobile */
   .search-box,
   select,
   #addLeadBtn {
     width: 100%;
   }
 
-  /* Make sidebar collapsed by default on mobile */
   .sidebar {
     width: var(--sidebar-collapsed-width);
   }
@@ -952,7 +930,6 @@ body {
     overflow: hidden;
   }
 
-  /* Hide text elements in mobile sidebar */
   .sidebar-header h1,
   .sidebar-header p,
   .sidebar-menu span {
@@ -976,7 +953,6 @@ body {
     border-bottom: none;
   }
 
-  /* Adjust main content */
   .main-content {
     margin-left: var(--sidebar-collapsed-width);
     width: calc(100% - var(--sidebar-collapsed-width));
@@ -987,7 +963,6 @@ body {
     width: 100%;
   }
 
-  /* Hide sidebar completely when collapsed on mobile */
   .sidebar.collapsed + .main-content {
     width: 100%;
   }
@@ -1007,12 +982,10 @@ body {
     transition: left var(--transition-speed);
   }
 
-  /* Position when sidebar is visible */
   .sidebar:not(.collapsed) .sidebar-toggle {
     left: calc(var(--sidebar-collapsed-width) - 2rem);
   }
 
-  /* Position when sidebar is collapsed */
   .sidebar.collapsed .sidebar-toggle {
     top: 2rem;
   }
@@ -1042,14 +1015,13 @@ body {
     font-size: 1.3rem;
   }
 
-  /* Make status badges more compact */
   .lead-status {
     padding: 0.4rem 0.8rem;
     font-size: 1.1rem;
   }
 
   .stats-cards {
-    grid-template-columns: 1fr 1fr; /* Two columns */
+    grid-template-columns: 1fr 1fr;
   }
 
   .modal-tabs {
@@ -1106,12 +1078,12 @@ body {
 
   .leads-table th:nth-child(2),
   .leads-table td:nth-child(2) {
-    width: 35%; /* Business column */
+    width: 35%; 
   }
 
   .leads-table th:nth-child(4),
   .leads-table td:nth-child(4) {
-    width: 25%; /* Status column */
+    width: 25%; 
     padding-right: 1rem;
   }
 
@@ -1169,12 +1141,10 @@ body {
     display: block;
   }
 
-  /* Adjust tab content for mobile */
   .tab-content {
     padding: 0 0.5rem;
   }
 
-  /* Make form groups stack on mobile */
   .form-row {
     flex-direction: column;
     gap: 1rem;
@@ -1194,9 +1164,6 @@ body {
     padding-inline: 1rem;
   }
 
-  /* .leads-container {
-    padding: 0;
-  } */
 
   .stats-cards {
     grid-template-columns: 1fr;
@@ -1240,7 +1207,6 @@ body {
   }
 }
 
-/* Print Styles */
 @media print {
   .sidebar,
   .search-filter-sort,
@@ -1267,11 +1233,4 @@ body {
     border: 0.1rem solid #ddd;
     box-shadow: none;
   }
-}
-
-
-/* Style for read-only mode */
-.lead-modal-readonly .website-link-container {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
 }

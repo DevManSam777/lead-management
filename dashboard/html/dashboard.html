@@ -31,11 +31,9 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // User is not authenticated - replace history state to prevent back button access
           window.history.replaceState(null, "", "/login");
           window.location.href = "/login";
         } else {
-          // User is authenticated, show content
           document.body.style.display = "block";
         }
       });
@@ -47,7 +45,6 @@
           signOut(auth)
             .then(() => {
               console.log("User signed out.");
-              // Replace state to prevent back navigation to dashboard
               window.history.replaceState(null, "", "/login");
               window.location.href = "/login";
             })
@@ -66,28 +63,21 @@
     </style>
     <script>
       (function () {
-        // Check for saved theme preference
         const savedTheme = localStorage.getItem("theme");
 
         if (savedTheme) {
-          // User has a saved preference
           document.documentElement.setAttribute("data-theme", savedTheme);
         } else {
-          // No saved preference, use system preference
           const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
             .matches
             ? "dark"
             : "light";
           document.documentElement.setAttribute("data-theme", systemTheme);
-
-          // Save the detected preference for consistency
           localStorage.setItem("theme", systemTheme);
         }
 
-        // Listen for system theme changes
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-        // Watch for changes in system preference only if no saved preference exists
         function handleSystemThemeChange(e) {
           if (!localStorage.getItem("theme")) {
             const newTheme = e.matches ? "dark" : "light";
@@ -96,20 +86,15 @@
           }
         }
 
-        // Add listener for system theme changes
         mediaQuery.addListener(handleSystemThemeChange);
 
-        // For modern browsers, use addEventListener
         if (mediaQuery.addEventListener) {
           mediaQuery.addEventListener("change", handleSystemThemeChange);
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-          // Get references to sidebar and main content
           const sidebar = document.querySelector(".sidebar");
           const mainContent = document.querySelector(".main-content");
-
-          // Set initial state based on localStorage
           const isSidebarCollapsed =
             localStorage.getItem("sidebarCollapsed") === "true";
 
@@ -120,10 +105,7 @@
             sidebar.classList.remove("collapsed");
             mainContent.classList.remove("expanded");
           }
-
-          // Give a short delay to ensure all layout calculations are done
           setTimeout(function () {
-            // Make sidebar and content visible
             sidebar.style.opacity = "1";
             mainContent.style.opacity = "1";
           }, 300);
@@ -346,7 +328,7 @@
           <div class="lead-cards" id="leadCards">
             <!-- Lead cards will be generated here -->
           </div>
-          <!-- Table View - Modified to include Last Contact column -->
+          <!-- Table View -->
           <table class="leads-table" id="leadsTable" style="display: none">
             <thead>
               <tr>
@@ -363,7 +345,7 @@
         </div>
       </main>
     </div>
-    <!-- Lead Modal - Consolidated version -->
+    <!-- Lead Modal -->
     <div id="leadModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" id="closeModal" title="Close">&times;</span>
@@ -371,10 +353,8 @@
           <h3 id="modalTitle">Client Info</h3>
         </div>
 
-        <!-- Modal action buttons will be inserted here by JS -->
+        <!-- Modal action buttons inserted here by JS -->
         <div id="modalActions" class="modal-actions"></div>
-
-        <!-- Modal Tabs -->
         <div class="modal-tabs">
           <button class="modal-tab active" data-tab="personal" title="Personal">
             <i class="fas fa-user"></i>
@@ -410,7 +390,6 @@
           <input type="hidden" id="leadId" />
           <!-- Personal Info Tab -->
           <div class="tab-content active" id="personal-tab">
-            <!-- Personal Information Section -->
             <div class="form-section">
               <h4>Personal Information</h4>
               <div class="form-group">
@@ -724,7 +703,6 @@
         </form>
       </div>
     </div>
-    <!-- Load scripts in sequence -->
     <script type="module" src="/dashboard/js/utils.js"></script>
     <script type="module" src="/dashboard/js/api.js"></script>
     <script type="module" src="/dashboard/js/ui.js"></script>

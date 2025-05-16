@@ -31,11 +31,9 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // User is not authenticated - replace history state to prevent back button access
           window.history.replaceState(null, "", "/login");
           window.location.href = "/login";
         } else {
-          // User is authenticated, show content
           document.body.style.display = "block";
         }
       });
@@ -47,7 +45,6 @@
           signOut(auth)
             .then(() => {
               console.log("User signed out.");
-              // Replace state to prevent back navigation to dashboard
               window.history.replaceState(null, "", "/login");
               window.location.href = "/login";
             })
@@ -66,28 +63,22 @@
     </style>
     <script>
       (function () {
-        // Check for saved theme preference
         const savedTheme = localStorage.getItem("theme");
 
         if (savedTheme) {
-          // User has a saved preference
           document.documentElement.setAttribute("data-theme", savedTheme);
         } else {
-          // No saved preference, use system preference
           const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
             .matches
             ? "dark"
             : "light";
           document.documentElement.setAttribute("data-theme", systemTheme);
 
-          // Save the detected preference for consistency
           localStorage.setItem("theme", systemTheme);
         }
 
-        // Listen for system theme changes
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-        // Watch for changes in system preference only if no saved preference exists
         function handleSystemThemeChange(e) {
           if (!localStorage.getItem("theme")) {
             const newTheme = e.matches ? "dark" : "light";
@@ -96,20 +87,16 @@
           }
         }
 
-        // Add listener for system theme changes
         mediaQuery.addListener(handleSystemThemeChange);
 
-        // For modern browsers, use addEventListener
         if (mediaQuery.addEventListener) {
           mediaQuery.addEventListener("change", handleSystemThemeChange);
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-          // Get references to sidebar and main content
           const sidebar = document.querySelector(".sidebar");
           const mainContent = document.querySelector(".main-content");
 
-          // Set initial state based on localStorage
           const isSidebarCollapsed =
             localStorage.getItem("sidebarCollapsed") === "true";
 
@@ -121,9 +108,7 @@
             mainContent.classList.remove("expanded");
           }
 
-          // Give a short delay to ensure all layout calculations are done
           setTimeout(function () {
-            // Make sidebar and content visible
             sidebar.style.opacity = "1";
             mainContent.style.opacity = "1";
           }, 300);
@@ -511,7 +496,7 @@
             </div>
           </div>
 
-          <!-- Website Section - Updated to show both URL and link button -->
+          <!-- Website Section -->
           <div class="form-section">
             <div class="form-group">
               <label>Website</label>
@@ -588,31 +573,9 @@
         </div>
       </div>
     </div>
-
-    <!-- Comment out this entire div if you are not using scraper-->
-    <!-- <div id="scraperModal" class="modal">
-      <div class="modal-content scraper-modal-content">
-        <span class="close-modal" id="closeScraperModal">&times;</span>
-        <div class="modal-header">
-          <h3>Yellow Pages Scraper</h3>
-        </div>
-        <div class="scraper-container"> -->
-    <!--Change the src to the src of your deployed dockerized scraper-->
-    <!-- <iframe
-            id="scraperIframe"
-            src="https://yp-scraper.onrender.com/login"
-            frameborder="0"
-          ></iframe>
-        </div>
-      </div>
-    </div> -->
-
-    <!-- Toast Notification -->
     <div class="toast" id="toast">
       <p id="toastMessage"></p>
     </div>
-
-    <!-- Load scripts -->
     <script type="module" src="/dashboard/js/utils.js"></script>
     <script type="module" src="/dashboard/js/api.js"></script>
     <script type="module" src="/dashboard/js/hitlists.js"></script>

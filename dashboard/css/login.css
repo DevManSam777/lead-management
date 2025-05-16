@@ -207,7 +207,7 @@ body {
   }
 }
 
-/* Modal styles for password reset */
+
 .modal {
   display: none;
   position: fixed;
@@ -259,7 +259,6 @@ body {
   line-height: 1.5;
 }
 
-/* Email display for reset confirmation */
 .email-display {
   display: flex;
   align-items: center;

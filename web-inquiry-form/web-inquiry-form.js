@@ -1,4 +1,3 @@
-// web-inquiry-form.js
 class WebInquiryForm extends HTMLElement {
   constructor() {
     super();
@@ -1180,7 +1179,7 @@ class WebInquiryForm extends HTMLElement {
     this.dispatchEvent(submitEvent);
     
     try {
-      // Default API endpoint - can be customized via attribute
+      // Default API endpoint, can be customized via attribute
       const apiUrl = this.getAttribute('api-url') || 'http://localhost:5000/api/leads';
       
       const response = await fetch(apiUrl, {

@@ -31,11 +31,9 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // User is not authenticated - replace history state to prevent back button access
           window.history.replaceState(null, "", "/login");
           window.location.href = "/login";
         } else {
-          // User is authenticated, show content
           document.body.style.display = "block";
         }
       });
@@ -47,7 +45,6 @@
           signOut(auth)
             .then(() => {
               console.log("User signed out.");
-              // Replace state to prevent back navigation to dashboard
               window.history.replaceState(null, "", "/login");
               window.location.href = "/login";
             })
@@ -66,28 +63,20 @@
     </style>
     <script>
       (function () {
-        // Check for saved theme preference
         const savedTheme = localStorage.getItem("theme");
 
         if (savedTheme) {
-          // User has a saved preference
           document.documentElement.setAttribute("data-theme", savedTheme);
         } else {
-          // No saved preference, use system preference
           const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
             .matches
             ? "dark"
             : "light";
           document.documentElement.setAttribute("data-theme", systemTheme);
-
-          // Save the detected preference for consistency
           localStorage.setItem("theme", systemTheme);
         }
-
-        // Listen for system theme changes
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-        // Watch for changes in system preference only if no saved preference exists
         function handleSystemThemeChange(e) {
           if (!localStorage.getItem("theme")) {
             const newTheme = e.matches ? "dark" : "light";
@@ -96,20 +85,15 @@
           }
         }
 
-        // Add listener for system theme changes
         mediaQuery.addListener(handleSystemThemeChange);
 
-        // For modern browsers, use addEventListener
         if (mediaQuery.addEventListener) {
           mediaQuery.addEventListener("change", handleSystemThemeChange);
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-          // Get references to sidebar and main content
           const sidebar = document.querySelector(".sidebar");
           const mainContent = document.querySelector(".main-content");
-
-          // Set initial state based on localStorage
           const isSidebarCollapsed =
             localStorage.getItem("sidebarCollapsed") === "true";
 
@@ -121,9 +105,7 @@
             mainContent.classList.remove("expanded");
           }
 
-          // Give a short delay to ensure all layout calculations are done
           setTimeout(function () {
-            // Make sidebar and content visible
             sidebar.style.opacity = "1";
             mainContent.style.opacity = "1";
           }, 300);
@@ -134,7 +116,6 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
-    <!-- Include basic styles -->
     <link
       rel="icon"
       href="https://img.icons8.com/?size=100&id=8302&format=png&color=4361ee"
@@ -145,11 +126,11 @@
     <link rel="stylesheet" href="/dashboard/css/pagination.css" />
     <link rel="stylesheet" href="/dashboard/css/forms.css" />
 
-    <!-- Include markdown libraries -->
+    <!-- markdown libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.4/dist/purify.min.js"></script>
 
-    <!-- Include CodeMirror for the Markdown editor -->
+    <!-- CodeMirror for the Markdown editor -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/lib/codemirror.css"
@@ -233,7 +214,6 @@
               <option value="agreement">Agreements</option>
               <option value="other">Other</option>
             </select>
-            <!-- Updated filter with template/draft options -->
             <select id="filterTemplate">
               <option value="template" selected>Templates</option>
               <option value="draft">Drafts</option>
@@ -530,13 +510,9 @@
         </div>
       </div>
     </div>
-
-    <!-- Toast Notification -->
     <div class="toast" id="toast">
       <p id="toastMessage"></p>
     </div>
-
-    <!-- Load scripts in sequence -->
     <script type="module" src="/dashboard/js/utils.js"></script>
     <script type="module" src="/dashboard/js/api.js"></script>
     <script type="module" src="/dashboard/js/pagination.js"></script>

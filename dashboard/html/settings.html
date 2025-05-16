@@ -31,11 +31,9 @@
 
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // User is not authenticated - replace history state to prevent back button access
           window.history.replaceState(null, "", "/login");
           window.location.href = "/login";
         } else {
-          // User is authenticated, show content
           document.body.style.display = "block";
         }
       });
@@ -46,7 +44,6 @@
           signOut(auth)
             .then(() => {
               console.log("User signed out.");
-              // Replace state to prevent back navigation to dashboard
               window.history.replaceState(null, "", "/login");
               window.location.href = "/login";
             })
@@ -65,28 +62,22 @@
     </style>
     <script>
       (function () {
-        // Check for saved theme preference
         const savedTheme = localStorage.getItem("theme");
 
         if (savedTheme) {
-          // User has a saved preference
           document.documentElement.setAttribute("data-theme", savedTheme);
         } else {
-          // No saved preference, use system preference
           const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
             .matches
             ? "dark"
             : "light";
           document.documentElement.setAttribute("data-theme", systemTheme);
 
-          // Save the detected preference for consistency
           localStorage.setItem("theme", systemTheme);
         }
 
-        // Listen for system theme changes
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-        // Watch for changes in system preference only if no saved preference exists
         function handleSystemThemeChange(e) {
           if (!localStorage.getItem("theme")) {
             const newTheme = e.matches ? "dark" : "light";
@@ -95,20 +86,16 @@
           }
         }
 
-        // Add listener for system theme changes
         mediaQuery.addListener(handleSystemThemeChange);
 
-        // For modern browsers, use addEventListener
         if (mediaQuery.addEventListener) {
           mediaQuery.addEventListener("change", handleSystemThemeChange);
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-          // Get references to sidebar and main content
           const sidebar = document.querySelector(".sidebar");
           const mainContent = document.querySelector(".main-content");
 
-          // Set initial state based on localStorage
           const isSidebarCollapsed =
             localStorage.getItem("sidebarCollapsed") === "true";
 
@@ -120,9 +107,7 @@
             mainContent.classList.remove("expanded");
           }
 
-          // Give a short delay to ensure all layout calculations are done
           setTimeout(function () {
-            // Make sidebar and content visible
             sidebar.style.opacity = "1";
             mainContent.style.opacity = "1";
           }, 300);
@@ -196,13 +181,10 @@
           </ul>
         </div>
       </aside>
-
-      <!-- Rest of the settings page remains the same -->
       <main class="main-content">
         <header class="header">
           <h2>Settings</h2>
         </header>
-
         <!-- Settings Container -->
         <div class="settings-container">
           <div class="settings-card">
@@ -219,7 +201,6 @@
               </div>
             </div>
           </div>
-
           <div class="settings-card">
             <h3>Date Format Settings</h3>
             <div class="settings-option">
@@ -255,14 +236,8 @@
         </div>
       </main>
     </div>
-
-    <!-- Load utils first -->
     <script type="module" src="/dashboard/js/utils.js"></script>
-
-    <!-- Then load API -->
     <script type="module" src="/dashboard/js/api.js"></script>
-
-    <!-- Then load settings -->
     <script type="module" src="/dashboard/js/settings.js"></script>
     <script type="module" src="/dashboard/js/authApi.js"></script>
   </body>

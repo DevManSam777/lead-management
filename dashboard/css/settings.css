@@ -32,7 +32,6 @@
   font-size: 1.5rem;
 }
 
-/* Theme Toggle Button */
 .theme-toggle {
   display: none;
   position: absolute;
@@ -64,7 +63,6 @@
   font-weight: 500;
 }
 
-/* Theme Segmented Control */
 .theme-segmented-control {
   display: flex;
   background-color: var(--background-color);
@@ -111,7 +109,7 @@
   background-color: rgba(255, 255, 255, 0.05); 
 }
 
-/* Date format segmented control based on theme segmented control */
+
 .date-format-segmented-control {
   display: flex;
   background-color: var(--background-color);
@@ -205,9 +203,7 @@
     border-left: none;
     border-right: none;
   }
-}
 
-@media (max-width: 600px) {
   .theme-segmented-control,
   .date-format-segmented-control {
     width: 100%;
