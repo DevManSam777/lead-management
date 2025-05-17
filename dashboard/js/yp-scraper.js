@@ -1,5 +1,4 @@
 class YPScraperComponent extends HTMLElement {
-  // Specify observed attributes to react to attribute changes
   static get observedAttributes() {
     return ["src"];
   }
@@ -7,7 +6,7 @@ class YPScraperComponent extends HTMLElement {
   constructor() {
     super();
 
-    // Create a shadow DOM
+    // create a shadow DOM
     this.attachShadow({ mode: "open" });
 
     // No default src, must be provided as an attribute
@@ -137,9 +136,17 @@ class YPScraperComponent extends HTMLElement {
     // HTML template for the component
     this.shadowRoot.innerHTML = `
         <style>
+          /* Import Nunito Sans font */
+          @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200..1000;1,200..1000&display=swap');
+          
           :host {
             display: inline-block;
             box-sizing: border-box;
+          }
+          
+          /* Base font styles */
+          * {
+            font-family: "Nunito Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
           }
           
           /* Button styling */
@@ -154,6 +161,8 @@ class YPScraperComponent extends HTMLElement {
             gap: 0.5rem;
             transition: background-color 0.2s ease;
             box-sizing: border-box;
+            font-family: "Nunito Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 500;
           }
           
           /* Search icon SVG */
@@ -186,6 +195,7 @@ class YPScraperComponent extends HTMLElement {
             display: flex;
             flex-direction: column;
             position: relative;
+            font-family: "Nunito Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
           }
           
           .close-modal {
@@ -200,6 +210,7 @@ class YPScraperComponent extends HTMLElement {
             line-height: 1;
             opacity: 0.8;
             transition: opacity 0.2s;
+            font-family: "Nunito Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
           }
           
           .close-modal:hover {
@@ -236,9 +247,9 @@ class YPScraperComponent extends HTMLElement {
 
           @media (max-width: 576px) {
             .yp-button {
-            font-size: 1.3rem;
+              font-size: 1.3rem;
+            }
           }
-        }
 
           @media (max-width: 480px) {
             .modal-content {
