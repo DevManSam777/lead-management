@@ -31,12 +31,33 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
   flex: 1;
+  padding: 2rem;
 }
 
 .hitlists-list::after {
   content: "";
   grid-column: 1 / -1;
   height: 0;
+}
+
+.hitlists-container {
+  padding: 0;
+}
+
+.hitlists-header > h3 {
+  background-color: var(--primary);
+  border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
+  padding: 1.5rem 2rem;
+  margin: 0;
+  font-size: 1.8rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.hitlists-header i {
+  margin-right: 1rem;
 }
 
 .hitlist-card {
@@ -365,16 +386,14 @@
   font-style: italic;
 }
 
-
 .pagination {
   margin-top: 1rem;
   padding: 1rem 0;
 }
 
-
 .hitlists-container .pagination {
   margin-top: auto;
-  padding: 1rem 2rem;
+  padding: 0 2rem 2.5rem;
   background-color: var(--card-background);
   border-radius: 0 0 var(--card-border-radius) var(--card-border-radius);
   width: 100%;
@@ -414,7 +433,6 @@
   outline: none;
   border-color: var(--input-focus);
 }
-
 
 .hitlist-modal-content .hitlist-description {
   white-space: pre-wrap;
@@ -568,8 +586,12 @@
     grid-template-columns: 1fr;
   }
 
-  .hitlists-container {
+  /* .hitlists-container {
     padding-inline: 1rem;
+  } */
+
+  .hitlists-list {
+    padding: 2rem 1rem 1rem;
   }
 }
 

@@ -277,6 +277,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
   gap: 2rem;
+  padding-inline: 2rem;
 }
 
 .stats-cards {
@@ -326,9 +327,14 @@ body {
   width: 100%;
 }
 
-.leads-table td {
+.leads-table td,
+.leads-table th {
   padding: 1.2rem 1rem;
   overflow: hidden;
+}
+
+.leads-table th {
+  font-size: 1.8rem;
 }
 
 .date-input-container {
@@ -855,6 +861,25 @@ body {
   font-family: "Zen Dots";
 }
 
+.leads-container {
+  padding: 0;
+}
+
+.leads-header h3 i {
+  margin-right: 1rem;
+}
+
+.leads-header h3 {
+  padding: 1.5rem 2rem;
+  margin: 0;
+  font-size: 1.8rem;
+  background-color: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 @media (max-width: 1200px) {
   .lead-cards {
     grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
@@ -1025,9 +1050,6 @@ body {
     padding: 0.8rem 0.5rem;
   }
 
-  .leads-table th {
-    font-size: 1.3rem;
-  }
 
   .lead-status {
     padding: 0.4rem 0.8rem;
@@ -1182,9 +1204,13 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .leads-header h3 {
-    padding: 2rem 0 0 2rem;
+  .lead-cards {
+    padding-inline: 1rem;
   }
+
+  /* .leads-header h3 {
+    padding: 2rem 0 0 2rem;
+  } */
 
   #lead-modal-form-actions {
     flex-direction: column;

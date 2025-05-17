@@ -103,7 +103,7 @@
   position: relative;
   padding: 5rem 2rem 2rem;
   box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.5);
-  border-top: 0.3rem solid var(--primary);
+  border-top: 0.5rem solid var(--primary);
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -379,7 +379,7 @@ select,
 }
 
 .map-text {
-  text-decoration: underline; 
+  text-decoration: underline;
 }
 
 .business-map-link,
@@ -436,8 +436,8 @@ select,
 }
 
 .markdown-content {
-  white-space: pre-wrap; 
-  word-wrap: break-word; 
+  white-space: pre-wrap;
+  word-wrap: break-word;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -650,7 +650,6 @@ details[open] .stats-cards {
   width: 100%;
 }
 
-
 .leads-table {
   width: 100%;
   table-layout: fixed;
@@ -725,7 +724,6 @@ details[open] .stats-cards {
   color: var(--danger);
 }
 
-
 .toast {
   display: none;
   position: fixed;
@@ -798,7 +796,6 @@ details[open] .stats-cards {
   font-size: 1.2rem;
   color: var(--text-muted);
 }
-
 
 .payment-notes {
   font-style: oblique;
@@ -981,7 +978,6 @@ details[open] .stats-cards {
   font-size: 2rem;
   color: var(--primary);
 }
-
 
 .loading-indicator.hidden {
   display: none;
