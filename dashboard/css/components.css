@@ -103,6 +103,7 @@
   position: relative;
   padding: 5rem 2rem 2rem;
   box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.5);
+  border: 0.1rem solid var(--border-color);
   border-top: 0.5rem solid var(--primary);
   transition: all 0.2s ease;
   display: flex;
