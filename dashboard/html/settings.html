@@ -107,9 +107,14 @@
             mainContent.classList.remove("expanded");
           }
 
+          // Run sidebar toggle setup (settings.js will also run it, but this ensures fade-in)
+          if (typeof setupSidebarToggle === "function") {
+            setupSidebarToggle();
+          }
+          // Fade in after sidebar state is set
           setTimeout(function () {
-            sidebar.style.opacity = "1";
-            mainContent.style.opacity = "1";
+            if (sidebar) sidebar.style.opacity = "1";
+            if (mainContent) mainContent.style.opacity = "1";
           }, 300);
         });
       })();

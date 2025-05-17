@@ -129,6 +129,10 @@ function setupSidebarToggle() {
   // Force DOM reflow to apply changes before transitions are re-enabled
   void sidebar.offsetWidth;
 
+  // Restore transitions
+  sidebar.style.transition = originalSidebarTransition;
+  mainContent.style.transition = originalMainContentTransition;
+
   // Remove any existing toggle button to avoid duplicates
   const existingButton = document.querySelector(".sidebar-toggle");
   if (existingButton) {
@@ -139,21 +143,14 @@ function setupSidebarToggle() {
   const toggleButton = document.createElement("button");
   toggleButton.className = "sidebar-toggle";
   toggleButton.setAttribute("aria-label", "Toggle Sidebar");
-
-  // Include both icons - CSS will handle which one is visible
   toggleButton.innerHTML =
     '<i class="fas fa-angles-left"></i><i class="fas fa-angles-right"></i>';
-
-  // Add the button to the sidebar
   sidebar.appendChild(toggleButton);
 
   // Add click event to toggle button
   toggleButton.addEventListener("click", function () {
-    // Toggle sidebar classes
     sidebar.classList.toggle("collapsed");
     mainContent.classList.toggle("expanded");
-
-    // Store user preference
     localStorage.setItem(
       "sidebarCollapsed",
       sidebar.classList.contains("collapsed")
