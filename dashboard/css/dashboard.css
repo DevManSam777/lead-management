@@ -798,11 +798,15 @@ body {
 }
 
 .upload-message i {
-  position: relative;
   top: 0.33rem;
   right: 0.5rem;
   font-size: 3rem;
   margin-bottom: 1rem;
+}
+
+.upload-message i.fa-file-pdf {
+  color: var(--danger);
+  opacity: 0.5;
 }
 
 .upload-message p {
@@ -814,12 +818,12 @@ body {
   position: relative;
   margin-top: 1rem;
   font-size: 1.4rem;
-  border: 0.1rem solid var(--primary);
+  border: 0.1rem solid var(--danger);
   transform: all var(--transition-speed) ease;
 }
 
 .upload-message button:hover {
-  background-color: var(--primary);
+  background-color: var(--danger);
   color: rgba(255, 255, 255, 1);
 }
 
@@ -1049,7 +1053,6 @@ body {
     font-size: 1.4rem;
     padding: 0.8rem 0.5rem;
   }
-
 
   .lead-status {
     padding: 0.4rem 0.8rem;
