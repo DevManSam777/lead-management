@@ -417,7 +417,7 @@ Signed by {{fullName}}, {{currentDate}}  `,
   
   ## Prepared for {{businessName}}
   
-  **Prepared by:** Your Name
+  **Prepared by:** [Developer]
   **Date:** {{currentDate}}
   
   Dear {{fullName}},
@@ -545,11 +545,11 @@ Signed by {{fullName}}, {{currentDate}}  `,
     description: "Agreement for ongoing website maintenance services",
     content: `# Website Maintenance Agreement
   
-  ## Between {{businessName}} and {{fullName}}
+  ## Between [Developer] and {{businessName}}
   
   **Date:** {{currentDate}}
   
-  This Website Maintenance Agreement is made between {{businessName}} ("Client") and {{fullName}} ("Provider").
+  This Website Maintenance Agreement is made between [Developer] ("Developer") and {{businessName}} ("Client").
   
   ### 1. Services
   
@@ -557,7 +557,7 @@ Signed by {{fullName}}, {{currentDate}}  `,
   
   - Regular website updates and content changes
   - Security monitoring and updates
-  - Performance optimization
+  - Search engine optimization
   - Backup management
   - Technical support
   
@@ -584,10 +584,10 @@ Signed by {{fullName}}, {{currentDate}}  `,
   ### Signatures
   
   ________________________
-  {{fullName}}, Client
+  {{fullName}}, {{businessName}}, Client
   
   ________________________
-  Provider
+  [Developer]
   
   `,
     category: "agreement",
@@ -603,15 +603,201 @@ Signed by {{fullName}}, {{currentDate}}  `,
     ],
   },
   {
-    title: "Test",
-    description: "test for other category",
-    content: `# Test
-    
-{{currentDate}}`,
-    category: "other",
-    isTemplate: true,
-    variables: ["currentDate"],
-  },
+  title: "Markdown & Variables Guide for Forms",
+  description: "Learn how to create and edit your own custom forms with markdown and variables",
+  content: `# 📝 Form Template Guide
+
+## Welcome to the Form Builder!
+
+> This template is designed to help you learn how to create and customize your own forms. Feel free to edit this template or use it as a reference when creating new forms.
+
+Current date: {{currentDate}}
+
+Hello {{fullName}}, welcome to your guide on creating custom forms for {{businessName}}!
+
+---
+
+## 🔄 Using Variables
+
+Variables allow you to automatically insert client data into your forms. Here are some common variables you can use:
+
+### Client Personal Info
+- **{{firstName}}** - Client's first name
+- **{{lastName}}** - Client's last name
+- **{{fullName}}** - Client's full name
+- **{{email}}** - Client's personal email
+- **{{phone}}** - Client's phone number
+
+### Business Info
+- **{{businessName}}** - Business name
+- **{{businessEmail}}** - Business email
+- **{{businessPhone}}** - Business phone
+- **{{billingAddress}}** - Complete billing address
+
+### Project Info
+- **{{serviceDesired}}** - Requested service
+- **{{estimatedBudget}}** - Client's estimated budget
+- **{{billedAmount}}** - Amount billed to client
+- **{{paidAmount}}** - Amount client has paid
+- **{{remainingBalance}}** - Remaining balance to be paid
+
+### Dates
+- **{{currentDate}}** - Current date when form is generated
+- **{{createdAt}}** - Date the client was created in system
+
+---
+
+## 📝 Markdown Formatting Guide
+
+### Basic Text Formatting
+
+This is **bold text** and this is *italic text*.
+You can also use __bold__ and _italic_ with underscores.
+To ~~strikethrough~~ text, use tildes.
+
+### Headings
+
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+
+### Lists
+
+Unordered lists:
+* Item 1
+* Item 2
+  * Nested item
+  * Another nested item
+* Item 3
+
+Ordered lists:
+1. First item
+2. Second item
+3. Third item
+
+### Links
+
+[Visit Markdown Guide](https://www.markdownguide.org)
+
+### Images
+
+![Alt text for an image](https://example.com/image.jpg)
+
+### Blockquotes
+
+> This is a blockquote.
+> It can span multiple lines.
+>
+> And even multiple paragraphs.
+
+### Code
+
+Inline \`code\` can be included with backticks.
+
+For code blocks, use triple backticks:
+
+\`\`\`
+function exampleCode() {
+  return "Hello world!";
+}
+\`\`\`
+
+### Tables
+
+| Name | Email | Phone |
+|------|-------|-------|
+| {{firstName}} | {{email}} | {{phone}} |
+| Contact 2 | email2@example.com | 555-5678 |
+
+### Horizontal Rule
+
+Use three hyphens, asterisks, or underscores to create a horizontal rule:
+
+---
+
+## 🌐 HTML in Markdown
+
+You can also use HTML for more advanced formatting:
+
+<div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+  <h3 style="color: #4361ee;">Custom Styled Box</h3>
+  <p>This box uses HTML and inline CSS for custom styling.</p>
+</div>
+
+<table style="width:100%; border-collapse: collapse;">
+  <tr style="background-color: #4361ee; color: white;">
+    <th style="border: 1px solid black; padding: 10px;">Header 1</th>
+    <th style="border: 1px solid black; padding: 10px;">Header 2</th>
+  </tr>
+  <tr>
+    <td style="border: 1px solid black; padding: 10px;">Cell 1</td>
+    <td style="border: 1px solid black; padding: 10px;">Cell 2</td>
+  </tr>
+</table>
+
+## 📊 Adding a Signature Box
+
+<table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+  <tr>
+    <td style="border: 1px solid black; padding: 10px; width: 50%;">
+      <strong>Client Signature</strong><br><br><br>
+      ____________________________<br>
+      {{fullName}}<br>
+      {{businessName}}
+    </td>
+    <td style="border: 1px solid black; padding: 10px; width: 50%;">
+      <strong>Provider Signature</strong><br><br><br>
+      ____________________________<br>
+      Your Name<br>
+      Your Business
+    </td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid black; padding: 10px;">
+      <strong>Date:</strong> _________________
+    </td>
+    <td style="border: 1px solid black; padding: 10px;">
+      <strong>Date:</strong> _________________
+    </td>
+  </tr>
+</table>
+
+---
+
+## 📚 Additional Resources
+
+* [Markdown Guide](https://www.markdownguide.org) - Comprehensive markdown reference
+* [GitHub Markdown](https://guides.github.com/features/mastering-markdown/) - GitHub's markdown guide
+* [HTML in Markdown](https://www.markdownguide.org/basic-syntax/#html) - Using HTML within markdown
+
+---
+
+**Remember:** When creating templates, focus on clear organization, professional language, and consistency in formatting. You can edit this template by clicking the "Edit" button in the form preview screen.
+
+Happy form creating!`,
+  category: "other",
+  isTemplate: true,
+  variables: [
+    "firstName",
+    "lastName",
+    "fullName",
+    "email",
+    "phone",
+    "businessName",
+    "businessEmail",
+    "businessPhone",
+    "billingAddress",
+    "preferredContact",
+    "serviceDesired",
+    "estimatedBudget",
+    "billedAmount",
+    "paidAmount",
+    "remainingBalance",
+    "currentDate",
+    "createdAt"
+  ],
+}
 ];
 
 module.exports = formSeeds;
