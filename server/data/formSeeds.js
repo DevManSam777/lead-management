@@ -520,13 +520,13 @@ Signed by {{fullName}}, {{currentDate}}  `,
 
 ### Contact Information
 
-{{businessName}}  
-{{businessEmail}}  
-{{businessPhone}}
+[Your Company Name]  
+[Your Company Email]  
+[Your Company Phone] 
 
 ### Billing Address
 
-{{billingAddress}}
+[Your Company Mailing Address]
 
 ---`,
     category: "invoice",
