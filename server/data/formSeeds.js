@@ -523,9 +523,6 @@ Signed by {{fullName}}, {{currentDate}}  `,
 [Your Company Name]  
 [Your Company Email]  
 [Your Company Phone] 
-
-### Billing Address
-
 [Your Company Mailing Address]
 
 ---`,
