@@ -427,6 +427,9 @@ async function fetchAndRenderForms() {
     // Create a container for all categories
     const allCategoriesContainer = document.createElement("div");
 
+    // Define the desired category order
+    const categoryOrder = ["proposal", "contract", "agreement", "invoice", "other"];
+
     // Initialize pagination for each category with custom page sizes
     const categoryPageSizes = {
       'drafts': 12,  // Sets number of drafts per category
@@ -440,8 +443,15 @@ async function fetchAndRenderForms() {
       }
     });
 
-    // Process each category
-    Object.entries(groupedForms).forEach(([category, forms]) => {
+    // Process each category in the specified order
+    categoryOrder.forEach((category) => {
+      // Skip if there are no forms in this category
+      if (!groupedForms[category] || groupedForms[category].length === 0) {
+        return;
+      }
+
+      const forms = groupedForms[category];
+
       // Create category container
       const categoryDiv = document.createElement("div");
       categoryDiv.className = "forms-category";
@@ -521,6 +531,161 @@ async function fetchAndRenderForms() {
       categoryDiv.appendChild(cardsDiv);
 
       // Only show pagination if total forms exceed page size
+      if (totalItems > pageSize) {
+        const paginationContainer = document.createElement("div");
+        paginationContainer.className = "pagination";
+        paginationContainer.style.margin = "0 0 1rem";
+
+        // Previous button
+        const prevButton = document.createElement("button");
+        prevButton.className = "pagination-button";
+        prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevButton.disabled = categoryPagination[category].currentPage === 1;
+        prevButton.addEventListener("click", () => {
+          if (categoryPagination[category].currentPage > 1) {
+            categoryPagination[category].currentPage--;
+            fetchAndRenderForms();
+          }
+        });
+        paginationContainer.appendChild(prevButton);
+
+        // Determine start and end pages to show
+        let startPage = categoryPagination[category].currentPage - 1;
+        let endPage = categoryPagination[category].currentPage + 1;
+
+        // Adjust start and end pages to always show 3 pages
+        if (startPage < 1) {
+          startPage = 1;
+          endPage = Math.min(3, totalPages);
+        }
+        
+        if (endPage > totalPages) {
+          endPage = totalPages;
+          startPage = Math.max(1, totalPages - 2);
+        }
+
+        // Add page number buttons
+        for (let i = startPage; i <= endPage; i++) {
+          const pageButton = document.createElement("button");
+          pageButton.className = "pagination-button";
+          if (i === categoryPagination[category].currentPage) {
+            pageButton.classList.add("active");
+          }
+          pageButton.textContent = i;
+          pageButton.addEventListener("click", () => {
+            categoryPagination[category].currentPage = i;
+            fetchAndRenderForms();
+          });
+          paginationContainer.appendChild(pageButton);
+        }
+
+        // Next button
+        const nextButton = document.createElement("button");
+        nextButton.className = "pagination-button";
+        nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextButton.disabled = 
+          categoryPagination[category].currentPage === totalPages || 
+          totalPages === 0;
+        nextButton.addEventListener("click", () => {
+          if (categoryPagination[category].currentPage < totalPages) {
+            categoryPagination[category].currentPage++;
+            fetchAndRenderForms();
+          }
+        });
+        paginationContainer.appendChild(nextButton);
+
+        // Pagination info
+        const pageInfo = document.createElement("div");
+        pageInfo.className = "pagination-info";
+
+        // Calculate the item range
+        const startIndex = (categoryPagination[category].currentPage - 1) * pageSize + 1;
+        const endIndex = Math.min(
+          categoryPagination[category].currentPage * pageSize, 
+          totalItems
+        );
+
+        pageInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalItems}`;
+        paginationContainer.appendChild(pageInfo);
+
+        categoryDiv.appendChild(paginationContainer);
+      } else {
+        // If fewer forms than page size, center the item count with padding
+        const pageInfo = document.createElement("div");
+        pageInfo.className = "pagination-info";
+        pageInfo.style.textAlign = "center";
+        pageInfo.style.padding = "1rem";
+        pageInfo.style.color = "var(--text-muted)";
+        pageInfo.textContent = `Showing ${totalItems} of ${totalItems} forms`;
+        categoryDiv.appendChild(pageInfo);
+      }
+
+      allCategoriesContainer.appendChild(categoryDiv);
+    });
+
+    // Process any remaining categories that aren't in our predefined order
+    Object.keys(groupedForms).forEach((category) => {
+      // Skip if this category was already processed or has no forms
+      if (categoryOrder.includes(category) || !groupedForms[category] || groupedForms[category].length === 0) {
+        return;
+      }
+      
+      const forms = groupedForms[category];
+
+      // Create category container
+      const categoryDiv = document.createElement("div");
+      categoryDiv.className = "forms-category";
+      categoryDiv.style.marginBottom = "30px"; // Add spacing between categories
+
+      // Create category header
+      const header = document.createElement("h3");
+      let icon = "fa-file-alt"; // Default icon
+
+      // Format category name
+      const categoryName =
+        category.charAt(0).toUpperCase() + category.slice(1);
+
+      header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
+      categoryDiv.appendChild(header);
+
+      // Create template cards container
+      const cardsDiv = document.createElement("div");
+      cardsDiv.className = "template-cards";
+      cardsDiv.style.display = "grid"; // Force grid display
+
+      // Determine page size for this category
+      const isDraftsCategory = templateFilter === 'draft';
+      const pageSize = isDraftsCategory 
+        ? categoryPageSizes['drafts'] 
+        : categoryPageSizes['templates'];
+
+      // Set up pagination for this category
+      const totalItems = forms.length;
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const currentPageForCategory =
+        categoryPagination[category].currentPage || 1;
+
+      // Make sure current page is valid
+      if (currentPageForCategory > totalPages) {
+        categoryPagination[category].currentPage = 1;
+      }
+
+      // Get items for current page
+      const startIndex =
+        (categoryPagination[category].currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, totalItems);
+      const paginatedForms = forms.slice(startIndex, endIndex);
+
+      // Add form cards for current page
+      paginatedForms.forEach((form) => {
+        const card = createFormCard(form);
+        card.style.display = "flex"; // Force display
+        cardsDiv.appendChild(card);
+      });
+
+      categoryDiv.appendChild(cardsDiv);
+
+      // Add pagination if needed
       if (totalItems > pageSize) {
         const paginationContainer = document.createElement("div");
         paginationContainer.className = "pagination";
