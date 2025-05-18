@@ -480,47 +480,61 @@ Signed by {{fullName}}, {{currentDate}}  `,
   {
     title: "Invoice Template",
     description: "Standard invoice for client billing",
-    content: `# INVOICE
-  
-  **From:** Your Company Name
-  **To:** {{businessName}}
-  **Attention:** {{fullName}}
-  **Date:** {{currentDate}}
-  **Invoice #:** INV-00001
-  
-  ## Services Rendered
-  
-  | Description | Amount |
-  |-------------|--------|
-  | {{serviceDesired}} | {{billedAmount}} |
-  | | |
-  | **Total Due:** | **{{billedAmount}}** |
-  
-  **Amount Paid:** {{paidAmount}}
-  **Remaining Balance:** {{remainingBalance}}
-  
-  ## Payment Information
-  
-  Please remit payment within 15 days to:
-  
-  Bank Name: Your Bank
-  Account Name: Your Account
-  Account Number: XXXXXXXX
-  Routing Number: XXXXXXXX
-  
-  Or pay online at: www.yourcompany.com/pay
-  
-  ## Thank You!
-  
-  We appreciate your business!
-  
-  If you have any questions about this invoice, please contact:
-  email@example.com | (555) 123-4567
-  `,
+    content: `# Invoice
+
+**Date: {{currentDate}}**  
+**Invoice No. _______**
+
+---
+
+## BILL TO:
+
+{{businessName}} 
+
+### Contact
+
+{{fullName}}
+{{phone}}  
+{{email}}
+
+| DESCRIPTION | PRICE | SUBTOTAL |
+|-------------|-------|----------|
+|{{serviceDesired}} | | |
+| | | |
+| | | |
+| | | |
+
+| SUBTOTAL | TAX (%) | TOTAL AMOUNT |
+|----------|-----------|--------------|
+| {{billedAmount}} | _______ | **_______** |
+
+---
+
+### Payment Summary
+
+**Total Amount: $_______**  
+**Amount Paid: {{paidAmount}}**  
+**Remaining Balance: {{remainingBalance}}**
+
+---
+
+### Contact Information
+
+{{businessName}}  
+{{businessEmail}}  
+{{businessPhone}}
+
+### Billing Address
+
+{{billingAddress}}
+
+---`,
     category: "invoice",
     isTemplate: true,
     variables: [
       "businessName",
+      "businessEmail",
+      "businessPhone",
       "fullName",
       "currentDate",
       "serviceDesired",
