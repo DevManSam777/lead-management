@@ -16,6 +16,8 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Zen+Dots&display=swap"
       rel="stylesheet"
     />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <script>
       (function () {
         const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
@@ -29,10 +31,10 @@
   <body>
     <div class="login-container">
       <div class="login-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path
-            d="M3 13h2v7H3zm4-7h2v14H7zm4-6h2v20h-2zm4 11h2v9h-2zm4-5h2v14h-2z"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80">
+          <rect x="10" y="15" width="25" height="55" fill="#4361ee" />
+          <rect x="45" y="35" width="25" height="35" fill="#4361ee" />
+          <rect x="80" y="0" width="25" height="70" fill="#4361ee" />
         </svg>
       </div>
       <h1 class="zen-dots">DevLeads</h1>
@@ -40,11 +42,7 @@
         <div class="form-group">
           <label for="email">Email</label>
           <div class="input-with-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path
-                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
-              />
-            </svg>
+            <i class="fas fa-envelope" aria-hidden="true"></i>
             <input
               type="email"
               id="email"
@@ -56,11 +54,7 @@
         <div class="form-group">
           <label for="password">Password</label>
           <div class="input-with-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path
-                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"
-              />
-            </svg>
+            <i class="fas fa-lock" aria-hidden="true"></i>
             <input
               type="password"
               id="password"

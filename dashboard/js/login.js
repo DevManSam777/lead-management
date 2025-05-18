@@ -118,7 +118,6 @@ forgotPasswordLink.addEventListener("click", async () => {
   }
 });
 
-// Function to get user-friendly error messages
 function getErrorMessage(errorCode) {
   switch (errorCode) {
     case "auth/invalid-email":
@@ -134,7 +133,7 @@ function getErrorMessage(errorCode) {
     case "auth/missing-password":
       return "Please enter your password";
     default:
-      return "Failed to sign in. Please check your credentials";
+      return "Invalid email or password.";
   }
 }
 
