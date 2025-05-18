@@ -609,9 +609,12 @@ Signed by {{fullName}}, {{currentDate}}  `,
 
 ## Welcome to the Form Builder!
 
-> This template is designed to help you learn how to create and customize your own forms. Feel free to edit this template or use it as a reference when creating new forms.  Click the "Edit" button in the form preview screen to start customizing.
+> This template is designed to help you learn how to create and customize your own forms. Feel free to edit this template or use it as a reference when creating new forms.  
+> Click the "Edit" button in the form preview screen to start customizing.
 > **Note:** This template uses variables to automatically fill in client data. Make sure to replace the placeholders with actual data when using the template.
-> **Examples:**
+
+
+**Examples:**
 
 Current date: {{currentDate}}
 
