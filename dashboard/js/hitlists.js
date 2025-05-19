@@ -420,23 +420,57 @@ async function handleHitlistSubmit(event) {
 
   try {
     let savedHitlistId;
+    let updatedHitlist;
 
     if (hitlistId) {
       // Edit existing hitlist
-      await API.updateHitlist(hitlistId, hitlistData);
+      updatedHitlist = await API.updateHitlist(hitlistId, hitlistData);
       Utils.showToast("Hitlist updated successfully");
       savedHitlistId = hitlistId;
+      
+      // Update the hitlist in our local allHitlists array
+      const hitlistIndex = allHitlists.findIndex(h => h._id === hitlistId);
+      if (hitlistIndex !== -1) {
+        // Use the returned hitlist with updated lastModified
+        allHitlists[hitlistIndex] = updatedHitlist;
+        
+        // Update the UI to show the new lastModified date immediately
+        updateHitlistLastModified(hitlistId, new Date(updatedHitlist.lastModified));
+      }
     } else {
       // Create NEW hitlist
       const newHitlist = await API.createHitlist(hitlistData); // Store the returned hitlist
       Utils.showToast("Hitlist created successfully");
       savedHitlistId = newHitlist._id; // Get the ID of the newly created hitlist
+      
+      // Add the new hitlist to our local array
+      allHitlists.push(newHitlist);
+      
+      // Re-sort the hitlists
+      allHitlists = sortHitlistsAlphabetically(allHitlists);
     }
 
     closeHitlistModal(); // Close the Hitlist Modal
 
-    // Refresh the list of hitlists and wait for it to complete
-    await fetchAndRenderHitlists();
+    // If this was a new hitlist, refresh the list completely
+    if (!hitlistId) {
+      await fetchAndRenderHitlists();
+    } else {
+      // For an edit, just update the name and description on the UI without a full refresh
+      const hitlistCard = document.querySelector(`.hitlist-card[data-id="${hitlistId}"]`);
+      if (hitlistCard) {
+        const titleElement = hitlistCard.querySelector('.hitlist-title');
+        const descriptionElement = hitlistCard.querySelector('.hitlist-description');
+        
+        if (titleElement) {
+          titleElement.innerHTML = `<span class="bullseye"><i class="fa-solid fa-bullseye"></i></span> ${hitlistData.name}`;
+        }
+        
+        if (descriptionElement) {
+          descriptionElement.textContent = hitlistData.description || "No description";
+        }
+      }
+    }
 
     // If this was a new hitlist (or we're editing), automatically open the business list modal
     if (savedHitlistId) {
@@ -448,6 +482,7 @@ async function handleHitlistSubmit(event) {
     Utils.showToast("Error saving hitlist"); // Correct toast message
   }
 }
+
 
 async function openBusinessListModal(hitlistId) {
   currentHitlistId = hitlistId;
@@ -694,6 +729,15 @@ async function deleteBusiness(businessId) {
     // Update the hitlist card to show the updated business count
     if (hitlistId) {
       decrementHitlistBusinessCount(hitlistId);
+      
+      // Also update the lastModified date in UI
+      const hitlist = allHitlists.find((h) => h._id === hitlistId);
+      if (hitlist) {
+        // Update the lastModified field
+        hitlist.lastModified = new Date();
+        // Update the UI to reflect this change
+        updateHitlistLastModified(hitlistId);
+      }
     }
 
     // Remove the business from both arrays
@@ -867,6 +911,34 @@ function mapBusinessStatusToLeadStatus(businessStatus) {
       return "new";
   }
 }
+
+function updateHitlistLastModified(hitlistId, newDate = new Date()) {
+  // Find the hitlist card
+  const hitlistCard = document.querySelector(`.hitlist-card[data-id="${hitlistId}"]`);
+  if (!hitlistCard) return;
+
+  // Find the last modified date element within the card
+  // We can't use :contains(), so we need to find all .hitlist-stat elements and check their content
+  const hitlistStats = hitlistCard.querySelectorAll('.hitlist-stat');
+  let modifiedDateElement = null;
+  
+  // Find the one containing "Modified:"
+  for (const stat of hitlistStats) {
+    if (stat.textContent.includes('Modified:')) {
+      modifiedDateElement = stat;
+      break;
+    }
+  }
+  
+  if (!modifiedDateElement) return;
+  
+  // Get dateFormat from window object (set in settings)
+  const dateFormat = window.dateFormat || "MM/DD/YYYY";
+  
+  // Update the modified date text
+  modifiedDateElement.innerHTML = `<i class="far fa-clock"></i> Modified: ${Utils.formatDate(newDate, dateFormat)}`;
+}
+
 
 function formatStatus(status) {
   if (!status) return "Unknown";
@@ -1303,6 +1375,7 @@ function formatWebsiteUrlForDisplay(url) {
   }
 }
 
+
 async function handleBusinessSubmit(event) {
   event.preventDefault();
 
@@ -1425,6 +1498,16 @@ async function handleBusinessSubmit(event) {
       updateHitlistBusinessCount(hitlistId);
     }
 
+    // Update the lastModified date for the hitlist in the UI
+    // Find the hitlist in our data
+    const hitlist = allHitlists.find((h) => h._id === hitlistId);
+    if (hitlist) {
+      // Update the lastModified field
+      hitlist.lastModified = new Date();
+      // Update the UI to reflect this change
+      updateHitlistLastModified(hitlistId);
+    }
+
     // Close the business modal
     closeBusinessModal();
     // Re-apply current filters
@@ -1434,6 +1517,7 @@ async function handleBusinessSubmit(event) {
     Utils.showToast("Error saving business");
   }
 }
+
 
 async function updateHitlistBusinessCount(hitlistId, addedCount = 1) {
   try {
