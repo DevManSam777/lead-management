@@ -98,9 +98,43 @@ const businessSchema = new mongoose.Schema({
   },
 });
 
+// Pre-save middleware to update lastModified date on business save
 businessSchema.pre("save", function (next) {
   this.lastModified = new Date();
   next();
+});
+
+// Middleware to update hitlist's lastModified when business is updated
+businessSchema.post("save", async function() {
+  try {
+    // Update the lastModified field of the associated hitlist
+    const Hitlist = mongoose.model('Hitlist');
+    await Hitlist.findByIdAndUpdate(this.hitlistId, {
+      $set: { lastModified: new Date() }
+    });
+  } catch (error) {
+    console.error("Error updating hitlist lastModified date:", error);
+  }
+});
+
+// Middleware to update hitlist's lastModified when business is updated via findOneAndUpdate
+businessSchema.post("findOneAndUpdate", async function() {
+  try {
+    // Get the original document that was updated
+    const businessId = this.getQuery()._id;
+    const Business = mongoose.model('Business');
+    const business = await Business.findById(businessId);
+    
+    if (business && business.hitlistId) {
+      // Update the lastModified field of the associated hitlist
+      const Hitlist = mongoose.model('Hitlist');
+      await Hitlist.findByIdAndUpdate(business.hitlistId, {
+        $set: { lastModified: new Date() }
+      });
+    }
+  } catch (error) {
+    console.error("Error updating hitlist lastModified date after business update:", error);
+  }
 });
 
 module.exports = mongoose.model("Business", businessSchema);

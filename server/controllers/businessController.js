@@ -40,15 +40,22 @@ exports.createBusiness = async (req, res) => {
 // Update business
 exports.updateBusiness = async (req, res) => {
   try {
-    const business = await Business.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!business) {
+    // First, get the original business to ensure we have the correct hitlistId
+    const originalBusiness = await Business.findById(req.params.id);
+    if (!originalBusiness) {
       return res.status(404).json({ message: "Business not found" });
     }
 
-    // Update the lastModified field of the hitlist
-    await Hitlist.findByIdAndUpdate(business.hitlistId, {
+    // Store the hitlistId before updating the business
+    const hitlistId = originalBusiness.hitlistId;
+
+    // Update the business
+    const business = await Business.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
+    // Update the lastModified field of the hitlist using the stored hitlistId
+    await Hitlist.findByIdAndUpdate(hitlistId, {
       $set: { lastModified: new Date() },
     });
 
@@ -67,13 +74,16 @@ exports.deleteBusiness = async (req, res) => {
       return res.status(404).json({ message: "Business not found" });
     }
 
+    // Store the hitlistId before deleting the business
+    const hitlistId = business.hitlistId;
+
     // Remove business reference from hitlist
-    await Hitlist.findByIdAndUpdate(business.hitlistId, {
+    await Hitlist.findByIdAndUpdate(hitlistId, {
       $pull: { businesses: req.params.id },
     });
 
     // Update the lastModified field of the hitlist
-    await Hitlist.findByIdAndUpdate(business.hitlistId, {
+    await Hitlist.findByIdAndUpdate(hitlistId, {
       $set: { lastModified: new Date() },
     });
 

@@ -29,7 +29,10 @@ exports.getHitlistById = async (req, res) => {
 // Create new hitlist
 exports.createHitlist = async (req, res) => {
   try {
-    const hitlist = new Hitlist(req.body);
+    const hitlist = new Hitlist({
+      ...req.body,
+      lastModified: new Date()  // Explicitly set lastModified on creation
+    });
     const savedHitlist = await hitlist.save();
     res.status(201).json(savedHitlist);
   } catch (error) {
@@ -41,11 +44,18 @@ exports.createHitlist = async (req, res) => {
 // Update hitlist
 exports.updateHitlist = async (req, res) => {
   try {
+    // Add lastModified to the update data
+    const updateData = {
+      ...req.body,
+      lastModified: new Date() // Ensure lastModified is updated
+    };
+    
     const hitlist = await Hitlist.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true }
     );
+    
     if (!hitlist) {
       return res.status(404).json({ message: 'Hitlist not found' });
     }
