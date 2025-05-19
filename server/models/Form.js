@@ -43,10 +43,9 @@ const formSchema = new mongoose.Schema({
 
 // Pre-save middleware to update lastModified date
 formSchema.pre('save', function(next) {
-  // Set to noon in the local timezone to prevent timezone issues
-  const now = new Date();
-  now.setHours(12, 0, 0, 0);
-  this.lastModified = now;
+  // Simply use the current date without timezone adjustment
+  // Store the date exactly as provided without any manipulation
+  this.lastModified = new Date();
   next();
 });
 

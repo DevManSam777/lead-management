@@ -292,6 +292,7 @@ exports.cloneTemplate = async (req, res) => {
   }
 };
 
+
 exports.generateFormWithLeadData = async (req, res) => {
   try {
     const formId = req.params.id;
@@ -334,11 +335,12 @@ exports.generateFormWithLeadData = async (req, res) => {
 
     // Add current date as a special variable
     const today = new Date();
-    today.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
+    // Use the current date in the user's local timezone
     const currentDate = today.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      // Don't specify timeZone to use the local timezone
     });
 
     // Replace currentDate variable 
@@ -411,11 +413,11 @@ ${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.bil
     // Handle created date
     if (lead.createdAt) {
       const createdDate = new Date(lead.createdAt);
-      createdDate.setHours(12, 0, 0, 0); // Set to noon to prevent timezone issues
       const formattedCreatedDate = createdDate.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
-        day: "numeric"
+        day: "numeric",
+        // Don't specify timeZone to use the local timezone
       });
       
       populatedContent = populatedContent.replace(

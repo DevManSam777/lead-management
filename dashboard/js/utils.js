@@ -187,7 +187,6 @@ function formatCurrency(amount) {
 }
 
 
-
 function formatDate(date, format = "MM/DD/YYYY") {
   if (!date) return "";
 
@@ -205,7 +204,7 @@ function formatDate(date, format = "MM/DD/YYYY") {
     return "";
   }
   
-  // Use local methods to get date components
+  // Use local timezone methods to get date components
   const year = dateObj.getFullYear();
   const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
   const day = dateObj.getDate();
@@ -279,19 +278,8 @@ function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
   // Create a date object if string is provided
   let dateObj;
   if (typeof datetime === "string") {
-    // For date strings, create a new date and set hours to noon to avoid timezone issues
-    const dateParts = datetime.split('T')[0].split('-');
-    if (dateParts.length === 3) {
-      const year = parseInt(dateParts[0]);
-      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JS Date
-      const day = parseInt(dateParts[2]);
-      
-      // Create date object with consistent time (noon)
-      dateObj = new Date(year, month, day, 12, 0, 0, 0);
-    } else {
-      // Fallback if date format is unexpected
-      dateObj = new Date(datetime);
-    }
+    // For date strings, create a new date in the local timezone
+    dateObj = new Date(datetime);
   } else {
     dateObj = datetime;
   }
@@ -302,7 +290,7 @@ function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
     return "";
   }
 
-  // Format the date using the existing formatDate function
+  // Format the date using the local timezone
   return formatDate(dateObj, dateFormat);
 }
 
