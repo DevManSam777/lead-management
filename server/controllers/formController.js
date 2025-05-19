@@ -330,17 +330,24 @@ exports.generateFormWithLeadData = async (req, res) => {
       variables: [...form.variables],
     });
 
-    // Replace variables in content with lead data,preserve whitespace
+    // Replace variables in content with lead data, preserve whitespace
     let populatedContent = form.content;
 
-    // Add current date as a special variable
+    // IMPROVED DATE HANDLING: Add current date as a special variable with timezone handling
+    // Get the current date and manually format it to avoid timezone issues
     const today = new Date();
-    // Use the current date in the user's local timezone
-    const currentDate = today.toLocaleDateString("en-US", {
+    const year = today.getFullYear();
+    const month = today.getMonth(); // 0-indexed
+    
+    // Create a fixed date at noon UTC to avoid timezone shifts 
+    // This ensures consistent date display regardless of server timezone
+    const fixedLocalDate = new Date(Date.UTC(year, month, today.getDate(), 12, 0, 0, 0));
+    
+    // Format the date in a locale-friendly way
+    const currentDate = fixedLocalDate.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
-      // Don't specify timeZone to use the local timezone
     });
 
     // Replace currentDate variable 
@@ -410,14 +417,24 @@ ${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.bil
       fullName
     );
 
-    // Handle created date
+    // Handle created date with the same approach as current date
     if (lead.createdAt) {
-      const createdDate = new Date(lead.createdAt);
-      const formattedCreatedDate = createdDate.toLocaleDateString("en-US", {
+      const createdDateObj = new Date(lead.createdAt);
+      
+      // Create a fixed date at noon UTC based on the createdAt components
+      const fixedCreatedDate = new Date(
+        Date.UTC(
+          createdDateObj.getUTCFullYear(),
+          createdDateObj.getUTCMonth(),
+          createdDateObj.getUTCDate(),
+          12, 0, 0, 0
+        )
+      );
+      
+      const formattedCreatedDate = fixedCreatedDate.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
-        // Don't specify timeZone to use the local timezone
       });
       
       populatedContent = populatedContent.replace(
