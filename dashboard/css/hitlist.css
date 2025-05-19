@@ -105,6 +105,13 @@
   font-size: 1.8rem;
   color: var(--text-color);
   margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#businessListTitle {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .hitlist-actions {
