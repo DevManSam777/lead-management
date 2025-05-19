@@ -1,9 +1,7 @@
 const nodemailer = require("nodemailer");
 
-/**
- * Create an email transporter based on configuration
- * @returns {Object|null} Nodemailer transporter or null if not configured
- */
+// Create an email transporter based on configuration
+
 function createEmailTransporter() {
   // Check if email configuration is complete
   if (
@@ -29,11 +27,9 @@ function createEmailTransporter() {
   });
 }
 
-/**
- * Get formatted preferred contact method name and corresponding value
- * @param {Object} leadData - Details of the submitted lead
- * @returns {Object} Object containing formatted method name and contact value
- */
+
+// Get formatted preferred contact method name and corresponding value
+
 function getPreferredContactDetails(leadData) {
   const method = leadData.preferredContact;
   let formattedMethod = "";
@@ -70,10 +66,9 @@ function getPreferredContactDetails(leadData) {
   return { formattedMethod, contactValue };
 }
 
-/**
- * Send email notification about a new lead submission
- * @param {Object} leadData - Details of the submitted lead
- */
+
+// Send email notification about a new lead submission
+
 async function sendLeadNotificationEmail(leadData) {
   // Validate required environment variables
   if (!process.env.EMAIL_USER || !process.env.ADMIN_EMAIL) {
@@ -145,7 +140,7 @@ async function sendLeadNotificationEmail(leadData) {
               </tr>
             </table>
             
-            <!-- Business Information Section with colored left border -->
+            <!-- Business Information Section -->
             <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #4ecdc4; border-radius: 6px";">
               <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Business Information</h3>
               <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px;">Business details provided</p>
@@ -182,7 +177,7 @@ async function sendLeadNotificationEmail(leadData) {
               </tr>
             </table>
             
-            <!-- Inquiry Details Section with colored left border -->
+            <!-- Inquiry Details Section -->
             <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #ffbe0b; border-radius: 6px";">
               <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Inquiry Details</h3>
               <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px;">Service request information</p>
@@ -236,7 +231,7 @@ async function sendLeadNotificationEmail(leadData) {
             </table>
           </div>
           
-          <!-- Action Section with colored left border -->
+          <!-- Action Section -->
           <div style="margin-top: 25px; padding-left: 15px; border-left: 5px solid #9775fa; background-color: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Next Steps</h3>
             <p style="margin: 10px 0 0; font-size: 14px; color: #2c3e50 !important;">
@@ -259,10 +254,9 @@ async function sendLeadNotificationEmail(leadData) {
   }
 }
 
-/**
- * Send a confirmation email to the lead
- * @param {Object} leadData - Details of the submitted lead
- */
+
+// Send a confirmation email to the lead
+ 
 async function sendLeadConfirmationEmail(leadData) {
   // Validate required environment variables
   if (!process.env.EMAIL_USER) {
@@ -310,7 +304,7 @@ async function sendLeadConfirmationEmail(leadData) {
               }</strong> needs. Your inquiry has been received and is being reviewed by our team.
             </p>
             
-            <!-- Confirmation Section with colored left border -->
+            <!-- Confirmation Section -->
             <div style="margin-bottom: 20px; padding-left: 15px; border-left: 5px solid #4ecdc4; border-radius: 6px;">
               <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Your Request Details</h3>
               <p style="margin: 5px 0 0; color: #7f8c8d !important; font-size: 14px;">Summary of your submission</p>
@@ -351,7 +345,7 @@ async function sendLeadConfirmationEmail(leadData) {
                 </td>
               </tr>
             </table>
-          <!-- Next Steps Section with no left border -->
+          <!-- Next Steps Section  -->
           <div style="background-color: #f9f9f9; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
             <!-- Item 1 -->
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 15px;">
@@ -411,14 +405,14 @@ async function sendLeadConfirmationEmail(leadData) {
             </table>
           </div>
               
-          <!-- CTA Section with dark blue left border -->
+          <!-- CTA Section -->
           <div style="background-color: #e8f4f8; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px; border-left: 5px solid #3498db;">
             <h3 style="margin: 0 0 10px; color: #2c3e50 !important; font-size: 18px; text-decoration: none !important;">Ready to get started sooner?</h3>
             <p style="margin: 0 0 15px; color: #7f8c8d !important; font-size: 14px;">Skip the wait and schedule your consultation now</p>
             <a href="https://cal.com/devmansam/consultation" style="display: inline-block; background-color: #3498db; color: white !important; padding: 12px 24px; border-radius: 4px; text-decoration: none !important; font-weight: 600; font-size: 16px;">Schedule Consultation</a>
           </div>
                    
-          <!-- Support Section with colored left border -->
+          <!-- Support Section -->
           <div style="margin-top: 25px; padding-left: 15px; border-left: 5px solid #4ecdc4; background-color: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             <h3 style="margin: 0; font-size: 18px; color: #2c3e50 !important; text-decoration: none !important;">Questions?</h3>
             <p style="margin: 10px 0 0; font-size: 14px; color: #7f8c8d !important;">
