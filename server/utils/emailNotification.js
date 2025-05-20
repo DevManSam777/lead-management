@@ -1,7 +1,40 @@
 const nodemailer = require("nodemailer");
 
-// Create an email transporter based on configuration
+// Format date to US Eastern Time with timezone indicator
+function formatDateInEST() {
+  const options = {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  };
+  
+  // Create date in US Eastern Time
+  const estDate = new Date().toLocaleString('en-US', options);
+  
+  // Add EST/EDT indicator with US label (checks if Daylight Saving Time is active)
+  const isDST = isDaylightSavingTime();
+  const timeZoneLabel = isDST ? 'EDT-US' : 'EST-US';
+  
+  return `${estDate} ${timeZoneLabel}`;
+}
 
+// Helper function to check if current date is in Daylight Saving Time
+function isDaylightSavingTime() {
+  const today = new Date();
+  const jan = new Date(today.getFullYear(), 0, 1);
+  const jul = new Date(today.getFullYear(), 6, 1);
+  
+  // DST is in effect if UTC offset in January is less than July
+  // (US observes DST in summer, so offset is larger in summer)
+  return jan.getTimezoneOffset() > jul.getTimezoneOffset();
+}
+
+// Create an email transporter based on configuration
 function createEmailTransporter() {
   // Check if email configuration is complete
   if (
@@ -29,7 +62,6 @@ function createEmailTransporter() {
 
 
 // Get formatted preferred contact method name and corresponding value
-
 function getPreferredContactDetails(leadData) {
   const method = leadData.preferredContact;
   let formattedMethod = "";
@@ -68,7 +100,6 @@ function getPreferredContactDetails(leadData) {
 
 
 // Send email notification about a new lead submission
-
 async function sendLeadNotificationEmail(leadData) {
   // Validate required environment variables
   if (!process.env.EMAIL_USER || !process.env.ADMIN_EMAIL) {
@@ -86,6 +117,7 @@ async function sendLeadNotificationEmail(leadData) {
   try {
     const fullName = `${leadData.businessName}`;
     const contactDetails = getPreferredContactDetails(leadData);
+    const formattedDate = formatDateInEST();
 
     // Send email
     const info = await transporter.sendMail({
@@ -99,7 +131,7 @@ async function sendLeadNotificationEmail(leadData) {
             <h3 style="margin: 10px 0 0; font-weight: 500; font-size: 18px; opacity: 0.9; color: white !important; text-decoration: none !important;">${
               leadData.businessName
             } is interested in your services!</h3>
-            <p style="margin: 5px 0 0; opacity: 0.8; color: white !important;">${new Date().toLocaleString()}</p>
+            <p style="margin: 5px 0 0; opacity: 0.8; color: white !important;">${formattedDate}</p>
           </div>
           
           <div style="background-color: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
@@ -273,6 +305,7 @@ async function sendLeadConfirmationEmail(leadData) {
 
   try {
     const contactDetails = getPreferredContactDetails(leadData);
+    const formattedDate = formatDateInEST();
 
     // Send confirmation email to the lead
     const info = await transporter.sendMail({
@@ -286,7 +319,7 @@ async function sendLeadConfirmationEmail(leadData) {
             <h3 style="margin: 10px 0 0; font-weight: 500; font-size: 18px; opacity: 0.9; color: white !important; text-decoration: none !important;">We've received your ${
               leadData.serviceDesired
             } request</h3>
-            <p style="margin: 5px 0 0; opacity: 0.8; color: white !important;">${new Date().toLocaleString()}</p>
+            <p style="margin: 5px 0 0; opacity: 0.8; color: white !important;">${formattedDate}</p>
           </div>
           
           <div style="background-color: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
