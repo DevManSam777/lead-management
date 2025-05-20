@@ -301,6 +301,7 @@ body {
 .leads-table th:nth-child(1),
 .leads-table td:nth-child(1) {
   width: 30%;
+  padding-left: 2rem;
 }
 
 .leads-table th:nth-child(2),
@@ -1113,7 +1114,6 @@ body {
   .leads-table th:nth-child(1),
   .leads-table td:nth-child(1) {
     width: 40%;
-    padding-left: 2rem;
   }
 
   .leads-table th:nth-child(2),
