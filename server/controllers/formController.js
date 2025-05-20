@@ -295,7 +295,7 @@ exports.cloneTemplate = async (req, res) => {
 exports.generateFormWithLeadData = async (req, res) => {
   try {
     const formId = req.params.id;
-    const { leadId, timezone } = req.body;  // Get timezone from request if available
+    const { leadId, timezone } = req.body;  
 
     if (!leadId) {
       return res.status(400).json({ message: "Lead ID is required" });
@@ -332,12 +332,64 @@ exports.generateFormWithLeadData = async (req, res) => {
     // Replace variables in content with lead data, preserve whitespace
     let populatedContent = form.content;
 
-    // Determine user timezone - fallback to America/New_York if not provided
-    const userTimezone = timezone || "America/New_York";
+    // TIMEZONE FIX: Get timezone information from various sources
+    // Multiple fallback mechanisms to detect the user's timezone without requiring frontend changes
+    let userTimezone;
     
-    // Format the current date in user's timezone
+    // 1. Use any explicitly provided timezone first (keeping compatibility with existing code)
+    if (timezone) {
+      userTimezone = timezone;
+    } 
+    // 2. Check for timezone in headers (might be set by proxies or browser extensions)
+    else if (req.headers['x-timezone']) {
+      userTimezone = req.headers['x-timezone'];
+    }
+    // 3. Check for timezone cookie if set
+    else if (req.cookies && req.cookies.timezone) {
+      userTimezone = req.cookies.timezone;
+    }
+    // 4. Try to guess from Accept-Language header for region
+    else if (req.headers['accept-language']) {
+      const language = req.headers['accept-language'].split(',')[0].trim();
+      // Extract country code if present (like en-US)
+      const countryMatch = language.match(/-([A-Z]{2})/);
+      if (countryMatch && countryMatch[1]) {
+        const country = countryMatch[1];
+        
+        // Map common countries to their primary timezone
+        const countryTimezones = {
+          'US': 'America/Los_Angeles',  // Changed to west coast for your location
+          'GB': 'Europe/London',
+          'CA': 'America/Toronto',
+          'AU': 'Australia/Sydney',
+          'IN': 'Asia/Kolkata',
+          'JP': 'Asia/Tokyo',
+          'DE': 'Europe/Berlin',
+          // Add more as needed
+        };
+        
+        if (countryTimezones[country]) {
+          userTimezone = countryTimezones[country];
+        }
+      }
+    }
+    
+    // 5. Use browser's timezone if available in headers (some modern browsers add this)
+    if (!userTimezone && req.headers['sec-ch-ua-timezone']) {
+      userTimezone = req.headers['sec-ch-ua-timezone'];
+    }
+    
+    // 6. Last resort: Default to the US West Coast 
+    if (!userTimezone) {
+      userTimezone = 'America/Los_Angeles';
+    }
+    
+    console.log(`Using detected timezone: ${userTimezone} for form generation`);
+    
+    // Get current date and use it in the appropriate timezone
     const now = new Date();
-    // Format date to show in user's timezone
+    
+    // Format the current date in the detected timezone 
     const currentDateFormatted = formatDateInTimezone(now, userTimezone);
     
     // Replace currentDate variable
@@ -368,17 +420,34 @@ exports.generateFormWithLeadData = async (req, res) => {
       );
     }
     
-    // Helper function to format date in user's timezone
+    // IMPROVED TIMEZONE FUNCTION: Format date correctly in the specified timezone
     function formatDateInTimezone(date, timezone) {
-      // Format without timezone information since we're manually adjusting for timezone
-      const formatter = new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: timezone
-      });
-      
-      return formatter.format(date);
+      try {
+        // Use Intl.DateTimeFormat for better timezone handling
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          timeZone: timezone
+        });
+        
+        return formatter.format(date);
+      } catch (error) {
+        console.error(`Error formatting date with timezone ${timezone}:`, error);
+        // If the timezone is invalid, fall back to UTC
+        try {
+          const fallbackFormatter = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            timeZone: 'UTC' // Fallback to UTC
+          });
+          return fallbackFormatter.format(date);
+        } catch (fallbackError) {
+          // If everything else fails, use a very basic fallback
+          return date.toDateString();
+        }
+      }
     }
 
     // Handle financial variables specifically with proper formatting
@@ -488,12 +557,14 @@ ${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.bil
       $addToSet: { associatedForms: savedForm._id },
     });
 
+    // Return timezone used for debugging
     res.json({
       _id: savedForm._id,
       title: savedForm.title,
       description: savedForm.description,
       content: populatedContent,
       leadId: leadId,
+      usedTimezone: userTimezone // For debugging
     });
   } catch (error) {
     console.error("Error generating form with lead data:", error);
