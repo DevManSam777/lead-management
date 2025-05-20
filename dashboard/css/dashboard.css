@@ -788,8 +788,8 @@ body {
 }
 
 .document-upload-area.highlight {
-  border-color: var(--primary);
-  background-color: rgba(67, 83, 238, 0.05);
+  border-color: var(--danger);
+  background-color: rgba(237, 100, 148, 0.05);
 }
 
 .upload-message {
