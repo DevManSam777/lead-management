@@ -505,7 +505,7 @@ exports.cloneTemplate = async (req, res) => {
 exports.generateFormWithLeadData = async (req, res) => {
   try {
     const formId = req.params.id;
-    const { leadId } = req.body;
+    const { leadId, timezone } = req.body;  // Get timezone from request if available
 
     if (!leadId) {
       return res.status(400).json({ message: "Lead ID is required" });
@@ -542,50 +542,24 @@ exports.generateFormWithLeadData = async (req, res) => {
     // Replace variables in content with lead data, preserve whitespace
     let populatedContent = form.content;
 
-    // ENHANCED FIX: CURRENT DATE HANDLING - Handle timezone explicitly
+    // Determine user timezone - fallback to America/New_York if not provided
+    const userTimezone = timezone || "America/New_York";
+    
+    // Format the current date in user's timezone
     const now = new Date();
-    // Get date in user's timezone by extracting the components
-    const userYear = now.getFullYear();
-    const userMonth = now.getMonth();
-    const userDay = now.getDate();
+    // Format date to show in user's timezone
+    const currentDateFormatted = formatDateInTimezone(now, userTimezone);
     
-    // Create a new date object using these components
-    const localNow = new Date(Date.UTC(userYear, userMonth, userDay));
-    
-    // Format the date with UTC timezone to ensure consistency
-    const currentDateFormatted = localNow.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'UTC' // Force consistent date display
-    });
-    
-    // Replace currentDate variable with local-formatted date
+    // Replace currentDate variable
     populatedContent = populatedContent.replace(
       /\{\{currentDate\}\}/g,
       currentDateFormatted
     );
 
-    // ENHANCED FIX: CREATED DATE HANDLING - Handle timezone explicitly
+    // Handle created date in user's timezone
     if (lead.createdAt) {
-      // First create a date object from the stored date
       const createdDate = new Date(lead.createdAt);
-      
-      // Extract date components in user's timezone
-      const createdYear = createdDate.getFullYear();
-      const createdMonth = createdDate.getMonth();
-      const createdDay = createdDate.getDate();
-      
-      // Create a new date object using these components
-      const localCreatedDate = new Date(Date.UTC(createdYear, createdMonth, createdDay));
-      
-      // Format with UTC timezone to ensure consistency
-      const createdAtFormatted = localCreatedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'UTC' // Force consistent date display
-      });
+      const createdAtFormatted = formatDateInTimezone(createdDate, userTimezone);
       
       populatedContent = populatedContent.replace(
         /\{\{createdAt\}\}/g,
@@ -593,30 +567,28 @@ exports.generateFormWithLeadData = async (req, res) => {
       );
     }
 
-    // ENHANCED FIX: LAST CONTACTED DATE HANDLING - Same approach as createdAt
+    // Handle last contacted date in user's timezone
     if (lead.lastContactedAt) {
       const lastContactedDate = new Date(lead.lastContactedAt);
-      
-      // Extract date components in user's timezone
-      const contactedYear = lastContactedDate.getFullYear();
-      const contactedMonth = lastContactedDate.getMonth();
-      const contactedDay = lastContactedDate.getDate();
-      
-      // Create a new date object using these components
-      const localLastContactedDate = new Date(Date.UTC(contactedYear, contactedMonth, contactedDay));
-      
-      // Format with UTC timezone to ensure consistency
-      const lastContactedFormatted = localLastContactedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'UTC' // Force consistent date display
-      });
+      const lastContactedFormatted = formatDateInTimezone(lastContactedDate, userTimezone);
       
       populatedContent = populatedContent.replace(
         /\{\{lastContactedAt\}\}/g,
         lastContactedFormatted
       );
+    }
+    
+    // Helper function to format date in user's timezone
+    function formatDateInTimezone(date, timezone) {
+      // Format without timezone information since we're manually adjusting for timezone
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: timezone
+      });
+      
+      return formatter.format(date);
     }
 
     // Handle financial variables specifically with proper formatting
