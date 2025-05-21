@@ -577,6 +577,16 @@ exports.generateFormWithLeadData = async (req, res) => {
     const formId = req.params.id;
     const { leadId, timezone } = req.body;  
 
+    // Enhanced logging to verify what timezone is being used
+    console.log("Form generation timezone details:", {
+      requestBody: { leadId, timezone },
+      headers: {
+        'x-timezone': req.headers['x-timezone'],
+        'user-agent': req.headers['user-agent'],
+        'accept-language': req.headers['accept-language']
+      }
+    });
+
     if (!leadId) {
       return res.status(400).json({ message: "Lead ID is required" });
     }
@@ -599,50 +609,42 @@ exports.generateFormWithLeadData = async (req, res) => {
     
     // Create a new form based on the template with lead data
     const newForm = new Form({
-      // Keep title for organization in the database
       title: `${form.title} - ${fullName}`,
       description: form.description,
-      // Use the original content, preserve all whitespace
       content: form.content,
       category: form.category,
       isTemplate: false,
       variables: [...form.variables],
     });
 
-    // Replace variables in content with lead data, preserve whitespace
+    // Replace variables in content with lead data
     let populatedContent = form.content;
 
-    // TIMEZONE FIX: Use explicitly provided timezone or default to Pacific Time
-    let userTimezone;
+    // IMPORTANT: NO FALLBACK - use only the timezone explicitly provided by client
+    // If no timezone is provided, we'll let the error happen to verify the client is sending it
+    let userTimezone = timezone;
     
-    // 1. Use any explicitly provided timezone first (from client)
-    if (timezone) {
-      userTimezone = timezone;
-      console.log(`Using explicitly provided timezone: ${timezone}`);
-    } 
-    // 2. Check for timezone in headers (might be set by proxies or browser extensions)
-    else if (req.headers['x-timezone']) {
-      userTimezone = req.headers['x-timezone'];
-      console.log(`Using timezone from x-timezone header: ${userTimezone}`);
-    }
-    // 3. Check for timezone cookie if set
-    else if (req.cookies && req.cookies.timezone) {
-      userTimezone = req.cookies.timezone;
-      console.log(`Using timezone from cookie: ${userTimezone}`);
-    }
-    // 4. Default to Pacific Time as the safe fallback
-    else {
-      userTimezone = 'America/Los_Angeles';
-      console.log(`Using default timezone: ${userTimezone}`);
+    if (!userTimezone) {
+      // Instead of fallback, log error and fail - this will confirm the client is sending timezone
+      console.error("NO TIMEZONE PROVIDED BY CLIENT - This will help verify that client code is working");
+      return res.status(400).json({ 
+        message: "Timezone parameter is required", 
+        debug: "This error is expected if the client code isn't sending the timezone parameter"
+      });
     }
     
-    console.log(`Using detected timezone: ${userTimezone} for form generation`);
+    console.log(`Using ONLY client-provided timezone: ${userTimezone} for form generation`);
     
-    // Get current date and use it in the appropriate timezone
+    // Get current date and use it in the timezone
     const now = new Date();
     
-    // Format the current date in the detected timezone 
+    // Format the current date in the client's timezone
     const currentDateFormatted = formatDateInTimezone(now, userTimezone);
+    console.log("Formatted current date:", {
+      date: now.toISOString(),
+      timezone: userTimezone,
+      formattedResult: currentDateFormatted
+    });
     
     // Replace currentDate variable
     populatedContent = populatedContent.replace(
@@ -654,6 +656,12 @@ exports.generateFormWithLeadData = async (req, res) => {
     if (lead.createdAt) {
       const createdDate = new Date(lead.createdAt);
       const createdAtFormatted = formatDateInTimezone(createdDate, userTimezone);
+      
+      console.log("Formatted created date:", {
+        date: createdDate.toISOString(),
+        timezone: userTimezone,
+        formattedResult: createdAtFormatted
+      });
       
       populatedContent = populatedContent.replace(
         /\{\{createdAt\}\}/g,
@@ -672,9 +680,11 @@ exports.generateFormWithLeadData = async (req, res) => {
       );
     }
     
-    // IMPROVED TIMEZONE FUNCTION: Format date correctly in the specified timezone
+    // Improved date formatting function
     function formatDateInTimezone(date, timezone) {
       try {
+        console.log(`Formatting date ${date.toISOString()} in timezone ${timezone}`);
+        
         // Use Intl.DateTimeFormat with explicit options for better control
         const formatter = new Intl.DateTimeFormat('en-US', {
           year: 'numeric',
@@ -687,23 +697,25 @@ exports.generateFormWithLeadData = async (req, res) => {
         const parts = formatter.formatToParts(date);
         let formattedDate = '';
         
-        // Build the date manually from parts to avoid any unexpected behavior
+        // Build the date manually from parts for greater control
         parts.forEach(part => {
+          console.log("Date part:", part);
           if (part.type === 'month') formattedDate += part.value + ' ';
           if (part.type === 'day') formattedDate += part.value + ', ';
           if (part.type === 'year') formattedDate += part.value;
         });
         
+        console.log(`Final formatted date: ${formattedDate.trim()}`);
         return formattedDate.trim();
       } catch (error) {
         console.error(`Error formatting date with timezone ${timezone}:`, error);
-        // Fallback to a simple date string if formatting fails
-        return date.toDateString();
+        // If formatting fails, throw error instead of providing fallback
+        // This helps verify the timezone parameter is working
+        throw new Error(`Unable to format date with timezone ${timezone}: ${error.message}`);
       }
     }
 
-    // Handle financial variables specifically with proper formatting
-    // Format the totalBudget (billedAmount) with proper currency formatting
+    // Handle financial variables with proper formatting
     if (lead.totalBudget !== undefined) {
       const totalBudget = lead.totalBudget || 0;
       populatedContent = populatedContent.replace(
@@ -734,8 +746,7 @@ exports.generateFormWithLeadData = async (req, res) => {
       );
     }
 
-    // Handle billing address which needs special formatting
-    // IMPORTANT: Preserve line breaks and indentation in the address
+    // Handle billing address with special formatting
     let fullAddress;
     if (!lead.billingAddress || 
         (!lead.billingAddress.street && 
@@ -746,7 +757,6 @@ exports.generateFormWithLeadData = async (req, res) => {
          !lead.billingAddress.country)) {
       fullAddress = "[No Address Provided]";
     } else { 
-      // Format with line breaks that preserve markdown formatting
       fullAddress = 
 `${lead.billingAddress.street || ""}${lead.billingAddress.aptUnit ? " #" + lead.billingAddress.aptUnit : ""}
 ${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.billingAddress.zipCode || ""}, ${lead.billingAddress.country || ""}`.trim();
@@ -809,18 +819,27 @@ ${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.bil
       $addToSet: { associatedForms: savedForm._id },
     });
 
-    // Return timezone used for debugging
+    // Return expanded debug info to verify timezone handling
     res.json({
       _id: savedForm._id,
       title: savedForm.title,
       description: savedForm.description,
       content: populatedContent,
       leadId: leadId,
-      usedTimezone: userTimezone // For debugging
+      debug: {
+        usedTimezone: userTimezone,
+        currentServerTime: new Date().toISOString(),
+        formattedDateExample: currentDateFormatted,
+        timezoneSource: "client provided"
+      }
     });
   } catch (error) {
     console.error("Error generating form with lead data:", error);
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({ 
+      message: "Server Error", 
+      error: error.message,
+      stack: error.stack
+    });
   }
 };
 

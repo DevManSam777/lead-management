@@ -1623,18 +1623,41 @@ async function fetchFormById(formId) {
 //   }
 // }
 
-exports.generateFormWithLeadData = async (req, res) => {
+
+
+async function generateFormFromTemplate(templateId, leadId) {
   try {
-    // Show loading
+    // Show loading toast
     Utils.showToast("Generating form...");
 
-    // ADDED: Get user's timezone directly from browser
+    // Get user's timezone directly from browser
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    console.log("Sending timezone to server:", timezone);
+    
+    // Enhanced logging to verify browser-detected timezone
+    console.log("Client timezone details (forms.js):", {
+      detectedTimezone: timezone,
+      dateTimeFormatInfo: {
+        format: new Date().toLocaleString(),
+        locales: Intl.DateTimeFormat().resolvedOptions().locale,
+        timeZoneName: Intl.DateTimeFormat(undefined, {timeZoneName: 'long'}).formatToParts(new Date())
+          .find(part => part.type === 'timeZoneName')?.value
+      },
+      browserInfo: navigator.userAgent,
+      currentTime: new Date().toString()
+    });
 
-    // Generate form
+    // Verify timezone exists
+    if (!timezone) {
+      console.error("CRITICAL ERROR: Browser did not provide a timezone");
+      Utils.showToast("Error: Could not detect your timezone. Please try a different browser.");
+      return;
+    }
+
+    console.log(`Sending explicit timezone to server (forms.js): ${timezone}`);
+
+    // Call API to generate form with lead data
     const response = await fetch(
-      `${API.getBaseUrl()}/api/forms/${formId}/generate`,
+      `${API.getBaseUrl()}/api/forms/${templateId}/generate`,
       {
         method: "POST",
         headers: {
@@ -1648,60 +1671,33 @@ exports.generateFormWithLeadData = async (req, res) => {
     );
 
     if (!response.ok) {
-      throw new Error("Failed to generate form");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Form generation failed:", errorData);
+      throw new Error(errorData.message || "Failed to generate form");
     }
 
-    const generatedForm = await response.json();
-    console.log("Form generated with timezone:", generatedForm.usedTimezone);
+    const result = await response.json();
+    
+    // Enhanced logging of server response to verify timezone usage
+    console.log("Form generated successfully with timezone info (forms.js):", {
+      serverUsedTimezone: result.debug?.usedTimezone || result.usedTimezone,
+      formattedDateExample: result.debug?.formattedDateExample,
+      timezoneSource: result.debug?.timezoneSource || "unknown",
+      generatedFormId: result._id
+    });
 
-    // Rest of your existing function...
-    window.currentGeneratedForm = generatedForm;
+    // Close template modal
+    const modal = document.getElementById("formTemplateModal");
+    if (modal) {
+      modal.style.display = "none";
+      document.body.removeChild(modal);
+    }
 
-    // Set modal content
-    const generatedModal = document.getElementById("generatedFormModal");
-    generatedModal.querySelector(".modal-content").innerHTML = `
-      <span class="close-modal" id="closeGeneratedFormModal">&times;</span>
-      <div class="modal-header">
-        <h3 id="generatedFormTitle">${generatedForm.title}</h3>
-        <div class="editor-tabs">
-          <div class="editor-tab" data-tab="editor">Editor</div>
-          <div class="editor-tab active" data-tab="preview">Preview</div>
-        </div>
-      </div>
-      
-      <div class="form-editor-container">
-        <div class="preview-section active">
-          <div class="markdown-content" id="generatedContent">
-            ${DOMPurify.sanitize(marked.parse(generatedForm.content))}
-          </div>
-        </div>
-        
-        <div class="editor-section inactive">
-          <textarea id="editGeneratedContent">${generatedForm.content}</textarea>
-        </div>
-      </div>
-      
-      <div class="modal-actions">
-        <button type="button" id="saveGeneratedBtn" class="btn btn-primary">
-          <i class="fas fa-save"></i> Save Changes
-        </button>
-        <button type="button" id="downloadGeneratedBtn" class="btn btn-primary">
-          <i class="fas fa-download"></i> Download .md
-        </button>
-        <button type="button" id="printGeneratedBtn" class="btn btn-primary">
-          <i class="fas fa-print"></i> Print PDF
-        </button>
-      </div>
-    `;
+    // Show success message with timezone info for verification
+    Utils.showToast(`Form created successfully using timezone: ${timezone}`);
 
-    // Show modal
-    generatedModal.style.display = "block";
-
-    // Initialize CodeMirror and set up events
-    setTimeout(() => {
-      initializeGeneratedFormEditor();
-      setupGeneratedFormModalEvents(leadId);
-    }, 100);
+    // Reload lead forms to show the new form
+    loadLeadForms(leadId);
   } catch (error) {
     console.error("Error generating form:", error);
     Utils.showToast("Error: " + error.message);

@@ -377,9 +377,30 @@ async function generateFormFromTemplate(templateId, leadId) {
     // Show loading toast
     Utils.showToast("Generating form...");
 
-    // ADDED: Get user's timezone directly from browser
+    // Get user's timezone directly from browser
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    console.log("Sending timezone to server:", timezone);
+    
+    // Enhanced logging to verify browser-detected timezone
+    console.log("Client timezone details:", {
+      detectedTimezone: timezone,
+      dateTimeFormatInfo: {
+        format: new Date().toLocaleString(),
+        locales: Intl.DateTimeFormat().resolvedOptions().locale,
+        timeZoneName: Intl.DateTimeFormat(undefined, {timeZoneName: 'long'}).formatToParts(new Date())
+          .find(part => part.type === 'timeZoneName')?.value
+      },
+      browserInfo: navigator.userAgent,
+      currentTime: new Date().toString()
+    });
+
+    // Verify timezone exists
+    if (!timezone) {
+      console.error("CRITICAL ERROR: Browser did not provide a timezone");
+      Utils.showToast("Error: Could not detect your timezone. Please try a different browser.");
+      return;
+    }
+
+    console.log(`Sending explicit timezone to server: ${timezone}`);
 
     // Call API to generate form with lead data
     const response = await fetch(
@@ -397,11 +418,20 @@ async function generateFormFromTemplate(templateId, leadId) {
     );
 
     if (!response.ok) {
-      throw new Error("Failed to generate form");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Form generation failed:", errorData);
+      throw new Error(errorData.message || "Failed to generate form");
     }
 
     const result = await response.json();
-    console.log("Form generated with timezone:", result.usedTimezone);
+    
+    // Enhanced logging of server response to verify timezone usage
+    console.log("Form generated successfully with timezone info:", {
+      serverUsedTimezone: result.debug?.usedTimezone || result.usedTimezone,
+      formattedDateExample: result.debug?.formattedDateExample,
+      timezoneSource: result.debug?.timezoneSource || "unknown",
+      generatedFormId: result._id
+    });
 
     // Close template modal
     const modal = document.getElementById("formTemplateModal");
@@ -410,8 +440,8 @@ async function generateFormFromTemplate(templateId, leadId) {
       document.body.removeChild(modal);
     }
 
-    // Show success message
-    Utils.showToast("Form created successfully");
+    // Show success message with timezone info for verification
+    Utils.showToast(`Form created successfully using timezone: ${timezone}`);
 
     // Reload lead forms to show the new form
     loadLeadForms(leadId);
