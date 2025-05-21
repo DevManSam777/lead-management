@@ -892,7 +892,7 @@ body {
   /* Payment modal date display */
   #paymentDateDisplay {
     position: absolute;
-    left: 0;
+    left: -0.25rem;
     top: 0;
     padding: 1rem;
     width: calc(100% - 3.5rem);
@@ -904,7 +904,7 @@ body {
   /* Last contacted date in lead modal */
   #lastContactedDisplay {
     position: absolute;
-    left: 0;
+    left: -0.25rem;
     top: 0;
     padding: 1rem;
     width: calc(100% - 3.5rem);
@@ -916,7 +916,7 @@ body {
   /* Last contacted date in hitlists */
   #lastContactedDate + .date-display {
     position: absolute;
-    left: 0;
+    left: -0.25rem;
     top: 0;
     padding: 1rem;
     width: calc(100% - 3.5rem);
