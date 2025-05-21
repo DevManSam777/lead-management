@@ -924,6 +924,17 @@ body {
     display: flex;
     align-items: center;
   }
+
+  /* Hide the overlay when the input is focused/active */
+  input[type="date"]:focus + .date-display,
+  input[type="date"]:active + .date-display,
+  #paymentDate:focus + #paymentDateDisplay,
+  #paymentDate:active + #paymentDateDisplay,
+  #lastContactedDate:focus + .date-display,
+  #lastContactedDate:active + .date-display {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
 }
 
 @media (max-width: 1200px) {
