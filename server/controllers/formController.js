@@ -292,300 +292,11 @@ exports.cloneTemplate = async (req, res) => {
   }
 };
 
-// exports.generateFormWithLeadData = async (req, res) => {
-//   try {
-//     const formId = req.params.id;
-//     const { leadId, timezone } = req.body;  
-
-//     if (!leadId) {
-//       return res.status(400).json({ message: "Lead ID is required" });
-//     }
-
-//     // Get the form
-//     const form = await Form.findById(formId);
-//     if (!form) {
-//       return res.status(404).json({ message: "Form not found" });
-//     }
-
-//     // Get the lead
-//     const Lead = require("../models/Lead");
-//     const lead = await Lead.findById(leadId);
-
-//     if (!lead) {
-//       return res.status(404).json({ message: "Lead not found" });
-//     }
-    
-//     const fullName = `${lead.firstName} ${lead.lastName}`;
-    
-//     // Create a new form based on the template with lead data
-//     const newForm = new Form({
-//       // Keep title for organization in the database
-//       title: `${form.title} - ${fullName}`,
-//       description: form.description,
-//       // Use the original content, preserve all whitespace
-//       content: form.content,
-//       category: form.category,
-//       isTemplate: false,
-//       variables: [...form.variables],
-//     });
-
-//     // Replace variables in content with lead data, preserve whitespace
-//     let populatedContent = form.content;
-
-//     // TIMEZONE FIX: Get timezone information from various sources
-//     // Multiple fallback mechanisms to detect the user's timezone without requiring frontend changes
-//     let userTimezone;
-    
-//     // 1. Use any explicitly provided timezone first (keeping compatibility with existing code)
-//     if (timezone) {
-//       userTimezone = timezone;
-//     } 
-//     // 2. Check for timezone in headers (might be set by proxies or browser extensions)
-//     else if (req.headers['x-timezone']) {
-//       userTimezone = req.headers['x-timezone'];
-//     }
-//     // 3. Check for timezone cookie if set
-//     else if (req.cookies && req.cookies.timezone) {
-//       userTimezone = req.cookies.timezone;
-//     }
-//     // 4. Try to guess from Accept-Language header for region
-//     else if (req.headers['accept-language']) {
-//       const language = req.headers['accept-language'].split(',')[0].trim();
-//       // Extract country code if present (like en-US)
-//       const countryMatch = language.match(/-([A-Z]{2})/);
-//       if (countryMatch && countryMatch[1]) {
-//         const country = countryMatch[1];
-        
-//         // Map common countries to their primary timezone
-//         const countryTimezones = {
-//           'US': 'America/Los_Angeles',  // Changed to west coast for your location
-//           'GB': 'Europe/London',
-//           'CA': 'America/Toronto',
-//           'AU': 'Australia/Sydney',
-//           'IN': 'Asia/Kolkata',
-//           'JP': 'Asia/Tokyo',
-//           'DE': 'Europe/Berlin',
-//           // Add more as needed
-//         };
-        
-//         if (countryTimezones[country]) {
-//           userTimezone = countryTimezones[country];
-//         }
-//       }
-//     }
-    
-//     // 5. Use browser's timezone if available in headers (some modern browsers add this)
-//     if (!userTimezone && req.headers['sec-ch-ua-timezone']) {
-//       userTimezone = req.headers['sec-ch-ua-timezone'];
-//     }
-    
-//     // 6. Last resort: Default to the US West Coast 
-//     if (!userTimezone) {
-//       userTimezone = 'America/Los_Angeles';
-//     }
-    
-//     console.log(`Using detected timezone: ${userTimezone} for form generation`);
-    
-//     // Get current date and use it in the appropriate timezone
-//     const now = new Date();
-    
-//     // Format the current date in the detected timezone 
-//     const currentDateFormatted = formatDateInTimezone(now, userTimezone);
-    
-//     // Replace currentDate variable
-//     populatedContent = populatedContent.replace(
-//       /\{\{currentDate\}\}/g,
-//       currentDateFormatted
-//     );
-
-//     // Handle created date in user's timezone
-//     if (lead.createdAt) {
-//       const createdDate = new Date(lead.createdAt);
-//       const createdAtFormatted = formatDateInTimezone(createdDate, userTimezone);
-      
-//       populatedContent = populatedContent.replace(
-//         /\{\{createdAt\}\}/g,
-//         createdAtFormatted
-//       );
-//     }
-
-//     // Handle last contacted date in user's timezone
-//     if (lead.lastContactedAt) {
-//       const lastContactedDate = new Date(lead.lastContactedAt);
-//       const lastContactedFormatted = formatDateInTimezone(lastContactedDate, userTimezone);
-      
-//       populatedContent = populatedContent.replace(
-//         /\{\{lastContactedAt\}\}/g,
-//         lastContactedFormatted
-//       );
-//     }
-    
-//     // IMPROVED TIMEZONE FUNCTION: Format date correctly in the specified timezone
-//     function formatDateInTimezone(date, timezone) {
-//       try {
-//         // Use Intl.DateTimeFormat for better timezone handling
-//         const formatter = new Intl.DateTimeFormat('en-US', {
-//           year: 'numeric',
-//           month: 'long',
-//           day: 'numeric',
-//           timeZone: timezone
-//         });
-        
-//         return formatter.format(date);
-//       } catch (error) {
-//         console.error(`Error formatting date with timezone ${timezone}:`, error);
-//         // If the timezone is invalid, fall back to UTC
-//         try {
-//           const fallbackFormatter = new Intl.DateTimeFormat('en-US', {
-//             year: 'numeric',
-//             month: 'long',
-//             day: 'numeric',
-//             timeZone: 'UTC' // Fallback to UTC
-//           });
-//           return fallbackFormatter.format(date);
-//         } catch (fallbackError) {
-//           // If everything else fails, use a very basic fallback
-//           return date.toDateString();
-//         }
-//       }
-//     }
-
-//     // Handle financial variables specifically with proper formatting
-//     // Format the totalBudget (billedAmount) with proper currency formatting
-//     if (lead.totalBudget !== undefined) {
-//       const totalBudget = lead.totalBudget || 0;
-//       populatedContent = populatedContent.replace(
-//         /\{\{totalBudget\}\}/g,
-//         totalBudget.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-//       );
-//       populatedContent = populatedContent.replace(
-//         /\{\{billedAmount\}\}/g,
-//         totalBudget.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-//       );
-//     }
-
-//     // Format the paidAmount with proper currency formatting
-//     if (lead.paidAmount !== undefined) {
-//       const paidAmount = lead.paidAmount || 0;
-//       populatedContent = populatedContent.replace(
-//         /\{\{paidAmount\}\}/g,
-//         paidAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-//       );
-//     }
-
-//     // Format the remainingBalance with proper currency formatting
-//     if (lead.remainingBalance !== undefined) {
-//       const remainingBalance = lead.remainingBalance || 0;
-//       populatedContent = populatedContent.replace(
-//         /\{\{remainingBalance\}\}/g,
-//         remainingBalance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-//       );
-//     }
-
-//     // Handle billing address which needs special formatting
-//     // IMPORTANT: Preserve line breaks and indentation in the address
-//     let fullAddress;
-//     if (!lead.billingAddress || 
-//         (!lead.billingAddress.street && 
-//          !lead.billingAddress.aptUnit && 
-//          !lead.billingAddress.city && 
-//          !lead.billingAddress.state && 
-//          !lead.billingAddress.zipCode && 
-//          !lead.billingAddress.country)) {
-//       fullAddress = "[No Address Provided]";
-//     } else { 
-//       // Format with line breaks that preserve markdown formatting
-//       fullAddress = 
-// `${lead.billingAddress.street || ""}${lead.billingAddress.aptUnit ? " #" + lead.billingAddress.aptUnit : ""}
-// ${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.billingAddress.zipCode || ""}, ${lead.billingAddress.country || ""}`.trim();
-//     }
-
-//     populatedContent = populatedContent.replace(
-//       /\{\{billingAddress\}\}/g,
-//       fullAddress
-//     );
-
-//     // Handle fullName
-//     populatedContent = populatedContent.replace(
-//       /\{\{fullName\}\}/g,
-//       fullName
-//     );
-
-//     // Handle preferred contact method with special formatting
-//     const formattedPreferredContact = formatVariableValue("preferredContact", lead.preferredContact);
-//     populatedContent = populatedContent.replace(
-//       /\{\{preferredContact\}\}/g,
-//       formattedPreferredContact
-//     );
-
-//     // Replace all other variables with lead data
-//     form.variables.forEach((variable) => {
-//       // Skip already processed special variables
-//       if (variable === "currentDate" || 
-//           variable === "paidAmount" || 
-//           variable === "remainingBalance" ||
-//           variable === "billedAmount" ||
-//           variable === "totalBudget" ||
-//           variable === "billingAddress" ||
-//           variable === "fullName" ||
-//           variable === "preferredContact" ||
-//           variable === "createdAt" ||
-//           variable === "lastContactedAt") {
-//         return;
-//       }
-
-//       const variablePattern = new RegExp(`\\{\\{${variable}\\}\\}`, "g");
-
-//       // Get the value from lead object
-//       let value = lead[variable];
-      
-//       // Format the value with our formatter
-//       value = formatVariableValue(variable, value);
-
-//       // This maintains whitespace around variables
-//       populatedContent = populatedContent.replace(variablePattern, value);
-//     });
-
-//     // Set the populated content
-//     newForm.content = populatedContent;
-
-//     // Save the new form
-//     const savedForm = await newForm.save();
-
-//     // Associate the form with the lead
-//     await Lead.findByIdAndUpdate(leadId, {
-//       $addToSet: { associatedForms: savedForm._id },
-//     });
-
-//     // Return timezone used for debugging
-//     res.json({
-//       _id: savedForm._id,
-//       title: savedForm.title,
-//       description: savedForm.description,
-//       content: populatedContent,
-//       leadId: leadId,
-//       usedTimezone: userTimezone // For debugging
-//     });
-//   } catch (error) {
-//     console.error("Error generating form with lead data:", error);
-//     res.status(500).json({ message: "Server Error" });
-//   }
-// };
 
 exports.generateFormWithLeadData = async (req, res) => {
   try {
     const formId = req.params.id;
     const { leadId, timezone } = req.body;  
-
-    // Enhanced logging to verify what timezone is being used
-    console.log("Form generation timezone details:", {
-      requestBody: { leadId, timezone },
-      headers: {
-        'x-timezone': req.headers['x-timezone'],
-        'user-agent': req.headers['user-agent'],
-        'accept-language': req.headers['accept-language']
-      }
-    });
 
     if (!leadId) {
       return res.status(400).json({ message: "Lead ID is required" });
@@ -620,33 +331,16 @@ exports.generateFormWithLeadData = async (req, res) => {
     // Replace variables in content with lead data
     let populatedContent = form.content;
 
-    // IMPORTANT: NO FALLBACK - use only the timezone explicitly provided by client
-    // If no timezone is provided, we'll let the error happen to verify the client is sending it
+    // Add minimal fallback to America/Los_Angeles if no timezone is provided
     let userTimezone = timezone;
-    
     if (!userTimezone) {
-      // Instead of fallback, log error and fail - this will confirm the client is sending timezone
-      console.error("NO TIMEZONE PROVIDED BY CLIENT - This will help verify that client code is working");
-      return res.status(400).json({ 
-        message: "Timezone parameter is required", 
-        debug: "This error is expected if the client code isn't sending the timezone parameter"
-      });
+      console.warn("No timezone provided by client, falling back to America/Los_Angeles");
+      userTimezone = 'America/Los_Angeles';
     }
     
-    console.log(`Using ONLY client-provided timezone: ${userTimezone} for form generation`);
-    
-    // Get current date and use it in the timezone
+    // Get current date and format it in the user's timezone
     const now = new Date();
-    
-    // Format the current date in the client's timezone
     const currentDateFormatted = formatDateInTimezone(now, userTimezone);
-    console.log("Formatted current date:", {
-      date: now.toISOString(),
-      timezone: userTimezone,
-      formattedResult: currentDateFormatted
-    });
-    
-    // Replace currentDate variable
     populatedContent = populatedContent.replace(
       /\{\{currentDate\}\}/g,
       currentDateFormatted
@@ -656,13 +350,6 @@ exports.generateFormWithLeadData = async (req, res) => {
     if (lead.createdAt) {
       const createdDate = new Date(lead.createdAt);
       const createdAtFormatted = formatDateInTimezone(createdDate, userTimezone);
-      
-      console.log("Formatted created date:", {
-        date: createdDate.toISOString(),
-        timezone: userTimezone,
-        formattedResult: createdAtFormatted
-      });
-      
       populatedContent = populatedContent.replace(
         /\{\{createdAt\}\}/g,
         createdAtFormatted
@@ -673,19 +360,15 @@ exports.generateFormWithLeadData = async (req, res) => {
     if (lead.lastContactedAt) {
       const lastContactedDate = new Date(lead.lastContactedAt);
       const lastContactedFormatted = formatDateInTimezone(lastContactedDate, userTimezone);
-      
       populatedContent = populatedContent.replace(
         /\{\{lastContactedAt\}\}/g,
         lastContactedFormatted
       );
     }
     
-    // Improved date formatting function
+    // Format date in the specified timezone
     function formatDateInTimezone(date, timezone) {
       try {
-        console.log(`Formatting date ${date.toISOString()} in timezone ${timezone}`);
-        
-        // Use Intl.DateTimeFormat with explicit options for better control
         const formatter = new Intl.DateTimeFormat('en-US', {
           year: 'numeric',
           month: 'long',
@@ -693,29 +376,23 @@ exports.generateFormWithLeadData = async (req, res) => {
           timeZone: timezone
         });
         
-        // Use this instead of formatter.format() for more explicit control
         const parts = formatter.formatToParts(date);
         let formattedDate = '';
         
-        // Build the date manually from parts for greater control
         parts.forEach(part => {
-          console.log("Date part:", part);
           if (part.type === 'month') formattedDate += part.value + ' ';
           if (part.type === 'day') formattedDate += part.value + ', ';
           if (part.type === 'year') formattedDate += part.value;
         });
         
-        console.log(`Final formatted date: ${formattedDate.trim()}`);
         return formattedDate.trim();
       } catch (error) {
         console.error(`Error formatting date with timezone ${timezone}:`, error);
-        // If formatting fails, throw error instead of providing fallback
-        // This helps verify the timezone parameter is working
-        throw new Error(`Unable to format date with timezone ${timezone}: ${error.message}`);
+        return date.toDateString();
       }
     }
 
-    // Handle financial variables with proper formatting
+    // Format the totalBudget with proper currency formatting
     if (lead.totalBudget !== undefined) {
       const totalBudget = lead.totalBudget || 0;
       populatedContent = populatedContent.replace(
@@ -797,14 +474,8 @@ ${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.bil
       }
 
       const variablePattern = new RegExp(`\\{\\{${variable}\\}\\}`, "g");
-
-      // Get the value from lead object
       let value = lead[variable];
-      
-      // Format the value with our formatter
       value = formatVariableValue(variable, value);
-
-      // This maintains whitespace around variables
       populatedContent = populatedContent.replace(variablePattern, value);
     });
 
@@ -819,27 +490,17 @@ ${lead.billingAddress.city || ""}, ${lead.billingAddress.state || ""} ${lead.bil
       $addToSet: { associatedForms: savedForm._id },
     });
 
-    // Return expanded debug info to verify timezone handling
     res.json({
       _id: savedForm._id,
       title: savedForm.title,
       description: savedForm.description,
       content: populatedContent,
       leadId: leadId,
-      debug: {
-        usedTimezone: userTimezone,
-        currentServerTime: new Date().toISOString(),
-        formattedDateExample: currentDateFormatted,
-        timezoneSource: "client provided"
-      }
+      usedTimezone: userTimezone
     });
   } catch (error) {
     console.error("Error generating form with lead data:", error);
-    res.status(500).json({ 
-      message: "Server Error", 
-      error: error.message,
-      stack: error.stack
-    });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
