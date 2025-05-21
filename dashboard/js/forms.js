@@ -1623,37 +1623,110 @@ async function fetchFormById(formId) {
 //   }
 // }
 
-
-
 async function generateFormFromTemplate(templateId, leadId) {
   try {
     // Show loading toast
     Utils.showToast("Generating form...");
 
-    // Get user's timezone directly from browser
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Multi-method timezone detection for iOS compatibility
+    let timezone;
+    
+    // Method 1: Try Intl.DateTimeFormat().resolvedOptions().timeZone (works in most browsers)
+    try {
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log("Timezone detected via Intl.DateTimeFormat:", timezone);
+    } catch (error) {
+      console.warn("Failed to detect timezone via Intl.DateTimeFormat:", error);
+    }
+    
+    // Method 2: Try to calculate timezone offset and determine name (fallback for iOS)
+    if (!timezone) {
+      try {
+        // Get timezone offset in minutes
+        const offsetMinutes = new Date().getTimezoneOffset();
+        
+        // Convert to hours (negative because getTimezoneOffset() returns the opposite of what we want)
+        const offsetHours = -offsetMinutes / 60;
+        
+        // Format as +/-HH:MM
+        const formattedOffset = `${offsetHours >= 0 ? '+' : '-'}${Math.abs(Math.floor(offsetHours)).toString().padStart(2, '0')}:${(Math.abs(offsetHours % 1) * 60).toString().padStart(2, '0')}`;
+
+        // Map common offsets to timezone names
+        // This is a simple mapping and won't handle DST perfectly, but works as a fallback
+        const offsetToTimezone = {
+          '-08:00': 'America/Los_Angeles', // Pacific Standard Time
+          '-07:00': 'America/Los_Angeles', // Pacific Daylight Time
+          '-05:00': 'America/New_York',    // Eastern Standard Time
+          '-04:00': 'America/New_York',    // Eastern Daylight Time
+          '+00:00': 'Europe/London',       // GMT/UTC
+          '+01:00': 'Europe/Paris',        // Central European Time
+          '+02:00': 'Europe/Helsinki',     // Eastern European Time
+          '+05:30': 'Asia/Kolkata',        // India
+          '+08:00': 'Asia/Singapore',      // Singapore/China
+          '+09:00': 'Asia/Tokyo',          // Japan
+          '+10:00': 'Australia/Sydney',    // Sydney
+        };
+        
+        // Get timezone name from offset, or use a default format
+        timezone = offsetToTimezone[formattedOffset] || `Etc/GMT${formattedOffset.replace(':', '')}`;
+        console.log("Timezone detected via offset calculation:", timezone, "offset:", formattedOffset);
+      } catch (error) {
+        console.warn("Failed to detect timezone via offset calculation:", error);
+      }
+    }
+    
+    // Method 3: Try getting timezone from date string parsing (another iOS fallback)
+    if (!timezone) {
+      try {
+        const dateString = new Date().toString();
+        // Extract timezone abbreviation from date string
+        const tzAbbr = dateString.match(/\(([^)]+)\)$/)?.[1];
+        
+        // Map common timezone abbreviations to IANA timezone names
+        const tzAbbrMap = {
+          'PST': 'America/Los_Angeles',
+          'PDT': 'America/Los_Angeles',
+          'EST': 'America/New_York',
+          'EDT': 'America/New_York',
+          'CST': 'America/Chicago',
+          'CDT': 'America/Chicago',
+          'MST': 'America/Denver',
+          'MDT': 'America/Denver',
+          'GMT': 'Europe/London',
+          'BST': 'Europe/London',
+          'CET': 'Europe/Paris',
+          'CEST': 'Europe/Paris',
+          'JST': 'Asia/Tokyo',
+          'IST': 'Asia/Kolkata',
+        };
+        
+        timezone = tzAbbrMap[tzAbbr] || 'America/Los_Angeles'; // Default to Los Angeles if unknown
+        console.log("Timezone detected via date string:", timezone, "abbr:", tzAbbr);
+      } catch (error) {
+        console.warn("Failed to detect timezone via date string:", error);
+      }
+    }
+    
+    // Final fallback: use a default timezone
+    if (!timezone) {
+      timezone = 'America/Los_Angeles'; // Default to Pacific Time
+      console.warn("All timezone detection methods failed, using default:", timezone);
+    }
     
     // Enhanced logging to verify browser-detected timezone
-    console.log("Client timezone details (forms.js):", {
+    console.log("Client timezone detection complete:", {
       detectedTimezone: timezone,
-      dateTimeFormatInfo: {
-        format: new Date().toLocaleString(),
-        locales: Intl.DateTimeFormat().resolvedOptions().locale,
-        timeZoneName: Intl.DateTimeFormat(undefined, {timeZoneName: 'long'}).formatToParts(new Date())
-          .find(part => part.type === 'timeZoneName')?.value
+      dateInfo: {
+        localeDateString: new Date().toLocaleDateString(),
+        localeTimeString: new Date().toLocaleTimeString(),
+        isoString: new Date().toISOString(),
+        utcString: new Date().toUTCString(),
+        dateString: new Date().toString()
       },
-      browserInfo: navigator.userAgent,
-      currentTime: new Date().toString()
+      browserInfo: navigator.userAgent
     });
 
-    // Verify timezone exists
-    if (!timezone) {
-      console.error("CRITICAL ERROR: Browser did not provide a timezone");
-      Utils.showToast("Error: Could not detect your timezone. Please try a different browser.");
-      return;
-    }
-
-    console.log(`Sending explicit timezone to server (forms.js): ${timezone}`);
+    console.log(`Sending timezone to server: ${timezone}`);
 
     // Call API to generate form with lead data
     const response = await fetch(
@@ -1679,7 +1752,7 @@ async function generateFormFromTemplate(templateId, leadId) {
     const result = await response.json();
     
     // Enhanced logging of server response to verify timezone usage
-    console.log("Form generated successfully with timezone info (forms.js):", {
+    console.log("Form generated successfully with timezone info:", {
       serverUsedTimezone: result.debug?.usedTimezone || result.usedTimezone,
       formattedDateExample: result.debug?.formattedDateExample,
       timezoneSource: result.debug?.timezoneSource || "unknown",
