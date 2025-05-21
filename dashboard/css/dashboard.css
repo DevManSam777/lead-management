@@ -886,6 +886,46 @@ body {
   width: 100%;
 }
 
+/* iOS Date Display Fix - Respecting original positioning */
+
+@supports (-webkit-touch-callout: none) {
+  /* Payment modal date display */
+  #paymentDateDisplay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 1rem;
+    width: calc(100% - 3.5rem);
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Last contacted date in lead modal */
+  #lastContactedDisplay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 1rem;
+    width: calc(100% - 3.5rem);
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Last contacted date in hitlists */
+  #lastContactedDate + .date-display {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 1rem;
+    width: calc(100% - 3.5rem);
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+}
+
 @media (max-width: 1200px) {
   .lead-cards {
     grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
