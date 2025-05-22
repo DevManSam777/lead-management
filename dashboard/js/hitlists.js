@@ -832,7 +832,7 @@ async function convertBusinessToLead(business) {
       websiteAddress: business.websiteUrl || "",
       serviceDesired: "Web Development", // Default service
       hasWebsite: business.websiteUrl ? "yes" : "no",
-      status: mapBusinessStatusToLeadStatus(business.status),
+      status: "contacted",
       notes: business.notes || "",
       lastContactedAt: lastContactedAt, // Set current date as the last contacted date
       source: `Converted from Hitlist: ${
