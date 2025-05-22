@@ -1699,6 +1699,9 @@ function renderBusinesses(businesses) {
       <button class="btn-icon view-business" title="View Business Details">
         <i class="fas fa-eye"></i>
       </button>
+      <button class="btn-icon edit-business" title="Edit">
+        <i class="fas fa-edit"></i>
+      </button>
       ${
         business.status !== "converted"
           ? `<button class="btn-icon convert-to-lead" title="Convert to Lead">
@@ -1708,9 +1711,6 @@ function renderBusinesses(businesses) {
           <i class="fas fa-check"></i>
         </button>`
       }
-      <button class="btn-icon edit-business" title="Edit">
-        <i class="fas fa-edit"></i>
-      </button>
       <button class="btn-icon delete-business" title="Delete">
         <i class="fas fa-trash"></i>
       </button>
