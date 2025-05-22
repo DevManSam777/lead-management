@@ -17,40 +17,40 @@ function formatPhoneNumber(phoneNumber) {
   return phoneNumber;
 }
 
-
 function formatPhoneInput(input) {
   // Skip if the input doesn't exist
   if (!input) return;
 
   // Store current cursor position
   const cursorPos = input.selectionStart;
-  
+
   // Get input value and remove all non-digit characters
-  let value = input.value.replace(/\D/g, '');
-  
+  let value = input.value.replace(/\D/g, "");
+
   // Store original length for cursor adjustment
   const originalLength = input.value.length;
-  
+
   // Format the number as XXX-XXX-XXXX
   if (value.length <= 3) {
     // Do nothing for 1-3 digits
   } else if (value.length <= 6) {
     // Format as XXX-XXX
-    value = value.slice(0, 3) + '-' + value.slice(3);
+    value = value.slice(0, 3) + "-" + value.slice(3);
   } else {
     // Format as XXX-XXX-XXXX (limit to 10 digits)
-    value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
+    value =
+      value.slice(0, 3) + "-" + value.slice(3, 6) + "-" + value.slice(6, 10);
   }
-  
+
   // Update the input value
   input.value = value;
-  
+
   // Adjust cursor position if value changed
   if (input.value.length !== originalLength) {
     // Calculate new cursor position
     let newCursorPos = cursorPos;
     // If added a hyphen and cursor was after it, move cursor forward
-    if (input.value.charAt(cursorPos - 1) === '-') {
+    if (input.value.charAt(cursorPos - 1) === "-") {
       newCursorPos++;
     }
     // If at a position where a hyphen was just added, move cursor forward
@@ -62,19 +62,17 @@ function formatPhoneInput(input) {
   }
 }
 
-
 function initializePhoneFormatting() {
   // Get all phone input fields
   const phoneInputs = document.querySelectorAll('input[type="tel"]');
-  
+
   // Add input event listeners to each phone input
-  phoneInputs.forEach(input => {
-    input.addEventListener('input', function() {
+  phoneInputs.forEach((input) => {
+    input.addEventListener("input", function () {
       formatPhoneInput(this);
     });
   });
 }
-
 
 function restrictToDigits(input) {
   // Skip if the input doesn't exist
@@ -82,34 +80,38 @@ function restrictToDigits(input) {
 
   // Store current cursor position
   const cursorPos = input.selectionStart;
-  
+
   // Get input value
   let value = input.value;
   const originalLength = value.length;
-  
+
   // Only allow digits and at most one decimal point
   // check if there's already a decimal point
-  const decimalIndex = value.indexOf('.');
-  
+  const decimalIndex = value.indexOf(".");
+
   if (decimalIndex !== -1) {
     // If there's a decimal point, only allow digits before and after it
-    const beforeDecimal = value.substring(0, decimalIndex).replace(/[^\d]/g, '');
-    const afterDecimal = value.substring(decimalIndex + 1).replace(/[^\d]/g, '');
-    value = beforeDecimal + '.' + afterDecimal;
+    const beforeDecimal = value
+      .substring(0, decimalIndex)
+      .replace(/[^\d]/g, "");
+    const afterDecimal = value
+      .substring(decimalIndex + 1)
+      .replace(/[^\d]/g, "");
+    value = beforeDecimal + "." + afterDecimal;
   } else {
     // If no decimal point, just remove all non-digits except decimal point
-    value = value.replace(/[^\d.]/g, '');
-    
+    value = value.replace(/[^\d.]/g, "");
+
     // Make sure there's only one decimal point
-    const parts = value.split('.');
+    const parts = value.split(".");
     if (parts.length > 2) {
-      value = parts[0] + '.' + parts.slice(1).join('');
+      value = parts[0] + "." + parts.slice(1).join("");
     }
   }
-  
+
   // Update the input value
   input.value = value;
-  
+
   // Adjust cursor position if value changed
   if (input.value.length !== originalLength) {
     // Calculate new cursor position (simple approach)
@@ -121,24 +123,23 @@ function restrictToDigits(input) {
   }
 }
 
-
 function initializeMonetaryInputs() {
   // Get all monetary input fields
   const monetaryInputs = [
     document.getElementById("budget"),
     document.getElementById("totalBudget"),
-    document.getElementById("paymentAmount")
+    document.getElementById("paymentAmount"),
   ];
-  
+
   // Input event listeners to each monetary input to restrict to digits
-  monetaryInputs.forEach(input => {
+  monetaryInputs.forEach((input) => {
     if (input) {
-      input.addEventListener('input', function() {
+      input.addEventListener("input", function () {
         restrictToDigits(this);
       });
-      
+
       // Also when the field loses focus, format as currency
-      input.addEventListener('blur', function() {
+      input.addEventListener("blur", function () {
         if (this.value) {
           // Parse as a number
           const numValue = parseFloat(this.value);
@@ -148,18 +149,18 @@ function initializeMonetaryInputs() {
           }
         }
       });
-      
+
       // When the field gains focus, convert from formatted currency to plain number
       // AND select all text to make it easier to replace
-      input.addEventListener('focus', function() {
+      input.addEventListener("focus", function () {
         // First select all text for easy replacement
         this.select();
-        
+
         if (this.value) {
           // Remove currency formatting
-          const numStr = this.value.replace(/[^\d.]/g, '');
+          const numStr = this.value.replace(/[^\d.]/g, "");
           this.value = numStr;
-          
+
           // Re-select all text after changing the value
           // This is needed because changing the value can deselect the text in some browsers
           setTimeout(() => this.select(), 0);
@@ -168,7 +169,6 @@ function initializeMonetaryInputs() {
     }
   });
 }
-
 
 function formatCurrency(amount) {
   try {
@@ -186,7 +186,6 @@ function formatCurrency(amount) {
   }
 }
 
-
 function formatDate(date, format = "MM/DD/YYYY") {
   if (!date) return "";
 
@@ -203,12 +202,12 @@ function formatDate(date, format = "MM/DD/YYYY") {
     console.warn("Invalid date:", date);
     return "";
   }
-  
+
   // Use local timezone methods to get date components
   const year = dateObj.getFullYear();
   const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
   const day = dateObj.getDate();
-  
+
   // Create padded versions for single-digit values
   const paddedMonth = month.toString().padStart(2, "0");
   const paddedDay = day.toString().padStart(2, "0");
@@ -225,35 +224,31 @@ function formatDate(date, format = "MM/DD/YYYY") {
   return formattedDate;
 }
 
-
 function toISODateString(dateStr, format = "MM/DD/YYYY") {
   if (!dateStr) return "";
-  
+
   let year, month, day;
-  
+
   // Extract parts based on the format
   if (format === "MM/DD/YYYY") {
-    const parts = dateStr.split('/');
+    const parts = dateStr.split("/");
     if (parts.length !== 3) return "";
     month = parseInt(parts[0], 10);
     day = parseInt(parts[1], 10);
     year = parseInt(parts[2], 10);
-  } 
-  else if (format === "DD/MM/YYYY") {
-    const parts = dateStr.split('/');
+  } else if (format === "DD/MM/YYYY") {
+    const parts = dateStr.split("/");
     if (parts.length !== 3) return "";
     day = parseInt(parts[0], 10);
     month = parseInt(parts[1], 10);
     year = parseInt(parts[2], 10);
-  }
-  else if (format === "YYYY-MM-DD") {
-    const parts = dateStr.split('-');
+  } else if (format === "YYYY-MM-DD") {
+    const parts = dateStr.split("-");
     if (parts.length !== 3) return "";
     year = parseInt(parts[0], 10);
     month = parseInt(parts[1], 10);
     day = parseInt(parts[2], 10);
-  }
-  else {
+  } else {
     // For other formats, use the Date object's parsing
     const dateObj = new Date(dateStr);
     if (isNaN(dateObj.getTime())) return "";
@@ -261,16 +256,17 @@ function toISODateString(dateStr, format = "MM/DD/YYYY") {
     month = dateObj.getMonth() + 1;
     day = dateObj.getDate();
   }
-  
+
   // Ensure valid values
   if (isNaN(year) || isNaN(month) || isNaN(day)) {
     return "";
   }
-  
-  // Format as YYYY-MM-DD for input[type="date"]
-  return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-}
 
+  // Format as YYYY-MM-DD for input[type="date"]
+  return `${year}-${month.toString().padStart(2, "0")}-${day
+    .toString()
+    .padStart(2, "0")}`;
+}
 
 function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
   if (!datetime) return "";
@@ -294,16 +290,15 @@ function formatDateTime(datetime, dateFormat = "MM/DD/YYYY") {
   return formatDate(dateObj, dateFormat);
 }
 
-
 function updateDateInputDisplay(inputId, displayId, format = null) {
   const input = document.getElementById(inputId);
   const display = document.getElementById(displayId);
-  
+
   if (!input || !display) return;
-  
+
   // Use provided format or global format
   const dateFormat = format || window.dateFormat || "MM/DD/YYYY";
-  
+
   // Only update if input has a value
   if (input.value) {
     const date = new Date(input.value);
@@ -313,38 +308,39 @@ function updateDateInputDisplay(inputId, displayId, format = null) {
   }
 }
 
-
 function setupDateInput(inputId, displayId) {
   const input = document.getElementById(inputId);
-  
+
   if (!input) return;
-  
+
   // Update display when input changes
-  input.addEventListener('change', function() {
+  input.addEventListener("change", function () {
     updateDateInputDisplay(inputId, displayId);
   });
-  
+
   // Initial update
   updateDateInputDisplay(inputId, displayId);
 }
 
-
 function initializeDateInputs() {
   // Setup date inputs with their display elements
-  setupDateInput('lastContactedAt', 'lastContactedDisplay');
-  setupDateInput('paymentDate', 'paymentDateDisplay');
-  
+  setupDateInput("lastContactedAt", "lastContactedDisplay");
+  setupDateInput("paymentDate", "paymentDateDisplay");
+
   // Listen for date format changes
-  window.addEventListener('settingsUpdated', function(event) {
+  window.addEventListener("settingsUpdated", function (event) {
     const { key, value } = event.detail;
-    
-    if (key === 'dateFormat') {
+
+    if (key === "dateFormat") {
       // Update all date input displays with new format
-      updateDateInputDisplay('lastContactedAt', 'lastContactedDisplay', value);
-      updateDateInputDisplay('paymentDate', 'paymentDateDisplay', value);
+      updateDateInputDisplay("lastContactedAt", "lastContactedDisplay", value);
+      updateDateInputDisplay("paymentDate", "paymentDateDisplay", value);
     }
   });
 }
+
+
+let toastTimer;
 
 function showToast(message, type = "default") {
   const toast = document.getElementById("toast");
@@ -353,6 +349,11 @@ function showToast(message, type = "default") {
   if (!toast || !toastMessage) {
     console.error("Toast elements not found");
     return;
+  }
+
+  // Clear any existing timer
+  if (toastTimer) {
+    clearTimeout(toastTimer);
   }
 
   toastMessage.textContent = message;
@@ -368,11 +369,11 @@ function showToast(message, type = "default") {
   toast.style.display = "block";
 
   // Hide toast after 3 seconds
-  setTimeout(() => {
+  toastTimer = setTimeout(() => {
     toast.style.display = "none";
+    toastTimer = null;
   }, 3000);
 }
-
 
 function safeSetTextContent(elementId, text) {
   const element = document.getElementById(elementId);
@@ -382,7 +383,6 @@ function safeSetTextContent(elementId, text) {
     console.warn(`Element with id ${elementId} not found in the DOM`);
   }
 }
-
 
 function safeUpdateChangeIndicator(elementId, value, period) {
   const element = document.getElementById(elementId);
@@ -439,12 +439,10 @@ function safeUpdateChangeIndicator(elementId, value, period) {
   }
 }
 
-
 function capitalizeFirstLetter(string) {
   if (!string) return "";
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
-
 
 function getLeadName(lead) {
   if (lead.firstName && lead.lastName) {
@@ -455,7 +453,6 @@ function getLeadName(lead) {
     return "Unknown";
   }
 }
-
 
 function showInputError(input, errorElement, message) {
   input.classList.add("invalid");
@@ -471,7 +468,6 @@ function showInputError(input, errorElement, message) {
   return false;
 }
 
-
 function clearInputError(input, errorElement) {
   input.classList.remove("invalid");
 
@@ -481,7 +477,6 @@ function clearInputError(input, errorElement) {
   }
   return true;
 }
-
 
 function getErrorElement(input) {
   let errorElement = input.parentNode.querySelector(".error-message");
@@ -495,32 +490,29 @@ function getErrorElement(input) {
   return errorElement;
 }
 
-
 function initializeAutoResizeTextareas() {
   // Get all textareas
-  const textareas = document.querySelectorAll('textarea');
-  
+  const textareas = document.querySelectorAll("textarea");
+
   // Apply auto-resize to each textarea
-  textareas.forEach(textarea => {
+  textareas.forEach((textarea) => {
     // Set initial height based on content
     adjustTextareaHeight(textarea);
-    
+
     // Add event listener for input changes
-    textarea.addEventListener('input', function() {
+    textarea.addEventListener("input", function () {
       adjustTextareaHeight(this);
     });
   });
 }
 
-
 function adjustTextareaHeight(textarea) {
   // Reset height to auto to get the correct scrollHeight
-  textarea.style.height = 'auto';
-  
-  // Set height to scrollHeight to fit content
-  textarea.style.height = (textarea.scrollHeight) + 'px';
-}
+  textarea.style.height = "auto";
 
+  // Set height to scrollHeight to fit content
+  textarea.style.height = textarea.scrollHeight + "px";
+}
 
 export {
   formatPhoneNumber,
@@ -544,5 +536,5 @@ export {
   restrictToDigits,
   initializeMonetaryInputs,
   initializeAutoResizeTextareas,
-  adjustTextareaHeight
+  adjustTextareaHeight,
 };

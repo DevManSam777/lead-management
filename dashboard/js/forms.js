@@ -428,12 +428,18 @@ async function fetchAndRenderForms() {
     const allCategoriesContainer = document.createElement("div");
 
     // Define the desired category order
-    const categoryOrder = ["proposal", "contract", "agreement", "invoice", "other"];
+    const categoryOrder = [
+      "proposal",
+      "contract",
+      "agreement",
+      "invoice",
+      "other",
+    ];
 
     // Initialize pagination for each category with custom page sizes
     const categoryPageSizes = {
-      'drafts': 12,  // Sets number of drafts per category
-      'templates': 12  // Sets number of templates per category
+      drafts: 12, // Sets number of drafts per category
+      templates: 12, // Sets number of templates per category
     };
 
     // Ensure pagination is initialized for each category
@@ -481,8 +487,7 @@ async function fetchAndRenderForms() {
       }
 
       // Format category name
-      const categoryName =
-        category.charAt(0).toUpperCase() + category.slice(1);
+      const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
 
       header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
       categoryDiv.appendChild(header);
@@ -494,10 +499,10 @@ async function fetchAndRenderForms() {
 
       // Determine page size for this category
       // Check if the template filter is set to 'draft'
-      const isDraftsCategory = templateFilter === 'draft';
-      const pageSize = isDraftsCategory 
-        ? categoryPageSizes['drafts'] 
-        : categoryPageSizes['templates'];
+      const isDraftsCategory = templateFilter === "draft";
+      const pageSize = isDraftsCategory
+        ? categoryPageSizes["drafts"]
+        : categoryPageSizes["templates"];
 
       // Set up pagination for this category
       const totalItems = forms.length;
@@ -558,7 +563,7 @@ async function fetchAndRenderForms() {
           startPage = 1;
           endPage = Math.min(3, totalPages);
         }
-        
+
         if (endPage > totalPages) {
           endPage = totalPages;
           startPage = Math.max(1, totalPages - 2);
@@ -583,8 +588,8 @@ async function fetchAndRenderForms() {
         const nextButton = document.createElement("button");
         nextButton.className = "pagination-button";
         nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        nextButton.disabled = 
-          categoryPagination[category].currentPage === totalPages || 
+        nextButton.disabled =
+          categoryPagination[category].currentPage === totalPages ||
           totalPages === 0;
         nextButton.addEventListener("click", () => {
           if (categoryPagination[category].currentPage < totalPages) {
@@ -599,9 +604,10 @@ async function fetchAndRenderForms() {
         pageInfo.className = "pagination-info";
 
         // Calculate the item range
-        const startIndex = (categoryPagination[category].currentPage - 1) * pageSize + 1;
+        const startIndex =
+          (categoryPagination[category].currentPage - 1) * pageSize + 1;
         const endIndex = Math.min(
-          categoryPagination[category].currentPage * pageSize, 
+          categoryPagination[category].currentPage * pageSize,
           totalItems
         );
 
@@ -626,10 +632,14 @@ async function fetchAndRenderForms() {
     // Process any remaining categories that aren't in our predefined order
     Object.keys(groupedForms).forEach((category) => {
       // Skip if this category was already processed or has no forms
-      if (categoryOrder.includes(category) || !groupedForms[category] || groupedForms[category].length === 0) {
+      if (
+        categoryOrder.includes(category) ||
+        !groupedForms[category] ||
+        groupedForms[category].length === 0
+      ) {
         return;
       }
-      
+
       const forms = groupedForms[category];
 
       // Create category container
@@ -642,8 +652,7 @@ async function fetchAndRenderForms() {
       let icon = "fa-file-alt"; // Default icon
 
       // Format category name
-      const categoryName =
-        category.charAt(0).toUpperCase() + category.slice(1);
+      const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
 
       header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
       categoryDiv.appendChild(header);
@@ -654,10 +663,10 @@ async function fetchAndRenderForms() {
       cardsDiv.style.display = "grid"; // Force grid display
 
       // Determine page size for this category
-      const isDraftsCategory = templateFilter === 'draft';
-      const pageSize = isDraftsCategory 
-        ? categoryPageSizes['drafts'] 
-        : categoryPageSizes['templates'];
+      const isDraftsCategory = templateFilter === "draft";
+      const pageSize = isDraftsCategory
+        ? categoryPageSizes["drafts"]
+        : categoryPageSizes["templates"];
 
       // Set up pagination for this category
       const totalItems = forms.length;
@@ -713,7 +722,7 @@ async function fetchAndRenderForms() {
           startPage = 1;
           endPage = Math.min(3, totalPages);
         }
-        
+
         if (endPage > totalPages) {
           endPage = totalPages;
           startPage = Math.max(1, totalPages - 2);
@@ -738,8 +747,8 @@ async function fetchAndRenderForms() {
         const nextButton = document.createElement("button");
         nextButton.className = "pagination-button";
         nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        nextButton.disabled = 
-          categoryPagination[category].currentPage === totalPages || 
+        nextButton.disabled =
+          categoryPagination[category].currentPage === totalPages ||
           totalPages === 0;
         nextButton.addEventListener("click", () => {
           if (categoryPagination[category].currentPage < totalPages) {
@@ -754,9 +763,10 @@ async function fetchAndRenderForms() {
         pageInfo.className = "pagination-info";
 
         // Calculate the item range
-        const startIndex = (categoryPagination[category].currentPage - 1) * pageSize + 1;
+        const startIndex =
+          (categoryPagination[category].currentPage - 1) * pageSize + 1;
         const endIndex = Math.min(
-          categoryPagination[category].currentPage * pageSize, 
+          categoryPagination[category].currentPage * pageSize,
           totalItems
         );
 
@@ -977,9 +987,6 @@ async function openEditFormModal(formId) {
     const variablesContainer = document.querySelector(".variables-container");
     const isTemplate = form.isTemplate;
 
-    // if (variablesContainer) {
-    //   variablesContainer.style.display = isTemplate ? "block" : "none";
-    // }
 
     // Show modal
     document.getElementById("formEditorModal").style.display = "block";
@@ -1439,8 +1446,10 @@ async function printForm(formId) {
     printWindow.focus();
     printWindow.print();
   } catch (error) {
-      Utils.showToast("Pop-up blocked. Please allow pop-ups for this site to view the form.");
-      console.warn("Pop-up blocked by the browser.");
+    Utils.showToast(
+      "Pop-up blocked. Please allow pop-ups for this site to view the form."
+    );
+    console.warn("Pop-up blocked by the browser.");
   }
 }
 
@@ -1509,7 +1518,7 @@ async function openLeadSelectionModal() {
 
         // Add click event to button
         leadItem.querySelector("button").addEventListener("click", function () {
-          generateFormWithLeadData(currentFormId, lead._id);
+          generateFormFromTemplate(currentFormId, lead._id);
           closeLeadSelectionModal();
         });
 
@@ -1548,7 +1557,7 @@ async function generateFormFromTemplate(templateId, leadId) {
 
     // Multi-method timezone detection for iOS compatibility
     let timezone;
-    
+
     // Method 1: Try Intl.DateTimeFormat().resolvedOptions().timeZone (works in most browsers)
     try {
       timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -1556,81 +1565,105 @@ async function generateFormFromTemplate(templateId, leadId) {
     } catch (error) {
       console.warn("Failed to detect timezone via Intl.DateTimeFormat:", error);
     }
-    
+
     // Method 2: Try to calculate timezone offset and determine name (fallback for iOS)
     if (!timezone) {
       try {
         // Get timezone offset in minutes
         const offsetMinutes = new Date().getTimezoneOffset();
-        
+
         // Convert to hours (negative because getTimezoneOffset() returns the opposite of what we want)
         const offsetHours = -offsetMinutes / 60;
-        
+
         // Format as +/-HH:MM
-        const formattedOffset = `${offsetHours >= 0 ? '+' : '-'}${Math.abs(Math.floor(offsetHours)).toString().padStart(2, '0')}:${(Math.abs(offsetHours % 1) * 60).toString().padStart(2, '0')}`;
+        const formattedOffset = `${offsetHours >= 0 ? "+" : "-"}${Math.abs(
+          Math.floor(offsetHours)
+        )
+          .toString()
+          .padStart(2, "0")}:${(Math.abs(offsetHours % 1) * 60)
+          .toString()
+          .padStart(2, "0")}`;
 
         // Map common offsets to timezone names
         // This is a simple mapping and won't handle DST perfectly, but works as a fallback
         const offsetToTimezone = {
-          '-08:00': 'America/Los_Angeles', // Pacific Standard Time
-          '-07:00': 'America/Los_Angeles', // Pacific Daylight Time
-          '-05:00': 'America/New_York',    // Eastern Standard Time
-          '-04:00': 'America/New_York',    // Eastern Daylight Time
-          '+00:00': 'Europe/London',       // GMT/UTC
-          '+01:00': 'Europe/Paris',        // Central European Time
-          '+02:00': 'Europe/Helsinki',     // Eastern European Time
-          '+05:30': 'Asia/Kolkata',        // India
-          '+08:00': 'Asia/Singapore',      // Singapore/China
-          '+09:00': 'Asia/Tokyo',          // Japan
-          '+10:00': 'Australia/Sydney',    // Sydney
+          "-08:00": "America/Los_Angeles", // Pacific Standard Time
+          "-07:00": "America/Los_Angeles", // Pacific Daylight Time
+          "-05:00": "America/New_York", // Eastern Standard Time
+          "-04:00": "America/New_York", // Eastern Daylight Time
+          "+00:00": "Europe/London", // GMT/UTC
+          "+01:00": "Europe/Paris", // Central European Time
+          "+02:00": "Europe/Helsinki", // Eastern European Time
+          "+05:30": "Asia/Kolkata", // India
+          "+08:00": "Asia/Singapore", // Singapore/China
+          "+09:00": "Asia/Tokyo", // Japan
+          "+10:00": "Australia/Sydney", // Sydney
         };
-        
+
         // Get timezone name from offset, or use a default format
-        timezone = offsetToTimezone[formattedOffset] || `Etc/GMT${formattedOffset.replace(':', '')}`;
-        console.log("Timezone detected via offset calculation:", timezone, "offset:", formattedOffset);
+        timezone =
+          offsetToTimezone[formattedOffset] ||
+          `Etc/GMT${formattedOffset.replace(":", "")}`;
+        console.log(
+          "Timezone detected via offset calculation:",
+          timezone,
+          "offset:",
+          formattedOffset
+        );
       } catch (error) {
-        console.warn("Failed to detect timezone via offset calculation:", error);
+        console.warn(
+          "Failed to detect timezone via offset calculation:",
+          error
+        );
       }
     }
-    
+
     // Method 3: Try getting timezone from date string parsing (another iOS fallback)
     if (!timezone) {
       try {
         const dateString = new Date().toString();
         // Extract timezone abbreviation from date string
         const tzAbbr = dateString.match(/\(([^)]+)\)$/)?.[1];
-        
+
         // Map common timezone abbreviations to IANA timezone names
         const tzAbbrMap = {
-          'PST': 'America/Los_Angeles',
-          'PDT': 'America/Los_Angeles',
-          'EST': 'America/New_York',
-          'EDT': 'America/New_York',
-          'CST': 'America/Chicago',
-          'CDT': 'America/Chicago',
-          'MST': 'America/Denver',
-          'MDT': 'America/Denver',
-          'GMT': 'Europe/London',
-          'BST': 'Europe/London',
-          'CET': 'Europe/Paris',
-          'CEST': 'Europe/Paris',
-          'JST': 'Asia/Tokyo',
-          'IST': 'Asia/Kolkata',
+          PST: "America/Los_Angeles",
+          PDT: "America/Los_Angeles",
+          EST: "America/New_York",
+          EDT: "America/New_York",
+          CST: "America/Chicago",
+          CDT: "America/Chicago",
+          MST: "America/Denver",
+          MDT: "America/Denver",
+          GMT: "Europe/London",
+          BST: "Europe/London",
+          CET: "Europe/Paris",
+          CEST: "Europe/Paris",
+          JST: "Asia/Tokyo",
+          IST: "Asia/Kolkata",
         };
-        
-        timezone = tzAbbrMap[tzAbbr] || 'America/Los_Angeles'; // Default to Los Angeles if unknown
-        console.log("Timezone detected via date string:", timezone, "abbr:", tzAbbr);
+
+        timezone = tzAbbrMap[tzAbbr] || "America/Los_Angeles"; // Default to Los Angeles if unknown
+        console.log(
+          "Timezone detected via date string:",
+          timezone,
+          "abbr:",
+          tzAbbr
+        );
       } catch (error) {
         console.warn("Failed to detect timezone via date string:", error);
       }
     }
-    
+
     // Final fallback: use a default timezone
     if (!timezone) {
-      timezone = 'America/Los_Angeles'; // Default to Pacific Time
-      console.warn("All timezone detection methods failed, using default:", timezone);
+      timezone = "America/Los_Angeles"; // Default to Pacific Time
+      console.warn(
+        "All timezone detection methods failed, using default:",
+        timezone
+      );
     }
-    
+
     // Enhanced logging to verify browser-detected timezone
     console.log("Client timezone detection complete:", {
       detectedTimezone: timezone,
@@ -1639,9 +1672,9 @@ async function generateFormFromTemplate(templateId, leadId) {
         localeTimeString: new Date().toLocaleTimeString(),
         isoString: new Date().toISOString(),
         utcString: new Date().toUTCString(),
-        dateString: new Date().toString()
+        dateString: new Date().toString(),
       },
-      browserInfo: navigator.userAgent
+      browserInfo: navigator.userAgent,
     });
 
     console.log(`Sending timezone to server: ${timezone}`);
@@ -1654,9 +1687,9 @@ async function generateFormFromTemplate(templateId, leadId) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           leadId,
-          timezone // Send the timezone with the request
+          timezone, // Send the timezone with the request
         }),
       }
     );
@@ -1668,13 +1701,13 @@ async function generateFormFromTemplate(templateId, leadId) {
     }
 
     const result = await response.json();
-    
+
     // Enhanced logging of server response to verify timezone usage
     console.log("Form generated successfully with timezone info:", {
       serverUsedTimezone: result.debug?.usedTimezone || result.usedTimezone,
       formattedDateExample: result.debug?.formattedDateExample,
       timezoneSource: result.debug?.timezoneSource || "unknown",
-      generatedFormId: result._id
+      generatedFormId: result._id,
     });
 
     // Close template modal
@@ -1687,8 +1720,8 @@ async function generateFormFromTemplate(templateId, leadId) {
     // Show success message with timezone info for verification
     Utils.showToast(`Form created successfully using timezone: ${timezone}`);
 
-    // Reload lead forms to show the new form
-    loadLeadForms(leadId);
+    console.log("Form generated from forms page for lead:", leadId);
+    fetchAndRenderForms();
   } catch (error) {
     console.error("Error generating form:", error);
     Utils.showToast("Error: " + error.message);

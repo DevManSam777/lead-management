@@ -330,47 +330,6 @@ async function loadFormTemplates(leadId) {
   }
 }
 
-// Function to generate a form from a template
-// async function generateFormFromTemplate(templateId, leadId) {
-//   try {
-//     // Show loading toast
-//     Utils.showToast("Generating form...");
-
-//     // Call API to generate form with lead data
-//     const response = await fetch(
-//       `${API.getBaseUrl()}/api/forms/${templateId}/generate`,
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ leadId }),
-//       }
-//     );
-
-//     if (!response.ok) {
-//       throw new Error("Failed to generate form");
-//     }
-
-//     const result = await response.json();
-
-//     // Close template modal
-//     const modal = document.getElementById("formTemplateModal");
-//     if (modal) {
-//       modal.style.display = "none";
-//       document.body.removeChild(modal);
-//     }
-
-//     // Show success message
-//     Utils.showToast("Form created successfully");
-
-//     // Reload lead forms to show the new form
-//     loadLeadForms(leadId);
-//   } catch (error) {
-//     console.error("Error generating form:", error);
-//     Utils.showToast("Error: " + error.message);
-//   }
-// }
 
 async function generateFormFromTemplate(templateId, leadId) {
   try {
