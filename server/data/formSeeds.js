@@ -235,20 +235,20 @@ A notice that is sent by email but is not read by the addressee is nevertheless 
 
 <table style="width:100%; border-collapse: collapse;">
   <tr>
-    <td style="border: 1px solid black; padding: 10px;"><strong>Developer name</strong>: [DEVELOPER NAME]</td>
-    <td style="border: 1px solid black; padding: 10px;"><strong>Client Contact name</strong>: {{fullName}}</td>
+    <td style="border: 1px solid black; padding: 10px;"><strong>Developer name</strong>:</td>
+    <td style="border: 1px solid black; padding: 10px;"><strong>Client Contact name</strong>:</td>
   </tr>
   <tr>
-    <td style="border: 1px solid black; height: 50px;"></td>
-    <td style="border: 1px solid black; height: 50px;"></td>
+    <td style="border: 1px solid black; height: 50px;">[DEVELOPER NAME]</td>
+    <td style="border: 1px solid black; height: 50px;">{{fullName}}</td>
   </tr>
   <tr>
-    <td style="border: 1px solid black; padding: 10px;"><strong>Developer email for Notice</strong>: [DEVELOPER EMAIL]</td>
-    <td style="border: 1px solid black; padding: 10px;"><strong>Client email for Notice</strong>: {{businessEmail}}</td>
+    <td style="border: 1px solid black; padding: 10px;"><strong>Developer email for Notice</strong>:</td>
+    <td style="border: 1px solid black; padding: 10px;"><strong>Client email for Notice</strong>:</td>
   </tr>
   <tr>
-    <td style="border: 1px solid black; height: 50px;"></td>
-    <td style="border: 1px solid black; height: 50px;"></td>
+    <td style="border: 1px solid black; height: 50px;">[DEVELOPER EMAIL]</td>
+    <td style="border: 1px solid black; height: 50px;">{{businessEmail}}</td>
   </tr>
   <tr>
     <td style="border: 1px solid black; padding: 10px;"><strong>Developer signature</strong>:</td>
