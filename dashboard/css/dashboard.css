@@ -886,10 +886,10 @@ body {
   width: 100%;
 }
 
-/* iOS Date Display Fix - Respecting original positioning */
+/* iOS Date Display */
 
 @supports (-webkit-touch-callout: none) {
-  /* Payment modal date display */
+  /* payment modal date display */
   #paymentDateDisplay {
     position: absolute;
     left: -0.25rem;
@@ -901,7 +901,7 @@ body {
     align-items: center;
   }
   
-  /* Last contacted date in lead modal */
+  /* last contacted date in lead modal */
   #lastContactedDisplay {
     position: absolute;
     left: -0.25rem;
@@ -913,7 +913,7 @@ body {
     align-items: center;
   }
   
-  /* Last contacted date in hitlists */
+  /* last contacted date in hitlists */
   #lastContactedDate + .date-display {
     position: absolute;
     left: -0.25rem;
@@ -925,7 +925,7 @@ body {
     align-items: center;
   }
 
-  /* Hide the overlay when the input is focused/active */
+  /* hide overlay when the input is focused/active */
   input[type="date"]:focus + .date-display,
   input[type="date"]:active + .date-display,
   #paymentDate:focus + #paymentDateDisplay,

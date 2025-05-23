@@ -359,7 +359,7 @@ select,
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
-  text-decoration: none !important; /* Remove default underline */
+  text-decoration: none !important; 
 }
 
 .map-button:hover,

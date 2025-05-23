@@ -120,7 +120,7 @@
     .chart-container {
       aspect-ratio: 3 / 2; 
       height: 20rem;
-      min-width: 0; /* Ensure it can shrink */
+      min-width: 0; 
     }
   }
   

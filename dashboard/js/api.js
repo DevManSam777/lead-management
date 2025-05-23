@@ -1,47 +1,44 @@
 import { authApi } from "./authApi.js";
 
-// Function to determine the appropriate API URL based on the environment
+// function to determine the appropriate API URL based on the environment
 function getApiUrl() {
-  // Check if we're running locally (localhost) or on the production server
+  // check if we're running locally or on the production server
   const hostname = window.location.hostname;
   
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // For local development, use the local API
+    // for local development, use the local API
     return "http://localhost:5000/api";
   } else {
-    // For production (Render or any other host), use relative URL
+    // for production (Render or other host), use relative URL
     return "/api";
   }
 }
 
-// Set the API_URL based on the environment
+// set the API_URL based on the environment
 const API_URL = getApiUrl();
 
-// Helper function to get base URL (also environment-aware)
+// helper function to get base URL (also environment-aware)
 function getBaseUrl() {
-  // Check if we're running locally (localhost) or on the production server
+  // check if we're running locally (localhost) or on the production server
   const hostname = window.location.hostname;
   
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // For local development
+    // for local development
     return "http://localhost:5000";
   } else {
-    // For production, use current origin
+    // or production, use current origin
     return window.location.origin;
   }
 }
 
-/**
- * Fetch all leads from the API
- * @returns {Promise<Array>} Array of lead objects
- */
+// fetch all leads from the API
 async function fetchLeads() {
   try {
     console.log("Fetching leads from:", API_URL + "/leads");
     const data = await authApi.get("/leads");
     console.log("Fetched leads data:", data);
 
-    // Make sure data is an array
+    // make sure data is an array
     if (!Array.isArray(data)) {
       throw new Error("Invalid data format received");
     }
@@ -53,11 +50,7 @@ async function fetchLeads() {
   }
 }
 
-/**
- * Fetch a specific lead by ID
- * @param {string} leadId - ID of the lead to fetch
- * @returns {Promise<Object>} Lead object
- */
+// fetch a specific lead by ID
 async function fetchLeadById(leadId) {
   try {
     const data = await authApi.get(`/leads/${leadId}`);
@@ -68,11 +61,7 @@ async function fetchLeadById(leadId) {
   }
 }
 
-/**
- * Create a new lead
- * @param {Object} leadData
- * @returns {Promise<Object>}
- */
+// create a new lead
 async function createLead(leadData) {
   try {
     const data = await authApi.post("/leads", leadData);
@@ -83,10 +72,10 @@ async function createLead(leadData) {
   }
 }
 
-// In api.js, check if the update function is actually sending the data:
+// in api.js, check if the update function is actually sending the data:
 async function updateLead(leadId, leadData) {
   try {
-    // Debug the data before sending
+    // debug the data before sending
     console.log("Sending lead update data:", leadData);
 
     const data = await fetch(`${API_URL}/leads/${leadId}`, {
@@ -104,12 +93,8 @@ async function updateLead(leadId, leadData) {
   }
 }
 
-/**
- * Delete a lead with retry logic
- * @param {string} leadId
- * @param {number} retries - Number of retry attempts (default: 3)
- * @returns {Promise<Object>}
- */
+
+// delete a lead with retry logic
 async function deleteLead(leadId, retries = 3) {
   try {
     const user = auth.currentUser;
@@ -140,11 +125,7 @@ async function deleteLead(leadId, retries = 3) {
   }
 }
 
-/**
- * Search leads by query
- * @param {string} query
- * @returns {Promise<Array>}
- */
+// search leads by query
 async function searchLeads(query) {
   try {
     const data = await authApi.get(
@@ -157,12 +138,9 @@ async function searchLeads(query) {
   }
 }
 
-// ===== PAYMENT API FUNCTIONS =====
+// PAYMENT API FUNCTIONS
 
-/**
- * Fetch all payments
- * @returns {Promise<Array>}
- */
+// fetch all payments
 async function fetchPayments() {
   try {
     const data = await authApi.get("/payments");
@@ -173,11 +151,7 @@ async function fetchPayments() {
   }
 }
 
-/**
- * Fetch payments for a specific lead
- * @param {string} leadId
- * @returns {Promise<Array>}
- */
+// fetch payments for a specific lead
 async function fetchLeadPayments(leadId) {
   try {
     console.log(`Fetching payments for lead ID: ${leadId}`);
@@ -190,7 +164,7 @@ async function fetchLeadPayments(leadId) {
     const payments = await authApi.get(`/payments/lead/${leadId}`);
     console.log(`Received ${payments.length} payments for lead ID: ${leadId}`);
 
-    // Verify each payment belongs to this lead
+    // verify each payment belongs to this lead
     const validPayments = payments.filter(
       (payment) => payment.leadId === leadId
     );
@@ -210,11 +184,7 @@ async function fetchLeadPayments(leadId) {
   }
 }
 
-/**
- * Create a new payment
- * @param {Object} paymentData
- * @returns {Promise<Object>}
- */
+// create a new payment
 async function createPayment(paymentData) {
   try {
     const data = await authApi.post("/payments", paymentData);
@@ -225,12 +195,7 @@ async function createPayment(paymentData) {
   }
 }
 
-/**
- * Update an existing payment
- * @param {string} paymentId
- * @param {Object} paymentData
- * @returns {Promise<Object>}
- */
+// update an existing payment
 async function updatePayment(paymentId, paymentData) {
   try {
     const data = await authApi.put(`/payments/${paymentId}`, paymentData);
@@ -241,11 +206,7 @@ async function updatePayment(paymentId, paymentData) {
   }
 }
 
-/**
- * Delete a payment
- * @param {string} paymentId
- * @returns {Promise<Object>}
- */
+// delete a payment
 async function deletePayment(paymentId) {
   try {
     const data = await authApi.delete(`/payments/${paymentId}`);
@@ -256,10 +217,7 @@ async function deletePayment(paymentId) {
   }
 }
 
-/**
- * Fetch all settings
- * @returns {Promise<Object>}
- */
+// fetch all settings
 async function fetchAllSettings() {
   try {
     const settings = await authApi.get("/settings");
@@ -267,7 +225,7 @@ async function fetchAllSettings() {
   } catch (error) {
     console.error("Error fetching settings:", error);
 
-    // Fallback to localStorage if API fails
+    // fallback to localStorage if API fails
     return {
       theme:
         localStorage.getItem("theme") ||
@@ -278,45 +236,36 @@ async function fetchAllSettings() {
   }
 }
 
-/**
- * Update a specific setting
- * @param {string} key
- * @param {*} value
- * @returns {Promise<Object>}
- */
+// update a specific setting
 async function updateSetting(key, value) {
   try {
     const updatedSetting = await authApi.put(`/settings/${key}`, { value });
 
-    // Also update localStorage as a fallback
+    // update localStorage as a fallback
     localStorage.setItem(key, value);
 
     return updatedSetting;
   } catch (error) {
     console.error("Error updating setting:", error);
 
-    // Update localStorage as a fallback
+    // update localStorage as a fallback
     localStorage.setItem(key, value);
 
     return { key, value };
   }
 }
 
-/**
- * Fetch all forms from the API
- * @param {Object} filters
- * @returns {Promise<Array>}
- */
+// fetch all forms from the API
 async function fetchForms(filters = {}) {
   try {
-    // Build query string from filters
+    // build query string from filters
     const queryParams = new URLSearchParams();
 
     if (filters.category) {
       queryParams.append("category", filters.category);
     }
 
-    // Handle the new template/draft filter
+    // handle the new template/draft filter
     if (filters.templateType === "template") {
       queryParams.append("isTemplate", "true");
     } else if (filters.templateType === "draft") {
@@ -328,7 +277,7 @@ async function fetchForms(filters = {}) {
 
     const data = await authApi.get(endpoint);
 
-    // Make sure data is an array
+    // make sure data is an array
     if (!Array.isArray(data)) {
       throw new Error("Invalid data format received");
     }
@@ -340,11 +289,7 @@ async function fetchForms(filters = {}) {
   }
 }
 
-/**
- * Fetch a specific form by ID
- * @param {string} formId
- * @returns {Promise<Object>}
- */
+// fetch a specific form by ID
 async function fetchFormById(formId) {
   try {
     const data = await authApi.get(`/forms/${formId}`);
@@ -355,11 +300,7 @@ async function fetchFormById(formId) {
   }
 }
 
-/**
- * Create a new form
- * @param {Object} formData
- * @returns {Promise<Object>}
- */
+// create a new form
 async function createForm(formData) {
   try {
     const data = await authApi.post("/forms", formData);
@@ -370,12 +311,7 @@ async function createForm(formData) {
   }
 }
 
-/**
- * Update an existing form
- * @param {string} formId
- * @param {Object} formData
- * @returns {Promise<Object>}
- */
+// update an existing form
 async function updateForm(formId, formData) {
   try {
     const data = await authApi.put(`/forms/${formId}`, formData);
@@ -386,11 +322,7 @@ async function updateForm(formId, formData) {
   }
 }
 
-/**
- * Delete a form
- * @param {string} formId
- * @returns {Promise<Object>}
- */
+// delete a form
 async function deleteForm(formId) {
   try {
     const data = await authApi.delete(`/forms/${formId}`);
@@ -401,11 +333,7 @@ async function deleteForm(formId) {
   }
 }
 
-/**
- * Search forms by query
- * @param {string} query
- * @returns {Promise<Array>}
- */
+// search forms by query
 async function searchForms(query) {
   try {
     const data = await authApi.get(
@@ -418,11 +346,7 @@ async function searchForms(query) {
   }
 }
 
-/**
- * Clone a template form
- * @param {string} templateId
- * @returns {Promise<Object>}
- */
+// clone a template form
 async function cloneTemplateForm(templateId) {
   try {
     const data = await authApi.post(`/forms/${templateId}/clone`);
@@ -433,12 +357,7 @@ async function cloneTemplateForm(templateId) {
   }
 }
 
-/**
- * Generate a form with lead data
- * @param {string} formId
- * @param {string} leadId
- * @returns {Promise<Object>}
- */
+// generate a form with lead data
 async function generateFormWithLeadData(formId, leadId) {
   try {
     const data = await authApi.post(`/forms/${formId}/generate`, { leadId });
@@ -449,11 +368,7 @@ async function generateFormWithLeadData(formId, leadId) {
   }
 }
 
-/**
- * Get forms for a specific lead
- * @param {string} leadId
- * @returns {Promise<Array>}
- */
+// get forms for a specific lead
 async function getFormsByLead(leadId) {
   try {
     const data = await authApi.get(`/forms/lead/${leadId}`);
@@ -464,12 +379,7 @@ async function getFormsByLead(leadId) {
   }
 }
 
-/**
- * Generate a form for a lead using a template
- * @param {string} templateId
- * @param {string} leadId
- * @returns {Promise<Object>}
- */
+// generate a form for a lead using a template
 async function generateFormForLead(templateId, leadId) {
   try {
     const data = await authApi.post(`/forms/${templateId}/generate`, {
@@ -482,11 +392,7 @@ async function generateFormForLead(templateId, leadId) {
   }
 }
 
-/**
- * Get documents for a specific lead
- * @param {string} leadId
- * @returns {Promise<Array>}
- */
+// get documents for a specific lead
 async function getDocumentsByLead(leadId) {
   try {
     const data = await authApi.get(`/documents/lead/${leadId}`);
@@ -497,12 +403,7 @@ async function getDocumentsByLead(leadId) {
   }
 }
 
-/**
- * Upload a document for a lead
- * @param {string} leadId
- * @param {Object} documentData
- * @returns {Promise<Object>}
- */
+// upload a document for a lead
 async function uploadDocument(leadId, documentData) {
   try {
     const data = await authApi.post(`/documents/lead/${leadId}`, documentData);
@@ -513,11 +414,7 @@ async function uploadDocument(leadId, documentData) {
   }
 }
 
-/**
- * Delete a document
- * @param {string} documentId
- * @returns {Promise<Object>}
- */
+// delete a document
 async function deleteDocument(documentId) {
   try {
     const data = await authApi.delete(`/documents/${documentId}`);
@@ -579,7 +476,7 @@ async function deleteHitlist(hitlistId) {
   }
 }
 
-// Business API functions
+// business API functions
 async function fetchBusinessesByHitlist(hitlistId) {
   try {
     const data = await authApi.get(`/hitlists/${hitlistId}/businesses`);
