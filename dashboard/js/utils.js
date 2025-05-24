@@ -339,7 +339,6 @@ function initializeDateInputs() {
   });
 }
 
-
 let toastTimer;
 
 function showToast(message, type = "default") {
@@ -366,11 +365,19 @@ function showToast(message, type = "default") {
     toast.classList.add("deletion");
   }
 
-  toast.style.display = "block";
+  // Remove any existing animation classes
+  toast.classList.remove("show", "hide");
+
+  // Force a reflow to ensure the animation plays
+  void toast.offsetWidth;
+
+  // Show toast with animation
+  toast.classList.add("show");
 
   // Hide toast after 3 seconds
   toastTimer = setTimeout(() => {
-    toast.style.display = "none";
+    toast.classList.add("hide");
+    toast.classList.remove("show");
     toastTimer = null;
   }, 3000);
 }

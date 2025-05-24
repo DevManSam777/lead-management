@@ -359,7 +359,7 @@ select,
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
-  text-decoration: none !important; 
+  text-decoration: none !important;
 }
 
 .map-button:hover,
@@ -726,7 +726,6 @@ details[open] .stats-cards {
 }
 
 .toast {
-  display: none;
   position: fixed;
   top: 2rem;
   right: 2rem;
@@ -737,13 +736,26 @@ details[open] .stats-cards {
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
   z-index: 2000;
   max-width: 90%;
-  border-left: 0.4rem solid var(--toast-border);
-  transition: background-color var(--transition-speed);
+  transform: translateX(150%);
+  opacity: 0;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toast.hide {
+  transform: translateX(150%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 #toast.deletion {
   background-color: var(--toast-deletion-bg);
-  border-left: 0.4rem solid var(--toast-deletion-border);
 }
 
 #toastMessage {

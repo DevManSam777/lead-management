@@ -34,7 +34,6 @@
     --toast-text: #ffffff;
     --toast-border: #2e7d32;
     --toast-deletion-bg: #ff5722;
-    --toast-deletion-border: #d84315;
   }
   
   /* Dark Mode Variables */
@@ -70,5 +69,4 @@
     --toast-text: #ffffff;
     --toast-border: #1b5e20;
     --toast-deletion-bg: #d84315;
-    --toast-deletion-border: #bf360c;
   }
