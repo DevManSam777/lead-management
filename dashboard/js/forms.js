@@ -1,72 +1,58 @@
 import * as API from "./api.js";
 import * as Utils from "./utils.js";
-import * as Pagination from "./pagination.js"; // Import pagination module
+import * as Pagination from "./pagination.js";
 
-// Global variables
+// global variables
 let allForms = [];
 let editor;
 let currentFormId = null;
-let globalSettings = {}; // Store global settings
+let globalSettings = {};
 
-// Pagination state
+// pagination state
 let currentPage = 1;
-let pageSize = 6; // Show 6 items per category
-let categoryPagination = {}; // Track pagination for each category
+let pageSize = 6;
+let categoryPagination = {}; 
 
-// Initialize everything when the document is ready
 document.addEventListener("DOMContentLoaded", async function () {
-  // Initialize global settings first (important!)
   await initializeSettings();
-
-  // Setup sidebar toggle
   setupSidebarToggle();
-
-  // Initialize markdown editor
   initializeMarkdownEditor();
-
-  // Setup event listeners
   setupEventListeners();
-
-  // Load forms
   fetchAndRenderForms();
 
-  // Configure marked.js globally to preserve whitespace
+  // configure marked.js globally to preserve whitespace
   marked.setOptions({
     gfm: true, // GitHub Flavored Markdown
-    breaks: true, // Convert \n to <br>
-    smartLists: true, // Use smarter list behavior
-    xhtml: true, // Self-close HTML tags
-    headerIds: false, // Don't add IDs to headers
+    breaks: true, // convert \n to <br>
+    smartLists: true, // use smarter list behavior
+    xhtml: true, // self close HTML tags
+    headerIds: false, // don't add IDs to headers
   });
 });
 
-/**
- * Initialize settings from the server
- */
+// initialize settings from the server
 async function initializeSettings() {
   try {
-    // Fetch all settings
     const settings = await API.fetchAllSettings();
     globalSettings = settings;
 
-    // Set date format in window object for global access
+    // set date format in window object for global access
     window.dateFormat = settings.dateFormat || "MM/DD/YYYY";
 
-    // Apply theme from settings
+    // apply theme from settings
     if (settings.theme) {
       document.documentElement.setAttribute("data-theme", settings.theme);
     } else {
-      // Use system preference as fallback
+      // use system preference as fallback
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
         : "light";
       document.documentElement.setAttribute("data-theme", systemTheme);
-      // Save it back to the server
+      // save it back to the server
       await API.updateSetting("theme", systemTheme);
     }
 
-    // Log settings for debugging
     console.log("Initialized settings:", {
       theme: settings.theme,
       dateFormat: window.dateFormat,
@@ -76,7 +62,7 @@ async function initializeSettings() {
   } catch (error) {
     console.error("Error initializing settings:", error);
 
-    // Use fallbacks from localStorage if API fails
+    // use fallbacks from localStorage if API fails
     const savedTheme =
       localStorage.getItem("theme") ||
       (window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -84,7 +70,6 @@ async function initializeSettings() {
         : "light");
     document.documentElement.setAttribute("data-theme", savedTheme);
 
-    // Set fallback date format
     window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
 
     return {
@@ -94,9 +79,7 @@ async function initializeSettings() {
   }
 }
 
-/**
- * Set up sidebar toggle functionality
- */
+// set up sidebar toggle functionality
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
   const mainContent = document.querySelector(".main-content");
@@ -106,15 +89,15 @@ function setupSidebarToggle() {
     return;
   }
 
-  // Store original transition for later restoration
+  // store original transition for later restoration
   const originalSidebarTransition = sidebar.style.transition;
   const originalMainContentTransition = mainContent.style.transition;
 
-  // Temporarily disable transitions
+  // temporarily disable transitions
   sidebar.style.transition = "none";
   mainContent.style.transition = "none";
 
-  // Set initial state based on localStorage preference
+  // set initial state based on localStorage preference
   const isSidebarCollapsed =
     localStorage.getItem("sidebarCollapsed") === "true";
 
@@ -126,20 +109,19 @@ function setupSidebarToggle() {
     mainContent.classList.remove("expanded");
   }
 
-  // Force DOM reflow to apply changes before transitions are re-enabled
+  // force DOM to apply changes before transitions are re-enabled
   void sidebar.offsetWidth;
 
-  // Restore transitions
+  // restore transitions
   sidebar.style.transition = originalSidebarTransition;
   mainContent.style.transition = originalMainContentTransition;
 
-  // Remove any existing toggle button to avoid duplicates
+  // remove any existing toggle button to avoid duplicates
   const existingButton = document.querySelector(".sidebar-toggle");
   if (existingButton) {
     existingButton.remove();
   }
 
-  // Create new toggle button with both icons
   const toggleButton = document.createElement("button");
   toggleButton.className = "sidebar-toggle";
   toggleButton.setAttribute("aria-label", "Toggle Sidebar");
@@ -147,7 +129,6 @@ function setupSidebarToggle() {
     '<i class="fas fa-angles-left"></i><i class="fas fa-angles-right"></i>';
   sidebar.appendChild(toggleButton);
 
-  // Add click event to toggle button
   toggleButton.addEventListener("click", function () {
     sidebar.classList.toggle("collapsed");
     mainContent.classList.toggle("expanded");
@@ -158,11 +139,9 @@ function setupSidebarToggle() {
   });
 }
 
-/**
- * Set up all event listeners
- */
+// set up all event listeners
 function setupEventListeners() {
-  // Filter and search listeners
+  // filter and search listeners
   document
     .getElementById("filterCategory")
     .addEventListener("change", applyFilters);
@@ -173,45 +152,37 @@ function setupEventListeners() {
     .getElementById("searchInput")
     .addEventListener("input", applyFilters);
 
-  // Add new form button
   document
     .getElementById("addFormBtnFormsPage")
     .addEventListener("click", openCreateFormModal);
 
-  // Form editor modal close button
   document
     .getElementById("closeFormEditorModal")
     .addEventListener("click", closeFormEditorModal);
 
-  // Preview modal close button
   document
     .getElementById("closeFormPreviewModal")
     .addEventListener("click", closeFormPreviewModal);
 
-  // Lead selection modal close button
   document
     .getElementById("closeLeadSelectionModal")
     .addEventListener("click", closeLeadSelectionModal);
 
-  // Generated form modal close button
   document
     .getElementById("closeGeneratedFormModal")
     .addEventListener("click", closeGeneratedFormModal);
 
-  // Form cancel button
   document
     .getElementById("cancelFormBtn")
     .addEventListener("click", closeFormEditorModal);
 
-  // Form editor form submission
   document
     .getElementById("formEditorForm")
     .addEventListener("submit", handleFormSubmit);
 
-  // Mobile tabs for editor/preview
+  // mobile tabs for editor/preview
   document.querySelectorAll(".editor-tab").forEach((tab) => {
     tab.addEventListener("click", function () {
-      // Set active tab
       document
         .querySelectorAll(".editor-tab")
         .forEach((t) => t.classList.remove("active"));
@@ -225,13 +196,12 @@ function setupEventListeners() {
       } else {
         document.querySelector(".editor-section").classList.add("inactive");
         document.querySelector(".preview-section").classList.add("active");
-        // Update preview when switching to preview tab
         updateMarkdownPreview();
       }
     });
   });
 
-  // Variable click handlers
+  // variable click handlers
   document.querySelectorAll(".variable-tag").forEach((tag) => {
     tag.addEventListener("click", function () {
       const variable = this.getAttribute("data-variable");
@@ -239,12 +209,8 @@ function setupEventListeners() {
     });
   });
 
-  // Preview modal buttons
   document.getElementById("editFormBtn").addEventListener("click", function () {
-    // Close preview modal
     closeFormPreviewModal();
-
-    // Open editor modal with current form
     openEditFormModal(currentFormId);
   });
 
@@ -266,7 +232,6 @@ function setupEventListeners() {
       printForm();
     });
 
-  // Generated form buttons
   document
     .getElementById("downloadGeneratedBtn")
     .addEventListener("click", function () {
@@ -279,7 +244,7 @@ function setupEventListeners() {
       printGeneratedForm();
     });
 
-  // Search leads in the lead selection modal
+  // search leads in the lead selection modal
   document
     .getElementById("leadSearchInput")
     .addEventListener("input", function () {
@@ -301,7 +266,7 @@ function setupEventListeners() {
       });
     });
 
-  // Listen for settings updates from other pages
+  // listen for settings updates from other pages
   window.addEventListener("settingsUpdated", function (event) {
     const { key, value } = event.detail;
 
@@ -309,7 +274,6 @@ function setupEventListeners() {
       console.log("Date format updated to:", value);
       window.dateFormat = value;
 
-      // Refresh forms list to update date displays
       fetchAndRenderForms();
     } else if (key === "theme") {
       document.documentElement.setAttribute("data-theme", value);
@@ -317,16 +281,13 @@ function setupEventListeners() {
   });
 }
 
-/**
- * Initialize the markdown editor
- */
+// initialize the markdown editor
 function initializeMarkdownEditor() {
   const contentTextarea = document.getElementById("formContent");
 
-  // Make sure the textarea is visible while CodeMirror initializes
+  // make sure the textarea is visible while CodeMirror initializes
   contentTextarea.style.display = "block";
 
-  // Initialize CodeMirror
   editor = CodeMirror.fromTextArea(contentTextarea, {
     mode: "markdown",
     lineNumbers: true,
@@ -335,16 +296,12 @@ function initializeMarkdownEditor() {
     placeholder: "Write your form content here in Markdown format...",
   });
 
-  // Sync content back to textarea when needed
+  // sync content back to textarea when needed
   editor.on("change", function () {
-    // Update the underlying textarea value
     editor.save();
-
-    // Update preview
     updateMarkdownPreview();
   });
 
-  // Initial preview update
   updateMarkdownPreview();
 }
 
@@ -357,14 +314,11 @@ function updateMarkdownPreview() {
     return;
   }
 
-  // Convert markdown to HTML with DOMPurify for security
   const html = DOMPurify.sanitize(marked.parse(content));
   preview.innerHTML = html;
 }
 
-/**
- * Insert a variable at the current cursor position
- */
+// insert a variable at the current cursor position
 function insertVariable(variable) {
   const cursor = editor.getCursor();
   editor.replaceRange(`{{${variable}}}`, cursor);
@@ -377,30 +331,24 @@ async function fetchAndRenderForms() {
     formsList.innerHTML =
       '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading forms...</div>';
 
-    // Get filter values
     const categoryFilter = document.getElementById("filterCategory").value;
     const templateFilter = document.getElementById("filterTemplate").value;
     const searchTerm = document.getElementById("searchInput").value;
 
-    // Build query parameters
     let queryParams = {};
     if (categoryFilter) queryParams.category = categoryFilter;
 
-    // Use the new templateType parameter
     queryParams.templateType = templateFilter;
 
-    // If search term exists, use search endpoint instead
+    // if search term exists, use search endpoint instead
     if (searchTerm) {
-      // Pass the templateType to search as well
       allForms = await API.searchForms(searchTerm, queryParams);
     } else {
-      // Fetch forms with filters
       allForms = await API.fetchForms(queryParams);
     }
 
     console.log(`Fetched ${allForms.length} forms`);
 
-    // Handle empty state
     if (allForms.length === 0) {
       formsList.innerHTML = `
         <div class="empty-state">
@@ -412,10 +360,9 @@ async function fetchAndRenderForms() {
       return;
     }
 
-    // Clear previous content
     formsList.innerHTML = "";
 
-    // Group forms by category
+    // group forms by category
     const groupedForms = {};
     allForms.forEach((form) => {
       if (!groupedForms[form.category]) {
@@ -424,10 +371,9 @@ async function fetchAndRenderForms() {
       groupedForms[form.category].push(form);
     });
 
-    // Create a container for all categories
     const allCategoriesContainer = document.createElement("div");
 
-    // Define the desired category order
+    // define the desired category order
     const categoryOrder = [
       "proposal",
       "contract",
@@ -436,38 +382,36 @@ async function fetchAndRenderForms() {
       "other",
     ];
 
-    // Initialize pagination for each category with custom page sizes
+    // initialize pagination 
     const categoryPageSizes = {
-      drafts: 12, // Sets number of drafts per category
-      templates: 12, // Sets number of templates per category
+      drafts: 12, 
+      templates: 12, 
     };
 
-    // Ensure pagination is initialized for each category
+    // ensure pagination is initialized for each category
     Object.keys(groupedForms).forEach((category) => {
       if (!categoryPagination[category]) {
         categoryPagination[category] = { currentPage: 1 };
       }
     });
 
-    // Process each category in the specified order
+    // process each category in the specified order
     categoryOrder.forEach((category) => {
-      // Skip if there are no forms in this category
+      // skip if there are no forms in this category
       if (!groupedForms[category] || groupedForms[category].length === 0) {
         return;
       }
 
       const forms = groupedForms[category];
 
-      // Create category container
       const categoryDiv = document.createElement("div");
       categoryDiv.className = "forms-category";
-      categoryDiv.style.marginBottom = "30px"; // Add spacing between categories
+      categoryDiv.style.marginBottom = "30px";
 
-      // Create category header
       const header = document.createElement("h3");
-      let icon = "fa-file-alt"; // Default icon
+      let icon = "fa-file-alt"; // default icon
 
-      // Set icon based on category
+      // set icon based on category
       switch (category) {
         case "contract":
           icon = "fa-file-contract";
@@ -486,36 +430,34 @@ async function fetchAndRenderForms() {
           break;
       }
 
-      // Format category name
       const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
 
       header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
       categoryDiv.appendChild(header);
 
-      // Create template cards container
       const cardsDiv = document.createElement("div");
       cardsDiv.className = "template-cards";
-      cardsDiv.style.display = "grid"; // Force grid display
+      cardsDiv.style.display = "grid";
 
-      // Determine page size for this category
-      // Check if the template filter is set to 'draft'
+      // determine page size for this category
+      // check if the template filter is set to 'draft'
       const isDraftsCategory = templateFilter === "draft";
       const pageSize = isDraftsCategory
         ? categoryPageSizes["drafts"]
         : categoryPageSizes["templates"];
 
-      // Set up pagination for this category
+      // set up pagination for this category
       const totalItems = forms.length;
       const totalPages = Math.ceil(totalItems / pageSize);
       const currentPageForCategory =
         categoryPagination[category].currentPage || 1;
 
-      // Make sure current page is valid
+      // make sure current page is valid
       if (currentPageForCategory > totalPages) {
         categoryPagination[category].currentPage = 1;
       }
 
-      // Get items for current page
+      // get items for current page
       const startIndex =
         (categoryPagination[category].currentPage - 1) * pageSize;
       const endIndex = Math.min(startIndex + pageSize, totalItems);
@@ -526,22 +468,20 @@ async function fetchAndRenderForms() {
       );
       console.log(`Showing items ${startIndex} to ${endIndex}`);
 
-      // Add form cards for current page
       paginatedForms.forEach((form) => {
         const card = createFormCard(form);
-        card.style.display = "flex"; // Force display
+        card.style.display = "flex";
         cardsDiv.appendChild(card);
       });
 
       categoryDiv.appendChild(cardsDiv);
 
-      // Only show pagination if total forms exceed page size
+      // only show pagination if total forms exceed page size
       if (totalItems > pageSize) {
         const paginationContainer = document.createElement("div");
         paginationContainer.className = "pagination";
         paginationContainer.style.margin = "0 0 1rem";
 
-        // Previous button
         const prevButton = document.createElement("button");
         prevButton.className = "pagination-button";
         prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
@@ -554,11 +494,11 @@ async function fetchAndRenderForms() {
         });
         paginationContainer.appendChild(prevButton);
 
-        // Determine start and end pages to show
+        // determine start and end pages to show
         let startPage = categoryPagination[category].currentPage - 1;
         let endPage = categoryPagination[category].currentPage + 1;
 
-        // Adjust start and end pages to always show 3 pages
+        // adjust start and end pages to always show 3 pages
         if (startPage < 1) {
           startPage = 1;
           endPage = Math.min(3, totalPages);
@@ -569,7 +509,6 @@ async function fetchAndRenderForms() {
           startPage = Math.max(1, totalPages - 2);
         }
 
-        // Add page number buttons
         for (let i = startPage; i <= endPage; i++) {
           const pageButton = document.createElement("button");
           pageButton.className = "pagination-button";
@@ -584,7 +523,6 @@ async function fetchAndRenderForms() {
           paginationContainer.appendChild(pageButton);
         }
 
-        // Next button
         const nextButton = document.createElement("button");
         nextButton.className = "pagination-button";
         nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
@@ -599,11 +537,9 @@ async function fetchAndRenderForms() {
         });
         paginationContainer.appendChild(nextButton);
 
-        // Pagination info
         const pageInfo = document.createElement("div");
         pageInfo.className = "pagination-info";
 
-        // Calculate the item range
         const startIndex =
           (categoryPagination[category].currentPage - 1) * pageSize + 1;
         const endIndex = Math.min(
@@ -616,7 +552,7 @@ async function fetchAndRenderForms() {
 
         categoryDiv.appendChild(paginationContainer);
       } else {
-        // If fewer forms than page size, center the item count with padding
+        // if fewer forms than page size, center the item count with padding
         const pageInfo = document.createElement("div");
         pageInfo.className = "pagination-info";
         pageInfo.style.textAlign = "center";
@@ -629,9 +565,8 @@ async function fetchAndRenderForms() {
       allCategoriesContainer.appendChild(categoryDiv);
     });
 
-    // Process any remaining categories that aren't in our predefined order
+    // process any remaining categories that aren't in our predefined order
     Object.keys(groupedForms).forEach((category) => {
-      // Skip if this category was already processed or has no forms
       if (
         categoryOrder.includes(category) ||
         !groupedForms[category] ||
@@ -642,65 +577,54 @@ async function fetchAndRenderForms() {
 
       const forms = groupedForms[category];
 
-      // Create category container
       const categoryDiv = document.createElement("div");
       categoryDiv.className = "forms-category";
-      categoryDiv.style.marginBottom = "30px"; // Add spacing between categories
+      categoryDiv.style.marginBottom = "30px";
 
-      // Create category header
       const header = document.createElement("h3");
-      let icon = "fa-file-alt"; // Default icon
+      let icon = "fa-file-alt";
 
-      // Format category name
       const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
 
       header.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
       categoryDiv.appendChild(header);
 
-      // Create template cards container
       const cardsDiv = document.createElement("div");
       cardsDiv.className = "template-cards";
-      cardsDiv.style.display = "grid"; // Force grid display
+      cardsDiv.style.display = "grid";
 
-      // Determine page size for this category
       const isDraftsCategory = templateFilter === "draft";
       const pageSize = isDraftsCategory
         ? categoryPageSizes["drafts"]
         : categoryPageSizes["templates"];
 
-      // Set up pagination for this category
       const totalItems = forms.length;
       const totalPages = Math.ceil(totalItems / pageSize);
       const currentPageForCategory =
         categoryPagination[category].currentPage || 1;
 
-      // Make sure current page is valid
       if (currentPageForCategory > totalPages) {
         categoryPagination[category].currentPage = 1;
       }
 
-      // Get items for current page
       const startIndex =
         (categoryPagination[category].currentPage - 1) * pageSize;
       const endIndex = Math.min(startIndex + pageSize, totalItems);
       const paginatedForms = forms.slice(startIndex, endIndex);
 
-      // Add form cards for current page
       paginatedForms.forEach((form) => {
         const card = createFormCard(form);
-        card.style.display = "flex"; // Force display
+        card.style.display = "flex";
         cardsDiv.appendChild(card);
       });
 
       categoryDiv.appendChild(cardsDiv);
 
-      // Add pagination if needed
       if (totalItems > pageSize) {
         const paginationContainer = document.createElement("div");
         paginationContainer.className = "pagination";
         paginationContainer.style.margin = "0 0 1rem";
 
-        // Previous button
         const prevButton = document.createElement("button");
         prevButton.className = "pagination-button";
         prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
@@ -713,11 +637,9 @@ async function fetchAndRenderForms() {
         });
         paginationContainer.appendChild(prevButton);
 
-        // Determine start and end pages to show
         let startPage = categoryPagination[category].currentPage - 1;
         let endPage = categoryPagination[category].currentPage + 1;
 
-        // Adjust start and end pages to always show 3 pages
         if (startPage < 1) {
           startPage = 1;
           endPage = Math.min(3, totalPages);
@@ -728,7 +650,6 @@ async function fetchAndRenderForms() {
           startPage = Math.max(1, totalPages - 2);
         }
 
-        // Add page number buttons
         for (let i = startPage; i <= endPage; i++) {
           const pageButton = document.createElement("button");
           pageButton.className = "pagination-button";
@@ -743,7 +664,6 @@ async function fetchAndRenderForms() {
           paginationContainer.appendChild(pageButton);
         }
 
-        // Next button
         const nextButton = document.createElement("button");
         nextButton.className = "pagination-button";
         nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
@@ -758,11 +678,9 @@ async function fetchAndRenderForms() {
         });
         paginationContainer.appendChild(nextButton);
 
-        // Pagination info
         const pageInfo = document.createElement("div");
         pageInfo.className = "pagination-info";
 
-        // Calculate the item range
         const startIndex =
           (categoryPagination[category].currentPage - 1) * pageSize + 1;
         const endIndex = Math.min(
@@ -775,7 +693,6 @@ async function fetchAndRenderForms() {
 
         categoryDiv.appendChild(paginationContainer);
       } else {
-        // If fewer forms than page size, center the item count with padding
         const pageInfo = document.createElement("div");
         pageInfo.className = "pagination-info";
         pageInfo.style.textAlign = "center";
@@ -788,7 +705,6 @@ async function fetchAndRenderForms() {
       allCategoriesContainer.appendChild(categoryDiv);
     });
 
-    // Add all categories to the forms list
     formsList.appendChild(allCategoriesContainer);
 
     console.log(
@@ -810,16 +726,14 @@ async function fetchAndRenderForms() {
   }
 }
 
-// Updated createFormCard function
 function createFormCard(form) {
   const card = document.createElement("div");
   card.className = "template-card";
   card.dataset.formId = form._id;
 
-  // Choose icon based on category
-  let icon = "fa-file-alt"; // Default icon
+  // choose icon based on category
+  let icon = "fa-file-alt";
 
-  // Choose icon based on category
   if (form.category === "contract") {
     icon = "fa-file-contract";
   } else if (form.category === "proposal") {
@@ -830,10 +744,9 @@ function createFormCard(form) {
     icon = "fa-handshake";
   }
 
-  // Use the GLOBAL date format - this is the key fix!
+  // use the GLOBAL date format
   const currentDateFormat = window.dateFormat || "MM/DD/YYYY";
 
-  // Format modified date
   let formattedModifiedDate = "Not recorded";
   if (form.lastModified) {
     const modifiedDate = new Date(form.lastModified);
@@ -843,7 +756,6 @@ function createFormCard(form) {
     );
   }
 
-  // Format creation date
   let formattedCreationDate = "Not recorded";
   if (form.createdAt) {
     const creationDate = new Date(form.createdAt);
@@ -853,12 +765,10 @@ function createFormCard(form) {
     );
   }
 
-  // Add a label for template or draft
   const typeLabel = form.isTemplate
     ? '<span class="type-label template">Template</span>'
     : '<span class="type-label draft">Draft</span>';
 
-  // Create card content with both dates and type label
   card.innerHTML = `
     <div class="template-icon">
       <i class="fas ${icon}"></i>
@@ -884,7 +794,6 @@ function createFormCard(form) {
     </div>
   `;
 
-  // Add event listeners
   card.querySelector(".preview-form").addEventListener("click", function (e) {
     e.stopPropagation();
     openFormPreview(form._id);
@@ -900,7 +809,6 @@ function createFormCard(form) {
     confirmDeleteForm(form._id);
   });
 
-  // Add click event to entire card for preview
   card.addEventListener("click", function () {
     openFormPreview(form._id);
   });
@@ -908,53 +816,39 @@ function createFormCard(form) {
   return card;
 }
 
-/**
- * Apply filters and search
- */
+// apply filters and search
 function applyFilters() {
-  // Reset category pagination when filters change
+  // reset category pagination when filters change
   categoryPagination = {};
   fetchAndRenderForms();
 }
 
-/**
- * Open the form creation modal
- */
+// open the form creation modal
 function openCreateFormModal() {
-  // Clear form
   document.getElementById("formId").value = "";
   document.getElementById("formTitle").value = "";
   document.getElementById("formDescription").value = "";
   document.getElementById("formCategory").value = "contract";
   document.getElementById("isTemplate").value = "true";
 
-  // Clear editor content properly and update preview
   if (editor) {
-    // Set to empty string
     editor.setValue("");
 
-    // Force editor refresh to update display
     setTimeout(() => {
       editor.refresh();
       editor.focus();
-      // Force update the preview
       updateMarkdownPreview();
     }, 50);
   }
 
-  // Update modal title
   document.getElementById("formEditorTitle").textContent = "Create New Form";
-
-  // Show modal
   document.getElementById("formEditorModal").style.display = "block";
 }
 
 async function openEditFormModal(formId) {
   try {
-    // Show loading
     Utils.showToast("Loading form...");
 
-    // Fetch form details
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
 
     if (!response.ok) {
@@ -963,32 +857,23 @@ async function openEditFormModal(formId) {
 
     const form = await response.json();
 
-    // Populate form fields
     document.getElementById("formId").value = form._id;
     document.getElementById("formTitle").value = form.title;
     document.getElementById("formDescription").value = form.description || "";
     document.getElementById("formCategory").value = form.category;
     document.getElementById("isTemplate").value = form.isTemplate.toString();
 
-    // Set editor content
     editor.setValue(form.content);
 
-    // This is the important part - refresh the editor after setting content
+    // refresh the editor after setting content
     setTimeout(() => {
       editor.refresh();
-      // Also force focus on the editor to ensure it's visible
+      // also force focus on the editor to ensure it's visible
       editor.focus();
     }, 10);
 
-    // Update modal title
     document.getElementById("formEditorTitle").textContent = "Edit Form";
 
-    // Show/hide variables section based on template status
-    const variablesContainer = document.querySelector(".variables-container");
-    const isTemplate = form.isTemplate;
-
-
-    // Show modal
     document.getElementById("formEditorModal").style.display = "block";
   } catch (error) {
     console.error("Error loading form for editing:", error);
@@ -996,30 +881,24 @@ async function openEditFormModal(formId) {
   }
 }
 
-/**
- * Close the form editor modal
- */
+// close the form editor modal
 function closeFormEditorModal() {
   document.getElementById("formEditorModal").style.display = "none";
 }
 
-/**
- * Handle form submission
- */
+// handle form submission
 async function handleFormSubmit(event) {
   event.preventDefault();
 
-  // Show loading indicator
   Utils.showToast("Saving form...");
 
-  // Get form data
   const formId = document.getElementById("formId").value;
   const title = document.getElementById("formTitle").value;
   const description = document.getElementById("formDescription").value;
   const category = document.getElementById("formCategory").value;
   const isTemplate = document.getElementById("isTemplate").value === "true";
 
-  // Important: Get content from CodeMirror editor instead of the hidden textarea
+  // get content from CodeMirror editor instead of the hidden textarea
   const content = editor.getValue();
 
   console.log("Form data gathered:", {
@@ -1031,7 +910,6 @@ async function handleFormSubmit(event) {
     contentLength: content.length,
   });
 
-  // Validate required fields
   if (!title) {
     Utils.showToast("Title is required");
     document.getElementById("formTitle").focus();
@@ -1044,7 +922,6 @@ async function handleFormSubmit(event) {
     return;
   }
 
-  // Prepare form data
   const formData = {
     title,
     description,
@@ -1089,15 +966,12 @@ async function handleFormSubmit(event) {
     const savedForm = await response.json();
     console.log("Form saved successfully:", savedForm);
 
-    // Close modal
     closeFormEditorModal();
 
-    // Show success message
     Utils.showToast(
       formId ? "Form updated successfully" : "Form created successfully"
     );
 
-    // Refresh forms list
     fetchAndRenderForms();
   } catch (error) {
     console.error("Error saving form:", error);
@@ -1111,13 +985,10 @@ async function handleFormSubmit(event) {
 
 async function openFormPreview(formId) {
   try {
-    // Store current form ID
     currentFormId = formId;
 
-    // Show loading
     Utils.showToast("Loading preview...");
 
-    // Fetch form details
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
 
     if (!response.ok) {
@@ -1126,10 +997,8 @@ async function openFormPreview(formId) {
 
     const form = await response.json();
 
-    // Get date format from window object or use default
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
-    // Format dates for display
     let formattedCreationDate = "Not recorded";
     let formattedModifiedDate = "Not recorded";
 
@@ -1143,10 +1012,9 @@ async function openFormPreview(formId) {
       formattedModifiedDate = Utils.formatDateTime(modifiedDate, dateFormat);
     }
 
-    // Set preview title
     document.getElementById("previewFormTitle").textContent = form.title;
 
-    // Create metadata section for dates
+    // create metadata section for dates
     const metadataHTML = `
        <div class="form-metadata">
           <div><strong>Form Id: ${formId}</strong></div>
@@ -1157,21 +1025,18 @@ async function openFormPreview(formId) {
         </div> 
     `;
 
-    // Convert markdown to HTML
     const html = DOMPurify.sanitize(marked.parse(form.content));
 
-    // Set preview content with metadata
     const previewContent = document.getElementById("previewContent");
     previewContent.innerHTML = metadataHTML + html;
 
-    // Only show the "Use with Lead" button for templates
+    // only show the "Use with Lead" button for templates
     const useWithLeadButton = form.isTemplate
       ? `<button type="button" id="useWithLeadBtn" class="btn btn-outline">
         <i class="fas fa-user"></i> Use Customer Data
       </button>`
       : "";
 
-    // Update the modal-actions div to conditionally include the use with lead button
     const modalActions = document.querySelector(
       "#formPreviewModal .modal-actions"
     );
@@ -1194,10 +1059,8 @@ async function openFormPreview(formId) {
       `;
     }
 
-    // Show modal
     document.getElementById("formPreviewModal").style.display = "block";
 
-    // Add event listeners to buttons
     document
       .getElementById("editFormBtn")
       .addEventListener("click", function () {
@@ -1217,7 +1080,7 @@ async function openFormPreview(formId) {
         printForm(formId);
       });
 
-    // Only add the Use with Lead event listener if the button exists
+    // only add the Use with Lead event listener if the button exists
     const useWithLeadBtn = document.getElementById("useWithLeadBtn");
     if (useWithLeadBtn) {
       useWithLeadBtn.addEventListener("click", function () {
@@ -1230,16 +1093,12 @@ async function openFormPreview(formId) {
   }
 }
 
-/**
- * Close the form preview modal
- */
+// close the form preview modal
 function closeFormPreviewModal() {
   document.getElementById("formPreviewModal").style.display = "none";
 }
 
-/**
- * Confirm delete form
- */
+// confirm delete form
 function confirmDeleteForm(formId) {
   if (
     confirm(
@@ -1250,12 +1109,9 @@ function confirmDeleteForm(formId) {
   }
 }
 
-/**
- * Delete a form
- */
+// delete a form
 async function deleteForm(formId) {
   try {
-    // Delete form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
       method: "DELETE",
     });
@@ -1264,10 +1120,7 @@ async function deleteForm(formId) {
       throw new Error("Failed to delete form");
     }
 
-    // Show success message
     Utils.showToast("Form deleted successfully");
-
-    // Refresh forms list
     fetchAndRenderForms();
   } catch (error) {
     console.error("Error deleting form:", error);
@@ -1277,12 +1130,11 @@ async function deleteForm(formId) {
 
 async function downloadForm(formId) {
   try {
-    // Get the form content directly from the server or editor
     let formContent;
     let title;
 
     if (formId) {
-      // Fetch form from server to get original content with all whitespace
+      // fetch form from server to get original content with all whitespace
       const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
 
       if (!response.ok) {
@@ -1293,33 +1145,28 @@ async function downloadForm(formId) {
       formContent = form.content;
       title = form.title;
     } else {
-      // Use content from the preview modal
       title = document.getElementById("previewFormTitle").textContent;
 
-      // Get content directly from editor if available
       if (editor) {
         formContent = editor.getValue();
       } else {
-        // Fallback in case editor isn't available
+        // fallback in case editor isn't available
         const previewContent = document.getElementById("previewContent");
-        // Create a temporary div to avoid HTML-to-text conversion issues
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = previewContent.innerHTML;
         formContent = tempDiv.innerText;
       }
     }
 
-    // Create a blob with the raw content - important to use text/markdown mime type
+    // create a blob with the raw content
     const blob = new Blob([formContent], {
       type: "text/markdown;charset=utf-8",
     });
 
-    // Create a download link
     const downloadLink = document.createElement("a");
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
 
-    // Trigger download
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -1331,7 +1178,6 @@ async function downloadForm(formId) {
 
 async function printForm(formId) {
   try {
-    // Fetch the form with original formatting
     let form;
     if (formId) {
       const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
@@ -1342,7 +1188,6 @@ async function printForm(formId) {
 
       form = await response.json();
     } else {
-      // Use the current form content from the preview
       const title = document.getElementById("previewFormTitle").textContent;
       const content = editor
         ? editor.getValue()
@@ -1350,13 +1195,11 @@ async function printForm(formId) {
       form = { title, content };
     }
 
-    // Create print window with styles that preserve whitespace
     const printWindow = window.open("", "_blank");
 
-    // Convert markdown to HTML using marked with whitespace options
     const formattedContent = marked.parse(form.content);
 
-    // Write content to print window with special styling for whitespace
+    // write content to print window with special styling for whitespace
     printWindow.document.write(`
   <!DOCTYPE html>
   <html>
@@ -1441,7 +1284,6 @@ async function printForm(formId) {
   </html>
 `);
 
-    // Print and close
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
@@ -1455,13 +1297,13 @@ async function printForm(formId) {
 
 async function openLeadSelectionModal() {
   try {
-    // First, close the form preview modal
+    // first, close the form preview modal
     const previewModal = document.getElementById("formPreviewModal");
     if (previewModal) {
       previewModal.style.display = "none";
     }
 
-    // Check if the current form is a template
+    // check if the current form is a template
     if (currentFormId) {
       const form = await fetchFormById(currentFormId);
 
@@ -1476,10 +1318,8 @@ async function openLeadSelectionModal() {
       return;
     }
 
-    // Show loading
     Utils.showToast("Loading leads...");
 
-    // Fetch leads
     const response = await fetch(`${API.getBaseUrl()}/api/leads`);
 
     if (!response.ok) {
@@ -1488,7 +1328,6 @@ async function openLeadSelectionModal() {
 
     const leads = await response.json();
 
-    // Build leads list
     const leadsList = document.getElementById("leadsList");
     leadsList.innerHTML = "";
 
@@ -1504,7 +1343,6 @@ async function openLeadSelectionModal() {
         leadItem.style.padding = "1rem";
         leadItem.style.borderBottom = "1px solid var(--border-color)";
 
-        // Format lead name
         const fullName = `${lead.firstName} ${lead.lastName}`;
         const businessName = lead.businessName || "N/A";
 
@@ -1516,7 +1354,6 @@ async function openLeadSelectionModal() {
       <button class="btn btn-primary">Use</button>
     `;
 
-        // Add click event to button
         leadItem.querySelector("button").addEventListener("click", function () {
           generateFormFromTemplate(currentFormId, lead._id);
           closeLeadSelectionModal();
@@ -1526,7 +1363,6 @@ async function openLeadSelectionModal() {
       });
     }
 
-    // Show modal
     document.getElementById("leadSelectionModal").style.display = "block";
   } catch (error) {
     console.error("Error loading leads:", error);
@@ -1534,7 +1370,7 @@ async function openLeadSelectionModal() {
   }
 }
 
-// Helper function to fetch a single form
+// helper function to fetch a single form
 async function fetchFormById(formId) {
   try {
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
@@ -1552,13 +1388,12 @@ async function fetchFormById(formId) {
 
 async function generateFormFromTemplate(templateId, leadId) {
   try {
-    // Show loading toast
     Utils.showToast("Generating form...");
 
-    // Multi-method timezone detection for iOS compatibility
+    // multi-method timezone detection for iOS compatibility
     let timezone;
 
-    // Method 1: Try Intl.DateTimeFormat().resolvedOptions().timeZone (works in most browsers)
+    // method 1 try Intl.DateTimeFormat().resolvedOptions().timeZone (works in most browsers)
     try {
       timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       console.log("Timezone detected via Intl.DateTimeFormat:", timezone);
@@ -1566,16 +1401,11 @@ async function generateFormFromTemplate(templateId, leadId) {
       console.warn("Failed to detect timezone via Intl.DateTimeFormat:", error);
     }
 
-    // Method 2: Try to calculate timezone offset and determine name (fallback for iOS)
+    // method 2 try to calculate timezone offset and determine name (fallback for iOS)
     if (!timezone) {
       try {
-        // Get timezone offset in minutes
         const offsetMinutes = new Date().getTimezoneOffset();
-
-        // Convert to hours (negative because getTimezoneOffset() returns the opposite of what we want)
         const offsetHours = -offsetMinutes / 60;
-
-        // Format as +/-HH:MM
         const formattedOffset = `${offsetHours >= 0 ? "+" : "-"}${Math.abs(
           Math.floor(offsetHours)
         )
@@ -1584,23 +1414,21 @@ async function generateFormFromTemplate(templateId, leadId) {
           .toString()
           .padStart(2, "0")}`;
 
-        // Map common offsets to timezone names
-        // This is a simple mapping and won't handle DST perfectly, but works as a fallback
+        // map common offsets to timezone names, not perfect solution
         const offsetToTimezone = {
-          "-08:00": "America/Los_Angeles", // Pacific Standard Time
-          "-07:00": "America/Los_Angeles", // Pacific Daylight Time
-          "-05:00": "America/New_York", // Eastern Standard Time
-          "-04:00": "America/New_York", // Eastern Daylight Time
-          "+00:00": "Europe/London", // GMT/UTC
-          "+01:00": "Europe/Paris", // Central European Time
-          "+02:00": "Europe/Helsinki", // Eastern European Time
-          "+05:30": "Asia/Kolkata", // India
-          "+08:00": "Asia/Singapore", // Singapore/China
-          "+09:00": "Asia/Tokyo", // Japan
-          "+10:00": "Australia/Sydney", // Sydney
+          "-08:00": "America/Los_Angeles",
+          "-07:00": "America/Los_Angeles",
+          "-05:00": "America/New_York", 
+          "-04:00": "America/New_York", 
+          "+00:00": "Europe/London", 
+          "+01:00": "Europe/Paris", 
+          "+02:00": "Europe/Helsinki", 
+          "+05:30": "Asia/Kolkata", 
+          "+08:00": "Asia/Singapore", 
+          "+09:00": "Asia/Tokyo", 
+          "+10:00": "Australia/Sydney", 
         };
 
-        // Get timezone name from offset, or use a default format
         timezone =
           offsetToTimezone[formattedOffset] ||
           `Etc/GMT${formattedOffset.replace(":", "")}`;
@@ -1618,14 +1446,12 @@ async function generateFormFromTemplate(templateId, leadId) {
       }
     }
 
-    // Method 3: Try getting timezone from date string parsing (another iOS fallback)
+    // method 3 try getting timezone from date string parsing (another iOS fallback)
     if (!timezone) {
       try {
         const dateString = new Date().toString();
-        // Extract timezone abbreviation from date string
         const tzAbbr = dateString.match(/\(([^)]+)\)$/)?.[1];
 
-        // Map common timezone abbreviations to IANA timezone names
         const tzAbbrMap = {
           PST: "America/Los_Angeles",
           PDT: "America/Los_Angeles",
@@ -1643,7 +1469,7 @@ async function generateFormFromTemplate(templateId, leadId) {
           IST: "Asia/Kolkata",
         };
 
-        timezone = tzAbbrMap[tzAbbr] || "America/Los_Angeles"; // Default to Los Angeles if unknown
+        timezone = tzAbbrMap[tzAbbr] || "America/Los_Angeles"; // default to Los Angeles if unknown
         console.log(
           "Timezone detected via date string:",
           timezone,
@@ -1655,16 +1481,15 @@ async function generateFormFromTemplate(templateId, leadId) {
       }
     }
 
-    // Final fallback: use a default timezone
+    // final fallback use a default timezone
     if (!timezone) {
-      timezone = "America/Los_Angeles"; // Default to Pacific Time
+      timezone = "America/Los_Angeles"; // default to Pacific Time
       console.warn(
         "All timezone detection methods failed, using default:",
         timezone
       );
     }
 
-    // Enhanced logging to verify browser-detected timezone
     console.log("Client timezone detection complete:", {
       detectedTimezone: timezone,
       dateInfo: {
@@ -1679,7 +1504,6 @@ async function generateFormFromTemplate(templateId, leadId) {
 
     console.log(`Sending timezone to server: ${timezone}`);
 
-    // Call API to generate form with lead data
     const response = await fetch(
       `${API.getBaseUrl()}/api/forms/${templateId}/generate`,
       {
@@ -1689,7 +1513,7 @@ async function generateFormFromTemplate(templateId, leadId) {
         },
         body: JSON.stringify({
           leadId,
-          timezone, // Send the timezone with the request
+          timezone, // send the timezone with the request
         }),
       }
     );
@@ -1702,7 +1526,6 @@ async function generateFormFromTemplate(templateId, leadId) {
 
     const result = await response.json();
 
-    // Enhanced logging of server response to verify timezone usage
     console.log("Form generated successfully with timezone info:", {
       serverUsedTimezone: result.debug?.usedTimezone || result.usedTimezone,
       formattedDateExample: result.debug?.formattedDateExample,
@@ -1710,14 +1533,12 @@ async function generateFormFromTemplate(templateId, leadId) {
       generatedFormId: result._id,
     });
 
-    // Close template modal
     const modal = document.getElementById("formTemplateModal");
     if (modal) {
       modal.style.display = "none";
       document.body.removeChild(modal);
     }
 
-    // Show success message with timezone info for verification
     Utils.showToast(`Form created successfully using timezone: ${timezone}`);
 
     console.log("Form generated from forms page for lead:", leadId);
@@ -1732,8 +1553,7 @@ function initializeGeneratedFormEditor() {
   const textarea = document.getElementById("editGeneratedContent");
   if (!textarea) return;
 
-  // Check if CodeMirror is already initialized on this textarea
-  // Fix: Safely check if nextSibling exists before accessing its properties
+  // check if CodeMirror is already initialized on this textarea
   if (
     textarea.nextSibling &&
     textarea.nextSibling.classList &&
@@ -1742,7 +1562,6 @@ function initializeGeneratedFormEditor() {
     return;
   }
 
-  // Initialize CodeMirror
   try {
     window.generatedFormEditor = CodeMirror.fromTextArea(textarea, {
       mode: "markdown",
@@ -1752,12 +1571,10 @@ function initializeGeneratedFormEditor() {
       placeholder: "Edit your form content here in Markdown format...",
     });
 
-    // Update preview when content changes
     window.generatedFormEditor.on("change", function () {
       updateGeneratedFormPreview();
     });
 
-    // Force a refresh to ensure proper rendering
     setTimeout(() => {
       if (window.generatedFormEditor) {
         window.generatedFormEditor.refresh();
@@ -1765,11 +1582,10 @@ function initializeGeneratedFormEditor() {
     }, 50);
   } catch (error) {
     console.error("Error initializing CodeMirror editor:", error);
-    // Fallback to regular textarea if CodeMirror fails
+    // fallback to regular textarea if CodeMirror fails
   }
 }
 
-// New function to update the generated form preview
 function updateGeneratedFormPreview() {
   if (!window.generatedFormEditor) return;
 
@@ -1781,20 +1597,18 @@ function updateGeneratedFormPreview() {
     return;
   }
 
-  // Convert markdown to HTML with DOMPurify for security
   const html = DOMPurify.sanitize(marked.parse(content));
   preview.innerHTML = html;
 }
 
 function setupGeneratedFormModalEvents(leadId) {
-  // Tab switching
+  // tab switching
   document
     .querySelectorAll("#generatedFormModal .editor-tab")
     .forEach((tab) => {
       tab.addEventListener("click", function () {
         console.log("Tab clicked:", this.getAttribute("data-tab"));
 
-        // Set active tab
         document
           .querySelectorAll("#generatedFormModal .editor-tab")
           .forEach((t) => {
@@ -1818,7 +1632,6 @@ function setupGeneratedFormModalEvents(leadId) {
           if (editorSection) editorSection.classList.remove("inactive");
           if (previewSection) previewSection.classList.remove("active");
 
-          // Refresh CodeMirror
           if (window.generatedFormEditor) {
             setTimeout(() => {
               window.generatedFormEditor.refresh();
@@ -1829,34 +1642,29 @@ function setupGeneratedFormModalEvents(leadId) {
           if (editorSection) editorSection.classList.add("inactive");
           if (previewSection) previewSection.classList.add("active");
 
-          // Update preview
           updateGeneratedFormPreview();
         }
       });
     });
 
-  // Save button
   document
     .getElementById("saveGeneratedBtn")
     .addEventListener("click", function () {
       saveGeneratedForm(leadId);
     });
 
-  // Close button
   document
     .getElementById("closeGeneratedFormModal")
     .addEventListener("click", function () {
       document.getElementById("generatedFormModal").style.display = "none";
     });
 
-  // Download button
   document
     .getElementById("downloadGeneratedBtn")
     .addEventListener("click", function () {
       downloadGeneratedForm();
     });
 
-  // Print button
   document
     .getElementById("printGeneratedBtn")
     .addEventListener("click", function () {
@@ -1864,7 +1672,6 @@ function setupGeneratedFormModalEvents(leadId) {
     });
 }
 
-// Fixed function to save the edited generated form
 async function saveGeneratedForm(leadId) {
   try {
     if (!window.generatedFormEditor || !window.currentGeneratedForm) {
@@ -1875,10 +1682,8 @@ async function saveGeneratedForm(leadId) {
     const formId = window.currentGeneratedForm._id;
     const content = window.generatedFormEditor.getValue();
 
-    // Show loading toast
     Utils.showToast("Saving form...");
 
-    // Update the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
       method: "PUT",
       headers: {
@@ -1891,16 +1696,14 @@ async function saveGeneratedForm(leadId) {
       throw new Error("Failed to save form");
     }
 
-    // Show success message
     Utils.showToast("Form saved successfully");
 
-    // Update the preview
     updateGeneratedFormPreview();
 
-    // Reload lead forms - Fixed: Use the correct function name
+    // reload lead forms
     if (leadId) {
       try {
-        // First check if the function exists in the global scope
+        // first check if the function exists in the global scope
         if (typeof window.loadLeadForms === "function") {
           window.loadLeadForms(leadId);
         } else if (typeof loadLeadForms === "function") {
@@ -1909,13 +1712,11 @@ async function saveGeneratedForm(leadId) {
           console.log(
             "Note: Form saved but couldn't refresh lead forms list automatically."
           );
-          // You might need to manually refresh the page or provide a button for the user to do so
         }
       } catch (err) {
         console.log(
           "Note: Form saved but couldn't refresh lead forms list automatically."
         );
-        // This catch ensures the function doesn't fail even if the refresh function isn't available
       }
     }
   } catch (error) {
@@ -1924,9 +1725,7 @@ async function saveGeneratedForm(leadId) {
   }
 }
 
-/**
- * Close the generated form modal
- */
+// close the generated form modal
 function closeGeneratedFormModal() {
   document.getElementById("generatedFormModal").style.display = "none";
 }
@@ -1940,17 +1739,13 @@ function closeLeadSelectionModal() {
 
 function downloadGeneratedForm() {
   try {
-    // Get the original generated form content
     let content;
 
     if (window.currentGeneratedForm && window.currentGeneratedForm.content) {
-      // Use the original content from the generated form object
       content = window.currentGeneratedForm.content;
     } else if (window.generatedFormEditor) {
-      // If editor exists, get content from there
       content = window.generatedFormEditor.getValue();
     } else {
-      // Fallback to get content from the HTML
       const generatedContent = document.getElementById("generatedContent");
       const tempElement = document.createElement("div");
       tempElement.innerHTML = generatedContent.innerHTML;
@@ -1959,15 +1754,12 @@ function downloadGeneratedForm() {
 
     const title = document.getElementById("generatedFormTitle").textContent;
 
-    // Create a blob with the content - using text/markdown mime type
     const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
 
-    // Create a download link
     const downloadLink = document.createElement("a");
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = `${title.replace(/\s+/g, "_")}.md`;
 
-    // Trigger download
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -1977,17 +1769,13 @@ function downloadGeneratedForm() {
   }
 }
 
-/**
- * Print the generated form
- */
+// print the generated form
 function printGeneratedForm() {
   const title = document.getElementById("generatedFormTitle").textContent;
   const content = document.getElementById("generatedContent").innerHTML;
 
-  // Create a print window
   const printWindow = window.open("", "_blank");
 
-  // Write content to print window
   printWindow.document.write(`
 <!DOCTYPE html>
 <html>
@@ -2062,7 +1850,6 @@ function printGeneratedForm() {
 </html>
 `);
 
-  // Print the window
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();

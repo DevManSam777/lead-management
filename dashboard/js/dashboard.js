@@ -1369,9 +1369,9 @@ function applySorting(leadsToSort, sortField, sortOrder) {
 
       // if one has a business name and the other doesn't, prioritize the one with a name
       if (businessA && !businessB) {
-        return -1; // A has business, B doesn't - A comes first
+        return -1; // A has business, B doesn't then A comes first
       } else if (!businessA && businessB) {
-        return 1; // B has business, A doesn't - B comes first
+        return 1; // B has business, A doesn't then B comes first
       } else {
         // both have business names or both don't, compare normally
         comparison = businessA
@@ -1385,9 +1385,9 @@ function applySorting(leadsToSort, sortField, sortOrder) {
 
       // prioritize the one with an email
       if (emailA && !emailB) {
-        return -1; // A has email, B doesn't - A comes first
+        return -1; // A has email, B doesn't then A comes first
       } else if (!emailA && emailB) {
-        return 1; // B has email, A doesn't - B comes first
+        return 1; // B has email, A doesn't then B comes first
       } else {
         // both have business emails or both don't, compare normally
         comparison = emailA.toLowerCase().localeCompare(emailB.toLowerCase());
