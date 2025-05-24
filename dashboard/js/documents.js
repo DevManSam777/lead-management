@@ -6,11 +6,11 @@ function initDocumentUpload(leadId) {
   const selectFilesBtn = document.getElementById('selectFilesBtn');
   const uploadArea = document.getElementById('documentUploadArea');
 
-  // Remove any existing listeners first
+  // remove any existing listeners first
   selectFilesBtn.onclick = null;
   fileInput.onchange = null;
 
-  // Drag and drop event handlers
+  // drag and drop event handlers
   uploadArea.ondragover = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -28,31 +28,29 @@ function initDocumentUpload(leadId) {
     e.stopPropagation();
     uploadArea.classList.remove('highlight');
 
-    // Process dropped files
+    // process dropped files
     await processFiles(e.dataTransfer.files, leadId);
   };
-
-  // Simple, direct event handlers
   selectFilesBtn.onclick = (e) => {
     e.preventDefault();
     fileInput.click();
   };
 
   fileInput.onchange = async (e) => {
-    // Process selected files
+    // process selected files
     await processFiles(e.target.files, leadId);
     
-    // Reset file input
+    // reset file input
     e.target.value = '';
   };
 
-  // Update UI mode for documents
+  // update UI mode for documents
   updateDocumentUiForMode();
 }
 
-// Separate function to process files
+// separate function to process files
 async function processFiles(files, leadId) {
-  // Validate edit mode
+  // validate edit mode
   const submitButton = document.querySelector('#leadForm button[type="submit"]');
   const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
   
@@ -61,39 +59,39 @@ async function processFiles(files, leadId) {
     return;
   }
 
-  // Validate lead ID
+  // validate lead ID
   if (!leadId) {
     Utils.showToast("Error: No lead selected for document upload");
     return;
   }
 
-  // Get existing document list
+  // get existing document list
   const documentsContainer = document.getElementById("signedDocumentsList");
   const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
     .map(el => el.querySelector(".document-title").textContent);
 
-  // Process each file
+  // process each file
   for (let file of files) {
-    // Check if file already exists
+    // check if file already exists
     if (existingDocuments.includes(file.name)) {
       Utils.showToast(`${file.name} is already uploaded to this lead`);
       continue;
     }
     
-    // Validate file type
+    // validate file type
     if (file.type !== 'application/pdf') {
       Utils.showToast(`${file.name} is not a PDF file`);
       continue;
     }
     
-    // Validate file size (10MB limit)
+    // file size 10MB limit
     if (file.size > 10 * 1024 * 1024) {
       Utils.showToast(`${file.name} is too large (max 10MB)`);
       continue;
     }
 
     try {
-      // Read file
+      // read file
       const fileData = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => resolve(e.target.result);
@@ -101,7 +99,7 @@ async function processFiles(files, leadId) {
         reader.readAsDataURL(file);
       });
 
-      // Prepare file data
+      // file data
       const documentData = {
         fileName: file.name,
         fileType: file.type,
@@ -109,7 +107,7 @@ async function processFiles(files, leadId) {
         fileData: fileData
       };
 
-      // Upload document
+      // upload document
       const response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${leadId}`, {
         method: 'POST',
         headers: {
@@ -122,7 +120,7 @@ async function processFiles(files, leadId) {
         throw new Error('Upload failed');
       }
 
-      // Show success and reload documents
+      // show success and reload documents
       Utils.showToast(`${file.name} uploaded successfully`);
       await loadLeadDocuments(leadId);
     } catch (error) {
@@ -132,18 +130,16 @@ async function processFiles(files, leadId) {
   }
 }
 
-// Reuse existing functions from previous implementation
 async function loadLeadDocuments(leadId) {
   try {
     const documentsContainer = document.getElementById("signedDocumentsList");
 
     if (!documentsContainer) return;
 
-    // Show loading
     documentsContainer.innerHTML =
       '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading documents...</div>';
 
-    // Fetch documents for this lead
+    // fetch documents for this lead
     const response = await fetch(
       `${API.getBaseUrl()}/api/documents/lead/${leadId}`
     );
@@ -154,15 +150,15 @@ async function loadLeadDocuments(leadId) {
 
     const documents = await response.json();
 
-    // Clear container
+    // clear container
     documentsContainer.innerHTML = "";
 
-    // Get date format from window object or use default
+    // get date format from window object or use default
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
-    // Add each document
+    // add each document
     documents.forEach((doc) => {
-      // Format dates
+      // format dates
       let formattedUploadDate = "Not recorded";
       if (doc.uploadedAt) {
         const uploadDate = new Date(doc.uploadedAt);
@@ -190,7 +186,6 @@ async function loadLeadDocuments(leadId) {
         </div>
       `;
 
-      // Add event listeners
       documentItem
         .querySelector(".view-document")
         .addEventListener("click", (e) => {
@@ -207,11 +202,11 @@ async function loadLeadDocuments(leadId) {
           }
         });
 
-      // Add to container
+      // add to container
       documentsContainer.appendChild(documentItem);
     });
 
-    // Update UI mode
+    // update UI mode
     updateDocumentUiForMode();
   } catch (error) {
     console.error("Error loading lead documents:", error);
@@ -222,36 +217,6 @@ async function loadLeadDocuments(leadId) {
     }
   }
 }
-
-// async function viewDocument(documentId, fileName) {
-//   try {
-//     const user = auth.currentUser;
-//     if (!user) {
-//       throw new Error("User is not authenticated");
-//     }
-//     const token = await user.getIdToken();
-
-//     // Open the document in a new tab with the Authorization header
-//     const documentUrl = `${API.getBaseUrl()}/api/documents/${documentId}`;
-//     const response = await fetch(documentUrl, {
-//       method: 'GET',
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-
-//     if (!response.ok) {
-//       throw new Error("Failed to fetch document");
-//     }
-
-//     const blob = await response.blob();
-//     const blobUrl = URL.createObjectURL(blob);
-//     window.open(blobUrl, '_blank');
-//   } catch (error) {
-//     console.error("Error viewing document:", error);
-//     Utils.showToast("Error: " + error.message);
-//   }
-// }
 
 async function viewDocument(documentId, fileName) {
   try {
@@ -277,7 +242,7 @@ async function viewDocument(documentId, fileName) {
     const blobUrl = URL.createObjectURL(blob);
     const newWindow = window.open(blobUrl, '_blank');
 
-    // Check if the new window was successfully opened
+    // check if the new window was successfully opened
     if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
       Utils.showToast("Pop-up blocked. Please allow pop-ups for this site to view the document.");
       console.warn("Pop-up blocked by the browser.");
@@ -291,7 +256,6 @@ async function viewDocument(documentId, fileName) {
 
 async function deleteDocument(documentId, leadId) {
   try {
-    // Delete the document
     const response = await fetch(`${API.getBaseUrl()}/api/documents/${documentId}`, {
       method: "DELETE"
     });
@@ -300,10 +264,9 @@ async function deleteDocument(documentId, leadId) {
       throw new Error("Failed to delete document");
     }
 
-    // Show success message
     Utils.showToast("Document deleted successfully");
 
-    // Reload documents list
+    // reload documents list
     loadLeadDocuments(leadId);
   } catch (error) {
     console.error("Error deleting document:", error);
@@ -315,13 +278,13 @@ function updateDocumentUiForMode() {
   const submitButton = document.querySelector('#leadForm button[type="submit"]');
   const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
   
-  // Update upload area visibility
+  // update upload area visibility
   const uploadArea = document.getElementById("documentUploadArea");
   if (uploadArea) {
     uploadArea.style.display = isEditMode ? "flex" : "none";
   }
   
-  // Update delete button visibility
+  // update delete button visibility
   const deleteButtons = document.querySelectorAll(".document-actions .delete-document");
   deleteButtons.forEach(button => {
     button.style.display = isEditMode ? "flex" : "none";
