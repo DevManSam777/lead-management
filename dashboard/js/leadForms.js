@@ -2,7 +2,7 @@ import * as API from "./api.js";
 import * as Utils from "./utils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Configure marked.js for proper whitespace preservation
+  // configure marked.js whitespace
   if (typeof marked !== "undefined") {
     marked.setOptions({
       gfm: true,
@@ -19,11 +19,9 @@ async function loadLeadForms(leadId) {
 
     if (!formsContainer) return;
 
-    // Show loading
     formsContainer.innerHTML =
       '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading forms...</div>';
 
-    // Fetch forms for this lead
     const response = await fetch(
       `${API.getBaseUrl()}/api/forms/lead/${leadId}`
     );
@@ -34,23 +32,17 @@ async function loadLeadForms(leadId) {
 
     const forms = await response.json();
 
-    // Render the forms
     if (forms.length === 0) {
-      // use the no-forms-message class
       formsContainer.innerHTML =
         '<p class="no-forms-message">No forms yet. Click "Create Form" to add one.</p>';
       return;
     }
 
-    // Clear container
     formsContainer.innerHTML = "";
 
-    // Get date format from window object or use default
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
-    // Add each form
     forms.forEach((form) => {
-      // Format dates
       let formattedModifiedDate = "Not recorded";
       if (form.lastModified) {
         const modifiedDate = new Date(form.lastModified);
@@ -67,11 +59,9 @@ async function loadLeadForms(leadId) {
       formItem.className = "form-item";
       formItem.dataset.formId = form._id;
 
-      // Capitalize first letter of category
       const category =
         form.category.charAt(0).toUpperCase() + form.category.slice(1);
 
-      // Full action buttons for editing and deleting forms with date information
       formItem.innerHTML = `
         <div class="form-details">
           <div class="form-title">${form.title}</div>
@@ -94,12 +84,11 @@ async function loadLeadForms(leadId) {
         </div>
       `;
 
-      // Add event listeners
       formItem
         .querySelector(".view-form")
         .addEventListener("click", function (e) {
           e.stopPropagation();
-          viewForm(form._id, true); // Force edit mode to true
+          viewForm(form._id, true); // force edit mode to true
         });
 
       formItem
@@ -121,10 +110,9 @@ async function loadLeadForms(leadId) {
       formsContainer.appendChild(formItem);
     });
 
-    // Set the visibility of the Add Form button
     const addFormBtn = document.getElementById("addFormBtn");
     if (addFormBtn) {
-      addFormBtn.style.display = "block"; // Show the Add Form button
+      addFormBtn.style.display = "block";
     }
   } catch (error) {
     console.error("Error loading lead forms:", error);
@@ -136,15 +124,13 @@ async function loadLeadForms(leadId) {
   }
 }
 
-// Function to open form template selection modal
 function openFormTemplateModal(leadId) {
-  // Remove any existing modal first to prevent duplicates
+  // remove any existing modal first to prevent duplicates
   const existingModal = document.getElementById("formTemplateModal");
   if (existingModal) {
     existingModal.remove();
   }
 
-  // Create a modal to select a form template
   const modal = document.createElement("div");
   modal.id = "formTemplateModal";
   modal.className = "modal";
@@ -168,23 +154,18 @@ function openFormTemplateModal(leadId) {
     </div>
   `;
 
-  // Add modal to the DOM
   document.body.appendChild(modal);
 
-  // Show the modal
   modal.style.display = "block";
 
-  // Add close button event listener
   const closeButton = document.getElementById("closeFormTemplateModal");
   closeButton.addEventListener("click", function () {
     modal.style.display = "none";
     document.body.removeChild(modal);
   });
 
-  // Load templates
   loadFormTemplates(leadId);
 
-  // Add search functionality
   const searchInput = document.getElementById("templateSearchInput");
   searchInput.addEventListener("input", function () {
     const searchTerm = this.value.toLowerCase();
@@ -205,7 +186,7 @@ function openFormTemplateModal(leadId) {
       }
     });
 
-    // Show a "No results" message if no templates match the search
+    // show "no results" message if no templates match search
     const noResultsElement = document.getElementById("noTemplatesFound");
     if (visibleItemCount === 0) {
       if (!noResultsElement) {
@@ -220,7 +201,6 @@ function openFormTemplateModal(leadId) {
     }
   });
 
-  // Add keyboard support for closing the modal
   modal.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       modal.style.display = "none";
@@ -228,19 +208,17 @@ function openFormTemplateModal(leadId) {
     }
   });
 
-  // Return the modal for potential further manipulation
   return modal;
 }
 
-// Ensure the function is globally available
+// ensure the function is globally available
 window.openFormTemplateModal = openFormTemplateModal;
 
-// Function to load form templates
 async function loadFormTemplates(leadId) {
   try {
     const templatesContainer = document.getElementById("templatesList");
 
-    // Fetch templates (forms where isTemplate = true)
+    // fetch templates (forms where isTemplate = true)
     const response = await fetch(
       `${API.getBaseUrl()}/api/forms?isTemplate=true`
     );
@@ -257,10 +235,9 @@ async function loadFormTemplates(leadId) {
       return;
     }
 
-    // Clear container
     templatesContainer.innerHTML = "";
 
-    // Group templates by category
+    // group templates by category
     const groupedTemplates = {};
     templates.forEach((template) => {
       if (!groupedTemplates[template.category]) {
@@ -269,27 +246,23 @@ async function loadFormTemplates(leadId) {
       groupedTemplates[template.category].push(template);
     });
 
-    // Create a section for each category
     Object.entries(groupedTemplates).forEach(
       ([category, categoryTemplates]) => {
-        // Create category header
         const categoryHeader = document.createElement("h4");
         categoryHeader.className = "template-category-header";
         categoryHeader.textContent =
           category.charAt(0).toUpperCase() + category.slice(1) + "s";
         templatesContainer.appendChild(categoryHeader);
 
-        // Create template cards container
         const cardsContainer = document.createElement("div");
         cardsContainer.className = "template-cards";
 
-        // Add template cards
         categoryTemplates.forEach((template) => {
           const card = document.createElement("div");
           card.className = "template-card";
           card.dataset.templateId = template._id;
 
-          // Get icon based on category
+          // get icon based on category
           let icon = "fa-file-alt";
           if (template.category === "contract") icon = "fa-file-contract";
           if (template.category === "proposal") icon = "fa-file-invoice";
@@ -309,7 +282,6 @@ async function loadFormTemplates(leadId) {
           </div>
         `;
 
-          // Add event listener to use template button
           card
             .querySelector(".use-template")
             .addEventListener("click", function () {
@@ -333,13 +305,12 @@ async function loadFormTemplates(leadId) {
 
 async function generateFormFromTemplate(templateId, leadId) {
   try {
-    // Show loading toast
     Utils.showToast("Generating form...");
 
-    // Multi-method timezone detection for iOS compatibility
+    // multi-method timezone detection for ios compatibility
     let timezone;
     
-    // Method 1: Try Intl.DateTimeFormat().resolvedOptions().timeZone (works in most browsers)
+    //  try intl.datetimeformat (works in most browsers)
     try {
       timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       console.log("Timezone detected via Intl.DateTimeFormat:", timezone);
@@ -347,35 +318,31 @@ async function generateFormFromTemplate(templateId, leadId) {
       console.warn("Failed to detect timezone via Intl.DateTimeFormat:", error);
     }
     
-    // Method 2: Try to calculate timezone offset and determine name (fallback for iOS)
+    // calculate timezone offset for ios fallback
     if (!timezone) {
       try {
-        // Get timezone offset in minutes
         const offsetMinutes = new Date().getTimezoneOffset();
         
-        // Convert to hours (negative because getTimezoneOffset() returns the opposite of what we want)
+        // convert to hours (negative because getTimezoneOffset returns opposite)
         const offsetHours = -offsetMinutes / 60;
         
-        // Format as +/-HH:MM
         const formattedOffset = `${offsetHours >= 0 ? '+' : '-'}${Math.abs(Math.floor(offsetHours)).toString().padStart(2, '0')}:${(Math.abs(offsetHours % 1) * 60).toString().padStart(2, '0')}`;
 
-        // Map common offsets to timezone names
-        // This is a simple mapping and won't handle DST perfectly, but works as a fallback
+        // map common offsets to timezone names
         const offsetToTimezone = {
-          '-08:00': 'America/Los_Angeles', // Pacific Standard Time
-          '-07:00': 'America/Los_Angeles', // Pacific Daylight Time
-          '-05:00': 'America/New_York',    // Eastern Standard Time
-          '-04:00': 'America/New_York',    // Eastern Daylight Time
-          '+00:00': 'Europe/London',       // GMT/UTC
-          '+01:00': 'Europe/Paris',        // Central European Time
-          '+02:00': 'Europe/Helsinki',     // Eastern European Time
-          '+05:30': 'Asia/Kolkata',        // India
-          '+08:00': 'Asia/Singapore',      // Singapore/China
-          '+09:00': 'Asia/Tokyo',          // Japan
-          '+10:00': 'Australia/Sydney',    // Sydney
+          '-08:00': 'America/Los_Angeles',
+          '-07:00': 'America/Los_Angeles',
+          '-05:00': 'America/New_York',
+          '-04:00': 'America/New_York',
+          '+00:00': 'Europe/London',
+          '+01:00': 'Europe/Paris',
+          '+02:00': 'Europe/Helsinki',
+          '+05:30': 'Asia/Kolkata',
+          '+08:00': 'Asia/Singapore',
+          '+09:00': 'Asia/Tokyo',
+          '+10:00': 'Australia/Sydney',
         };
         
-        // Get timezone name from offset, or use a default format
         timezone = offsetToTimezone[formattedOffset] || `Etc/GMT${formattedOffset.replace(':', '')}`;
         console.log("Timezone detected via offset calculation:", timezone, "offset:", formattedOffset);
       } catch (error) {
@@ -383,14 +350,13 @@ async function generateFormFromTemplate(templateId, leadId) {
       }
     }
     
-    // Method 3: Try getting timezone from date string parsing (another iOS fallback)
+    // extract timezone from date string for ios fallback
     if (!timezone) {
       try {
         const dateString = new Date().toString();
-        // Extract timezone abbreviation from date string
         const tzAbbr = dateString.match(/\(([^)]+)\)$/)?.[1];
         
-        // Map common timezone abbreviations to IANA timezone names
+        // map common timezone abbreviations to iana names
         const tzAbbrMap = {
           'PST': 'America/Los_Angeles',
           'PDT': 'America/Los_Angeles',
@@ -408,20 +374,20 @@ async function generateFormFromTemplate(templateId, leadId) {
           'IST': 'Asia/Kolkata',
         };
         
-        timezone = tzAbbrMap[tzAbbr] || 'America/Los_Angeles'; // Default to Los Angeles if unknown
+        timezone = tzAbbrMap[tzAbbr] || 'America/Los_Angeles'; // default to los angeles if unknown
         console.log("Timezone detected via date string:", timezone, "abbr:", tzAbbr);
       } catch (error) {
         console.warn("Failed to detect timezone via date string:", error);
       }
     }
     
-    // Final fallback: use a default timezone
+    // final fallback use default timezone
     if (!timezone) {
-      timezone = 'America/Los_Angeles'; // Default to Pacific Time
+      timezone = 'America/Los_Angeles';
       console.warn("All timezone detection methods failed, using default:", timezone);
     }
     
-    // Enhanced logging to verify browser-detected timezone
+    // enhanced logging to verify browser-detected timezone
     console.log("Client timezone detection complete:", {
       detectedTimezone: timezone,
       dateInfo: {
@@ -436,7 +402,6 @@ async function generateFormFromTemplate(templateId, leadId) {
 
     console.log(`Sending timezone to server: ${timezone}`);
 
-    // Call API to generate form with lead data
     const response = await fetch(
       `${API.getBaseUrl()}/api/forms/${templateId}/generate`,
       {
@@ -446,7 +411,7 @@ async function generateFormFromTemplate(templateId, leadId) {
         },
         body: JSON.stringify({ 
           leadId,
-          timezone // Send the timezone with the request
+          timezone // send the timezone with the request
         }),
       }
     );
@@ -459,7 +424,7 @@ async function generateFormFromTemplate(templateId, leadId) {
 
     const result = await response.json();
     
-    // Enhanced logging of server response to verify timezone usage
+    // enhanced logging of server response to verify timezone usage
     console.log("Form generated successfully with timezone info:", {
       serverUsedTimezone: result.debug?.usedTimezone || result.usedTimezone,
       formattedDateExample: result.debug?.formattedDateExample,
@@ -467,17 +432,15 @@ async function generateFormFromTemplate(templateId, leadId) {
       generatedFormId: result._id
     });
 
-    // Close template modal
     const modal = document.getElementById("formTemplateModal");
     if (modal) {
       modal.style.display = "none";
       document.body.removeChild(modal);
     }
 
-    // Show success message with timezone info for verification
+    // show success message with timezone info for verification
     Utils.showToast(`Form created successfully using timezone: ${timezone}`);
 
-    // Reload lead forms to show the new form
     loadLeadForms(leadId);
   } catch (error) {
     console.error("Error generating form:", error);
@@ -487,7 +450,6 @@ async function generateFormFromTemplate(templateId, leadId) {
 
 async function viewForm(formId, isEditMode) {
   try {
-    // Fetch the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
 
     if (!response.ok) {
@@ -496,18 +458,15 @@ async function viewForm(formId, isEditMode) {
 
     const form = await response.json();
 
-    // Create preview modal
     const modal = document.createElement("div");
     modal.id = "formPreviewModal";
     modal.className = "modal";
 
-    // Always consider edit mode true when viewing from lead modal
+    // always consider edit mode true when viewing from lead modal
     isEditMode = true;
 
-    // Get date format from window object or use default
     const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
-    // Format dates for display
     let formattedCreationDate = "Not recorded";
     if (form.createdAt) {
       const creationDate = new Date(form.createdAt);
@@ -520,15 +479,14 @@ async function viewForm(formId, isEditMode) {
       formattedModifiedDate = Utils.formatDateTime(modifiedDate, dateFormat);
     }
 
-    // Use marked with specific options to preserve whitespace
+    // use marked with specific options to preserve whitespace
     marked.setOptions({
-      breaks: true, // Convert \n to <br>
-      gfm: true, // GitHub Flavored Markdown
-      smartLists: true, // Use smarter list behavior
-      xhtml: true, // Self-close HTML tags
+      breaks: true, // convert \n to <br>
+      gfm: true, // github flavored markdown
+      smartLists: true, // use smarter list behavior
+      xhtml: true, // self-close html tags
     });
 
-    // Convert markdown to HTML and sanitize
     const formattedContent = DOMPurify.sanitize(marked.parse(form.content));
 
     modal.innerHTML = `
@@ -538,7 +496,6 @@ async function viewForm(formId, isEditMode) {
           <h3>${form.title}</h3>
         </div>
         <div class="preview-container">
-          <!-- Add the date display at the top of the form preview -->
           <div class="form-metadata">
             <div><strong>Form Id: ${formId}</strong></div>
             <div><strong>Created:</strong> ${formattedCreationDate}</div>
@@ -562,13 +519,10 @@ async function viewForm(formId, isEditMode) {
       </div>
     `;
 
-    // Add modal to the DOM
     document.body.appendChild(modal);
 
-    // Show the modal
     modal.style.display = "block";
 
-    // Add close button event listener
     document
       .getElementById("closeFormPreviewModal")
       .addEventListener("click", function () {
@@ -576,29 +530,24 @@ async function viewForm(formId, isEditMode) {
         document.body.removeChild(modal);
       });
 
-    // Add download button event listener
     document
       .getElementById("downloadPreviewBtn")
       .addEventListener("click", function () {
         downloadForm(formId);
       });
 
-    // Add print button event listener
     document
       .getElementById("printPreviewBtn")
       .addEventListener("click", function () {
         printForm(formId);
       });
 
-    // Add edit button event listener
     document
       .getElementById("editContentBtn")
       .addEventListener("click", function () {
-        // Close the preview modal
         modal.style.display = "none";
         document.body.removeChild(modal);
 
-        // Open the edit modal
         openEditContentModal(form);
       });
   } catch (error) {
@@ -608,7 +557,6 @@ async function viewForm(formId, isEditMode) {
 }
 
 function openEditContentModal(form) {
-  // Create edit modal
   const modal = document.createElement("div");
   modal.id = "formEditContentModal";
   modal.className = "modal";
@@ -670,16 +618,13 @@ function openEditContentModal(form) {
   </div>
 `;
 
-  // Add modal to the DOM
   document.body.appendChild(modal);
 
-  // Show the modal
   modal.style.display = "block";
 
   let editor;
 
   try {
-    // Initialize CodeMirror
     const textarea = document.getElementById("editFormContent");
     editor = CodeMirror.fromTextArea(textarea, {
       mode: "markdown",
@@ -689,18 +634,14 @@ function openEditContentModal(form) {
       placeholder: "Write your form content here in Markdown format...",
     });
 
-    // Set initial content
     editor.setValue(form.content);
 
-    // Update the preview when the editor content changes
     editor.on("change", function () {
       updateMarkdownPreview(editor);
     });
 
-    // Initial preview update
     updateMarkdownPreview(editor);
 
-    // Add variables click handlers
     document.querySelectorAll(".variable-tag").forEach((tag) => {
       tag.addEventListener("click", function () {
         const variable = this.getAttribute("data-variable");
@@ -710,10 +651,8 @@ function openEditContentModal(form) {
       });
     });
 
-    // Add mobile tab toggle functionality
     document.querySelectorAll(".editor-tab").forEach((tab) => {
       tab.addEventListener("click", function () {
-        // Set active tab
         document
           .querySelectorAll(".editor-tab")
           .forEach((t) => t.classList.remove("active"));
@@ -729,11 +668,10 @@ function openEditContentModal(form) {
         } else {
           editorSection.classList.add("inactive");
           previewSection.classList.add("active");
-          // Update preview when switching to preview tab
           updateMarkdownPreview(editor);
         }
 
-        // Ensure the CodeMirror editor refreshes if it exists
+        // ensure codemirror refreshes when switching tabs
         if (editor) {
           setTimeout(() => {
             editor.refresh();
@@ -744,13 +682,12 @@ function openEditContentModal(form) {
   } catch (error) {
     console.error("Error initializing CodeMirror:", error);
 
-    // Fallback to regular textarea if CodeMirror fails
+    // fallback to regular textarea if codemirror fails
     const textarea = document.getElementById("editFormContent");
     textarea.style.width = "100%";
     textarea.style.minHeight = "300px";
     textarea.style.fontFamily = "monospace";
 
-    // Update preview on textarea change
     textarea.addEventListener("input", function () {
       const preview = document.getElementById("markdownPreview");
       if (marked && DOMPurify) {
@@ -760,7 +697,6 @@ function openEditContentModal(form) {
       }
     });
 
-    // Initial preview update
     const preview = document.getElementById("markdownPreview");
     if (marked && DOMPurify) {
       preview.innerHTML = DOMPurify.sanitize(marked.parse(textarea.value));
@@ -768,7 +704,7 @@ function openEditContentModal(form) {
       preview.innerHTML = `<pre>${textarea.value}</pre>`;
     }
 
-    // Add variables click handlers for textarea
+    // add variables click handlers for textarea fallback
     document.querySelectorAll(".variable-tag").forEach((tag) => {
       tag.addEventListener("click", function () {
         const variable = this.getAttribute("data-variable");
@@ -777,20 +713,17 @@ function openEditContentModal(form) {
         const textAfter = textarea.value.substring(cursorPos);
         textarea.value = textBefore + `{{${variable}}}` + textAfter;
 
-        // Update preview
         if (marked && DOMPurify) {
           preview.innerHTML = DOMPurify.sanitize(marked.parse(textarea.value));
         } else {
           preview.innerHTML = `<pre>${textarea.value}</pre>`;
         }
 
-        // Focus back to textarea
         textarea.focus();
       });
     });
   }
 
-  // Add close button event listener
   document
     .getElementById("closeEditContentModal")
     .addEventListener("click", function () {
@@ -800,11 +733,10 @@ function openEditContentModal(form) {
       }
     });
 
-  // Add save button event listener
   document
     .getElementById("saveContentBtn")
     .addEventListener("click", function () {
-      // Get the content from CodeMirror or the textarea
+      // get content from codemirror or textarea fallback
       let content;
       if (editor) {
         content = editor.getValue();
@@ -817,7 +749,6 @@ function openEditContentModal(form) {
       document.body.removeChild(modal);
     });
 
-  // Add cancel button event listener
   document
     .getElementById("cancelEditBtn")
     .addEventListener("click", function () {
@@ -828,7 +759,6 @@ function openEditContentModal(form) {
     });
 }
 
-// Function to update the markdown preview
 function updateMarkdownPreview(editor) {
   const content = editor.getValue();
   const preview = document.getElementById("markdownPreview");
@@ -838,7 +768,6 @@ function updateMarkdownPreview(editor) {
     return;
   }
 
-  // Convert markdown to HTML with DOMPurify for security
   if (typeof marked !== "undefined" && typeof DOMPurify !== "undefined") {
     const html = DOMPurify.sanitize(marked.parse(content));
     preview.innerHTML = html;
@@ -847,13 +776,10 @@ function updateMarkdownPreview(editor) {
   }
 }
 
-// Function to save form content
 async function saveFormContent(formId, content) {
   try {
-    // Show loading toast
     Utils.showToast("Saving form...");
 
-    // Call API to update the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
       method: "PUT",
       headers: {
@@ -866,13 +792,10 @@ async function saveFormContent(formId, content) {
       throw new Error("Failed to save form");
     }
 
-    // Show success message
     Utils.showToast("Form saved successfully");
 
-    // Get the lead ID
     const leadId = document.getElementById("leadId").value;
 
-    // Reload lead forms
     if (leadId) {
       loadLeadForms(leadId);
     }
@@ -882,10 +805,8 @@ async function saveFormContent(formId, content) {
   }
 }
 
-// Function to delete a form
 async function deleteForm(formId, leadId) {
   try {
-    // Call API to delete the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`, {
       method: "DELETE",
     });
@@ -894,7 +815,7 @@ async function deleteForm(formId, leadId) {
       throw new Error("Failed to delete form");
     }
 
-    // Also remove the association from the lead
+    // also remove the association from the lead
     const leadResponse = await fetch(
       `${API.getBaseUrl()}/api/leads/${leadId}`,
       {
@@ -912,10 +833,8 @@ async function deleteForm(formId, leadId) {
       console.warn("Form deleted but could not update lead association");
     }
 
-    // Show success message
     Utils.showToast("Form deleted successfully");
 
-    // Reload lead forms
     loadLeadForms(leadId);
   } catch (error) {
     console.error("Error deleting form:", error);
@@ -923,10 +842,8 @@ async function deleteForm(formId, leadId) {
   }
 }
 
-// Function to download a form
 async function downloadForm(formId) {
   try {
-    // Fetch the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
 
     if (!response.ok) {
@@ -935,15 +852,12 @@ async function downloadForm(formId) {
 
     const form = await response.json();
 
-    // Create a blob
     const blob = new Blob([form.content], { type: "text/markdown" });
 
-    // Create download link
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `${form.title.replace(/\s+/g, "_")}.md`;
 
-    // Trigger download
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -953,10 +867,8 @@ async function downloadForm(formId) {
   }
 }
 
-// Function to print a form
 async function printForm(formId) {
   try {
-    // Fetch the form
     const response = await fetch(`${API.getBaseUrl()}/api/forms/${formId}`);
 
     if (!response.ok) {
@@ -965,15 +877,13 @@ async function printForm(formId) {
 
     const form = await response.json();
 
-    // Create print window
     const printWindow = window.open("", "_blank");
 
-    // Convert markdown to HTML if marked is available
+    // convert markdown to html if marked is available
     const formattedContent = marked.parse
       ? DOMPurify.sanitize(marked.parse(form.content))
       : `<pre style="white-space: pre-wrap;">${form.content}</pre>`;
 
-    // Write to print window
     printWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -1048,7 +958,6 @@ async function printForm(formId) {
         </html>
       `);
 
-    // Print and close
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
