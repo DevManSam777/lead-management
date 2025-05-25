@@ -340,27 +340,22 @@ async function viewDocument(documentId, fileName) {
 }
 
 async function deleteDocument(documentId, leadId) {
+  const documentItem = document.querySelector(`.document-item[data-document-id="${documentId}"]`);
+  const originalContent = documentItem ? documentItem.innerHTML : null;
+
   try {
-    // find the document item and show loader
-    const documentItem = document.querySelector(
-      `.document-item[data-document-id="${documentId}"]`
-    );
+    // Show loading state
     if (documentItem) {
-      const originalContent = documentItem.innerHTML;
-      documentItem.innerHTML =
-        '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Deleting document...</div>';
-      documentItem.style.pointerEvents = "none";
+      documentItem.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Deleting document...</div>';
+      documentItem.style.pointerEvents = 'none';
     }
 
-    const response = await fetch(
-      `${API.getBaseUrl()}/api/documents/${documentId}`,
-      {
-        method: "DELETE",
-      }
-    );
+    const response = await fetch(`${API.getBaseUrl()}/api/documents/${documentId}`, {
+      method: "DELETE"
+    });
 
     if (!response.ok) {
-      throw new Error("Failed to delete document");
+      throw new Error(`Failed to delete document: ${response.status} - ${response.statusText}`);
     }
 
     Utils.showToast("Document deleted successfully");
@@ -369,14 +364,27 @@ async function deleteDocument(documentId, leadId) {
     await loadLeadDocuments(leadId);
   } catch (error) {
     console.error("Error deleting document:", error);
-    Utils.showToast("Error: " + error.message);
+    Utils.showToast(`Error: ${error.message}`);
+    
+    // Restore the document item if it exists
+    if (documentItem && originalContent) {
+      documentItem.innerHTML = originalContent;
+      documentItem.style.pointerEvents = 'auto';
+      
+      // Reattach event listeners
+      documentItem.querySelector(".view-document").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const fileName = documentItem.querySelector(".document-title").textContent;
+        viewDocument(documentId, fileName);
+      });
 
-    // restore the document item if it exists
-    const documentItem = document.querySelector(
-      `.document-item[data-document-id="${documentId}"]`
-    );
-    if (documentItem) {
-      documentItem.style.pointerEvents = "auto";
+      documentItem.querySelector(".delete-document").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const fileName = documentItem.querySelector(".document-title").textContent;
+        if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+          deleteDocument(documentId, leadId);
+        }
+      });
     }
   }
 }
