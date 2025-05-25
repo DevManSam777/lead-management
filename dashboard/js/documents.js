@@ -243,44 +243,99 @@ async function loadLeadDocuments(leadId) {
 
 async function viewDocument(documentId, fileName) {
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error("User is not authenticated");
-    }
-    const token = await user.getIdToken();
+    // find the document item and show loader
+    const documentItem = document.querySelector(
+      `.document-item[data-document-id="${documentId}"]`
+    );
+    if (documentItem) {
+      const originalContent = documentItem.innerHTML;
+      documentItem.innerHTML =
+        '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Opening document...</div>';
+      documentItem.style.pointerEvents = "none";
 
-    const documentUrl = `${API.getBaseUrl()}/api/documents/${documentId}`;
-    const response = await fetch(documentUrl, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error("User is not authenticated");
+      }
+      const token = await user.getIdToken();
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch document: ${response.status} - ${response.statusText}`
-      );
-    }
+      const documentUrl = `${API.getBaseUrl()}/api/documents/${documentId}`;
+      const response = await fetch(documentUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    const newWindow = window.open(blobUrl, "_blank");
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch document: ${response.status} - ${response.statusText}`
+        );
+      }
 
-    // check if the new window was successfully opened
-    if (
-      !newWindow ||
-      newWindow.closed ||
-      typeof newWindow.closed === "undefined"
-    ) {
-      Utils.showToast(
-        "Pop-up blocked. Please allow pop-ups for this site to view the document."
-      );
-      console.warn("Pop-up blocked by the browser.");
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const newWindow = window.open(blobUrl, "_blank");
+
+      // check if the new window was successfully opened
+      if (
+        !newWindow ||
+        newWindow.closed ||
+        typeof newWindow.closed === "undefined"
+      ) {
+        Utils.showToast(
+          "Pop-up blocked. Please allow pop-ups for this site to view the document."
+        );
+        console.warn("Pop-up blocked by the browser.");
+      } else {
+        // restore original content after successful opening
+        documentItem.innerHTML = originalContent;
+        documentItem.style.pointerEvents = "auto";
+
+        // reattach event listeners
+        documentItem
+          .querySelector(".view-document")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            viewDocument(documentId, fileName);
+          });
+
+        documentItem
+          .querySelector(".delete-document")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+              deleteDocument(documentId, leadId);
+            }
+          });
+      }
     }
   } catch (error) {
     console.error("Error viewing document:", error);
     Utils.showToast(`Error: ${error.message}`);
+
+    // restore the document item if it exists
+    if (documentItem) {
+      documentItem.innerHTML = originalContent;
+      documentItem.style.pointerEvents = "auto";
+
+      // reattach event listeners
+      documentItem
+        .querySelector(".view-document")
+        .addEventListener("click", (e) => {
+          e.stopPropagation();
+          viewDocument(documentId, fileName);
+        });
+
+      documentItem
+        .querySelector(".delete-document")
+        .addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+            deleteDocument(documentId, leadId);
+          }
+        });
+    }
   }
 }
 
