@@ -6,49 +6,64 @@ function initDocumentUpload(leadId) {
   const selectFilesBtn = document.getElementById("selectFilesBtn");
   const uploadArea = document.getElementById("documentUploadArea");
 
-  // remove any existing listeners first
-  selectFilesBtn.onclick = null;
-  fileInput.onchange = null;
+  // Reset file input
+  if (fileInput) {
+    fileInput.value = "";
+  }
 
-  // drag and drop event handlers
-  uploadArea.ondragover = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    uploadArea.classList.add("highlight");
-  };
+  // Direct button click handler
+  if (selectFilesBtn) {
+    selectFilesBtn.onclick = function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (fileInput) {
+        fileInput.value = "";
+        fileInput.click();
+      }
+    };
+  }
 
-  uploadArea.ondragleave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    uploadArea.classList.remove("highlight");
-  };
+  // Direct file input change handler
+  if (fileInput) {
+    fileInput.onchange = function (e) {
+      if (e.target.files && e.target.files.length > 0) {
+        processFiles(e.target.files, leadId).then(() => {
+          // Reset file input after processing
+          e.target.value = "";
+        });
+      }
+    };
+  }
 
-  uploadArea.ondrop = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    uploadArea.classList.remove("highlight");
+  // Handle drag and drop
+  if (uploadArea) {
+    uploadArea.ondragover = function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadArea.classList.add("highlight");
+    };
 
-    // process dropped files
-    await processFiles(e.dataTransfer.files, leadId);
-  };
-  selectFilesBtn.onclick = (e) => {
-    e.preventDefault();
-    fileInput.click();
-  };
+    uploadArea.ondragleave = function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadArea.classList.remove("highlight");
+    };
 
-  fileInput.onchange = async (e) => {
-    // process selected files
-    await processFiles(e.target.files, leadId);
+    uploadArea.ondrop = function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadArea.classList.remove("highlight");
 
-    // reset file input
-    e.target.value = "";
-  };
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        processFiles(e.dataTransfer.files, leadId);
+      }
+    };
+  }
 
   // update UI mode for documents
   updateDocumentUiForMode();
 }
 
-// separate function to process files
 async function processFiles(files, leadId) {
   // validate edit mode
   const submitButton = document.querySelector(
@@ -74,12 +89,14 @@ async function processFiles(files, leadId) {
     documentsContainer.querySelectorAll(".document-item")
   ).map((el) => el.querySelector(".document-title").textContent);
 
-  // show loader for upload area
+  // Show initial loading state
   const uploadArea = document.getElementById("documentUploadArea");
-  const originalUploadAreaContent = uploadArea.innerHTML;
-  uploadArea.innerHTML =
-    '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Uploading documents...</div>';
-  uploadArea.style.pointerEvents = "none";
+  const originalUploadAreaContent = uploadArea ? uploadArea.innerHTML : "";
+  if (uploadArea) {
+    uploadArea.innerHTML =
+      '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Uploading documents...</div>';
+    uploadArea.style.pointerEvents = "none";
+  }
 
   try {
     // process each file
@@ -103,8 +120,10 @@ async function processFiles(files, leadId) {
       }
 
       try {
-        // update loading message
-        uploadArea.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Uploading ${file.name}...</div>`;
+        // Update loading message for current file
+        if (uploadArea) {
+          uploadArea.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Uploading ${file.name}...</div>`;
+        }
 
         // read file
         const fileData = await new Promise((resolve, reject) => {
@@ -147,9 +166,14 @@ async function processFiles(files, leadId) {
       }
     }
   } finally {
-    // restore upload area
-    uploadArea.innerHTML = originalUploadAreaContent;
-    uploadArea.style.pointerEvents = "auto";
+    // Restore upload area to original state
+    if (uploadArea) {
+      uploadArea.innerHTML = originalUploadAreaContent;
+      uploadArea.style.pointerEvents = "auto";
+    }
+
+    // Reinitialize file upload functionality
+    initDocumentUpload(leadId);
   }
 }
 
@@ -340,51 +364,68 @@ async function viewDocument(documentId, fileName) {
 }
 
 async function deleteDocument(documentId, leadId) {
-  const documentItem = document.querySelector(`.document-item[data-document-id="${documentId}"]`);
+  const documentItem = document.querySelector(
+    `.document-item[data-document-id="${documentId}"]`
+  );
   const originalContent = documentItem ? documentItem.innerHTML : null;
 
   try {
     // Show loading state
     if (documentItem) {
-      documentItem.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Deleting document...</div>';
-      documentItem.style.pointerEvents = 'none';
+      documentItem.innerHTML =
+        '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Deleting document...</div>';
+      documentItem.style.pointerEvents = "none";
     }
 
-    const response = await fetch(`${API.getBaseUrl()}/api/documents/${documentId}`, {
-      method: "DELETE"
-    });
+    const response = await fetch(
+      `${API.getBaseUrl()}/api/documents/${documentId}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`Failed to delete document: ${response.status} - ${response.statusText}`);
+      throw new Error(
+        `Failed to delete document: ${response.status} - ${response.statusText}`
+      );
     }
 
     Utils.showToast("Document deleted successfully");
 
     // reload documents list
     await loadLeadDocuments(leadId);
+
+    // reinitialize document upload functionality
+    initDocumentUpload(leadId);
   } catch (error) {
     console.error("Error deleting document:", error);
     Utils.showToast(`Error: ${error.message}`);
-    
+
     // Restore the document item if it exists
     if (documentItem && originalContent) {
       documentItem.innerHTML = originalContent;
-      documentItem.style.pointerEvents = 'auto';
-      
-      // Reattach event listeners
-      documentItem.querySelector(".view-document").addEventListener("click", (e) => {
-        e.stopPropagation();
-        const fileName = documentItem.querySelector(".document-title").textContent;
-        viewDocument(documentId, fileName);
-      });
+      documentItem.style.pointerEvents = "auto";
 
-      documentItem.querySelector(".delete-document").addEventListener("click", (e) => {
-        e.stopPropagation();
-        const fileName = documentItem.querySelector(".document-title").textContent;
-        if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
-          deleteDocument(documentId, leadId);
-        }
-      });
+      // Reattach event listeners
+      documentItem
+        .querySelector(".view-document")
+        .addEventListener("click", (e) => {
+          e.stopPropagation();
+          const fileName =
+            documentItem.querySelector(".document-title").textContent;
+          viewDocument(documentId, fileName);
+        });
+
+      documentItem
+        .querySelector(".delete-document")
+        .addEventListener("click", (e) => {
+          e.stopPropagation();
+          const fileName =
+            documentItem.querySelector(".document-title").textContent;
+          if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+            deleteDocument(documentId, leadId);
+          }
+        });
     }
   }
 }
