@@ -392,11 +392,47 @@ async function deleteDocument(documentId, leadId) {
 
     Utils.showToast("Document deleted successfully");
 
-    // reload documents list
-    await loadLeadDocuments(leadId);
+    // Show loading state in documents container
+    const documentsContainer = document.getElementById("signedDocumentsList");
+    if (documentsContainer) {
+      documentsContainer.innerHTML =
+        '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Reloading documents...</div>';
+    }
 
-    // reinitialize document upload functionality
-    initDocumentUpload(leadId);
+    try {
+      // reload documents list
+      await loadLeadDocuments(leadId);
+    } catch (loadError) {
+      console.error("Error reloading documents:", loadError);
+      Utils.showToast("Error reloading documents. Please refresh the page.");
+
+      // Restore the document item if it exists
+      if (documentItem && originalContent) {
+        documentItem.innerHTML = originalContent;
+        documentItem.style.pointerEvents = "auto";
+
+        // Reattach event listeners
+        documentItem
+          .querySelector(".view-document")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            const fileName =
+              documentItem.querySelector(".document-title").textContent;
+            viewDocument(documentId, fileName);
+          });
+
+        documentItem
+          .querySelector(".delete-document")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            const fileName =
+              documentItem.querySelector(".document-title").textContent;
+            if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+              deleteDocument(documentId, leadId);
+            }
+          });
+      }
+    }
   } catch (error) {
     console.error("Error deleting document:", error);
     Utils.showToast(`Error: ${error.message}`);
