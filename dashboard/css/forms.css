@@ -11,7 +11,7 @@
   box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
   overflow: hidden;
   transition: background-color var(--transition-speed),
-  box-shadow var(--transition-speed);
+    box-shadow var(--transition-speed);
 }
 
 .forms-category h3 {
@@ -43,7 +43,7 @@
 
 .form-metadata div {
   line-height: 1.5;
-  color: var(--text-muted); 
+  color: var(--text-muted);
   font-size: 0.9em;
 }
 
@@ -65,7 +65,6 @@
   color: var(--primary);
   opacity: 0.8;
 }
-
 
 .template-cards {
   display: grid;
@@ -257,7 +256,7 @@
 .editor-section {
   overflow-y: auto;
   flex: 1;
-  max-height: none; 
+  max-height: none;
   display: flex;
   flex-direction: column;
   padding-bottom: 2rem;
@@ -473,7 +472,7 @@ div.editor-section {
 }
 
 .markdown-content {
-  word-wrap: break-word; 
+  word-wrap: break-word;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -533,7 +532,7 @@ div.editor-section {
 }
 
 @media (max-width: 992px) {
- #addFormBtnFormsPage {
+  #addFormBtnFormsPage {
     width: 100%;
   }
 }
@@ -567,6 +566,11 @@ div.editor-section {
   .template-meta span {
     justify-content: flex-start;
   }
+
+#formEditorModal .CodeMirror .CodeMirror-sizer,
+#formEditContentModal .CodeMirror .CodeMirror-sizer {
+  padding-bottom: 50px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -598,5 +602,10 @@ div.editor-section {
 
   .template-actions {
     justify-content: flex-end;
+  }
+
+  #formEditorModal .CodeMirror .CodeMirror-sizer,
+#formEditContentModal .CodeMirror .CodeMirror-sizer {
+  padding-bottom: 150px !important;
   }
 }
