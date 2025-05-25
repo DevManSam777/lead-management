@@ -780,7 +780,7 @@ You can also use HTML for more advanced formatting:
 
 **Remember:** When creating templates, focus on clear organization, professional language, and consistency in formatting. You can edit this template by clicking the "Edit" button in the form preview screen.
 
-Happy form creating!`,
+Give it a try!`,
   category: "other",
   isTemplate: true,
   variables: [
