@@ -2,9 +2,9 @@ import * as API from "./api.js";
 import * as Utils from "./utils.js";
 
 function initDocumentUpload(leadId) {
-  const fileInput = document.getElementById('fileInput');
-  const selectFilesBtn = document.getElementById('selectFilesBtn');
-  const uploadArea = document.getElementById('documentUploadArea');
+  const fileInput = document.getElementById("fileInput");
+  const selectFilesBtn = document.getElementById("selectFilesBtn");
+  const uploadArea = document.getElementById("documentUploadArea");
 
   // remove any existing listeners first
   selectFilesBtn.onclick = null;
@@ -14,19 +14,19 @@ function initDocumentUpload(leadId) {
   uploadArea.ondragover = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    uploadArea.classList.add('highlight');
+    uploadArea.classList.add("highlight");
   };
 
   uploadArea.ondragleave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    uploadArea.classList.remove('highlight');
+    uploadArea.classList.remove("highlight");
   };
 
   uploadArea.ondrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    uploadArea.classList.remove('highlight');
+    uploadArea.classList.remove("highlight");
 
     // process dropped files
     await processFiles(e.dataTransfer.files, leadId);
@@ -39,9 +39,9 @@ function initDocumentUpload(leadId) {
   fileInput.onchange = async (e) => {
     // process selected files
     await processFiles(e.target.files, leadId);
-    
+
     // reset file input
-    e.target.value = '';
+    e.target.value = "";
   };
 
   // update UI mode for documents
@@ -51,9 +51,12 @@ function initDocumentUpload(leadId) {
 // separate function to process files
 async function processFiles(files, leadId) {
   // validate edit mode
-  const submitButton = document.querySelector('#leadForm button[type="submit"]');
-  const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
-  
+  const submitButton = document.querySelector(
+    '#leadForm button[type="submit"]'
+  );
+  const isEditMode =
+    submitButton && getComputedStyle(submitButton).display !== "none";
+
   if (!isEditMode) {
     Utils.showToast("Please switch to edit mode to upload documents");
     return;
@@ -67,66 +70,86 @@ async function processFiles(files, leadId) {
 
   // get existing document list
   const documentsContainer = document.getElementById("signedDocumentsList");
-  const existingDocuments = Array.from(documentsContainer.querySelectorAll(".document-item"))
-    .map(el => el.querySelector(".document-title").textContent);
+  const existingDocuments = Array.from(
+    documentsContainer.querySelectorAll(".document-item")
+  ).map((el) => el.querySelector(".document-title").textContent);
 
-  // process each file
-  for (let file of files) {
-    // check if file already exists
-    if (existingDocuments.includes(file.name)) {
-      Utils.showToast(`${file.name} is already uploaded to this lead`);
-      continue;
-    }
-    
-    // validate file type
-    if (file.type !== 'application/pdf') {
-      Utils.showToast(`${file.name} is not a PDF file`);
-      continue;
-    }
-    
-    // file size 16MB limit
-    if (file.size > 16 * 1024 * 1024) {
-      Utils.showToast(`${file.name} is too large (max 16MB)`);
-      continue;
-    }
+  // show loader for upload area
+  const uploadArea = document.getElementById("documentUploadArea");
+  const originalUploadAreaContent = uploadArea.innerHTML;
+  uploadArea.innerHTML =
+    '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Uploading documents...</div>';
+  uploadArea.style.pointerEvents = "none";
 
-    try {
-      // read file
-      const fileData = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-      // file data
-      const documentData = {
-        fileName: file.name,
-        fileType: file.type,
-        fileSize: file.size,
-        fileData: fileData
-      };
-
-      // upload document
-      const response = await fetch(`${API.getBaseUrl()}/api/documents/lead/${leadId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(documentData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Upload failed');
+  try {
+    // process each file
+    for (let file of files) {
+      // check if file already exists
+      if (existingDocuments.includes(file.name)) {
+        Utils.showToast(`${file.name} is already uploaded to this lead`);
+        continue;
       }
 
-      // show success and reload documents
-      Utils.showToast(`${file.name} uploaded successfully`);
-      await loadLeadDocuments(leadId);
-    } catch (error) {
-      console.error('Document upload error:', error);
-      Utils.showToast(`Error uploading ${file.name}: ${error.message}`);
+      // validate file type
+      if (file.type !== "application/pdf") {
+        Utils.showToast(`${file.name} is not a PDF file`);
+        continue;
+      }
+
+      // file size 16MB limit
+      if (file.size > 16 * 1024 * 1024) {
+        Utils.showToast(`${file.name} is too large (max 16MB)`);
+        continue;
+      }
+
+      try {
+        // update loading message
+        uploadArea.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Uploading ${file.name}...</div>`;
+
+        // read file
+        const fileData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        // file data
+        const documentData = {
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size,
+          fileData: fileData,
+        };
+
+        // upload document
+        const response = await fetch(
+          `${API.getBaseUrl()}/api/documents/lead/${leadId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(documentData),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Upload failed");
+        }
+
+        // show success and reload documents
+        Utils.showToast(`${file.name} uploaded successfully`);
+        await loadLeadDocuments(leadId);
+      } catch (error) {
+        console.error("Document upload error:", error);
+        Utils.showToast(`Error uploading ${file.name}: ${error.message}`);
+      }
     }
+  } finally {
+    // restore upload area
+    uploadArea.innerHTML = originalUploadAreaContent;
+    uploadArea.style.pointerEvents = "auto";
   }
 }
 
@@ -228,26 +251,33 @@ async function viewDocument(documentId, fileName) {
 
     const documentUrl = `${API.getBaseUrl()}/api/documents/${documentId}`;
     const response = await fetch(documentUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch document: ${response.status} - ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch document: ${response.status} - ${response.statusText}`
+      );
     }
 
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
-    const newWindow = window.open(blobUrl, '_blank');
+    const newWindow = window.open(blobUrl, "_blank");
 
     // check if the new window was successfully opened
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      Utils.showToast("Pop-up blocked. Please allow pop-ups for this site to view the document.");
+    if (
+      !newWindow ||
+      newWindow.closed ||
+      typeof newWindow.closed === "undefined"
+    ) {
+      Utils.showToast(
+        "Pop-up blocked. Please allow pop-ups for this site to view the document."
+      );
       console.warn("Pop-up blocked by the browser.");
     }
-
   } catch (error) {
     console.error("Error viewing document:", error);
     Utils.showToast(`Error: ${error.message}`);
@@ -256,9 +286,23 @@ async function viewDocument(documentId, fileName) {
 
 async function deleteDocument(documentId, leadId) {
   try {
-    const response = await fetch(`${API.getBaseUrl()}/api/documents/${documentId}`, {
-      method: "DELETE"
-    });
+    // find the document item and show loader
+    const documentItem = document.querySelector(
+      `.document-item[data-document-id="${documentId}"]`
+    );
+    if (documentItem) {
+      const originalContent = documentItem.innerHTML;
+      documentItem.innerHTML =
+        '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Deleting document...</div>';
+      documentItem.style.pointerEvents = "none";
+    }
+
+    const response = await fetch(
+      `${API.getBaseUrl()}/api/documents/${documentId}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Failed to delete document");
@@ -267,32 +311,41 @@ async function deleteDocument(documentId, leadId) {
     Utils.showToast("Document deleted successfully");
 
     // reload documents list
-    loadLeadDocuments(leadId);
+    await loadLeadDocuments(leadId);
   } catch (error) {
     console.error("Error deleting document:", error);
     Utils.showToast("Error: " + error.message);
+
+    // restore the document item if it exists
+    const documentItem = document.querySelector(
+      `.document-item[data-document-id="${documentId}"]`
+    );
+    if (documentItem) {
+      documentItem.style.pointerEvents = "auto";
+    }
   }
 }
 
 function updateDocumentUiForMode() {
-  const submitButton = document.querySelector('#leadForm button[type="submit"]');
-  const isEditMode = submitButton && getComputedStyle(submitButton).display !== "none";
-  
+  const submitButton = document.querySelector(
+    '#leadForm button[type="submit"]'
+  );
+  const isEditMode =
+    submitButton && getComputedStyle(submitButton).display !== "none";
+
   // update upload area visibility
   const uploadArea = document.getElementById("documentUploadArea");
   if (uploadArea) {
     uploadArea.style.display = isEditMode ? "flex" : "none";
   }
-  
+
   // update delete button visibility
-  const deleteButtons = document.querySelectorAll(".document-actions .delete-document");
-  deleteButtons.forEach(button => {
+  const deleteButtons = document.querySelectorAll(
+    ".document-actions .delete-document"
+  );
+  deleteButtons.forEach((button) => {
     button.style.display = isEditMode ? "flex" : "none";
   });
 }
 
-export {
-  initDocumentUpload,
-  loadLeadDocuments, 
-  updateDocumentUiForMode
-};
+export { initDocumentUpload, loadLeadDocuments, updateDocumentUiForMode };
