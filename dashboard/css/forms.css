@@ -606,6 +606,13 @@ div.editor-section {
 
   #formEditorModal .CodeMirror .CodeMirror-sizer,
 #formEditContentModal .CodeMirror .CodeMirror-sizer {
+  padding-bottom: 125px !important;
+  }
+}
+
+@media (max-width: 350px) {
+   #formEditorModal .CodeMirror .CodeMirror-sizer,
+#formEditContentModal .CodeMirror .CodeMirror-sizer {
   padding-bottom: 150px !important;
   }
 }

@@ -266,7 +266,17 @@ A notice that is sent by email but is not read by the addressee is nevertheless 
     <td style="border: 1px solid black; height: 50px;"></td>
     <td style="border: 1px solid black; height: 50px;"></td>
   </tr>
-</table>`,
+</table>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+`,
     category: "contract",
     isTemplate: true,
     variables: [
@@ -398,7 +408,16 @@ X
 Signed by  (Developer), {{currentDate}}  
   
 X……………………………………………………
-Signed by {{fullName}}, {{currentDate}}  `,
+Signed by {{fullName}}, {{currentDate}}  
+  
+  
+  
+  
+  
+  
+  
+  
+  `,
     category: "contract",
     isTemplate: true,
     variables: [
@@ -466,7 +485,16 @@ Signed by {{fullName}}, {{currentDate}}  `,
   
   Your Name
   Web Developer
-  `,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    `,
     category: "proposal",
     isTemplate: true,
     variables: [
@@ -525,7 +553,17 @@ Signed by {{fullName}}, {{currentDate}}  `,
 [Your Company Phone] 
 [Your Company Mailing Address]
 
----`,
+---  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  `,
     category: "invoice",
     isTemplate: true,
     variables: [
@@ -589,7 +627,16 @@ Signed by {{fullName}}, {{currentDate}}  `,
   ________________________
   [Developer]
   
-  `,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    `,
     category: "agreement",
     isTemplate: true,
     variables: [
@@ -780,7 +827,17 @@ You can also use HTML for more advanced formatting:
 
 **Remember:** When creating templates, focus on clear organization, professional language, and consistency in formatting. You can edit this template by clicking the "Edit" button in the form preview screen.
 
-Give it a try!`,
+Give it a try!  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  `,
   category: "other",
   isTemplate: true,
   variables: [
