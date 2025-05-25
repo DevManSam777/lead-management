@@ -84,9 +84,9 @@ async function processFiles(files, leadId) {
       continue;
     }
     
-    // file size 10MB limit
-    if (file.size > 10 * 1024 * 1024) {
-      Utils.showToast(`${file.name} is too large (max 10MB)`);
+    // file size 15MB limit
+    if (file.size > 15 * 1024 * 1024) {
+      Utils.showToast(`${file.name} is too large (max 15MB)`);
       continue;
     }
 
