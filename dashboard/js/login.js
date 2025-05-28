@@ -40,7 +40,7 @@ loginForm.addEventListener("submit", (e) => {
   // Show loading state
   const submitBtn = loginForm.querySelector(".login-btn");
   const originalButtonText = submitBtn.textContent;
-  submitBtn.textContent = "Signing In...";
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
   submitBtn.disabled = true;
 
   // Set persistence and then sign in
