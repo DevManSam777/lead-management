@@ -2,7 +2,7 @@ function initPagination(items, currentPage, pageSize) {
     const totalItems = items ? items.length : 0;
     const totalPages = pageSize === -1 ? 1 : Math.ceil(totalItems / pageSize);
     
-    // If current page is out of bounds after filtering, reset to page 1
+    // if current page is out of bounds after filtering, reset to page 1
     if (currentPage > totalPages) {
       currentPage = 1;
     }
@@ -20,7 +20,7 @@ function initPagination(items, currentPage, pageSize) {
       return [];
     }
   
-    // Return all items if pageSize is -1 (Show all)
+    // return all items if pageSize is -1 (Show all)
     if (pageSize === -1) {
       return items;
     }
@@ -42,29 +42,29 @@ function renderPagination({
   onPageSizeChange,
   containerId
 }) {
-  // Store the position of the pagination container before we update it
+  // store the position of the pagination container before we update it
   const container = document.querySelector(containerId);
   const paginationPosition = container ? container.querySelector('.pagination')?.getBoundingClientRect() : null;
   
-  // Clean up any existing pagination
+  // clean up any existing pagination
   const existingPagination = document.querySelector(".pagination");
   if (existingPagination) {
     existingPagination.remove();
   }
 
-  // Create pagination container
+  // create pagination container
   const pagination = document.createElement("div");
   pagination.className = "pagination";
 
-  // Create pagination info (showing X-Y of Z)
+  // create pagination info (showing X-Y of Z)
   const paginationInfo = document.createElement("div");
   paginationInfo.className = "pagination-info";
 
-  // Create buttons container for better responsive layout
+  // create buttons container for better responsive layout
   const buttonsContainer = document.createElement("div");
   buttonsContainer.className = "pagination-buttons-container";
 
-  // Create previous button
+  // create previous button
   const prevButton = document.createElement("button");
   prevButton.className = "pagination-button";
   prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
@@ -75,26 +75,26 @@ function renderPagination({
   } else {
     prevButton.addEventListener("click", function () {
       if (currentPage > 1) {
-        // Create a wrapper function that maintains scroll position
+        // create a wrapper function that maintains scroll position
         scrollPreservingPageChange(currentPage - 1);
       }
     });
   }
 
-  // Helper function to change page while preserving scroll position
+  // helper function to change page while preserving scroll position
   function scrollPreservingPageChange(newPage) {
-    // Record current position
+    // record current position
     const paginationElement = document.querySelector('.pagination');
     const paginationRect = paginationElement?.getBoundingClientRect();
     
-    // Change the page (this will trigger a re-render)
+    // change the page (this will trigger a re-render)
     onPageChange(newPage);
     
-    // After the DOM updates, restore the scroll position
+    // after the DOM updates, restore the scroll position
     requestAnimationFrame(() => {
       const newPaginationElement = document.querySelector('.pagination');
       if (newPaginationElement && paginationRect) {
-        // Calculate the new scroll position to keep pagination in the same viewport position
+        // calculate the new scroll position to keep pagination in the same viewport position
         const newPaginationRect = newPaginationElement.getBoundingClientRect();
         const scrollAdjustment = newPaginationRect.top - paginationRect.top;
         window.scrollBy(0, scrollAdjustment);
@@ -102,29 +102,29 @@ function renderPagination({
     });
   }
 
-  // Only add pagination buttons if we have multiple pages
+  // only add pagination buttons if we have multiple pages
   if (totalPages > 1) {
     // Add previous button
     buttonsContainer.appendChild(prevButton);
 
-    // Determine which 3 pages to show based on current page
+    // determine which 3 pages to show based on current page
     let startPage, endPage;
     
     if (currentPage === 1) {
-      // If on first page, show pages 1, 2, 3
+      // if on first page, show pages 1, 2, 3
       startPage = 1;
       endPage = Math.min(3, totalPages);
     } else if (currentPage === totalPages) {
-      // If on last page, show last 3 pages
+      // if on last page, show last 3 pages
       startPage = Math.max(1, totalPages - 2);
       endPage = totalPages;
     } else {
-      // Otherwise show current page with one before and one after
+      // otherwise show current page with one before and one after
       startPage = currentPage - 1;
       endPage = currentPage + 1;
     }
 
-    // Generate page buttons for the 3 pages
+    // generate page buttons for the 3 pages
     for (let i = startPage; i <= endPage; i++) {
       const pageButton = document.createElement("button");
       pageButton.className = "pagination-button pagination-page";
@@ -141,7 +141,7 @@ function renderPagination({
       buttonsContainer.appendChild(pageButton);
     }
 
-    // Create next button
+    // create next button
     const nextButton = document.createElement("button");
     nextButton.className = "pagination-button";
     nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
@@ -157,15 +157,15 @@ function renderPagination({
       });
     }
 
-    // Add next button
+    // add next button
     buttonsContainer.appendChild(nextButton);
   }
 
-  // Create the page size selector
+  // create the page size selector
   const pageSizeSelector = document.createElement("select");
   pageSizeSelector.id = "pageSizeSelector";
   
-  // Add options - 12, 24, 48 and All
+  // add options - 12, 24, 48 and All
   const pageSizeOptions = [
     { value: "12", text: "12 items per page" },
     { value: "24", text: "24 items per page" },
@@ -180,28 +180,28 @@ function renderPagination({
     pageSizeSelector.appendChild(optionElement);
   });
   
-  // Set current value
+  // set current value
   pageSizeSelector.value = pageSize;
 
-  // Add event listener for page size change
+  // add event listener for page size change
   pageSizeSelector.addEventListener("change", function () {
     const newPageSize = parseInt(this.value);
     
-    // Save to localStorage
+    // save to localStorage
     localStorage.setItem("pageSize", newPageSize);
     
-    // Preserve scroll position when changing page size
+    // preserve scroll position when changing page size
     const paginationElement = document.querySelector('.pagination');
     const paginationRect = paginationElement?.getBoundingClientRect();
     
-    // Change the page size (this will trigger a re-render)
+    // change the page size (this will trigger a re-render)
     onPageSizeChange(newPageSize);
     
-    // After the DOM updates, restore the scroll position
+    // after the DOM updates, restore the scroll position
     requestAnimationFrame(() => {
       const newPaginationElement = document.querySelector('.pagination');
       if (newPaginationElement && paginationRect) {
-        // Calculate the new scroll position
+        // calculate the new scroll position
         const newPaginationRect = newPaginationElement.getBoundingClientRect();
         const scrollAdjustment = newPaginationRect.top - paginationRect.top;
         window.scrollBy(0, scrollAdjustment);
@@ -209,32 +209,32 @@ function renderPagination({
     });
   });
 
-  // For "Show all" option, just show the total count
+  // for "Show all" option, just show the total count
   if (pageSize === -1) {
     paginationInfo.textContent = `Showing all ${totalItems} items`;
     
-    // Add pagination elements with correct order for "Show all"
+    // add pagination elements with correct order for "Show all"
     pagination.appendChild(paginationInfo);
     pagination.appendChild(pageSizeSelector);
   } else {
-    // For normal pagination, calculate ranges
+    // for normal pagination, calculate ranges
     const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
     const endIndex = Math.min(currentPage * pageSize, totalItems);
     paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalItems}`;
 
-    // Add components to pagination in the correct order
+    // add components to pagination in the correct order
     if (totalPages > 1) {
-      pagination.appendChild(buttonsContainer); // Buttons first
+      pagination.appendChild(buttonsContainer); // buttons first
     }
-    pagination.appendChild(pageSizeSelector); // Then select element
-    pagination.appendChild(paginationInfo); // Then pagination info
+    pagination.appendChild(pageSizeSelector); // then select element
+    pagination.appendChild(paginationInfo); // then pagination info
   }
 
-  // Add pagination to the container
+  // add pagination to the container
   if (container) {
     container.appendChild(pagination);
     
-    // If pagination before, maintain its position
+    // if pagination before, maintain its position
     if (paginationPosition) {
       requestAnimationFrame(() => {
         const newPagination = document.querySelector('.pagination');

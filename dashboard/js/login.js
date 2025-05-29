@@ -19,11 +19,11 @@ const firebaseConfig = {
   measurementId: "G-47PSY58Q5P",
 };
 
-// Initialize Firebase
+// initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Handle login form submission
+// handle login form submission
 const loginForm = document.getElementById("loginForm");
 const errorMessage = document.getElementById("errorMessage");
 const loginContainer = document.querySelector(".login-container");
@@ -34,7 +34,7 @@ loginForm.addEventListener("submit", (e) => {
   const email = emailInput.value;
   const password = document.getElementById("password").value;
 
-  // Clear previous error messages
+  // clear previous error messages
   errorMessage.style.display = "none";
 
   // Show loading state
@@ -43,37 +43,37 @@ loginForm.addEventListener("submit", (e) => {
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
   submitBtn.disabled = true;
 
-  // Set persistence and then sign in
+  // set persistence and then sign in
   setPersistence(auth, browserSessionPersistence)
     .then(() => {
       // After setting persistence, sign in with email/password
       return signInWithEmailAndPassword(auth, email, password);
     })
     .then(() => {
-      // Replace the current history entry with the dashboard instead of adding a new one
+      // replace the current history entry with the dashboard instead of adding a new one
       window.history.replaceState(null, "", "/dashboard/home");
 
-      // Then navigate to the dashboard
+      // then navigate to the dashboard
       window.location.href = "/dashboard/home";
     })
     .catch((error) => {
-      // Reset button
+      // reset button
       submitBtn.textContent = originalButtonText;
       submitBtn.disabled = false;
 
-      // Show error with animation
+      // show error with animation
       errorMessage.textContent = getErrorMessage(error.code);
       errorMessage.style.display = "block";
       loginContainer.classList.add("shake");
 
-      // Remove animation class after it completes
+      // remove animation class after it completes
       setTimeout(() => {
         loginContainer.classList.remove("shake");
       }, 500);
     });
 });
 
-// Handle forgot password link
+// handle forgot password link
 const forgotPasswordLink = document.getElementById("forgotPasswordLink");
 
 forgotPasswordLink.addEventListener("click", async () => {
@@ -87,7 +87,7 @@ forgotPasswordLink.addEventListener("click", async () => {
     return;
   }
 
-  // Clear previous messages
+  // clear previous messages
   errorMessage.style.display = "none";
 
   // Disable the login button to prevent multiple submissions
@@ -99,20 +99,20 @@ forgotPasswordLink.addEventListener("click", async () => {
   try {
     await sendPasswordResetEmail(auth, email);
 
-    // Show success message
+    // show success message
     errorMessage.textContent = "Password reset email sent. Check your inbox.";
     errorMessage.style.display = "block";
     errorMessage.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
     errorMessage.style.color = "#28a745";
   } catch (error) {
-    // Show error message
+    // show error message
     errorMessage.textContent =
       "Failed to send reset email. " + getErrorMessage(error.code);
     errorMessage.style.display = "block";
     errorMessage.style.backgroundColor = "rgba(220, 53, 69, 0.08)";
     errorMessage.style.color = "#dc3545";
   } finally {
-    // Re-enable the login button
+    // re-enable the login button
     submitBtn.textContent = originalButtonText;
     submitBtn.disabled = false;
   }
@@ -137,26 +137,26 @@ function getErrorMessage(errorCode) {
   }
 }
 
-// Redirect to dashboard if already logged in
-// Check at page load time and redirect if needed
+// redirect to dashboard if already logged in
+// check at page load time and redirect if needed
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is already logged in
+    // user is already logged in
     console.log("User already authenticated:", user.email);
 
-    // Replace the current history entry with the dashboard instead of adding a new one
+    // replace the current history entry with the dashboard instead of adding a new one
     window.history.replaceState(null, "", "/dashboard/home");
 
-    // Then navigate to the dashboard
+    // then navigate to the dashboard
     window.location.href = "/dashboard/home";
   } else {
-    // User is not logged in, stay on login page
+    // user is not logged in, stay on login page
     console.log("User not authenticated, staying on login page");
 
-    // Ensure any back navigation from protected pages redirects back to login
+    // ensure any back navigation from protected pages redirects back to login
     const referrer = document.referrer;
     if (referrer && referrer.includes("/dashboard")) {
-      // We got here from a protected page, make sure to replace state to prevent back navigation
+      // we got here from a protected page, make sure to replace state to prevent back navigation
       window.history.replaceState(null, "", "/login");
     }
   }
