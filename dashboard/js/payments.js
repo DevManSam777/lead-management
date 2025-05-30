@@ -11,11 +11,7 @@ import {
   deletePayment,
 } from "./api.js";
 
-/**
- * Render lead payments in the UI.
- * @param {Array<Object>} leadPayments - Array of payment objects for the lead.
- * @param {string} leadId - The ID of the lead.
- */
+// render lead payments in the UI
 function renderLeadPayments(leadPayments, leadId) {
   const paymentsContainer = document.querySelector(".payments-container");
 
@@ -24,35 +20,35 @@ function renderLeadPayments(leadPayments, leadId) {
     return;
   }
 
-  // Get the date format from window object or use default
+  // get the date format from window object or use default
   const dateFormat = window.dateFormat || "MM/DD/YYYY";
 
-  // Clear the container first
+  // clear the container first
   paymentsContainer.innerHTML = "";
 
-  // Make sure we have valid payments for this lead
+  // make sure we have valid payments for this lead
   const filteredPayments = leadPayments.filter((payment) => {
     return payment && payment.leadId === leadId;
   });
 
-  // If no payments for this lead
+  // if no payments for this lead
   if (!filteredPayments || filteredPayments.length === 0) {
     paymentsContainer.innerHTML =
       '<p class="no-payments-message">No payments found.  Click "Add Payment" to add one.</p>';
     return;
   }
 
-  // Sort payments by date (newest first)
+  // sort payments by date (newest first)
   const sortedPayments = [...filteredPayments].sort((a, b) => {
-    // Directly compare Date objects created from the UTC strings
+    // directly compare Date objects created from the UTC strings
     const dateA = new Date(a.paymentDate);
     const dateB = new Date(b.paymentDate);
-    return dateB.getTime() - dateA.getTime(); // Compare timestamps for accuracy
+    return dateB.getTime() - dateA.getTime(); // compare timestamps for accuracy
   });
 
-  // Check if we're in edit mode (Lead modal is open and in edit mode)
+  // check if we're in edit mode (Lead modal is open and in edit mode)
   const leadModal = document.getElementById("leadModal");
-  // Check if the lead modal is open and has a submit button that is visible (indicating edit mode)
+  // check if the lead modal is open and has a submit button that is visible (indicating edit mode)
   const submitButton = leadModal
     ? leadModal.querySelector('button[type="submit"]')
     : null;
@@ -62,28 +58,28 @@ function renderLeadPayments(leadPayments, leadId) {
     submitButton &&
     getComputedStyle(submitButton).display !== "none";
 
-  // Render each payment
+  // render each payment
   sortedPayments.forEach((payment) => {
     let formattedDate = "Not recorded";
 
     if (payment.paymentDate) {
-      // Create a Date object from the stored UTC string
+      // create a Date object from the stored UTC string
       const paymentDateUTC = new Date(payment.paymentDate);
 
-      // Check if the date is valid before proceeding
+      // check if the date is valid before proceeding
       if (!isNaN(paymentDateUTC.getTime())) {
-        // Create a *local* Date object representing the same date as the UTC date at local midnight
-        // This is the standard way to display a date stored in UTC in the local timezone.
+        // create a local date object representing the same date as the UTC date at local midnight
+        // this is the standard way to display a date stored in UTC in the local timezone.
         const localDateForDisplay = new Date(
           paymentDateUTC.getUTCFullYear(),
           paymentDateUTC.getUTCMonth(),
-          paymentDateUTC.getUTCDate() // Use UTC date components to construct local date
+          paymentDateUTC.getUTCDate() // use UTC date components to construct local date
         );
 
-        // Format the local date for display
+        // format the local date for display
         formattedDate = formatDate(localDateForDisplay, dateFormat);
 
-        // Debug log to compare dates
+        // debug log to compare dates
         console.log(
           `Render Payment Date: Original='${
             payment.paymentDate
@@ -93,33 +89,33 @@ function renderLeadPayments(leadPayments, leadId) {
         console.warn(
           `Invalid payment date format received: ${payment.paymentDate}`
         );
-        formattedDate = "Invalid Date"; // Display something if the date is invalid
+        formattedDate = "Invalid Date"; // display something if the date is invalid
       }
     }
 
-    // Create payment item element
+    // create payment item element
     const paymentItem = document.createElement("div");
     paymentItem.className = "payment-item";
     paymentItem.dataset.leadId = payment.leadId;
     paymentItem.dataset.paymentId = payment._id;
 
-    // Create payment details section
+    // create payment details section
     const paymentDetails = document.createElement("div");
     paymentDetails.className = "payment-details";
 
-    // Add payment amount
+    // add payment amount
     const amountDiv = document.createElement("div");
     amountDiv.className = "payment-amount";
     amountDiv.textContent = formatCurrency(payment.amount);
     paymentDetails.appendChild(amountDiv);
 
-    // Add payment date
+    // add payment date
     const dateDiv = document.createElement("div");
     dateDiv.className = "payment-date";
     dateDiv.innerHTML = `<i class="fa-solid fa-money-bill-wave" style="opacity: 0.7"></i> Paid: ${formattedDate}`;
     paymentDetails.appendChild(dateDiv);
 
-    // Add payment notes if available
+    // add payment notes if available
     if (payment.notes) {
       const notesDiv = document.createElement("div");
       notesDiv.className = "payment-notes";
@@ -127,27 +123,27 @@ function renderLeadPayments(leadPayments, leadId) {
       paymentDetails.appendChild(notesDiv);
     }
 
-    // Add details to the payment item
+    // add details to the payment item
     paymentItem.appendChild(paymentDetails);
 
-    // Add action buttons if in edit mode
+    // add action buttons if in edit mode
     if (isEditMode) {
       const actionsDiv = document.createElement("div");
       actionsDiv.className = "payment-actions";
 
-      // Edit button
+      // edit button
       const editButton = document.createElement("button");
       editButton.innerHTML = '<i class="fas fa-edit"></i>';
-      editButton.title = "Edit Payment"; // Add title for better UX
+      editButton.title = "Edit Payment"; 
       editButton.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        // Pass leadId and paymentId to open the modal in edit mode
+        // pass leadId and paymentId to open the modal in edit mode
         openPaymentModal(payment.leadId, payment._id);
       });
       actionsDiv.appendChild(editButton);
 
-      // Delete button
+      // delete button
       const deleteButton = document.createElement("button");
       deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
       deleteButton.title = "Delete Payment"; // Add title for better UX
@@ -155,48 +151,44 @@ function renderLeadPayments(leadPayments, leadId) {
         e.preventDefault();
         e.stopPropagation();
         if (confirm("Are you sure you want to delete this payment?")) {
-          // Pass paymentId and leadId for deletion and subsequent refresh
+          // pass paymentId and leadId for deletion and subsequent refresh
           deletePaymentAction(payment._id, payment.leadId);
         }
       });
       actionsDiv.appendChild(deleteButton);
 
-      // Add actions div to the payment item
-      paymentItem.appendChild(actionsDiv); // <--- CORRECTED LINE
+      // add actions div to the payment item
+      paymentItem.appendChild(actionsDiv); 
     }
 
-    // Add the payment item to the container (This should always happen)
-    paymentsContainer.appendChild(paymentItem); // <--- MOVED THIS LINE OUTSIDE THE IF/ELSE
+    // add the payment item to the container 
+    paymentsContainer.appendChild(paymentItem); 
   });
 
-  // Log the rendered payments
+  // log the rendered payments
   console.log(
     `Rendered ${filteredPayments.length} payments for lead ID: ${leadId}`
   );
 }
 
-/**
- * Open the payment modal for adding or editing a payment
- * @param {string} leadId - ID of the lead (Required for new payments)
- * @param {string} paymentId - ID of the payment (Optional, for editing)
- */
+// open the payment modal for adding or editing a payment
 function openPaymentModal(leadId, paymentId = null) {
   const paymentForm = document.getElementById("paymentForm");
   if (!paymentForm) return;
 
   paymentForm.reset();
 
-  // Clear previous values
+  // clear previous values
   document.getElementById("paymentId").value = "";
   document.getElementById("paymentLeadId").value = "";
 
-  // Clear the date display
+  // clear the date display
   const dateDisplay = document.getElementById("paymentDateDisplay");
   if (dateDisplay) {
     dateDisplay.textContent = "";
   }
 
-  // Set the lead ID & verify it exists
+  // set the lead ID & verify it exists
   if (!leadId) {
     showToast("Error: No lead ID provided");
     console.error("Attempted to open payment modal without lead ID");

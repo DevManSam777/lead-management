@@ -90,7 +90,7 @@ forgotPasswordLink.addEventListener("click", async () => {
   // clear previous messages
   errorMessage.style.display = "none";
 
-  // Disable the login button to prevent multiple submissions
+  // disable the login button to prevent multiple submissions
   const submitBtn = loginForm.querySelector(".login-btn");
   const originalButtonText = submitBtn.textContent;
   submitBtn.textContent = "Processing...";
