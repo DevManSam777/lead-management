@@ -315,6 +315,7 @@ function setModalReadOnly(isReadOnly) {
 function calculateStats(allLeads, payments) {
   try {
     // Debug info
+    console.log("=== ANALYTICS CALCULATION START ===");
     console.log("Calculating stats with:", {
       leadsCount: allLeads ? allLeads.length : 0,
       paymentsCount: payments ? payments.length : 0,
@@ -330,58 +331,85 @@ function calculateStats(allLeads, payments) {
       return;
     }
 
-    // Get current date in UTC
-    const nowUTC = new Date(); // Still get the current moment, but we'll use its UTC values
-    const currentYearUTC = nowUTC.getUTCFullYear();
-    const currentMonthUTC = nowUTC.getUTCMonth(); // 0-indexed UTC month
-    const currentDayUTC = nowUTC.getUTCDate();
+    // Get current date in USER'S LOCAL TIMEZONE (not UTC)
+    const nowLocal = new Date();
+    
+    // Extract LOCAL timezone components (not UTC)
+    const currentYearLocal = nowLocal.getFullYear();
+    const currentMonthLocal = nowLocal.getMonth(); // 0-indexed local month
+    const currentDayLocal = nowLocal.getDate();
+    
+    console.log("=== TIMEZONE DEBUG INFO ===");
+    console.log("Current local time:", nowLocal.toLocaleString());
+    console.log("Current UTC time:", nowLocal.toISOString());
+    console.log("Local timezone offset (minutes):", nowLocal.getTimezoneOffset());
+    console.log("Local year:", currentYearLocal);
+    console.log("Local month (0-indexed):", currentMonthLocal);
+    console.log("Local day:", currentDayLocal);
 
-    // --- Calculate Date Boundaries (UTC Midnight) ---
+    // --- Calculate Date Boundaries (LOCAL TIMEZONE) ---
 
-    // Current month start (1st day of current month, UTC midnight)
-    const currentMonthStartUTC = new Date(
-      Date.UTC(currentYearUTC, currentMonthUTC, 1)
-    );
-
-    // Start of the *next* day from the current date (UTC midnight)
+    // Current month start (1st day of current month, local midnight)
+    const currentMonthStartLocal = new Date(currentYearLocal, currentMonthLocal, 1);
+    
+    // Start of the *next* day from the current date (local midnight)
     // This serves as the exclusive upper bound for the current day/month filter
-    const startOfNextDayUTC = new Date(
-      Date.UTC(currentYearUTC, currentMonthUTC, currentDayUTC + 1)
-    );
+    const startOfNextDayLocal = new Date(currentYearLocal, currentMonthLocal, currentDayLocal + 1);
 
-    // Previous month start (1st day of previous month, UTC midnight)
-    const previousMonthStartUTC = new Date(
-      Date.UTC(currentYearUTC, currentMonthUTC - 1, 1)
-    );
+    // Previous month start (1st day of previous month, local midnight)
+    const previousMonthStartLocal = new Date(currentYearLocal, currentMonthLocal - 1, 1);
 
-    // Previous month end (Last day of previous month, UTC midnight)
-    // (Equivalent to the start of the current month at UTC midnight)
-    const previousMonthEndUTC = currentMonthStartUTC;
+    // Previous month end (Last day of previous month, local midnight)
+    // (Equivalent to the start of the current month at local midnight)
+    const previousMonthEndLocal = currentMonthStartLocal;
 
-
-    console.log("Date ranges (UTC Midnight boundaries):", {
-      nowUTC: nowUTC.toISOString(), 
-      currentMonthStartUTC: currentMonthStartUTC.toISOString(), 
-      startOfNextDayUTC: startOfNextDayUTC.toISOString(), 
-      previousMonthStartUTC: previousMonthStartUTC.toISOString(), 
-      previousMonthEndUTC: previousMonthEndUTC.toISOString(), 
-    });
+    console.log("=== DATE BOUNDARIES (LOCAL TIMEZONE) ===");
+    console.log("Current month start (local):", currentMonthStartLocal.toLocaleString());
+    console.log("Start of next day (local):", startOfNextDayLocal.toLocaleString());
+    console.log("Previous month start (local):", previousMonthStartLocal.toLocaleString());
+    console.log("Previous month end (local):", previousMonthEndLocal.toLocaleString());
+    
+    console.log("=== DATE BOUNDARIES (ISO/UTC for comparison) ===");
+    console.log("Current month start (UTC):", currentMonthStartLocal.toISOString());
+    console.log("Start of next day (UTC):", startOfNextDayLocal.toISOString());
+    console.log("Previous month start (UTC):", previousMonthStartLocal.toISOString());
+    console.log("Previous month end (UTC):", previousMonthEndLocal.toISOString());
 
     // New Leads Calculation
     const currentMonthNewLeads = allLeads.filter((lead) => {
       if (!lead.createdAt) return false;
-      const leadDate = new Date(lead.createdAt); // Parse lead date (assume UTC or parsable)
-      // Filter leads within the current month/day UTC range
-      return leadDate >= currentMonthStartUTC && leadDate < startOfNextDayUTC;
+      
+      const leadDate = new Date(lead.createdAt); // Parse lead date (stored as UTC/ISO)
+      
+      // Convert the UTC stored date to local comparison
+      // We compare the stored UTC date against our local timezone boundaries
+      const isInCurrentPeriod = leadDate >= currentMonthStartLocal && leadDate < startOfNextDayLocal;
+      
+      if (isInCurrentPeriod) {
+        console.log(`Lead "${lead.firstName} ${lead.lastName}" created on ${leadDate.toLocaleString()} is in current period`);
+      }
+      
+      return isInCurrentPeriod;
     });
 
     const previousMonthNewLeads = allLeads.filter((lead) => {
       if (!lead.createdAt) return false;
-      const leadDate = new Date(lead.createdAt); // Parse lead date (assume UTC or parsable)
-      // Filter leads within the previous month UTC range
-      return leadDate >= previousMonthStartUTC && leadDate < previousMonthEndUTC;
+      
+      const leadDate = new Date(lead.createdAt); // Parse lead date (stored as UTC/ISO)
+      
+      // Convert the UTC stored date to local comparison
+      const isInPreviousPeriod = leadDate >= previousMonthStartLocal && leadDate < previousMonthEndLocal;
+      
+      if (isInPreviousPeriod) {
+        console.log(`Lead "${lead.firstName} ${lead.lastName}" created on ${leadDate.toLocaleString()} is in previous period`);
+      }
+      
+      return isInPreviousPeriod;
     });
 
+    console.log("=== LEADS ANALYSIS ===");
+    console.log(`Current period leads: ${currentMonthNewLeads.length}`);
+    console.log(`Previous period leads: ${previousMonthNewLeads.length}`);
 
     // Display new leads count
     safeSetTextContent("newLeadsValue", currentMonthNewLeads.length);
@@ -396,6 +424,8 @@ function calculateStats(allLeads, payments) {
     } else if (currentMonthNewLeads.length > 0) {
       newLeadsChange = 100; // If no leads last month but some this month, that's a 100% increase
     }
+
+    console.log(`New leads change: ${newLeadsChange.toFixed(1)}%`);
 
     // Update new leads change display
     const newLeadsChangeSpan = document.querySelector(
@@ -435,28 +465,44 @@ function calculateStats(allLeads, payments) {
       return payment && payment.leadId && validLeadIds.has(payment.leadId);
     });
 
+    console.log("=== PAYMENTS ANALYSIS ===");
     console.log("Valid payments count:", validPayments.length);
 
-    // Current month payments
+    // Current month payments (using local timezone boundaries)
     const currentMonthPayments = validPayments.filter((payment) => {
       if (!payment.paymentDate) return false;
 
-      // Parse the ISO string directly to preserve UTC time
+      // Parse the stored UTC payment date
       const paymentDate = new Date(payment.paymentDate);
-
-  
-      // Filter payments within the current month/day UTC range
-      return paymentDate >= currentMonthStartUTC && paymentDate < startOfNextDayUTC;
+      
+      // Compare against local timezone boundaries
+      const isInCurrentPeriod = paymentDate >= currentMonthStartLocal && paymentDate < startOfNextDayLocal;
+      
+      if (isInCurrentPeriod) {
+        console.log(`Payment of $${payment.amount} on ${paymentDate.toLocaleString()} is in current period`);
+      }
+      
+      return isInCurrentPeriod;
     });
 
-    // Previous month payments
+    // Previous month payments (using local timezone boundaries)
     const previousMonthPayments = validPayments.filter((payment) => {
       if (!payment.paymentDate) return false;
-      const paymentDate = new Date(payment.paymentDate); // Parse payment date (assume UTC or parsable)
-      // Filter payments within the previous month UTC range
-      return paymentDate >= previousMonthStartUTC && paymentDate < previousMonthEndUTC;
+      
+      const paymentDate = new Date(payment.paymentDate); // Parse payment date (stored as UTC/ISO)
+      
+      // Compare against local timezone boundaries
+      const isInPreviousPeriod = paymentDate >= previousMonthStartLocal && paymentDate < previousMonthEndLocal;
+      
+      if (isInPreviousPeriod) {
+        console.log(`Payment of $${payment.amount} on ${paymentDate.toLocaleString()} is in previous period`);
+      }
+      
+      return isInPreviousPeriod;
     });
 
+    console.log(`Current period payments: ${currentMonthPayments.length}`);
+    console.log(`Previous period payments: ${previousMonthPayments.length}`);
 
     // Calculate totals
     const currentMonthTotal = currentMonthPayments.reduce((sum, payment) => {
@@ -468,6 +514,9 @@ function calculateStats(allLeads, payments) {
       const amount = parseFloat(payment.amount);
       return sum + (isNaN(amount) ? 0 : amount);
     }, 0);
+
+    console.log(`Current period total: $${currentMonthTotal}`);
+    console.log(`Previous period total: $${previousMonthTotal}`);
 
     // Update monthly payments display
     safeSetTextContent(
@@ -484,27 +533,9 @@ function calculateStats(allLeads, payments) {
       paymentsChange = 100; // If no payments last month but some this month, that's a 100% increase
     }
 
-    // Update payments change display
-    // const paymentsChangeSpan = document.querySelector(
-    //   "#monthlyPaymentsValue + .change span"
-    // );
-    // if (paymentsChangeSpan) {
-    //   if (paymentsChange > 0) {
-    //     newPaymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs( // Fixed typo here: newPaymentsChangeSpan -> paymentsChangeSpan
-    //       paymentsChange
-    //     ).toFixed(1)}% from last month`;
-    //     paymentsChangeSpan.closest(".change").className = "change positive";
-    //   } else if (paymentsChange < 0) {
-    //     paymentsChangeSpan.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(
-    //       paymentsChange
-    //     ).toFixed(1)}% from last month`;
-    //     paymentsChangeSpan.closest(".change").className = "change negative";
-    //   } else {
-    //     paymentsChangeSpan.innerHTML = `<i class="fas fa-minus"></i> 0.0% from last month`;
-    //     paymentsChangeSpan.closest(".change").className = "change";
-    //   }
-    // }
+    console.log(`Payments change: ${paymentsChange.toFixed(1)}%`);
 
+    // Update payments change display
     const paymentsChangeSpan = document.querySelector(
       "#monthlyPaymentsValue + .change span"
     );
@@ -524,14 +555,14 @@ function calculateStats(allLeads, payments) {
         paymentsChangeSpan.closest(".change").className = "change";
       }
     }
-    
-
 
     // Total Earnings Calculation (All-Time)
     const totalEarnings = validPayments.reduce((sum, payment) => {
       const amount = parseFloat(payment.amount);
       return sum + (isNaN(amount) ? 0 : amount);
     }, 0);
+
+    console.log(`Total earnings (all-time): $${totalEarnings}`);
 
     // Display total earnings
     safeSetTextContent("totalEarningsValue", formatCurrency(totalEarnings));
@@ -549,9 +580,12 @@ function calculateStats(allLeads, payments) {
         ? Math.round((closedWonLeads.length / allLeads.length) * 100)
         : 0;
 
+    console.log(`Conversion rate: ${conversionRate}% (${closedWonLeads.length}/${allLeads.length})`);
+
     safeSetTextContent("conversionRateValue", `${conversionRate}%`);
 
-  
+    console.log("=== ANALYTICS CALCULATION COMPLETE ===");
+    
   } catch (error) {
     console.error("Error calculating statistics:", error, error.stack);
 
