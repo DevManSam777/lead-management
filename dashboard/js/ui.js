@@ -6,13 +6,9 @@ import {
   safeSetTextContent,
 } from "./utils.js";
 
-// Global variable to track current view
-let currentView = "grid"; // 'grid' or 'list'
+let currentView = "grid"; 
 
-/**
- * Render leads based on current view
- * @param {Array} leads - Array of lead objects
- */
+// render leads based on current view
 function renderLeads(leads) {
   if (currentView === "grid") {
     renderGridView(leads);
@@ -21,10 +17,7 @@ function renderLeads(leads) {
   }
 }
 
-/**
- * Render grid view of leads
- * @param {Array} leads - Array of lead objects
- */
+// render grid view of leads
 function renderGridView(leads) {
   const leadCards = document.getElementById("leadCards");
   if (!leadCards) {
@@ -46,13 +39,13 @@ function renderGridView(leads) {
     card.className = "lead-card clickable";
     card.dataset.leadId = lead._id;
 
-    // Handle name display
+    // handle name display
     const fullName = getLeadName(lead);
 
     const businessName =
       lead.businessName || lead.firstName + " " + lead.lastName;
 
-    // Format last contacted date if available
+    // format last contacted date if available
     let lastContactedText = "";
     if (lead.lastContactedAt) {
       const contactDate = new Date(lead.lastContactedAt);
@@ -74,9 +67,9 @@ function renderGridView(leads) {
     )}</span></p>
     `;
 
-    // Add click event to the entire card
+    // add click event to the entire card
     card.addEventListener("click", function () {
-      // Using window.openLeadModal as the function will be defined in dashboard.js
+      // using window.openLeadModal as the function will be defined in dashboard.js
       window.openLeadModal(lead._id);
     });
 
@@ -84,10 +77,7 @@ function renderGridView(leads) {
   });
 }
 
-/**
- * Render list view of leads
- * @param {Array} leads - Array of lead objects
- */
+// render list view of leads
 function renderListView(leads) {
   const leadsTableBody = document.getElementById("leadsTableBody");
   if (!leadsTableBody) {
@@ -109,13 +99,13 @@ function renderListView(leads) {
     row.className = "clickable";
     row.dataset.leadId = lead._id;
 
-    // Handle name display
+    // handle name display
     const fullName = getLeadName(lead);
 
-    // Determine business info and handle empty values
+    // determine business info and handle empty values
     const business = lead.businessName || lead.firstName + " " + lead.lastName;
 
-    // Format last contacted date if available
+    // format last contacted date if available
     let lastContactCell = "<td>Not contacted</td>";
     if (lead.lastContactedAt) {
       const contactDate = new Date(lead.lastContactedAt);
@@ -133,9 +123,9 @@ function renderListView(leads) {
     )}</span></td>
     `;
 
-    // Add click event to the row
+    // add click event to the row
     row.addEventListener("click", function () {
-      // Using window.openLeadModal as the function will be defined in dashboard.js
+      // using window.openLeadModal as the function will be defined in dashboard.js
       window.openLeadModal(lead._id);
     });
 
@@ -143,14 +133,11 @@ function renderListView(leads) {
   });
 }
 
-/**
- * Switch between grid and list views
- * @param {string} view - 'grid' or 'list'
- */
+// switch between grid and list views
 function switchView(view) {
   currentView = view;
 
-  // Save the current view to localStorage
+  // save the current view to localStorage
   localStorage.setItem("preferredView", view);
 
   if (view === "grid") {
@@ -167,79 +154,79 @@ function switchView(view) {
 }
 
 function updateModalActionButtons(leadId) {
-  // Check if modal actions container exists, create if not
+  // check if modal actions container exists, create if not
   let actionsContainer = document.getElementById("modalActions");
   if (!actionsContainer) {
     actionsContainer = document.createElement("div");
     actionsContainer.id = "modalActions";
     actionsContainer.className = "modal-actions";
 
-    // Find a good place to insert it (after the modal header)
+    // find a good place to insert it after the modal header
     const modalHeader = document.querySelector(".modal-header");
     if (modalHeader) {
       modalHeader.insertAdjacentElement("afterend", actionsContainer);
     }
   }
 
-  // Get the modal element
+  // get the modal element
   const modal = document.getElementById("leadModal");
 
-  // Set the initial mode to read-only
+  // set the initial mode to read-only
   if (modal) {
     modal.classList.add("lead-modal-readonly");
     modal.classList.remove("lead-modal-edit");
   }
 
-  // Clear existing buttons
+  // clear existing buttons
   actionsContainer.innerHTML = "";
 
-  // Create Edit button
+  // create Edit button
   const editButton = document.createElement("button");
   editButton.type = "button";
   editButton.className = "btn btn-primary";
   editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
   editButton.addEventListener("click", function () {
-    // Toggle modal classes for CSS targeting
+    // toggle modal classes for CSS targeting
     if (modal) {
       modal.classList.remove("lead-modal-readonly");
       modal.classList.add("lead-modal-edit");
     }
 
-    // Set to edit mode
+    // set to edit mode
     setModalReadOnly(false);
     document.getElementById("modalTitle").textContent = "Edit";
 
-    // Hide the action buttons when in edit mode
+    // hide the action buttons when in edit mode
     actionsContainer.style.display = "none";
 
-    // Fetch and re-render payments to show action buttons
+    // fetch and re-render payments to show action buttons
     const leadId = document.getElementById("leadId").value;
     if (leadId) {
-      // These functions will be globally available from dashboard.js
+      // these functions will be globally available from dashboard.js
       window.fetchLeadPayments(leadId).then((leadPayments) => {
         window.renderLeadPayments(leadPayments, leadId);
       });
 
-      // Reload lead forms to ensure they have action buttons
+      // reload lead forms to ensure they have action buttons
       if (typeof window.loadLeadForms === "function") {
         window.loadLeadForms(leadId);
       }
     }
   });
 
-  // Create Delete button
+  // create Delete button
   const deleteButton = document.createElement("button");
   deleteButton.type = "button";
   deleteButton.className = "btn btn-danger";
   deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
   deleteButton.addEventListener("click", function () {
     if (confirm("Are you sure you want to delete this?")) {
-      // This function will be globally available from dashboard.js
+      // this function will be globally available from dashboard.js
       window.deleteLeadAction(leadId);
     }
   });
 
-  // Add buttons to container
+  // add buttons to container
   actionsContainer.appendChild(editButton);
   actionsContainer.appendChild(deleteButton);
 }
@@ -263,7 +250,7 @@ function setModalReadOnly(isReadOnly) {
     }
   });
 
-  // Always keep these fields read-only
+  // always keep these fields read-only
   const paidAmountField = document.getElementById("paidAmount");
   if (paidAmountField) {
     paidAmountField.setAttribute("readonly", true);
@@ -274,7 +261,7 @@ function setModalReadOnly(isReadOnly) {
     remainingBalanceField.setAttribute("readonly", true);
   }
 
-  // Show/hide the form submission button based on mode
+  // show/hide the form submission button based on mode
   const submitButton = document.querySelector(
     '#leadForm button[type="submit"]'
   );
@@ -282,31 +269,31 @@ function setModalReadOnly(isReadOnly) {
     submitButton.style.display = isReadOnly ? "none" : "block";
   }
 
-  // Show/hide Add Payment button based on mode
+  // show/hide Add Payment button based on mode
   const addPaymentBtn = document.getElementById("addPaymentBtn");
   if (addPaymentBtn) {
     addPaymentBtn.style.display = isReadOnly ? "none" : "block";
   }
 
-  // Show/hide Add Form button based on mode
+  // show/hide Add Form button based on mode
   const addFormBtn = document.getElementById("addFormBtn");
   if (addFormBtn) {
     addFormBtn.style.display = isReadOnly ? "none" : "block";
   }
 
-  // Show/hide form action buttons (view, edit, delete)
+  // show/hide form action buttons view, edit, delete
   const formActions = document.querySelectorAll(".form-actions");
   formActions.forEach((actionButtons) => {
     actionButtons.style.display = isReadOnly ? "none" : "flex";
   });
 
-  // Hide/show payment action buttons
+  // hide/show payment action buttons
   const paymentActions = document.querySelectorAll(".payment-actions");
   paymentActions.forEach((actionButtons) => {
     actionButtons.style.display = isReadOnly ? "none" : "flex";
   });
 
-  // Update document UI elements based on mode
+  // update document UI elements based on mode
   if (typeof window.updateDocumentUiForMode === "function") {
     window.updateDocumentUiForMode();
   }
@@ -314,14 +301,14 @@ function setModalReadOnly(isReadOnly) {
 
 function calculateStats(allLeads, payments) {
   try {
-    // Debug info
+    // debug info
     console.log("=== ANALYTICS CALCULATION START ===");
     console.log("Calculating stats with:", {
       leadsCount: allLeads ? allLeads.length : 0,
       paymentsCount: payments ? payments.length : 0,
     });
 
-    // If no leads, display zeros and return
+    // if no leads, display zeros and return
     if (!allLeads || allLeads.length === 0) {
       safeSetTextContent("totalLeadsValue", "0");
       safeSetTextContent("newLeadsValue", "0");
@@ -331,10 +318,10 @@ function calculateStats(allLeads, payments) {
       return;
     }
 
-    // Get current date in USER'S LOCAL TIMEZONE (not UTC)
+    // get current date in USER'S LOCAL TIMEZONE (not UTC)
     const nowLocal = new Date();
     
-    // Extract LOCAL timezone components (not UTC)
+    // extract LOCAL timezone components not UTC
     const currentYearLocal = nowLocal.getFullYear();
     const currentMonthLocal = nowLocal.getMonth(); // 0-indexed local month
     const currentDayLocal = nowLocal.getDate();
@@ -347,20 +334,19 @@ function calculateStats(allLeads, payments) {
     console.log("Local month (0-indexed):", currentMonthLocal);
     console.log("Local day:", currentDayLocal);
 
-    // --- Calculate Date Boundaries (LOCAL TIMEZONE) ---
 
-    // Current month start (1st day of current month, local midnight)
+    // current month start 1st day of current month, local midnight
     const currentMonthStartLocal = new Date(currentYearLocal, currentMonthLocal, 1);
     
     // Start of the *next* day from the current date (local midnight)
-    // This serves as the exclusive upper bound for the current day/month filter
+    // upper bound for the current day/month filter
     const startOfNextDayLocal = new Date(currentYearLocal, currentMonthLocal, currentDayLocal + 1);
 
-    // Previous month start (1st day of previous month, local midnight)
+    // previous month start 1st day of previous month, local midnight
     const previousMonthStartLocal = new Date(currentYearLocal, currentMonthLocal - 1, 1);
 
-    // Previous month end (Last day of previous month, local midnight)
-    // (Equivalent to the start of the current month at local midnight)
+    // previous month end last day of previous month, local midnight
+    // start of the current month at local midnight
     const previousMonthEndLocal = currentMonthStartLocal;
 
     console.log("=== DATE BOUNDARIES (LOCAL TIMEZONE) ===");
@@ -375,14 +361,14 @@ function calculateStats(allLeads, payments) {
     console.log("Previous month start (UTC):", previousMonthStartLocal.toISOString());
     console.log("Previous month end (UTC):", previousMonthEndLocal.toISOString());
 
-    // New Leads Calculation
+    // new Leads Calculation
     const currentMonthNewLeads = allLeads.filter((lead) => {
       if (!lead.createdAt) return false;
       
-      const leadDate = new Date(lead.createdAt); // Parse lead date (stored as UTC/ISO)
+      const leadDate = new Date(lead.createdAt); // parse lead date (stored as UTC/ISO)
       
-      // Convert the UTC stored date to local comparison
-      // We compare the stored UTC date against our local timezone boundaries
+      // convert the UTC stored date to local comparison
+      // we compare the stored UTC date against our local timezone boundaries
       const isInCurrentPeriod = leadDate >= currentMonthStartLocal && leadDate < startOfNextDayLocal;
       
       if (isInCurrentPeriod) {
@@ -395,9 +381,9 @@ function calculateStats(allLeads, payments) {
     const previousMonthNewLeads = allLeads.filter((lead) => {
       if (!lead.createdAt) return false;
       
-      const leadDate = new Date(lead.createdAt); // Parse lead date (stored as UTC/ISO)
+      const leadDate = new Date(lead.createdAt); // parse lead date (stored as UTC/ISO)
       
-      // Convert the UTC stored date to local comparison
+      // convert the UTC stored date to local comparison
       const isInPreviousPeriod = leadDate >= previousMonthStartLocal && leadDate < previousMonthEndLocal;
       
       if (isInPreviousPeriod) {
@@ -411,10 +397,10 @@ function calculateStats(allLeads, payments) {
     console.log(`Current period leads: ${currentMonthNewLeads.length}`);
     console.log(`Previous period leads: ${previousMonthNewLeads.length}`);
 
-    // Display new leads count
+    // display new leads count
     safeSetTextContent("newLeadsValue", currentMonthNewLeads.length);
 
-    // Calculate percentage change for new leads
+    // calculate percentage change for new leads
     let newLeadsChange = 0;
     if (previousMonthNewLeads.length > 0) {
       newLeadsChange =
@@ -422,12 +408,12 @@ function calculateStats(allLeads, payments) {
           previousMonthNewLeads.length) *
         100;
     } else if (currentMonthNewLeads.length > 0) {
-      newLeadsChange = 100; // If no leads last month but some this month, that's a 100% increase
+      newLeadsChange = 100; // if no leads last month but some this month, that's a 100% increase
     }
 
     console.log(`New leads change: ${newLeadsChange.toFixed(1)}%`);
 
-    // Update new leads change display
+    // update new leads change display
     const newLeadsChangeSpan = document.querySelector(
       "#newLeadsValue + .change span"
     );
@@ -448,19 +434,19 @@ function calculateStats(allLeads, payments) {
       }
     }
 
-    // Total Projects (All-Time)
+    // total projects 
     safeSetTextContent("totalLeadsValue", allLeads.length);
 
-    // Handle payments calculation
+    // handle payments calculation
     if (!payments || !Array.isArray(payments)) {
       console.error("Invalid payments array:", payments);
       payments = [];
     }
 
-    // Create a set of valid lead IDs for faster lookups
+    // create a set of valid lead IDs for faster lookups
     const validLeadIds = new Set(allLeads.map((lead) => lead._id));
 
-    // Only process payments for existing leads
+    // only process payments for existing leads
     const validPayments = payments.filter((payment) => {
       return payment && payment.leadId && validLeadIds.has(payment.leadId);
     });
@@ -468,14 +454,14 @@ function calculateStats(allLeads, payments) {
     console.log("=== PAYMENTS ANALYSIS ===");
     console.log("Valid payments count:", validPayments.length);
 
-    // Current month payments (using local timezone boundaries)
+    // current month payments using local timezone boundaries
     const currentMonthPayments = validPayments.filter((payment) => {
       if (!payment.paymentDate) return false;
 
-      // Parse the stored UTC payment date
+      // parse the stored UTC payment date
       const paymentDate = new Date(payment.paymentDate);
       
-      // Compare against local timezone boundaries
+      // compare against local timezone boundaries
       const isInCurrentPeriod = paymentDate >= currentMonthStartLocal && paymentDate < startOfNextDayLocal;
       
       if (isInCurrentPeriod) {
@@ -485,13 +471,13 @@ function calculateStats(allLeads, payments) {
       return isInCurrentPeriod;
     });
 
-    // Previous month payments (using local timezone boundaries)
+    // previous month payments using local timezone boundaries
     const previousMonthPayments = validPayments.filter((payment) => {
       if (!payment.paymentDate) return false;
       
-      const paymentDate = new Date(payment.paymentDate); // Parse payment date (stored as UTC/ISO)
+      const paymentDate = new Date(payment.paymentDate); // Parse payment date stored as UTC/ISO
       
-      // Compare against local timezone boundaries
+      // compare against local timezone boundaries
       const isInPreviousPeriod = paymentDate >= previousMonthStartLocal && paymentDate < previousMonthEndLocal;
       
       if (isInPreviousPeriod) {
@@ -504,7 +490,7 @@ function calculateStats(allLeads, payments) {
     console.log(`Current period payments: ${currentMonthPayments.length}`);
     console.log(`Previous period payments: ${previousMonthPayments.length}`);
 
-    // Calculate totals
+    // calculate totals
     const currentMonthTotal = currentMonthPayments.reduce((sum, payment) => {
       const amount = parseFloat(payment.amount);
       return sum + (isNaN(amount) ? 0 : amount);
@@ -518,24 +504,24 @@ function calculateStats(allLeads, payments) {
     console.log(`Current period total: $${currentMonthTotal}`);
     console.log(`Previous period total: $${previousMonthTotal}`);
 
-    // Update monthly payments display
+    // update monthly payments display
     safeSetTextContent(
       "monthlyPaymentsValue",
       formatCurrency(currentMonthTotal)
     );
 
-    // Calculate percentage change for payments
+    // calculate percentage change for payments
     let paymentsChange = 0;
     if (previousMonthTotal > 0) {
       paymentsChange =
         ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
     } else if (currentMonthTotal > 0) {
-      paymentsChange = 100; // If no payments last month but some this month, that's a 100% increase
+      paymentsChange = 100; // if no payments last month but some this month, that's a 100% increase
     }
 
     console.log(`Payments change: ${paymentsChange.toFixed(1)}%`);
 
-    // Update payments change display
+    // update payments change display
     const paymentsChangeSpan = document.querySelector(
       "#monthlyPaymentsValue + .change span"
     );
@@ -556,7 +542,7 @@ function calculateStats(allLeads, payments) {
       }
     }
 
-    // Total Earnings Calculation (All-Time)
+    // total earnings calculation 
     const totalEarnings = validPayments.reduce((sum, payment) => {
       const amount = parseFloat(payment.amount);
       return sum + (isNaN(amount) ? 0 : amount);
@@ -564,10 +550,10 @@ function calculateStats(allLeads, payments) {
 
     console.log(`Total earnings (all-time): $${totalEarnings}`);
 
-    // Display total earnings
+    // display total earnings
     safeSetTextContent("totalEarningsValue", formatCurrency(totalEarnings));
 
-    // Conversion Rate Calculation
+    // conversion rate calculation
     const closedWonLeads = allLeads.filter(
       (lead) =>
         lead.status &&
@@ -589,7 +575,7 @@ function calculateStats(allLeads, payments) {
   } catch (error) {
     console.error("Error calculating statistics:", error, error.stack);
 
-    // Set default values in case of error
+    // set default values in case of error
     safeSetTextContent("totalLeadsValue", "0");
     safeSetTextContent("newLeadsValue", "0");
     safeSetTextContent("conversionRateValue", "0%");
