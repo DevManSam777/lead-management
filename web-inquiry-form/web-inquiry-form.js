@@ -20,14 +20,14 @@ class WebInquiryForm extends HTMLElement {
     this.updateTheme();
   }
   updateTheme() {
-    // Get the form container - add null check to prevent errors
+    // get the form container, add null check to prevent errors
     const container = this.shadowRoot.querySelector('.form-container');
-    if (!container) return; // Skip if element doesn't exist yet
+    if (!container) return; // skip if element doesn't exist yet
     
     const explicitTheme = this.getAttribute('theme');
     const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    // If there's an explicit theme attribute, use it; otherwise, use browser preference
+    // if there's an explicit theme attribute use it , otherwise, use browser preference
     if (explicitTheme === 'dark' || (explicitTheme !== 'light' && prefersDarkScheme)) {
       container.classList.add('dark-mode');
     } else {
@@ -737,24 +737,24 @@ class WebInquiryForm extends HTMLElement {
   }
 
   initializeEvents() {
-    // Get important elements
+    // get important elements
     const form = this.shadowRoot.getElementById('inquiry-form');
     
-    // Initialize auto-resize for textareas
+    // initialize auto-resize for textareas
     this.initializeAutoResizeTextareas();
     
-    // Initialize form validation
+    // initialize form validation
     this.initializeFormValidation();
     
-    // Initialize phone number formatting (we need to load Cleave.js)
+    // initialize phone number formatting (we need to load Cleave.js)
     this.loadCleavejs().then(() => {
       this.initializePhoneFormatting();
     });
     
-    // Initialize conditional fields
+    // initialize conditional fields
     this.initializeConditionalFields();
     
-    // Form submission
+    // form submission
     form.addEventListener('submit', this.handleFormSubmit.bind(this));
   }
   
@@ -777,10 +777,10 @@ class WebInquiryForm extends HTMLElement {
     const textareas = this.shadowRoot.querySelectorAll('textarea');
     
     textareas.forEach(textarea => {
-      // Set initial height based on content
+      // set initial height based on content
       this.adjustTextareaHeight(textarea);
       
-      // Add event listener for input changes
+      // add event listener for input changes
       textarea.addEventListener('input', () => {
         this.adjustTextareaHeight(textarea);
       });
@@ -788,10 +788,10 @@ class WebInquiryForm extends HTMLElement {
   }
   
   adjustTextareaHeight(textarea) {
-    // Reset height to auto to get the correct scrollHeight
+    // reset height to auto to get the correct scrollHeight
     textarea.style.height = 'auto';
     
-    // Set height to scrollHeight to fit content
+    // set height to scrollHeight to fit content
     textarea.style.height = textarea.scrollHeight + 'px';
   }
   
@@ -810,31 +810,31 @@ class WebInquiryForm extends HTMLElement {
   }
   
   initializeConditionalFields() {
-    // Phone extension checkbox
+    // phone extension checkbox
     const phoneExtCheck = this.shadowRoot.getElementById('phoneExtCheck');
     const phoneExtField = this.shadowRoot.getElementById('phoneExtField');
     
     phoneExtCheck.addEventListener('change', function() {
       phoneExtField.style.display = this.checked ? 'block' : 'none';
-      // Clear the field when hiding
+      // clear the field when hiding
       if (!this.checked) {
         phoneExtField.querySelector('input').value = '';
       }
     });
     
-    // Business phone extension checkbox
+    // business phone extension checkbox
     const businessPhoneExtCheck = this.shadowRoot.getElementById('businessPhoneExtCheck');
     const businessPhoneExtField = this.shadowRoot.getElementById('businessPhoneExtField');
     
     businessPhoneExtCheck.addEventListener('change', function() {
       businessPhoneExtField.style.display = this.checked ? 'block' : 'none';
-      // Clear the field when hiding
+      // clear the field when hiding
       if (!this.checked) {
         businessPhoneExtField.querySelector('input').value = '';
       }
     });
     
-    // Website address conditional field
+    // website address conditional field
     const websiteYes = this.shadowRoot.getElementById('websiteYes');
     const websiteNo = this.shadowRoot.getElementById('websiteNo');
     const websiteAddressField = this.shadowRoot.getElementById('websiteAddressField');
@@ -845,7 +845,7 @@ class WebInquiryForm extends HTMLElement {
     
     websiteNo.addEventListener('change', function() {
       websiteAddressField.style.display = 'none';
-      // Clear the field when hiding
+      // clear the field when hiding
       websiteAddressField.querySelector('input').value = '';
     });
   }
@@ -853,7 +853,7 @@ class WebInquiryForm extends HTMLElement {
   initializeFormValidation() {
     const form = this.shadowRoot.getElementById('inquiry-form');
     
-    // Add blur event listeners to validate as user moves between fields
+    // add blur event listeners to validate as user moves between fields
     const requiredInputs = form.querySelectorAll('input[required], textarea[required]');
     requiredInputs.forEach(input => {
       input.addEventListener('blur', () => {
@@ -861,7 +861,7 @@ class WebInquiryForm extends HTMLElement {
       });
     });
     
-    // Add input event listeners to validate as user types
+    // add input event listeners to validate as user types
     const emailInputs = form.querySelectorAll('input[type="email"]');
     emailInputs.forEach(input => {
       input.addEventListener('input', () => {
@@ -875,7 +875,7 @@ class WebInquiryForm extends HTMLElement {
       });
     });
     
-    // Add blur event listeners to validate phone numbers
+    // add blur event listeners to validate phone numbers
     const phoneInputs = form.querySelectorAll('input[type="tel"]');
     phoneInputs.forEach(input => {
       input.addEventListener('blur', () => {
@@ -889,7 +889,7 @@ class WebInquiryForm extends HTMLElement {
       });
     });
     
-    // Add input validation for website field
+    // add input validation for website field
     const websiteAddressInput = this.shadowRoot.getElementById('websiteAddress');
     if (websiteAddressInput) {
       websiteAddressInput.addEventListener('input', () => {
@@ -931,7 +931,7 @@ class WebInquiryForm extends HTMLElement {
       }
     }
     
-    // Specific validation for billing address fields
+    // specific validation for billing address fields
     if (field.id === 'billingZipCode' && field.value.trim() !== '') {
       if (!/^\d{5}(-\d{4})?$/.test(field.value)) {
         this.showError(field, 'Please enter a valid ZIP code (e.g., 12345 or 12345-6789)');
@@ -939,7 +939,7 @@ class WebInquiryForm extends HTMLElement {
       }
     }
     
-    // Validation for city, state, and street address
+    // validation for city, state, and street address
     if ((field.id === 'billingCity' || field.id === 'billingState' || field.id === 'billingStreet') && field.value.trim() !== '') {
       if (field.value.length < 2) {
         this.showError(field, 'Please enter a valid ' + field.name.replace('billing', '').toLowerCase());
@@ -961,7 +961,7 @@ class WebInquiryForm extends HTMLElement {
       errorDiv.className = 'error-message';
       errorDiv.textContent = 'Please select an option';
       
-      // Remove existing error message if any
+      // remove existing error message if any
       const existingError = radioGroup.querySelector('.error-message');
       if (existingError) {
         existingError.remove();
@@ -999,19 +999,19 @@ class WebInquiryForm extends HTMLElement {
   }
   
   showError(input, message) {
-    // Remove any existing error message
+    // remove any existing error message
     const existingError = input.parentElement.querySelector('.error-message');
     if (existingError) {
       existingError.remove();
     }
     
-    // Create and add new error message
+    // create and add new error message
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
     errorDiv.textContent = message;
     input.parentElement.appendChild(errorDiv);
     
-    // Add error class to the input
+    // add error class to the input
     input.classList.add('invalid');
   }
   
@@ -1024,7 +1024,7 @@ class WebInquiryForm extends HTMLElement {
   }
   
   isValidPhone(phone) {
-    // Must be in format 000-000-0000 (10 digits with hyphens)
+    // must be in format 000-000-0000 
     const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
     return phoneRegex.test(phone);
   }
@@ -1037,7 +1037,7 @@ class WebInquiryForm extends HTMLElement {
   isValidUrl(url) {
     if (!url) return true; // Allow empty URLs
     
-    // For URLs with a protocol, validate directly
+    // for URLs with a protocol, validate directly
     if (/^https?:\/\//i.test(url)) {
       try {
         new URL(url);
@@ -1047,13 +1047,13 @@ class WebInquiryForm extends HTMLElement {
       }
     }
     
-    // For URLs without a protocol, check if it has a domain suffix
+    // for URLs without a protocol, check if it has a domain suffix
     const domainSuffixRegex = /\.[a-z]{2,}(\S*)/i;
     if (!domainSuffixRegex.test(url)) {
       return false; // URL must have a domain suffix
     }
     
-    // Add protocol for validation
+    // add protocol for validation
     try {
       new URL('http://' + url);
       return true;
@@ -1063,7 +1063,7 @@ class WebInquiryForm extends HTMLElement {
   }
   
   showToast(message) {
-    // Create toast element if it doesn't exist
+    // create toast element if it doesn't exist
     let toast = this.shadowRoot.getElementById('toast-notification');
     if (!toast) {
       toast = document.createElement('div');
@@ -1072,15 +1072,15 @@ class WebInquiryForm extends HTMLElement {
       this.shadowRoot.appendChild(toast);
     }
     
-    // Set message
+    // set message
     toast.textContent = message;
     
-    // Show toast
+    // show toast
     setTimeout(() => {
       toast.classList.add('show');
     }, 10);
     
-    // Hide toast after 5 seconds
+    // hide toast after 5 seconds
     setTimeout(() => {
       toast.classList.remove('show');
     }, 5000);
@@ -1092,17 +1092,17 @@ class WebInquiryForm extends HTMLElement {
     const form = this.shadowRoot.getElementById('inquiry-form');
     let isValid = true;
     
-    // Get all required fields
+    // get all required fields
     const requiredInputs = form.querySelectorAll('input[required], textarea[required]');
     
-    // Validate all required fields
+    // validate all required fields
     requiredInputs.forEach(input => {
       if (!this.validateField(input)) {
         isValid = false;
       }
     });
     
-    // Validate radio button groups
+    // validate radio button groups
     if (!this.validateRadioGroup('preferredContact')) {
       isValid = false;
     }
@@ -1111,7 +1111,7 @@ class WebInquiryForm extends HTMLElement {
       isValid = false;
     }
     
-    // Validate conditional website address
+    // validate conditional website address
     if (this.shadowRoot.getElementById('websiteYes').checked) {
       if (!this.validateWebsiteAddress()) {
         isValid = false;
@@ -1119,7 +1119,7 @@ class WebInquiryForm extends HTMLElement {
     }
     
     if (!isValid) {
-      // Scroll to the first error
+      // scroll to the first error
       const firstError = this.shadowRoot.querySelector('.error-message');
       if (firstError) {
         firstError.scrollIntoView({
@@ -1130,16 +1130,16 @@ class WebInquiryForm extends HTMLElement {
       return;
     }
     
-    // If validation passes, prepare form data
+    // if validation passes, prepare form data
     const formData = new FormData(form);
     const formObject = {};
     
     formData.forEach((value, key) => {
-      // Store all values as-is, without modification
+      // store all values as-is, without modification
       formObject[key] = value;
     });
     
-    // Include billing address fields
+    // include billing address fields
     formObject.billingAddress = {
       street: this.shadowRoot.getElementById('billingStreet').value || '',
       aptUnit: this.shadowRoot.getElementById('billingAptUnit').value || '',
@@ -1149,7 +1149,7 @@ class WebInquiryForm extends HTMLElement {
       country: this.shadowRoot.getElementById('billingCountry').value || 'USA'
     };
     
-    // Handle phone extensions properly
+    // handle phone extensions properly
     if (formObject.phoneExtCheck === 'on' && formObject.phoneExt) {
       formObject.phoneExt = formObject.phoneExt;
     } else {
@@ -1162,14 +1162,14 @@ class WebInquiryForm extends HTMLElement {
       formObject.businessPhoneExt = undefined;
     }
     
-    // Clean up the data by removing the checkbox values
+    // clean up the data by removing the checkbox values
     delete formObject.phoneExtCheck;
     delete formObject.businessPhoneExtCheck;
     
-    // Add the isFormSubmission flag to identify this as coming from the form
+    // add the isFormSubmission flag to identify this as coming from the form
     formObject.isFormSubmission = true;
     
-    // Dispatch a custom event with the form data
+    // dispatch a custom event with the form data
     const submitEvent = new CustomEvent('form-submit', {
       bubbles: true,
       composed: true,
@@ -1179,7 +1179,7 @@ class WebInquiryForm extends HTMLElement {
     this.dispatchEvent(submitEvent);
     
     try {
-      // Default API endpoint, can be customized via attribute
+      // default API endpoint, can be customized via attribute
       const apiUrl = this.getAttribute('api-url') || 'http://localhost:5000/api/leads';
       
       const response = await fetch(apiUrl, {
@@ -1191,20 +1191,20 @@ class WebInquiryForm extends HTMLElement {
       });
       
       if (response.ok) {
-        // Show success message as toast notification
+        // show success message as toast notification
         this.showToast('Thank you for your inquiry! We\'ll be in touch soon.');
         
-        // Reset the form
+        // reset the form
         form.reset();
         
-        // Reset extension fields and hide them
+        // reset extension fields and hide them
         this.shadowRoot.getElementById('phoneExtField').style.display = 'none';
         this.shadowRoot.getElementById('businessPhoneExtField').style.display = 'none';
         
-        // Hide any conditional fields
+        // hide any conditional fields
         this.shadowRoot.getElementById('websiteAddressField').style.display = 'none';
         
-        // Dispatch success event
+        // dispatch success event
         this.dispatchEvent(new CustomEvent('form-success', {
           bubbles: true,
           composed: true,
@@ -1218,7 +1218,7 @@ class WebInquiryForm extends HTMLElement {
       console.error('Error submitting form:', error);
       this.showToast('Error: ' + error.message);
       
-      // Dispatch error event
+      // dispatch error event
       this.dispatchEvent(new CustomEvent('form-error', {
         bubbles: true,
         composed: true,
@@ -1228,5 +1228,5 @@ class WebInquiryForm extends HTMLElement {
   }
 }
 
-// Define the custom element
+// define the custom element
 customElements.define('web-inquiry-form', WebInquiryForm);

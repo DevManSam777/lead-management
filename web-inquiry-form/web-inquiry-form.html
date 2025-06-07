@@ -160,7 +160,7 @@
       const yearSpan = document.getElementById("year-span");
       yearSpan.innerText = new Date().getFullYear();
 
-      // Function to check if the server is running
+      // function to check if the server is running
       async function checkServerConnection() {
         const statusElement = document.getElementById("server-status");
 
@@ -188,15 +188,15 @@
         }
       }
 
-      // Add event listener to check connection button
+      // add event listener to check connection button
       document
         .getElementById("check-connection")
         .addEventListener("click", checkServerConnection);
 
-      // Check connection when page loads
+      // check connection when page loads
       document.addEventListener("DOMContentLoaded", checkServerConnection);
 
-      // Event listeners for the web component's custom events
+      // event listeners for the web component's custom events
       document.addEventListener("form-submit", (event) => {
         console.log("Form data submitted:", event.detail);
       });
