@@ -9,22 +9,22 @@ class YPScraperComponent extends HTMLElement {
     // create a shadow DOM
     this.attachShadow({ mode: "open" });
 
-    // No default src, must be provided as an attribute
+    // no default src, must be provided as an attribute
     //   this._src = '';
 
-    // Set up the internal structure
+    // set up the internal structure
     this.render();
 
-    // Bind methods
+    // bind methods
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.handleOutsideClick = this.handleOutsideClick.bind(this);
     this.updateButtonStyle = this.updateButtonStyle.bind(this);
   }
 
-  // Lifecycle: When the element is added to the DOM
+  // lifecycle, when the element is added to the DOM
   connectedCallback() {
-    // Check if src attribute is provided
+    // check if src attribute is provided
     if (!this.hasAttribute("src")) {
       console.error(
         "Error: src attribute is required for yp-scraper component"
@@ -33,7 +33,7 @@ class YPScraperComponent extends HTMLElement {
       this._src = this.getAttribute("src");
     }
 
-    // Add event listeners
+    // add event listeners
     const button = this.shadowRoot.querySelector(".yp-button");
     const closeBtn = this.shadowRoot.querySelector(".close-modal");
     const modal = this.shadowRoot.querySelector(".modal");
@@ -42,38 +42,38 @@ class YPScraperComponent extends HTMLElement {
     closeBtn.addEventListener("click", this.closeModal);
     modal.addEventListener("click", this.handleOutsideClick);
 
-    // Update styles based on theme
+    // update styles based on theme
     this.updateStyles();
 
-    // Handle initial button style immediately
+    // handle initial button style immediately
     this.updateButtonStyle();
 
-    // Watch for theme changes
+    // watch for theme changes
     const observer = new MutationObserver(() => {
       this.updateStyles();
     });
 
-    // Observe the document element for attribute changes (for theme switches)
+    // observe the document element for attribute changes
     observer.observe(document.documentElement, { attributes: true });
 
-    // Handle window resize for responsive adjustments
+    // handle window resize for responsive adjustments
     window.addEventListener("resize", this.updateButtonStyle);
   }
 
-  // Update button style based on screen width
+  // update button style based on screen width
   updateButtonStyle() {
-    // IMPORTANT: We need to adjust the host element, not just the button
-    // This allows the component to fit the layout properly
+    // we need to adjust the host element, not just the button
+    // this allows the component to fit the layout properly
     if (window.innerWidth <= 992) {
-      // On small screens - make component take full width
+      // on small screens - make component take full width
       this.style.cssText = "display: block; width: 100%; max-width: 100%;";
     } else {
-      // On large screens - make component take only button width
+      // on large screens - make component take only button width
       this.style.cssText =
         "display: inline-block; width: auto; max-width: fit-content;";
     }
 
-    // Then update the button inside
+    // then update the button inside
     const button = this.shadowRoot.querySelector(".yp-button");
     if (window.innerWidth <= 992) {
       button.style.cssText = "width: 100%; justify-content: center;";
@@ -82,9 +82,9 @@ class YPScraperComponent extends HTMLElement {
     }
   }
 
-  // Lifecycle: When the element is removed from the DOM
+  // lifecycle, when the element is removed from the DOM
   disconnectedCallback() {
-    // Remove event listeners to prevent memory leaks
+    // remove event listeners to prevent memory leaks
     const button = this.shadowRoot.querySelector(".yp-button");
     const closeBtn = this.shadowRoot.querySelector(".close-modal");
     const modal = this.shadowRoot.querySelector(".modal");
@@ -93,11 +93,11 @@ class YPScraperComponent extends HTMLElement {
     closeBtn.removeEventListener("click", this.closeModal);
     modal.removeEventListener("click", this.handleOutsideClick);
 
-    // Remove window resize listener
+    // remove window resize listener
     window.removeEventListener("resize", this.updateButtonStyle);
   }
 
-  // Lifecycle: When attributes change
+  // lifecycle, when attributes change
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) return;
 
@@ -106,13 +106,13 @@ class YPScraperComponent extends HTMLElement {
     }
   }
 
-  // Get CSS variables from the main document
+  // get CSS variables from the main document
   updateStyles() {
     const styles = getComputedStyle(document.documentElement);
     const primary = styles.getPropertyValue("--primary") || "#4361ee";
     const secondary = styles.getPropertyValue("--secondary") || "#3f37c9";
 
-    // Update component styles
+    // update component styles
     const styleElement = this.shadowRoot.querySelector("#dynamic-styles");
     if (styleElement) {
       styleElement.textContent = `
@@ -127,11 +127,11 @@ class YPScraperComponent extends HTMLElement {
         `;
     }
 
-    // Update button style for current screen size
+    // update button style for current screen size
     this.updateButtonStyle();
   }
 
-  // Render the component
+  // render the component
   render() {
     // HTML template for the component
     this.shadowRoot.innerHTML = `
@@ -292,9 +292,9 @@ class YPScraperComponent extends HTMLElement {
       `;
   }
 
-  // Open the modal
+  // open the modal
   openModal() {
-    // Check if src attribute is provided
+    // check if src attribute is provided
     if (!this._src) {
       console.error(
         "Error: src attribute is required for yp-scraper component"
@@ -305,37 +305,37 @@ class YPScraperComponent extends HTMLElement {
     const modal = this.shadowRoot.querySelector(".modal");
     modal.style.display = "block";
 
-    // Create iframe when the modal opens
+    // create iframe when the modal opens
     const container = this.shadowRoot.querySelector(".iframe-container");
 
-    // Clear any existing iframe
+    // clear any existing iframe
     container.innerHTML = "";
 
-    // Create a new iframe with the src from the attribute
+    // create a new iframe with the src from the attribute
     const iframe = document.createElement("iframe");
     iframe.src = this._src;
     iframe.setAttribute("frameborder", "0");
     iframe.setAttribute("allowfullscreen", "true");
     iframe.setAttribute("allow", "clipboard-write");
 
-    // Make sure iframe allows scrolling
+    // make sure iframe allows scrolling
     iframe.style.overflow = "auto";
 
-    // Add the iframe to the container
+    // add the iframe to the container
     container.appendChild(iframe);
   }
 
-  // Close the modal
+  // close the modal
   closeModal() {
     const modal = this.shadowRoot.querySelector(".modal");
     modal.style.display = "none";
 
-    // Remove iframe when closing to free resources
+    // remove iframe when closing to free resources
     const container = this.shadowRoot.querySelector(".iframe-container");
     container.innerHTML = "";
   }
 
-  // Handle clicks outside the modal content
+  // handle clicks outside the modal content
   handleOutsideClick(event) {
     if (event.target.classList.contains("modal")) {
       this.closeModal();
@@ -343,5 +343,5 @@ class YPScraperComponent extends HTMLElement {
   }
 }
 
-// Register the component
+// register the component
 customElements.define("yp-scraper", YPScraperComponent);
