@@ -19,7 +19,7 @@ const settingSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    // Only required if scope is 'user'
+    // only required if scope is 'user'
     required: function() {
       return this.scope === 'user';
     }
@@ -34,13 +34,13 @@ const settingSchema = new mongoose.Schema({
   }
 });
 
-// Middleware to update the 'updatedAt' field on save
+// middleware to update the 'updatedAt' field on save
 settingSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Create a compound index for scope and userId
+// create a compound index for scope and userId
 settingSchema.index({ scope: 1, userId: 1 });
 
 module.exports = mongoose.model('Setting', settingSchema);

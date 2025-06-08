@@ -1,4 +1,3 @@
-// server/models/Hitlist.js
 const mongoose = require('mongoose');
 
 const hitlistSchema = new mongoose.Schema({
@@ -25,15 +24,15 @@ const hitlistSchema = new mongoose.Schema({
   }]
 });
 
-// Pre-save middleware to ensure lastModified is set on every save
+// pre-save middleware to ensure lastModified is set on every save
 hitlistSchema.pre('save', function(next) {
   this.lastModified = new Date();
   next();
 });
 
-// Pre-update middleware to ensure lastModified is updated on findByIdAndUpdate
+// pre-update middleware to ensure lastModified is updated on findByIdAndUpdate
 hitlistSchema.pre('findOneAndUpdate', function(next) {
-  // If lastModified isn't explicitly set in the update, set it now
+  // if lastModified isn't explicitly set in the update, set it now
   if (!this._update.$set || !this._update.$set.lastModified) {
     if (!this._update.$set) {
       this._update.$set = {};

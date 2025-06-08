@@ -28,7 +28,7 @@ const documentSchema = new mongoose.Schema({
   }
 });
 
-// Delete documents when lead is deleted
+// delete documents when lead is deleted
 documentSchema.statics.deleteByLeadId = async function(leadId) {
   return this.deleteMany({ leadId: leadId });
 };

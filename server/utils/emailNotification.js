@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-// Format date to US Eastern Time with timezone indicator
+// format date to US Eastern Time with timezone indicator
 function formatDateInEST() {
   const options = {
     timeZone: 'America/New_York',
@@ -13,30 +13,29 @@ function formatDateInEST() {
     hour12: true
   };
   
-  // Create date in US Eastern Time
+  // create date in US Eastern Time
   const estDate = new Date().toLocaleString('en-US', options);
   
-  // Add EST/EDT indicator with US label (checks if Daylight Saving Time is active)
+  // add EST/EDT indicator with US label (checks if Daylight Saving Time is active)
   const isDST = isDaylightSavingTime();
   const timeZoneLabel = isDST ? 'EDT-US' : 'EST-US';
   
   return `${estDate} ${timeZoneLabel}`;
 }
 
-// Helper function to check if current date is in Daylight Saving Time
+// helper function to check if current date is in Daylight Saving Time
 function isDaylightSavingTime() {
   const today = new Date();
   const jan = new Date(today.getFullYear(), 0, 1);
   const jul = new Date(today.getFullYear(), 6, 1);
   
   // DST is in effect if UTC offset in January is less than July
-  // (US observes DST in summer, so offset is larger in summer)
   return jan.getTimezoneOffset() > jul.getTimezoneOffset();
 }
 
-// Create an email transporter based on configuration
+// create an email transporter based on configuration
 function createEmailTransporter() {
-  // Check if email configuration is complete
+  // check if email configuration is complete
   if (
     !process.env.EMAIL_HOST ||
     !process.env.EMAIL_PORT ||
@@ -61,7 +60,7 @@ function createEmailTransporter() {
 }
 
 
-// Get formatted preferred contact method name and corresponding value
+// get formatted preferred contact method name and corresponding value
 function getPreferredContactDetails(leadData) {
   const method = leadData.preferredContact;
   let formattedMethod = "";
@@ -90,7 +89,7 @@ function getPreferredContactDetails(leadData) {
       contactValue = leadData.text || leadData.phone;
       break;
     default:
-      // Capitalize first letter of method
+      // capitalize first letter of method
       formattedMethod = method.charAt(0).toUpperCase() + method.slice(1);
       contactValue = "N/A";
   }
@@ -99,15 +98,15 @@ function getPreferredContactDetails(leadData) {
 }
 
 
-// Send email notification about a new lead submission
+// send email notification about a new lead submission
 async function sendLeadNotificationEmail(leadData) {
-  // Validate required environment variables
+  // validate required environment variables
   if (!process.env.EMAIL_USER || !process.env.ADMIN_EMAIL) {
     console.warn("Email notification not configured. Skipping.");
     return null;
   }
 
-  // Create transporter
+  // create transporter
   const transporter = createEmailTransporter();
   if (!transporter) {
     console.warn("Email transporter not configured. Skipping notification.");
@@ -119,7 +118,7 @@ async function sendLeadNotificationEmail(leadData) {
     const contactDetails = getPreferredContactDetails(leadData);
     const formattedDate = formatDateInEST();
 
-    // Send email
+    // send email
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL,
@@ -287,16 +286,16 @@ async function sendLeadNotificationEmail(leadData) {
 }
 
 
-// Send a confirmation email to the lead
+// send a confirmation email to the lead
  
 async function sendLeadConfirmationEmail(leadData) {
-  // Validate required environment variables
+  // validate required environment variables
   if (!process.env.EMAIL_USER) {
     console.warn("Email notification not configured. Skipping.");
     return null;
   }
 
-  // Create transporter
+  // create transporter
   const transporter = createEmailTransporter();
   if (!transporter) {
     console.warn("Email transporter not configured. Skipping confirmation.");
@@ -307,7 +306,7 @@ async function sendLeadConfirmationEmail(leadData) {
     const contactDetails = getPreferredContactDetails(leadData);
     const formattedDate = formatDateInEST();
 
-    // Send confirmation email to the lead
+    // send confirmation email to the lead
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: leadData.email,
@@ -473,7 +472,6 @@ async function sendLeadConfirmationEmail(leadData) {
   }
 }
 
-// Exports
 module.exports = {
   sendLeadNotificationEmail,
   sendLeadConfirmationEmail,

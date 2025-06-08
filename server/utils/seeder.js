@@ -4,11 +4,8 @@ const Setting = require('../models/Setting');
 const formSeeds = require('../data/formSeeds');
 
 
-/**
- * Checks if the forms seeder has already run based on a setting in the DB.
- * Requires an active DB connection.
- * @returns {Promise<boolean>} True if seeder has already run globally.
- */
+
+// checks if the forms seeder has already run based on a setting in the DB.
 async function hasSeederRun() {
   try {
      if (mongoose.connection.readyState !== 1) {
@@ -23,11 +20,7 @@ async function hasSeederRun() {
   }
 }
 
-/**
- * Marks the seeder as having been run globally by creating/updating a setting.
- * Requires an active DB connection.
- * @returns {Promise<void>}
- */
+// marks the seeder as having been run globally by creating/updating a setting
 async function markSeederRun() {
   try {
     if (mongoose.connection.readyState !== 1) {
@@ -45,11 +38,7 @@ async function markSeederRun() {
   }
 }
 
-/**
- * Performs the action of resetting the seeder status flag in the DB.
- * Requires an active DB connection.
- * @returns {Promise<boolean>} Success status.
- */
+// performs the action of resetting the seeder status flag in the DB
 async function performStatusReset() {
   try {
     if (mongoose.connection.readyState !== 1) {
@@ -79,10 +68,7 @@ The seeder flag was not found. No action needed.
   }
 }
 
-/**
- * Processes raw form seed data by creating Mongoose documents and extracting variables.
- * @returns {Array<object>} Array of processed form documents as plain objects suitable for insertion/update.
- */
+// processes raw form seed data by creating Mongoose documents and extracting variables
 function processFormSeeds() {
   if (!Array.isArray(formSeeds)) {
       console.error('FATAL ERROR: formSeeds is not an array or is not loaded.');
@@ -95,26 +81,21 @@ function processFormSeeds() {
              return null;
         }
         const formDoc = new Form(seed);
-        // Assuming extractVariables is a method on your Form model instance
+        // assuming extractVariables is a method on your Form model instance
         if (formDoc.extractVariables && typeof formDoc.extractVariables === 'function') {
            formDoc.extractVariables();
         }
-        // Convert to plain object. Use { virtuals: true } if extractVariables populates virtuals you need saved.
+        // convert to plain object. Use { virtuals: true } if extractVariables populates virtuals you need saved
         return formDoc.toObject({ virtuals: true });
     } catch (error) {
-        console.error(`❌ Error processing seed for form "${seed ? seed.title || 'Unnamed' : 'Invalid Seed'}":`, error); // Use title in log
+        console.error(`❌ Error processing seed for form "${seed ? seed.title || 'Unnamed' : 'Invalid Seed'}":`, error); // use title in log
         return null;
     }
   }).filter(seed => seed !== null);
 }
 
 
-/**
- * Seeds forms only if they don't already exist based on a unique field (e.g., title) and isTemplate=true.
- * Requires an active DB connection.
- * This function can be run multiple times without duplicating existing templates.
- * @returns {Promise<void>}
- */
+// seeds forms only if they don't already exist based on a unique field (e.g., title) and isTemplate=true.
 async function seedFormsIfNotExists() {
   console.log('🌱 Starting "insert if not exists" seeding process for form templates...');
    if (mongoose.connection.readyState !== 1) {
@@ -134,11 +115,11 @@ async function seedFormsIfNotExists() {
   let errorCount = 0;
 
   for (const seed of processedSeeds) {
-    // Ensure the seed object includes isTemplate: true
+    // ensure the seed object includes isTemplate: true
     const seedWithTemplateFlag = { ...seed, isTemplate: true };
 
-    // We must have a title or some unique identifier to query against for upsert
-    // Assuming 'title' is the intended unique key for templates
+    // we must have a title or some unique identifier to query against for upsert
+    // assuming 'title' is the intended unique key for templates
     if (!seedWithTemplateFlag.title) {
         console.error(`❌ Skipping seed due to missing title:`, seed);
         errorCount++;
@@ -146,7 +127,7 @@ async function seedFormsIfNotExists() {
     }
 
     try {
-      // Use updateOne with upsert: true to achieve "insert if not exists" based on title
+      // use updateOne with upsert: true to achieve "insert if not exists" based on title
       const updateResult = await Form.updateOne(
         { title: seedWithTemplateFlag.title, isTemplate: true },
         { $setOnInsert: seedWithTemplateFlag },
@@ -174,12 +155,7 @@ async function seedFormsIfNotExists() {
 }
 
 
-/**
- * Seeds the database with forms only if this is detected as the first run (flag is absent and no templates exist).
- * Requires an active DB connection.
- * This function is typically called by the server's startup logic.
- * @returns {Promise<boolean>} Success status
- */
+// seeds the database with forms only if this is detected as the first run (flag is absent and no templates exist)
 async function seedFormsIfFirstRun() {
   console.log('🚀 Running seedFormsIfFirstRun logic...');
    if (mongoose.connection.readyState !== 1) {
@@ -228,12 +204,7 @@ async function seedFormsIfFirstRun() {
   }
 }
 
-/**
- * Force reseeds all form templates, removing existing ones first.
- * Requires an active DB connection.
- * This function is typically called manually via CLI (npm run seed:force).
- * @returns {Promise<boolean>} Success status.
- */
+// force reseeds all form templates, removing existing ones first
 async function forceReseed() {
   console.log('🔄 Running forceReseed logic...');
    if (mongoose.connection.readyState !== 1) {
