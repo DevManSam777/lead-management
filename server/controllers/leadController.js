@@ -1,7 +1,7 @@
 const Lead = require("../models/Lead");
 const { sendLeadNotificationEmail, sendLeadConfirmationEmail } = require('../utils/emailNotification');
 
-// Get all leads
+// get all leads
 exports.getLeads = async (req, res) => {
   try {
     const leads = await Lead.find({}).sort({ createdAt: -1 });
@@ -12,7 +12,7 @@ exports.getLeads = async (req, res) => {
   }
 };
 
-// Get lead by ID
+// get lead by ID
 exports.getLeadById = async (req, res) => {
   try {
     const lead = await Lead.findById(req.params.id);
@@ -30,15 +30,15 @@ exports.getLeadById = async (req, res) => {
 
 exports.createLead = async (req, res) => {
   try {
-    // Create a copy of the request body to modify
+    // create a copy of the request body to modify
     const trimmedData = {};
     
-    // Trim whitespace from string fields
+    // trim whitespace from string fields
     for (const [key, value] of Object.entries(req.body)) {
       if (typeof value === 'string') {
         trimmedData[key] = value.trim();
       } else if (typeof value === 'object' && value !== null) {
-        // Handle nested objects like billingAddress
+        // handle nested objects like billingAddress
         if (key === 'billingAddress') {
           trimmedData[key] = {};
           for (const [addrKey, addrValue] of Object.entries(value)) {
@@ -56,29 +56,29 @@ exports.createLead = async (req, res) => {
       }
     }
 
-    // Create the lead in the database using the trimmed data
+    // create the lead in the database using the trimmed data
     const lead = new Lead(trimmedData);
     const createdLead = await lead.save();
 
-    // Check if this is from the public form submission
+    // check if this is from the public form submission
     const isFormSubmission = trimmedData.isFormSubmission === true || 
       (req.headers.referer && req.headers.referer.includes('/form.html'));
     
-    // Remove the flag from the response if it exists
+    // remove the flag from the response if it exists
     if (createdLead.isFormSubmission) {
       createdLead.isFormSubmission = undefined;
     }
 
-    // Attempt to send email notification only for form submissions
+    // attempt to send email notification only for form submissions
     if (isFormSubmission) {
-      // Send admin notification
+      // Ssnd admin notification
       if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         console.log('Sending admin notification email');
         sendLeadNotificationEmail(createdLead)
           .catch(error => console.error('Background admin email notification failed:', error));
       }
 
-      // Send confirmation email to the lead (optional)
+      // send confirmation email to the lead (optional)
       if (createdLead.email) {
         console.log('Sending lead confirmation email');
         sendLeadConfirmationEmail(createdLead)
@@ -93,50 +93,6 @@ exports.createLead = async (req, res) => {
   }
 };
 
-// Update lead
-// exports.updateLead = async (req, res) => {
-//   try {
-//     const lead = await Lead.findById(req.params.id);
-
-//     if (!lead) {
-//       return res.status(404).json({ message: "Lead not found" });
-//     }
-
-//     if (req.body.$pull) {
-//       // Handle removing items from arrays
-//       if (req.body.$pull.associatedForms) {
-//         await Lead.findByIdAndUpdate(req.params.id, {
-//           $pull: { associatedForms: req.body.$pull.associatedForms }
-//         });
-        
-//         // Remove the $pull operation from the regular update
-//         delete req.body.$pull;
-//       }
-//     }
-
-
-// if (req.body.status === "contacted" && lead.status !== "contacted") {
-//   req.body.lastContactedAt = Date.now();
-// }
-
-// // If total budget is being updated, calculate remaining balance
-// if (req.body.totalBudget !== undefined) {
-//   const totalBudget = parseFloat(req.body.totalBudget);
-//   const paidAmount = lead.paidAmount || 0;
-//   req.body.remainingBalance = Math.max(0, totalBudget - paidAmount);
-// }
-
-// const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
-//   new: true,
-// });
-
-// res.json(updatedLead);
-// } catch (error) {
-// console.error(error);
-// res.status(400).json({ message: error.message });
-// }
-// };
-
 exports.updateLead = async (req, res) => {
   try {
     const lead = await Lead.findById(req.params.id);
@@ -145,18 +101,18 @@ exports.updateLead = async (req, res) => {
       return res.status(404).json({ message: "Lead not found" });
     }
 
-    // If the status is changing to a closed status, set the closedAt date
+    // if the status is changing to a closed status, set the closedAt date
     if ((req.body.status === "closed-won" || req.body.status === "closed-lost") && 
         lead.status !== "closed-won" && lead.status !== "closed-lost") {
       req.body.closedAt = Date.now();
     }
 
-    // Existing contacted status handling
+    // existing contacted status handling
     if (req.body.status === "contacted" && lead.status !== "contacted") {
       req.body.lastContactedAt = Date.now();
     }
 
-    // Rest of your existing update code...
+    // rest of your existing update code...
     const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
@@ -169,7 +125,7 @@ exports.updateLead = async (req, res) => {
 };
 
 
-// Delete lead
+// delete lead
 exports.deleteLead = async (req, res) => {
   try {
     const lead = await Lead.findById(req.params.id);
@@ -186,7 +142,7 @@ exports.deleteLead = async (req, res) => {
   }
 };
 
-// Search leads
+// search leads
 exports.searchLeads = async (req, res) => {
   try {
     const { query } = req.query;

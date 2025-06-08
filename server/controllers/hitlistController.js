@@ -1,7 +1,7 @@
 const Hitlist = require('../models/Hitlist');
 const Business = require('../models/Business');
 
-// Get all hitlists
+// get all hitlists
 exports.getHitlists = async (req, res) => {
   try {
     const hitlists = await Hitlist.find().sort({ lastModified: -1 });
@@ -12,7 +12,7 @@ exports.getHitlists = async (req, res) => {
   }
 };
 
-// Get specific hitlist
+// get specific hitlist
 exports.getHitlistById = async (req, res) => {
   try {
     const hitlist = await Hitlist.findById(req.params.id).populate('businesses');
@@ -26,12 +26,12 @@ exports.getHitlistById = async (req, res) => {
   }
 };
 
-// Create new hitlist
+// create new hitlist
 exports.createHitlist = async (req, res) => {
   try {
     const hitlist = new Hitlist({
       ...req.body,
-      lastModified: new Date()  // Explicitly set lastModified on creation
+      lastModified: new Date()  // explicitly set lastModified on creation
     });
     const savedHitlist = await hitlist.save();
     res.status(201).json(savedHitlist);
@@ -41,13 +41,13 @@ exports.createHitlist = async (req, res) => {
   }
 };
 
-// Update hitlist
+// update hitlist
 exports.updateHitlist = async (req, res) => {
   try {
-    // Add lastModified to the update data
+    // add lastModified to the update data
     const updateData = {
       ...req.body,
-      lastModified: new Date() // Ensure lastModified is updated
+      lastModified: new Date() // ensure lastModified is updated
     };
     
     const hitlist = await Hitlist.findByIdAndUpdate(
@@ -66,7 +66,7 @@ exports.updateHitlist = async (req, res) => {
   }
 };
 
-// Delete hitlist
+// delete hitlist
 exports.deleteHitlist = async (req, res) => {
   try {
     const hitlist = await Hitlist.findById(req.params.id);
@@ -74,10 +74,10 @@ exports.deleteHitlist = async (req, res) => {
       return res.status(404).json({ message: 'Hitlist not found' });
     }
     
-    // Delete all businesses associated with this hitlist
+    // delete all businesses associated with this hitlist
     await Business.deleteMany({ hitlistId: req.params.id });
     
-    // Delete the hitlist
+    // delete the hitlist
     await Hitlist.deleteOne({ _id: req.params.id });
     
     res.json({ message: 'Hitlist and associated businesses deleted' });

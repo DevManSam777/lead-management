@@ -1,15 +1,15 @@
 const Setting = require('../models/Setting');
 
-// Default settings configuration
+// default settings configuration
 const DEFAULT_SETTINGS = {
   theme: 'light', 
   dateFormat: 'MM/DD/YYYY' 
 };
 
-// Function to initialize default settings
+// function to initialize default settings
 async function initializeDefaultSettings() {
   try {
-    // Check if each default setting exists, if not create it
+    // check if each default setting exists, if not create it
     for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
       const exists = await Setting.findOne({ key, scope: 'global' });
       if (!exists) {
@@ -26,15 +26,15 @@ async function initializeDefaultSettings() {
   }
 }
 
-// Initialize default settings when controller is loaded
+// initialize default settings when controller is loaded
 initializeDefaultSettings();
 
-// Get a setting by key
+// get a setting by key
 exports.getSetting = async (req, res) => {
   try {
     const { key } = req.params;
     
-    // For now we're only handling global settings
+    // for now we're only handling global settings
     const setting = await Setting.findOne({ key, scope: 'global' });
     
     if (!setting) {
@@ -48,7 +48,7 @@ exports.getSetting = async (req, res) => {
   }
 };
 
-// Create or update a setting
+// create or update a setting
 exports.updateSetting = async (req, res) => {
   try {
     const { key } = req.params;
@@ -58,7 +58,7 @@ exports.updateSetting = async (req, res) => {
       return res.status(400).json({ message: 'Setting value is required' });
     }
     
-    // Find and update, or create if it doesn't exist
+    // find and update, or create if it doesn't exist
     const setting = await Setting.findOneAndUpdate(
       { key, scope: 'global' },
       { value, updatedAt: Date.now() },
@@ -72,13 +72,13 @@ exports.updateSetting = async (req, res) => {
   }
 };
 
-// Get all settings (useful for initialization)
+// get all settings (useful for initialization)
 exports.getAllSettings = async (req, res) => {
   try {
-    // For now we're only handling global settings
+    // for now we're only handling global settings
     const settings = await Setting.find({ scope: 'global' });
     
-    // Transform to key-value format
+    // transform to key-value format
     const settingsObject = settings.reduce((obj, setting) => {
       obj[setting.key] = setting.value;
       return obj;

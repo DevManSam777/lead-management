@@ -1,12 +1,12 @@
 const Document = require('../models/Document');
 const Lead = require('../models/Lead');
 
-// Get all documents for a lead
+// get all documents for a lead
 exports.getDocumentsByLead = async (req, res) => {
   try {
     const { leadId } = req.params;
 
-    // Find documents without loading the file data
+    // find documents without loading the file data
     const documents = await Document.find({ leadId })
       .select('-fileData')
       .sort({ uploadedAt: -1 });
@@ -26,11 +26,11 @@ exports.getDocumentById = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    // Encode the filename for use in the Content-Disposition header
-    // This allows special characters to be included safely.
+    // encode the filename for use in the Content-Disposition header
+    // this allows special characters to be included safely.
     const encodedFileName = encodeURIComponent(document.fileName);
 
-    // Set appropriate headers for PDF with security headers
+    // set appropriate headers for PDF with security headers
     res.set({
       'Content-Type': document.fileType,
       'Content-Disposition': `inline; filename="${encodedFileName}"`,
@@ -39,7 +39,7 @@ exports.getDocumentById = async (req, res) => {
       'Content-Security-Policy': "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline';"
     });
 
-    // Send the file data
+    // send the file data
     res.send(document.fileData);
   } catch (error) {
     console.error('Error fetching document:', error);
@@ -47,7 +47,7 @@ exports.getDocumentById = async (req, res) => {
   }
 };
 
-// Upload a new document
+// upload a new document
 exports.uploadDocument = async (req, res) => {
   try {
     const { leadId } = req.params;
@@ -55,7 +55,7 @@ exports.uploadDocument = async (req, res) => {
 
     console.log(`Attempting to upload document ${fileName} for lead ${leadId}`);
 
-    // Verify lead exists
+    // verify lead exists
     const lead = await Lead.findById(leadId);
     if (!lead) {
       console.log(`Lead ${leadId} not found`);
@@ -64,10 +64,10 @@ exports.uploadDocument = async (req, res) => {
 
     console.log(`Found lead: ${lead._id}, current documents: ${JSON.stringify(lead.documents || [])}`);
 
-    // Convert base64 string to buffer
+    // convert base64 string to buffer
     const buffer = Buffer.from(fileData.split(',')[1], 'base64');
 
-    // Create new document
+    // create new document
     const document = new Document({
       leadId,
       fileName,
@@ -76,22 +76,22 @@ exports.uploadDocument = async (req, res) => {
       fileData: buffer
     });
 
-    // Save document
+    // save document
     const savedDocument = await document.save();
     console.log(`Document saved with ID: ${savedDocument._id}`);
 
-    // Update lead with document reference
+    // update lead with document reference
     console.log(`Updating lead ${leadId} with document reference ${savedDocument._id}`);
 
     await Lead.findByIdAndUpdate(leadId, {
       $push: { documents: savedDocument._id }
     });
 
-    // Verify the update worked
+    // verify the update worked
     const updatedLead = await Lead.findById(leadId);
     console.log(`Updated lead documents: ${JSON.stringify(updatedLead.documents || [])}`);
 
-    // Return document info without file data
+    // return document info without file data
     const documentInfo = {
       _id: savedDocument._id,
       leadId: savedDocument.leadId,
@@ -106,7 +106,7 @@ exports.uploadDocument = async (req, res) => {
     console.error(`Error uploading document: ${error.message}`);
     console.error(error.stack);
 
-    // Handle size limit errors
+    // handle size limit errors
     if (error.name === 'PayloadTooLargeError') {
       return res.status(413).json({ message: 'Document is too large' });
     }
@@ -115,7 +115,7 @@ exports.uploadDocument = async (req, res) => {
   }
 };
 
-// Delete a document
+// delete a document
 exports.deleteDocument = async (req, res) => {
   try {
     const document = await Document.findById(req.params.id);
@@ -126,10 +126,10 @@ exports.deleteDocument = async (req, res) => {
 
     const leadId = document.leadId;
 
-    // Delete document from Document collection
+    // delete document from Document collection
     await Document.deleteOne({ _id: req.params.id });
 
-    // Also remove reference from Lead document
+    // also remove reference from Lead document
     await Lead.findByIdAndUpdate(leadId, {
       $pull: { documents: req.params.id }
     });

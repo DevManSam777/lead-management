@@ -1,10 +1,10 @@
 const Payment = require('../models/Payment');
 const Lead = require('../models/Lead');
 
-// Get all payments
+// get all payments
 exports.getPayments = async (req, res) => {
   try {
-    // Sort by paymentDate in descending order (newest first)
+    // sort by paymentDate in descending order (newest first)
     const payments = await Payment.find({}).sort({ paymentDate: -1 });
     res.json(payments);
   } catch (error) {
@@ -13,7 +13,7 @@ exports.getPayments = async (req, res) => {
   }
 };
 
-// Get payments for a specific lead
+// get payments for a specific lead
 exports.getPaymentsByLead = async (req, res) => {
   try {
     const { leadId } = req.params;
@@ -22,7 +22,7 @@ exports.getPaymentsByLead = async (req, res) => {
       return res.status(400).json({ message: 'Lead ID is required' });
     }
     
-    // Strict query by leadId, sort newest first
+    // strict query by leadId, sort newest first
     const payments = await Payment.find({ leadId: leadId.toString() }).sort({ paymentDate: -1 });
     console.log(`Found ${payments.length} payments for lead ${leadId}`);
     
@@ -33,30 +33,30 @@ exports.getPaymentsByLead = async (req, res) => {
   }
 };
 
-// Create a new payment
+// create a new payment
 exports.createPayment = async (req, res) => {
   try {
-    // Make sure we have a payment date that's normalized to avoid timezone issues
+    // make sure we have a payment date that's normalized to avoid timezone issues
     let paymentData = req.body;
     
-    // Convert paymentDate string to a Date object if it's not already 
+    // convert paymentDate string to a Date object if it's not already 
     if (typeof paymentData.paymentDate === 'string') {
-      // Parse the date parts to ensure date is created correctly without timezone shifts
+      // parse the date parts to ensure date is created correctly without timezone shifts
       const dateParts = paymentData.paymentDate.split('T')[0].split('-');
       const year = parseInt(dateParts[0]);
-      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JS Date
+      const month = parseInt(dateParts[1]) - 1; // month is 0-indexed in JS Date
       const day = parseInt(dateParts[2]);
       
-      // Create date with UTC to avoid any timezone issues
+      // create date with UTC to avoid any timezone issues
       const dateObj = new Date(Date.UTC(year, month, day, 12, 0, 0, 0));
       paymentData.paymentDate = dateObj;
     }
     
-    // Create new payment
+    // create new payment
     const payment = new Payment(paymentData);
     const createdPayment = await payment.save();
     
-    // Update lead's paid amount and payment status
+    // update lead's paid amount and payment status
     await updateLeadPaymentInfo(payment.leadId);
     
     res.status(201).json(createdPayment);
@@ -66,7 +66,7 @@ exports.createPayment = async (req, res) => {
   }
 };
 
-// Update payment
+// update payment
 exports.updatePayment = async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id);
@@ -75,30 +75,30 @@ exports.updatePayment = async (req, res) => {
       return res.status(404).json({ message: 'Payment not found' });
     }
     
-    // Make sure we have a payment date that's normalized to avoid timezone issues
+    // make sure we have a payment date that's normalized to avoid timezone issues
     let paymentData = req.body;
     
-    // Convert paymentDate string to a Date object if it's not already
+    // convert paymentDate string to a Date object if it's not already
     if (typeof paymentData.paymentDate === 'string') {
-      // Parse the date parts to ensure date is created correctly without timezone shifts
+      // parse the date parts to ensure date is created correctly without timezone shifts
       const dateParts = paymentData.paymentDate.split('T')[0].split('-');
       const year = parseInt(dateParts[0]);
-      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed in JS Date
+      const month = parseInt(dateParts[1]) - 1; // month is 0-indexed in JS Date
       const day = parseInt(dateParts[2]);
       
-      // Create date with UTC to avoid any timezone issues
+      // create date with UTC to avoid any timezone issues
       const dateObj = new Date(Date.UTC(year, month, day, 12, 0, 0, 0));
       paymentData.paymentDate = dateObj;
     }
     
-    // Update payment
+    // update payment
     const updatedPayment = await Payment.findByIdAndUpdate(
       req.params.id,
       paymentData,
       { new: true }
     );
     
-    // Update lead's paid amount and payment status
+    // update lead's paid amount and payment status
     await updateLeadPaymentInfo(payment.leadId);
     
     res.json(updatedPayment);
@@ -108,7 +108,7 @@ exports.updatePayment = async (req, res) => {
   }
 };
 
-// Delete payment
+// delete payment
 exports.deletePayment = async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id);
@@ -119,10 +119,10 @@ exports.deletePayment = async (req, res) => {
     
     const leadId = payment.leadId;
     
-    // Delete payment
+    // delete payment
     await Payment.deleteOne({ _id: req.params.id });
     
-    // Update lead's paid amount and payment status
+    // update lead's paid amount and payment status
     await updateLeadPaymentInfo(leadId);
     
     res.json({ message: 'Payment removed' });
@@ -132,27 +132,27 @@ exports.deletePayment = async (req, res) => {
   }
 };
 
-// Helper function to update lead payment info
+// helper function to update lead payment info
 async function updateLeadPaymentInfo(leadId) {
   try {
-    // Get all payments for the lead
+    // get all payments for the lead
     const payments = await Payment.find({ leadId });
     
-    // Calculate total paid amount
+    // calculate total paid amount
     const paidAmount = payments.reduce((total, payment) => total + payment.amount, 0);
     
-    // Get the lead
+    // get the lead
     const lead = await Lead.findById(leadId);
     
     if (!lead) {
       throw new Error('Lead not found');
     }
     
-    // Calculate remaining balance
+    // calculate remaining balance
     const totalBudget = lead.totalBudget || 0;
     const remainingBalance = totalBudget - paidAmount;
     
-    // Update lead with payment-related fields
+    // update lead with payment-related fields
     await Lead.findByIdAndUpdate(leadId, { 
       paidAmount,
       remainingBalance

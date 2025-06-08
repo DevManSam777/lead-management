@@ -1,24 +1,26 @@
-// server/middleware/auth.js
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin if not already initialized
+// initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
   try {
-    // Check if using environment variables or service account
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-      // Parse the service account JSON
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-      
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
-    } else {
-      // Initialize with application default credentials
-      admin.initializeApp({
-        projectId: 'devleads-a1329',
-        apiKey: process.env.FIREBASE_API_KEY || 'AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E',
-      });
-    }
+    // build service account object from your existing environment variables
+    const serviceAccount = {
+      type: "service_account",
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_CLIENT_ID,
+      auth_uri: process.env.FIREBASE_AUTH_URI,
+      token_uri: process.env.FIREBASE_TOKEN_URI,
+      auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+      client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+      universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN
+    };
+
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
     
     console.log('Firebase Admin initialized successfully');
   } catch (error) {
@@ -28,13 +30,7 @@ if (!admin.apps.length) {
 
 const auth = async (req, res, next) => {
   try {
-    // For development/testing, bypass authentication if needed
-    if (process.env.NODE_ENV === 'development' && process.env.BYPASS_AUTH === 'true') {
-      console.log('Development mode: Auth bypassed');
-      return next();
-    }
-    
-    // Check if authorization header exists
+    // check if authorization header exists
     const authHeader = req.headers.authorization;
     
     if (!authHeader) {
@@ -42,7 +38,7 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ message: 'Authorization header missing' });
     }
     
-    // Get the token
+    // get the token
     const token = authHeader.split(' ')[1];
     
     if (!token) {
@@ -51,15 +47,15 @@ const auth = async (req, res, next) => {
     }
     
     try {
-      // Verify token
+      // verify token
       console.log('Verifying token...');
       const decodedToken = await admin.auth().verifyIdToken(token);
       
-      // Add user information to request
+      // add user information to request
       req.user = decodedToken;
       console.log(`Authenticated user: ${decodedToken.email || decodedToken.uid}`);
       
-      // Continue with the request
+      // continue with the request
       return next();
     } catch (error) {
       console.error('Token verification error:', error);
