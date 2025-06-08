@@ -685,7 +685,7 @@ class WebInquiryForm extends HTMLElement {
           <div class="section active" data-step="0">
             <fieldset>
               <legend>Personal Information</legend>
-              <p class="section-subtitle">Tell us about yourself</p>
+              <p class="section-subtitle">Tell us about yourself!</p>
 
               <div class="form-group">
                 <label for="firstName" class="required">First Name</label>
@@ -731,7 +731,7 @@ class WebInquiryForm extends HTMLElement {
           <div class="section" data-step="1">
             <fieldset>
               <legend>Business Information</legend>
-              <p class="section-subtitle">Tell us about your business</p>
+              <p class="section-subtitle">Tell us about your business!</p>
 
               <div class="form-group">
                 <label for="businessName">Business Name</label>
