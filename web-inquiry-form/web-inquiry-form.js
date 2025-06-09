@@ -672,23 +672,23 @@ class WebInquiryForm extends HTMLElement {
           <div class="step-indicators">
             <div class="step-indicator active" data-step="0">
               <div class="step-dot">1</div>
-              <span>Personal</span>
+               <span>Personal</span>
             </div>
             <div class="step-indicator" data-step="1">
               <div class="step-dot">2</div>
-              <span>Business</span>
+               <span>Business</span>
             </div>
             <div class="step-indicator" data-step="2">
               <div class="step-dot">3</div>
-              <span>Billing</span>
+              <span>Address</span>
             </div>
             <div class="step-indicator" data-step="3">
               <div class="step-dot">4</div>
-              <span>Service</span>
+               <span>Service</span>
             </div>
             <div class="step-indicator" data-step="4">
               <div class="step-dot">5</div>
-              <span>Review</span>
+               <span>Review</span>
             </div>
           </div>
         </div>
@@ -776,15 +776,15 @@ class WebInquiryForm extends HTMLElement {
 
               <div class="form-group">
                 <label for="businessServices">Business Services</label>
-                <textarea id="businessServices" name="businessServices" placeholder="What type of goods and/or services does your business provide?"></textarea>
+                <textarea id="businessServices" name="businessServices" placeholder="Type of business?"></textarea>
               </div>
             </fieldset>
           </div>
 
-          <!-- Step 3: Billing Address -->
+          <!-- Step 3: Mailing Address -->
           <div class="section" data-step="2">
             <fieldset>
-              <legend>Billing Address</legend>
+              <legend>Mailing Address</legend>
               <p class="section-subtitle">What is your mailing address?</p>
 
               <div class="form-group">
@@ -889,7 +889,7 @@ class WebInquiryForm extends HTMLElement {
 
               <div class="form-group">
                 <label for="message">Message</label>
-                <textarea id="message" name="message" placeholder="Additional comments"></textarea>
+                <textarea id="message" name="message" placeholder="Your message..."></textarea>
               </div>
             </fieldset>
           </div>
@@ -936,6 +936,21 @@ class WebInquiryForm extends HTMLElement {
     // Navigation events
     nextBtn.addEventListener("click", () => this.nextStep());
     prevBtn.addEventListener("click", () => this.prevStep());
+
+    // Prevent premature form submission on Enter key
+    form.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        
+        // If we're on the last step (review), allow submission
+        if (this.currentStep === this.totalSteps - 1) {
+          form.dispatchEvent(new Event("submit"));
+        } else {
+          // Otherwise, try to go to next step
+          this.nextStep();
+        }
+      }
+    });
 
     // Form submission
     form.addEventListener("submit", this.handleFormSubmit.bind(this));
