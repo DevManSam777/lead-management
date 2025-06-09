@@ -361,23 +361,28 @@ class WebInquiryForm extends HTMLElement {
           background-color: rgba(76, 175, 80, 0.05);
         }
 
-        .toast-notification {
+        .toast {
           position: fixed;
           bottom: 200px;
           right: 20px;
-          background-color: #d4edda;
-          color: #155724;
+          background: #4caf50;
+          color: white;
           padding: 15px 20px;
           border-radius: 4px;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           z-index: 1000;
-          transform: translateX(110%);
-          transition: transform 0.3s ease-in-out;
-          max-width: 300px;
+          transform: translateX(100%);
+          transition: transform 0.3s ease, opacity 0.3s ease;
+          opacity: 1;
         }
 
         .toast.show {
           transform: translateX(0);
+        }
+
+        .toast.hide {
+          opacity: 0;
+          transform: translateX(100%);
         }
 
         .toast.error {
@@ -1248,9 +1253,23 @@ class WebInquiryForm extends HTMLElement {
 
     toast.textContent = message;
     toast.className = `toast ${isError ? "error" : ""}`;
+    toast.style.display = "block";
 
+    // Show the toast
     setTimeout(() => toast.classList.add("show"), 10);
-    setTimeout(() => toast.classList.remove("show"), 5000);
+    
+    // Hide the toast after 5 seconds
+    setTimeout(() => {
+      toast.classList.add("hide");
+      toast.classList.remove("show");
+      
+      // Remove the toast completely after the transition
+      setTimeout(() => {
+        if (toast && toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300); // Wait for transition to complete (0.3s)
+    }, 5000);
   }
 
   populateReview() {
