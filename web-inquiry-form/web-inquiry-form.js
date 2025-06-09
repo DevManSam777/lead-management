@@ -368,12 +368,19 @@ class WebInquiryForm extends HTMLElement {
           background: #4caf50;
           color: white;
           padding: 15px 20px;
-          border-radius: 4px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          border-radius: 6px;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
           z-index: 1000;
           transform: translateX(100%);
           transition: transform 0.3s ease, opacity 0.3s ease;
           opacity: 1;
+          font-family: inherit;
+          font-size: 14px;
+          font-weight: 500;
+          min-width: 200px;
+          max-width: 400px;
+          word-wrap: break-word;
+          display: block;
         }
 
         .toast.show {
@@ -1243,32 +1250,40 @@ class WebInquiryForm extends HTMLElement {
   }
 
   showToast(message, isError = false) {
-    let toast = this.shadowRoot.getElementById("toast");
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "toast";
-      toast.className = "toast";
-      this.shadowRoot.appendChild(toast);
+    // Remove any existing toast
+    const existingToast = this.shadowRoot.querySelector('.toast');
+    if (existingToast) {
+      existingToast.remove();
     }
 
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = 'toast';
     toast.textContent = message;
-    toast.className = `toast ${isError ? "error" : ""}`;
-    toast.style.display = "block";
-
-    // Show the toast
-    setTimeout(() => toast.classList.add("show"), 10);
     
-    // Hide the toast after 5 seconds
+    if (isError) {
+      toast.classList.add('error');
+    }
+
+    // Add to shadow DOM
+    this.shadowRoot.appendChild(toast);
+
+    // Trigger animation after a brief delay to ensure element is in DOM
     setTimeout(() => {
-      toast.classList.add("hide");
-      toast.classList.remove("show");
+      toast.classList.add('show');
+    }, 50);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.classList.add('hide');
       
-      // Remove the toast completely after the transition
+      // Remove element after animation completes
       setTimeout(() => {
-        if (toast && toast.parentNode) {
-          toast.parentNode.removeChild(toast);
+        if (toast.parentNode) {
+          toast.remove();
         }
-      }, 300); // Wait for transition to complete (0.3s)
+      }, 300);
     }, 5000);
   }
 
