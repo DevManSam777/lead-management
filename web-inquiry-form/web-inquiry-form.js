@@ -922,44 +922,44 @@ class WebInquiryForm extends HTMLElement {
     const prevBtn = this.shadowRoot.getElementById("prevBtn");
     const submitBtn = this.shadowRoot.getElementById("submitBtn");
 
-    // Initialize phone formatting
+    // initialize phone formatting
     this.loadCleavejs().then(() => {
       this.initializePhoneFormatting();
     });
 
-    // Initialize conditional fields
+    // initialize conditional fields
     this.initializeConditionalFields();
 
-    // Initialize validation
+    // initialize validation
     this.initializeValidation();
 
-    // Navigation events
+    // navigation events
     nextBtn.addEventListener("click", () => this.nextStep());
     prevBtn.addEventListener("click", () => this.prevStep());
 
-    // Prevent premature form submission on Enter key
+    // prevent premature form submission on Enter key
     form.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
         
-        // If we're on the last step (review), allow submission
+        // if we're on the last step (review), allow submission
         if (this.currentStep === this.totalSteps - 1) {
           form.dispatchEvent(new Event("submit"));
         } else {
-          // Otherwise, try to go to next step
+          // otherwise, try to go to next step
           this.nextStep();
         }
       }
     });
 
-    // Form submission
+    // form submission
     form.addEventListener("submit", this.handleFormSubmit.bind(this));
     submitBtn.addEventListener("click", (e) => {
       e.preventDefault();
       form.dispatchEvent(new Event("submit"));
     });
 
-    // Validate current step on input
+    // validate current step on input
     form.addEventListener("input", () => this.validateCurrentStep());
     form.addEventListener("change", () => this.validateCurrentStep());
   }
@@ -995,7 +995,7 @@ class WebInquiryForm extends HTMLElement {
   }
 
   initializeConditionalFields() {
-    // Phone extension
+    // phone extension
     const phoneExtCheck = this.shadowRoot.getElementById("phoneExtCheck");
     const phoneExtField = this.shadowRoot.getElementById("phoneExtField");
 
@@ -1008,7 +1008,7 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // Business phone extension
+    // business phone extension
     const businessPhoneExtCheck = this.shadowRoot.getElementById(
       "businessPhoneExtCheck"
     );
@@ -1025,7 +1025,7 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // Website address
+    // website address
     const websiteYes = this.shadowRoot.getElementById("websiteYes");
     const websiteNo = this.shadowRoot.getElementById("websiteNo");
     const websiteAddressField = this.shadowRoot.getElementById(
@@ -1049,7 +1049,7 @@ class WebInquiryForm extends HTMLElement {
   initializeValidation() {
     const form = this.shadowRoot.getElementById("inquiry-form");
 
-    // Real-time validation
+    // real time validation
     const inputs = form.querySelectorAll("input, textarea");
     inputs.forEach((input) => {
       input.addEventListener("blur", () => this.validateField(input));
@@ -1071,7 +1071,7 @@ class WebInquiryForm extends HTMLElement {
 
     let isValid = true;
 
-    // Check required fields
+    // check required fields
     const requiredFields = currentSection.querySelectorAll(
       'input[required]:not([type="radio"]), textarea[required]'
     );
@@ -1081,11 +1081,11 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // Check required radio groups - find groups that have at least one required radio
+    // check required radio groups find groups that have at least one required radio
     const allRadios = currentSection.querySelectorAll('input[type="radio"]');
     const radioGroups = {};
 
-    // Collect all radio groups and check if any in the group is required
+    // collect all radio groups and check if any in the group is required
     allRadios.forEach((radio) => {
       if (!radioGroups[radio.name]) {
         radioGroups[radio.name] = {
@@ -1101,7 +1101,7 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // Validate required radio groups
+    // validate required radio groups
     Object.values(radioGroups).forEach((group) => {
       if (group.hasRequired && !group.isChecked) {
         isValid = false;
@@ -1120,22 +1120,22 @@ class WebInquiryForm extends HTMLElement {
     if (this.currentStep < this.totalSteps - 1) {
       this.completedSteps.add(this.currentStep);
 
-      // Hide current section
+      // hide current section
       const currentSection = this.shadowRoot.querySelector(
         `.section[data-step="${this.currentStep}"]`
       );
       currentSection.classList.remove("active");
 
-      // Move to next step
+      // move to next step
       this.currentStep++;
 
-      // Show next section
+      // show next section
       const nextSection = this.shadowRoot.querySelector(
         `.section[data-step="${this.currentStep}"]`
       );
       nextSection.classList.add("active");
 
-      // If we're on the review step, populate the review
+      // if we're on the review step, populate the review
       if (this.currentStep === 4) {
         this.populateReview();
       }
@@ -1147,16 +1147,16 @@ class WebInquiryForm extends HTMLElement {
 
   prevStep() {
     if (this.currentStep > 0) {
-      // Hide current section
+      // hide current section
       const currentSection = this.shadowRoot.querySelector(
         `.section[data-step="${this.currentStep}"]`
       );
       currentSection.classList.remove("active");
 
-      // Move to previous step
+      // move to previous step
       this.currentStep--;
 
-      // Show previous section
+      // show previous section
       const prevSection = this.shadowRoot.querySelector(
         `.section[data-step="${this.currentStep}"]`
       );
@@ -1171,11 +1171,11 @@ class WebInquiryForm extends HTMLElement {
     const progressFill = this.shadowRoot.querySelector(".progress-fill");
     const stepIndicators = this.shadowRoot.querySelectorAll(".step-indicator");
 
-    // Update progress bar
+    // update progress bar
     const progress = (this.currentStep / (this.totalSteps - 1)) * 100;
     progressFill.style.width = `${progress}%`;
 
-    // Update step indicators
+    // update step indicators
     stepIndicators.forEach((indicator, index) => {
       indicator.classList.remove("active", "completed");
 
@@ -1195,10 +1195,10 @@ class WebInquiryForm extends HTMLElement {
     const nextBtn = this.shadowRoot.getElementById("nextBtn");
     const submitBtn = this.shadowRoot.getElementById("submitBtn");
 
-    // Previous button
+    // previous button
     prevBtn.style.visibility = this.currentStep > 0 ? "visible" : "hidden";
 
-    // Next/Submit buttons
+    // next/submit buttons
     if (this.currentStep === this.totalSteps - 1) {
       nextBtn.style.display = "none";
       submitBtn.style.display = "inline-block";
@@ -1265,13 +1265,13 @@ class WebInquiryForm extends HTMLElement {
   }
 
   showToast(message, isError = false) {
-    // Remove any existing toast
+    // remove any existing toast
     const existingToast = this.shadowRoot.querySelector('.toast');
     if (existingToast) {
       existingToast.remove();
     }
 
-    // Create toast element
+    // create toast element
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
@@ -1280,20 +1280,20 @@ class WebInquiryForm extends HTMLElement {
       toast.classList.add('error');
     }
 
-    // Add to shadow DOM
+    // add to shadow DOM
     this.shadowRoot.appendChild(toast);
 
-    // Trigger animation after a brief delay to ensure element is in DOM
+    // trigger animation after a brief delay to ensure element is in DOM
     setTimeout(() => {
       toast.classList.add('show');
     }, 50);
     
-    // Auto-hide after 5 seconds
+    // hide after 5 seconds
     setTimeout(() => {
       toast.classList.remove('show');
       toast.classList.add('hide');
       
-      // Remove element after animation completes
+      // remove element after animation completes
       setTimeout(() => {
         if (toast.parentNode) {
           toast.remove();
@@ -1405,16 +1405,16 @@ class WebInquiryForm extends HTMLElement {
   }
 
   editStep(stepNumber) {
-    // Hide current section
+    // hide current section
     const currentSection = this.shadowRoot.querySelector(
       `.section[data-step="${this.currentStep}"]`
     );
     currentSection.classList.remove("active");
 
-    // Move to specified step
+    // move to specified step
     this.currentStep = stepNumber;
 
-    // Show target section
+    // show target section
     const targetSection = this.shadowRoot.querySelector(
       `.section[data-step="${this.currentStep}"]`
     );
@@ -1435,7 +1435,7 @@ class WebInquiryForm extends HTMLElement {
       formObject[key] = value;
     });
 
-    // Add billing address
+    // add billing address
     formObject.billingAddress = {
       street: this.shadowRoot.getElementById("billingStreet").value || "",
       aptUnit: this.shadowRoot.getElementById("billingAptUnit").value || "",
@@ -1447,7 +1447,7 @@ class WebInquiryForm extends HTMLElement {
 
     formObject.isFormSubmission = true;
 
-    // Dispatch event
+    // dispatch event
     this.dispatchEvent(
       new CustomEvent("form-submit", {
         bubbles: true,
@@ -1471,12 +1471,12 @@ class WebInquiryForm extends HTMLElement {
       if (response.ok) {
         this.showToast("Thank you! We'll be in touch soon.");
 
-        // Reset form
+        // reset form
         form.reset();
         this.currentStep = 0;
         this.completedSteps.clear();
 
-        // Reset sections
+        // reset sections
         this.shadowRoot
           .querySelectorAll(".section")
           .forEach((section, index) => {

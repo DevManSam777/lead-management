@@ -102,7 +102,7 @@
 .theme-segment.active {
   background-color: var(--primary); 
   color: white; 
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1); /* Active shadow */
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1); 
 }
 
 [data-theme="dark"] .theme-segment:hover:not(.active) {

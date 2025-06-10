@@ -14,12 +14,12 @@ const auth = require("./middleware/auth");
 
 const app = express();
 
-// Force canonical domain (www.devleads.site) 
-// But only in production, not in development
+// force canonical domain (www.devleads.site) 
+//  only in production, not in development
 if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     const host = req.headers.host;
-    // Redirect non-www to www (adjust as needed)
+    // redirect non-www to www (adjust as needed)
     if (host === "devleads.site") {
       return res.redirect(301, "https://www.devleads.site" + req.originalUrl);
     }
@@ -28,19 +28,19 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // CORS & API ROUTES FIRST
-// Special middleware just for the leads API endpoint to work with web component
+// special middleware just for the leads API endpoint to work with web component
 app.use("/api/leads", (req, res, next) => {
-  // Allow requests from any origin
+  // allow requests from any origin
   res.header("Access-Control-Allow-Origin", "*");
-  // Allow the necessary methods
+  // allow the necessary methods
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  // Allow the necessary headers
+  // allow the necessary headers
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
 
-  // Handle preflight requests immediately
+  // handle preflight requests immediately
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -87,20 +87,20 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Explicitly handle preflight requests
+// explicitly handle preflight requests
 app.options("*", cors(corsOptions));
 
-app.use(express.json({ limit: "50mb" })); // To parse JSON request bodies
+app.use(express.json({ limit: "50mb" })); 
 
-// Add cache control headers for navigation protection
+// add cache control headers for navigation protection
 app.use((req, res, next) => {
-  // Skip cache control for your public API endpoints that need CORS support
+  // skip cache control for your public API endpoints that need CORS support
   if (req.originalUrl.includes("/api/leads") && req.method === "POST") {
     next();
     return;
   }
 
-  // Apply cache control to all other routes
+  // apply cache control to all other routes
   res.setHeader(
     "Cache-Control",
     "no-store, no-cache, must-revalidate, proxy-revalidate"
@@ -119,11 +119,11 @@ app.use("/api/forms", auth, formRoutes);
 app.use("/api/documents", auth, documentRoutes);
 app.use("/api/hitlists", auth, hitlistRoutes);
 
-// Security headers middleware
+// security headers middleware
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
-  // This allows everything from anywhere
+  // this allows everything from anywhere
   res.setHeader(
     "Content-Security-Policy",
     "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';"
@@ -132,7 +132,7 @@ app.use((req, res, next) => {
 });
 
 // STATIC FILES & REDIRECTS AFTER
-// Serve static files from the dashboard directory with proper MIME types
+// serve static files from the dashboard directory with proper MIME types
 app.use(
   "/dashboard",
   express.static(path.join(__dirname, "../dashboard"), {
@@ -146,12 +146,12 @@ app.use(
   })
 );
 
-// Handle login page
+// handle login page
 app.get(["/login", "/login/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/index.html"));
 });
 
-// Handle dashboard pages
+// handle dashboard pages
 app.get(["/dashboard", "/dashboard/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/dashboard.html"));
 });
@@ -176,13 +176,13 @@ app.get(["/dashboard/settings", "/dashboard/settings/"], (req, res) => {
   res.sendFile(path.join(__dirname, "../dashboard/html/settings.html"));
 });
 
-// Redirect root to dashboard
+// redirect root to dashboard
 app.get(["/", "/index.html"], (req, res) => {
   res.redirect("/login");
 });
 
 app.get("/api", (req, res) => {
-  // Get the PORT for URL construction
+  // get the PORT for URL construction
   const PORT = process.env.PORT || 5000;
 
   res.json({
@@ -243,7 +243,7 @@ app.get("/api", (req, res) => {
     documentation: {
       description: "LEADS REST API",
       endpoints: [
-        // Lead Endpoints
+        // lead endpoints
         {
           method: "GET",
           path: "/api/leads",
@@ -341,7 +341,7 @@ app.get("/api", (req, res) => {
           response: "Array of matching lead objects",
         },
 
-        // Payment Endpoints
+        // payment endpoints
         {
           method: "GET",
           path: "/api/payments",
@@ -426,7 +426,7 @@ app.get("/api", (req, res) => {
           response: "Success message or error",
         },
 
-        // Settings Endpoints
+        // settings endpoints
         {
           method: "GET",
           path: "/api/settings",
@@ -463,7 +463,7 @@ app.get("/api", (req, res) => {
             "Updated setting value in JSON format (e.g., { value: 'new value' })",
           response: "Updated setting object",
         },
-        // Form Endpoints
+        // form endpoints
         {
           method: "GET",
           path: "/api/forms",
@@ -656,7 +656,7 @@ app.get("/api", (req, res) => {
           response: "JSON success message or error.",
           exampleResponse: "{ message: 'Document deleted successfully' }",
         },
-        // Hitlist Endpoints
+        // hitlist endpoints
         {
           method: "GET",
           path: "/api/hitlists",
@@ -776,7 +776,7 @@ app.get("/api", (req, res) => {
   });
 });
 
-// Helper function to get the base URL for examples
+// helper function to get the base URL for examples
 function getBaseUrl(port) {
   const isProduction = process.env.NODE_ENV === "production";
   return isProduction
@@ -784,19 +784,19 @@ function getBaseUrl(port) {
     : `http://localhost:${port}`;
 }
 
-// This function ensures the correct sequence: Connect -> Seed -> Start Server
+// this function ensures the correct sequence: Connect -> Seed -> Start Server
 async function startServer() {
   try {
-    // Connect to the database and returns a Promise
-    await connectDB(); // Await the database connection to complete
+    // connect to the database and returns a Promise
+    await connectDB(); // await the database connection to complete
 
     console.log("MongoDB connection established by connectDB function.");
 
-    // After successful database connection, run the initial seeding logic
-    // The seedFormsIfFirstRun function is designed to only seed if necessary based on the flag/existing data
+    // after successful database connection, run the initial seeding logic
+    // the seedFormsIfFirstRun function is designed to only seed if necessary based on the flag/existing data
     await seederLogic.seedFormsIfFirstRun(); // Call the seeder function from the imported module
 
-    // Start the Express server
+    // start the Express server
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(
@@ -805,10 +805,10 @@ async function startServer() {
     });
   } catch (err) {
     console.error("FATAL ERROR: Server initialization failed:", err);
-    // Exit the process if database connection or server start fails
+    // exit the process if database connection or server start fails
     process.exit(1);
   }
 }
 
-// Call the main server startup function to initiate the process
+// call the main server startup function to initiate the process
 startServer();

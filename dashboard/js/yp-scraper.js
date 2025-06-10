@@ -222,7 +222,7 @@ class YPScraperComponent extends HTMLElement {
             position: relative;
             border-radius: 0.5rem;
             overflow: hidden;
-            margin-top: 35px; /* Increased space below X button */
+            margin-top: 35px; 
           }
           
           iframe {
