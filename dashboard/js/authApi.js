@@ -1,14 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { 
-  getAuth, 
+import {
+  getAuth,
   onAuthStateChanged,
   browserSessionPersistence,
-  setPersistence ,
-   signOut as firebaseSignOut,
+  sendPasswordResetEmail,
+  setPersistence,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-// Firebase configuration - SINGLE SOURCE OF TRUTH
-export const firebaseConfig = {
+// Firebase configuration public facing keys
+const firebaseConfig = {
   apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
   authDomain: "devleads-a1329.firebaseapp.com",
   projectId: "devleads-a1329",
@@ -18,10 +20,8 @@ export const firebaseConfig = {
   measurementId: "G-47PSY58Q5P",
 };
 
-// initialize Firebase (if not already initialized)
 let firebaseApp;
 try {
-  // check if Firebase is initialized
   if (!window.firebaseApp) {
     console.log("Initializing Firebase in authApi.js");
     firebaseApp = initializeApp(firebaseConfig);
@@ -36,8 +36,9 @@ try {
 }
 
 // get auth instance
-export const auth = getAuth(firebaseApp);
+const auth = getAuth(firebaseApp);
 window.auth = auth;
+
 
 // persistence immediately when this module loads
 setPersistence(auth, browserSessionPersistence)
@@ -52,8 +53,8 @@ setPersistence(auth, browserSessionPersistence)
 function getApiUrl() {
   // check if we're running locally (localhost) or on the production server
   const hostname = window.location.hostname;
-  
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
     // for local development, use the local API
     return "http://localhost:5000/api";
   } else {
@@ -74,26 +75,26 @@ const TOKEN_BUFFER = 5 * 60 * 1000; // 5 minute buffer before expiration
 const originalFetch = window.fetch;
 
 // create an authenticated fetch function
-window.fetch = async function(url, options = {}) {
+window.fetch = async function (url, options = {}) {
   console.log(`Intercepted fetch to: ${url}`);
-  
+
   // determine if this is a request to our API
   let isApiRequest = false;
-  
+
   // check for both absolute and relative URLs
-  if (url.includes('/api/')) {
+  if (url.includes("/api/")) {
     isApiRequest = true;
-  } else if (url.includes('localhost:5000/api')) {
+  } else if (url.includes("localhost:5000/api")) {
     isApiRequest = true;
   }
-  
+
   // only add auth headers for API calls to our backend
   if (isApiRequest) {
     const user = auth.currentUser;
-    
+
     if (!user) {
-      console.error('No authenticated user found for API call');
-      
+      console.error("No authenticated user found for API call");
+
       // wait for auth state to change
       try {
         await new Promise((resolve, reject) => {
@@ -103,29 +104,33 @@ window.fetch = async function(url, options = {}) {
               resolve(user);
             }
           });
-          
+
           // timeout to prevent hanging
           setTimeout(() => {
             unsubscribe();
-            reject(new Error('Authentication timeout - no user detected'));
+            reject(new Error("Authentication timeout - no user detected"));
           }, 5000);
         });
-        
+
         // get the user again after waiting
         const user = auth.currentUser;
         if (!user) {
-          throw new Error('User not authenticated after waiting');
+          throw new Error("User not authenticated after waiting");
         }
-        
+
         // use cached token if available and not expired
         const now = Date.now();
-        if (!cachedToken || !tokenExpiration || now >= tokenExpiration - TOKEN_BUFFER) {
-          console.log('Token expired or not cached, getting new token');
+        if (
+          !cachedToken ||
+          !tokenExpiration ||
+          now >= tokenExpiration - TOKEN_BUFFER
+        ) {
+          console.log("Token expired or not cached, getting new token");
           // get a new token, but don't force refresh
           cachedToken = await user.getIdToken(false);
-          
+
           // calculate expiration from token
-          const tokenParts = cachedToken.split('.');
+          const tokenParts = cachedToken.split(".");
           if (tokenParts.length === 3) {
             try {
               const payload = JSON.parse(atob(tokenParts[1]));
@@ -137,22 +142,28 @@ window.fetch = async function(url, options = {}) {
           } else {
             tokenExpiration = now + 55 * 60 * 1000; // 55 minutes fallback
           }
-          console.log('New token obtained, expires in', 
-            Math.floor((tokenExpiration - now) / 60000), 'minutes');
+          console.log(
+            "New token obtained, expires in",
+            Math.floor((tokenExpiration - now) / 60000),
+            "minutes"
+          );
         } else {
-          console.log('Using cached token, expires in', 
-            Math.floor((tokenExpiration - now) / 60000), 'minutes');
+          console.log(
+            "Using cached token, expires in",
+            Math.floor((tokenExpiration - now) / 60000),
+            "minutes"
+          );
         }
-        
+
         // create headers if they don't exist
         options.headers = options.headers || {};
-        
+
         // add authorization header
         options.headers.Authorization = `Bearer ${cachedToken}`;
-        
+
         console.log(`Used cached/new token for ${user.email}`);
       } catch (error) {
-        console.error('Error getting auth token:', error);
+        console.error("Error getting auth token:", error);
         throw error;
       }
     } else {
@@ -160,13 +171,17 @@ window.fetch = async function(url, options = {}) {
       try {
         // check if we have a valid cached token
         const now = Date.now();
-        if (!cachedToken || !tokenExpiration || now >= tokenExpiration - TOKEN_BUFFER) {
-          console.log('Token expired or not cached, getting new token');
+        if (
+          !cachedToken ||
+          !tokenExpiration ||
+          now >= tokenExpiration - TOKEN_BUFFER
+        ) {
+          console.log("Token expired or not cached, getting new token");
           // Get a new token, but do NOT force refresh
           cachedToken = await user.getIdToken(false);
-          
+
           // calculate expiration from token
-          const tokenParts = cachedToken.split('.');
+          const tokenParts = cachedToken.split(".");
           if (tokenParts.length === 3) {
             try {
               const payload = JSON.parse(atob(tokenParts[1]));
@@ -178,67 +193,72 @@ window.fetch = async function(url, options = {}) {
           } else {
             tokenExpiration = now + 55 * 60 * 1000; // 55 minutes fallback
           }
-          console.log('New token obtained, expires in', 
-            Math.floor((tokenExpiration - now) / 60000), 'minutes');
+          console.log(
+            "New token obtained, expires in",
+            Math.floor((tokenExpiration - now) / 60000),
+            "minutes"
+          );
         } else {
-          console.log('Using cached token, expires in', 
-            Math.floor((tokenExpiration - now) / 60000), 'minutes');
+          console.log(
+            "Using cached token, expires in",
+            Math.floor((tokenExpiration - now) / 60000),
+            "minutes"
+          );
         }
-        
+
         // create headers if they don't exist
         options.headers = options.headers || {};
-        
+
         // add authorization header
         options.headers.Authorization = `Bearer ${cachedToken}`;
-        
+
         console.log(`Used cached/new token for ${user.email}`);
       } catch (error) {
-        console.error('Error getting auth token:', error);
+        console.error("Error getting auth token:", error);
         throw error;
       }
     }
   }
-  
+
   // call the original fetch with the enhanced options
   return originalFetch(url, options);
 };
 
-console.log('Authenticated fetch interceptor installed with token caching');
+console.log("Authenticated fetch interceptor installed with token caching");
 
 // base function to make authenticated API calls
-async function apiCall(endpoint, method = 'GET', data = null) {
+async function apiCall(endpoint, method = "GET", data = null) {
   console.log(`Making ${method} request to ${endpoint}`);
-  
+
   // Check if user is authenticated
   const user = auth.currentUser;
-  
+
   if (!user) {
-    
     // return a promise that resolves when auth state changes
     return new Promise((resolve, reject) => {
       const unsubscribe = auth.onAuthStateChanged((user) => {
         unsubscribe(); // unsubscribe once we get a response
-        
+
         if (user) {
-          console.log('User authenticated:', user.email);
+          console.log("User authenticated:", user.email);
           // now make the API call with the authenticated user
           makeAuthenticatedCall(endpoint, method, data, user)
             .then(resolve)
             .catch(reject);
         } else {
-          console.error('No authenticated user after auth state change');
-          reject(new Error('User not authenticated'));
+          console.error("No authenticated user after auth state change");
+          reject(new Error("User not authenticated"));
         }
       });
-      
+
       // add timeout to prevent hanging
       setTimeout(() => {
         unsubscribe();
-        reject(new Error('Authentication timeout - no user detected'));
+        reject(new Error("Authentication timeout - no user detected"));
       }, 5000);
     });
   }
-  
+
   // if we have a user, make the API call directly
   return makeAuthenticatedCall(endpoint, method, data, user);
 }
@@ -248,13 +268,17 @@ async function makeAuthenticatedCall(endpoint, method, data, user) {
   try {
     // check if we have a valid cached token
     const now = Date.now();
-    if (!cachedToken || !tokenExpiration || now >= tokenExpiration - TOKEN_BUFFER) {
-      console.log('Getting ID token for user:', user.email);
+    if (
+      !cachedToken ||
+      !tokenExpiration ||
+      now >= tokenExpiration - TOKEN_BUFFER
+    ) {
+      console.log("Getting ID token for user:", user.email);
       // get a new token, but DO NOT force refresh
       cachedToken = await user.getIdToken(false);
-      
+
       // calculate expiration from token
-      const tokenParts = cachedToken.split('.');
+      const tokenParts = cachedToken.split(".");
       if (tokenParts.length === 3) {
         try {
           const payload = JSON.parse(atob(tokenParts[1]));
@@ -266,39 +290,47 @@ async function makeAuthenticatedCall(endpoint, method, data, user) {
       } else {
         tokenExpiration = now + 55 * 60 * 1000; // 55 minutes fallback
       }
-      console.log('New token obtained, expires in', 
-        Math.floor((tokenExpiration - now) / 60000), 'minutes');
+      console.log(
+        "New token obtained, expires in",
+        Math.floor((tokenExpiration - now) / 60000),
+        "minutes"
+      );
     } else {
-      console.log('Using cached token, expires in', 
-        Math.floor((tokenExpiration - now) / 60000), 'minutes');
+      console.log(
+        "Using cached token, expires in",
+        Math.floor((tokenExpiration - now) / 60000),
+        "minutes"
+      );
     }
-    
+
     const options = {
       method,
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cachedToken}`
-      }
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cachedToken}`,
+      },
     };
-    
-    if (data && (method === 'POST' || method === 'PUT')) {
+
+    if (data && (method === "POST" || method === "PUT")) {
       options.body = JSON.stringify(data);
     }
-    
+
     // use the dynamic API URL
     console.log(`Sending request to ${API_URL}${endpoint}...`);
     const response = await fetch(`${API_URL}${endpoint}`, options);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('API request failed:', response.status, errorData);
-      throw new Error(errorData.message || `API call failed with status ${response.status}`);
+      console.error("API request failed:", response.status, errorData);
+      throw new Error(
+        errorData.message || `API call failed with status ${response.status}`
+      );
     }
-    
-    console.log('Request successful');
+
+    console.log("Request successful");
     return response.json();
   } catch (error) {
-    console.error('API call error:', error);
+    console.error("API call error:", error);
     throw error;
   }
 }
@@ -310,13 +342,20 @@ async function retryWithBackoff(fn, maxRetries = 3, initialDelay = 1000) {
     try {
       return await fn();
     } catch (error) {
-      if (retries >= maxRetries || !(error.message && error.message.includes("quota"))) {
+      if (
+        retries >= maxRetries ||
+        !(error.message && error.message.includes("quota"))
+      ) {
         throw error; // Don't retry if max retries reached or not quota error
       }
-      
+
       const delay = initialDelay * Math.pow(2, retries);
-      console.log(`Quota error, retrying after ${delay}ms (retry ${retries + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      console.log(
+        `Quota error, retrying after ${delay}ms (retry ${
+          retries + 1
+        }/${maxRetries})`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
       retries++;
     }
   }
@@ -328,79 +367,97 @@ let circuitResetTimeout = null;
 
 async function safeApiCall(fn) {
   if (isCircuitBroken) {
-    throw new Error("Circuit breaker is open due to recent quota issues. Try again later.");
+    throw new Error(
+      "Circuit breaker is open due to recent quota issues. Try again later."
+    );
   }
-  
+
   try {
     return await fn();
   } catch (error) {
     if (error.message && error.message.includes("quota")) {
       // open the circuit breaker
       isCircuitBroken = true;
-      
+
       // reset after 1 minute
       clearTimeout(circuitResetTimeout);
       circuitResetTimeout = setTimeout(() => {
         isCircuitBroken = false;
       }, 60000);
-      
-      throw new Error("Rate limit exceeded. Please wait a minute before trying again.");
+
+      throw new Error(
+        "Rate limit exceeded. Please wait a minute before trying again."
+      );
     }
     throw error;
   }
 }
 
 // create convenience methods for common API operations
-export const authApi = {
-  get: (endpoint) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'GET'))),
-  post: (endpoint, data) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'POST', data))),
-  put: (endpoint, data) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'PUT', data))),
-  delete: (endpoint) => retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, 'DELETE')))
+const authApi = {
+  get: (endpoint) =>
+    retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, "GET"))),
+  post: (endpoint, data) =>
+    retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, "POST", data))),
+  put: (endpoint, data) =>
+    retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, "PUT", data))),
+  delete: (endpoint) =>
+    retryWithBackoff(() => safeApiCall(() => apiCall(endpoint, "DELETE"))),
 };
 
-
-export function handleAuthStateChange() {
+function handleAuthStateChange() {
   // set up listener for auth state changes to manage history correctly
   auth.onAuthStateChanged((user) => {
-    const isLoginPage = window.location.pathname === '/login' || 
-                        window.location.pathname === '/' ||
-                        window.location.pathname === '/index.html';
-    
-    const isDashboardPage = window.location.pathname.includes('/dashboard');
-    
+    const isLoginPage =
+      window.location.pathname === "/login" ||
+      window.location.pathname === "/" ||
+      window.location.pathname === "/index.html";
+
+    const isDashboardPage = window.location.pathname.includes("/dashboard");
+
     if (!user && isDashboardPage) {
       // not authenticated and trying to access dashboard
-      console.log('User not authenticated, redirecting to login');
+      console.log("User not authenticated, redirecting to login");
       window.history.replaceState(null, "", "/login");
       window.location.href = "/login";
     } else if (user && isLoginPage) {
       // already authenticated and on login page
-      console.log('User already authenticated, redirecting to dashboard');
+      console.log("User already authenticated, redirecting to dashboard");
       window.history.replaceState(null, "", "/dashboard/home");
       window.location.href = "/dashboard/home";
     }
   });
 }
 
-export async function signOut() {
+async function signOut() {
   try {
     await firebaseSignOut(auth);
-    
+
     // Clear any cached tokens when signing out
     cachedToken = null;
     tokenExpiration = null;
-    
+
     console.log("User signed out successfully");
-    
+
     // Redirect to login
     window.history.replaceState(null, "", "/login");
     window.location.href = "/login";
-    
   } catch (error) {
     console.error("Error signing out:", error);
     throw error;
   }
 }
 
-
 handleAuthStateChange();
+
+export {
+  auth,
+  authApi,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+  browserSessionPersistence,
+  setPersistence,
+  signOut,
+  firebaseConfig,
+};

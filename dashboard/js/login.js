@@ -1,16 +1,11 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import {
-  getAuth,
+import { 
+  auth,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   onAuthStateChanged,
   browserSessionPersistence,
   setPersistence,
-} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { firebaseConfig } from "./authApi.js";
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+} from "./authApi.js";
 
 // handle login form submission
 const loginForm = document.getElementById("loginForm");
@@ -26,7 +21,6 @@ loginForm.addEventListener("submit", (e) => {
   // clear previous error messages
   errorMessage.style.display = "none";
 
-  // Show loading state
   const submitBtn = loginForm.querySelector(".login-btn");
   const originalButtonText = submitBtn.textContent;
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
