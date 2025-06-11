@@ -21,7 +21,7 @@
       "preferredContact",
       "serviceDesired",
       "estimatedBudget",
-      "totalBudget",
+      "billedAmount",
       "paidAmount",
       "remainingBalance",
       "currentDate",

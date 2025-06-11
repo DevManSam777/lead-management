@@ -14,13 +14,15 @@ const auth = require("./middleware/auth");
 
 const app = express();
 
-// force canonical domain (www.devleads.site) 
-//  only in production, not in development
+// force canonical domain  
+// for production
 if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     const host = req.headers.host;
-    // redirect non-www to www (adjust as needed)
+    // redirect non-www to www 
+    // if (host === "your.website") {
     if (host === "devleads.site") {
+      // return res.redirect(301, "https://www.your.website" + req.originalUrl);
       return res.redirect(301, "https://www.devleads.site" + req.originalUrl);
     }
     next();
@@ -55,14 +57,13 @@ app.use("/api/leads", (req, res, next) => {
 //     // List of allowed origins (add your local development URLs)
 //     const allowedOrigins = [
 //       // Production URLs
-//       "https://www.devleads.site",
-//       "https://devleads.site",
+//       "https://www.your.website",
+//       "https://your.website",
 //       // Development URLs
 //       "http://localhost:3000",
 //       "http://localhost:5000",
 //       "http://127.0.0.1:5000",
-//       "http://127.0.0.1:3000",
-//       "https://cdpn.io",
+//       "http://127.0.0.1:3000"
 //     ];
 
 //     // Allow requests with no origin (like mobile apps, curl requests, etc.)
@@ -780,6 +781,7 @@ app.get("/api", (req, res) => {
 function getBaseUrl(port) {
   const isProduction = process.env.NODE_ENV === "production";
   return isProduction
+  // ? "https://www.your.website"
     ? "https://www.devleads.site"
     : `http://localhost:${port}`;
 }
