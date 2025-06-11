@@ -3,11 +3,12 @@ import {
   getAuth, 
   onAuthStateChanged,
   browserSessionPersistence,
-  setPersistence 
+  setPersistence ,
+   signOut as firebaseSignOut,
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-// Firebase configuration
-const firebaseConfig = {
+// Firebase configuration - SINGLE SOURCE OF TRUTH
+export const firebaseConfig = {
   apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
   authDomain: "devleads-a1329.firebaseapp.com",
   projectId: "devleads-a1329",
@@ -35,7 +36,8 @@ try {
 }
 
 // get auth instance
-const auth = getAuth(firebaseApp);
+export const auth = getAuth(firebaseApp);
+window.auth = auth;
 
 // persistence immediately when this module loads
 setPersistence(auth, browserSessionPersistence)
@@ -380,5 +382,25 @@ export function handleAuthStateChange() {
   });
 }
 
-// initialize the auth state listener when this module is loaded
+export async function signOut() {
+  try {
+    await firebaseSignOut(auth);
+    
+    // Clear any cached tokens when signing out
+    cachedToken = null;
+    tokenExpiration = null;
+    
+    console.log("User signed out successfully");
+    
+    // Redirect to login
+    window.history.replaceState(null, "", "/login");
+    window.location.href = "/login";
+    
+  } catch (error) {
+    console.error("Error signing out:", error);
+    throw error;
+  }
+}
+
+
 handleAuthStateChange();

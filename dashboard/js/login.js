@@ -7,19 +7,8 @@ import {
   browserSessionPersistence,
   setPersistence,
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { firebaseConfig } from "./authApi.js";
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
-  authDomain: "devleads-a1329.firebaseapp.com",
-  projectId: "devleads-a1329",
-  storageBucket: "devleads-a1329.firebasestorage.app",
-  messagingSenderId: "95407568917",
-  appId: "1:95407568917:web:db6424b8f1df724258361c",
-  measurementId: "G-47PSY58Q5P",
-};
-
-// initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 

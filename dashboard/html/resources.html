@@ -5,52 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevLeads Resources</title>
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-      import {
-        getAuth,
-        onAuthStateChanged,
-        signOut,
-      } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
-        authDomain: "devleads-a1329.firebaseapp.com",
-        projectId: "devleads-a1329",
-        storageBucket: "devleads-a1329.firebasestorage.app",
-        messagingSenderId: "95407568917",
-        appId: "1:95407568917:web:db6424b8f1df724258361c",
-        measurementId: "G-47PSY58Q5P",
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-
-      window.auth = auth;
-
+      import { auth, signOut } from "/dashboard/js/authApi.js";
       document.body.style.display = "none";
+      document.addEventListener("DOMContentLoaded", function () {
+        auth.onAuthStateChanged((user) => {
+          if (user) {
+            document.body.style.display = "block";
+          }
+        });
 
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          window.history.replaceState(null, "", "/login");
-          window.location.href = "/login";
-        } else {
-          document.body.style.display = "block";
-        }
-      });
-
-      const signOutButton = document.querySelector(".sign-out");
-
-      signOutButton.addEventListener("click", () => {
-        if (confirm("Are you sure you want to sign out?")) {
-          signOut(auth)
-            .then(() => {
-              console.log("User signed out.");
-              window.history.replaceState(null, "", "/login");
-              window.location.href = "/login";
-            })
-            .catch((error) => {
-              console.error("Error signing out:", error);
-            });
+        const signOutButton = document.querySelector(".sign-out");
+        if (signOutButton) {
+          signOutButton.addEventListener("click", () => {
+            if (confirm("Are you sure you want to sign out?")) {
+              signOut();
+            }
+          });
         }
       });
     </script>
@@ -508,7 +478,10 @@
                     <i class="fa-solid fa-fire"></i>
                     <div class="resource-info">
                       <h4>Firebase</h4>
-                      <p>Google platform offering a suite of tools for databases, authentication, hosting, and analytics</p>
+                      <p>
+                        Google platform offering a suite of tools for databases,
+                        authentication, hosting, and analytics
+                      </p>
                     </div>
                   </a>
                 </li>

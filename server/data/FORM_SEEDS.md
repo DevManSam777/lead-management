@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `formSeeds.js` file contains an array of form templates for generating business documents like contracts, proposals, invoices, and agreements. Each template uses variable substitution and markdown formatting.
+The `formSeeds.js` file contains an array of form templates for generating business documents like contracts, proposals, invoices, and agreements to get you started. Each template uses variable substitution and markdown formatting.  Within the DevLeads application, you can also create new forms, edit existing forms, and/or delete forms.
 
 ## Template Structure
 
