@@ -18,6 +18,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   fetchAndRenderHitlists();
   setupJsonUploader();
 
+  // load saved page size from localStorage
+  const savedPageSize = localStorage.getItem("hitlistPageSize");
+  if (savedPageSize) {
+    hitlistPageSize = parseInt(savedPageSize);
+  }
+
   // listen for settings updates to refresh date displays
   window.addEventListener("settingsUpdated", function (event) {
     const { key, value } = event.detail;
@@ -130,7 +136,7 @@ function setupEventListeners() {
 
   document
     .getElementById("searchInput")
-    .addEventListener("input", filterHitlists);
+    .addEventListener("input", searchHitlists);
   document
     .getElementById("businessSearchInput")
     .addEventListener("input", filterBusinesses);
@@ -174,45 +180,14 @@ async function fetchAndRenderHitlists() {
     if (hitlistsList) hitlistsList.innerHTML = "";
 
     allHitlists = await API.fetchHitlists();
-
     allHitlists = sortHitlistsAlphabetically(allHitlists);
 
-    const paginationInfo = Pagination.initPagination(
-      allHitlists,
-      hitlistCurrentPage,
-      hitlistPageSize
-    );
-
-    hitlistCurrentPage = paginationInfo.currentPage;
-    hitlistTotalPages = paginationInfo.totalPages;
-
-    const paginatedHitlists = Pagination.getPaginatedItems(
-      allHitlists,
-      hitlistCurrentPage,
-      hitlistPageSize
-    );
+    // reset to page 1 when loading fresh data
+    hitlistCurrentPage = 1;
 
     if (hitlistsLoadingSpinner) hitlistsLoadingSpinner.style.display = "none";
 
-    renderHitlists(paginatedHitlists);
-
-    Pagination.renderPagination({
-      totalItems: allHitlists.length,
-      totalPages: hitlistTotalPages,
-      currentPage: hitlistCurrentPage,
-      pageSize: hitlistPageSize,
-      onPageChange: (newPage) => {
-        hitlistCurrentPage = newPage;
-        renderPaginatedHitlists();
-      },
-      onPageSizeChange: (newPageSize) => {
-        hitlistPageSize = newPageSize;
-        localStorage.setItem("hitlistPageSize", newPageSize);
-        hitlistCurrentPage = 1;
-        renderPaginatedHitlists();
-      },
-      containerId: ".hitlists-container",
-    });
+    renderPaginatedHitlists();
   } catch (error) {
     console.error("Error fetching hitlists:", error);
 
@@ -227,6 +202,71 @@ async function fetchAndRenderHitlists() {
         '<div class="error-state">Error loading hitlists. Please try again.</div>';
     }
   }
+}
+
+// get filtered hitlists based on current search term (similar to getFilteredLeads in dashboard)
+function getFilteredHitlists() {
+  const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+  
+  let filteredHitlists = [...allHitlists];
+
+  // apply search filter
+  if (searchTerm) {
+    filteredHitlists = filteredHitlists.filter(
+      (hitlist) =>
+        hitlist.name.toLowerCase().includes(searchTerm) ||
+        (hitlist.description &&
+          hitlist.description.toLowerCase().includes(searchTerm))
+    );
+  }
+
+  // apply sorting (always sort alphabetically)
+  return sortHitlistsAlphabetically(filteredHitlists);
+}
+
+function renderPaginatedHitlists() {
+  // get filtered hitlists
+  const filteredHitlists = getFilteredHitlists();
+
+  // initialize pagination with the filtered hitlists
+  const paginationInfo = Pagination.initPagination(
+    filteredHitlists,
+    hitlistCurrentPage,
+    hitlistPageSize
+  );
+
+  // update current page from pagination info
+  hitlistCurrentPage = paginationInfo.currentPage;
+  hitlistTotalPages = paginationInfo.totalPages;
+
+  // get only the hitlists for the current page
+  const paginatedHitlists = Pagination.getPaginatedItems(
+    filteredHitlists,
+    hitlistCurrentPage,
+    hitlistPageSize
+  );
+
+  // render them
+  renderHitlists(paginatedHitlists);
+
+  // update pagination UI
+  Pagination.renderPagination({
+    totalItems: filteredHitlists.length,
+    totalPages: hitlistTotalPages,
+    currentPage: hitlistCurrentPage,
+    pageSize: hitlistPageSize,
+    onPageChange: (newPage) => {
+      hitlistCurrentPage = newPage;
+      renderPaginatedHitlists();
+    },
+    onPageSizeChange: (newPageSize) => {
+      hitlistPageSize = newPageSize;
+      localStorage.setItem("hitlistPageSize", newPageSize);
+      hitlistCurrentPage = 1;
+      renderPaginatedHitlists();
+    },
+    containerId: ".hitlists-container",
+  });
 }
 
 function renderHitlists(hitlists) {
@@ -316,32 +356,11 @@ function renderHitlists(hitlists) {
   });
 }
 
-function renderPaginatedHitlists() {
-  const paginatedHitlists = Pagination.getPaginatedItems(
-    allHitlists,
-    hitlistCurrentPage,
-    hitlistPageSize
-  );
-
-  renderHitlists(paginatedHitlists);
-
-  Pagination.renderPagination({
-    totalItems: allHitlists.length,
-    totalPages: hitlistTotalPages,
-    currentPage: hitlistCurrentPage,
-    pageSize: hitlistPageSize,
-    onPageChange: (newPage) => {
-      hitlistCurrentPage = newPage;
-      renderPaginatedHitlists();
-    },
-    onPageSizeChange: (newPageSize) => {
-      hitlistPageSize = newPageSize;
-      localStorage.setItem("hitlistPageSize", newPageSize);
-      hitlistCurrentPage = 1;
-      renderPaginatedHitlists();
-    },
-    containerId: ".hitlists-container",
-  });
+// search hitlists based on input (similar to searchLeads in dashboard)
+function searchHitlists() {
+  // reset to first page when searching
+  hitlistCurrentPage = 1;
+  renderPaginatedHitlists();
 }
 
 function openCreateHitlistModal() {
@@ -412,24 +431,12 @@ async function handleHitlistSubmit(event) {
 
     closeHitlistModal();
 
-    // refresh list for new hitlists, update ui for edits
+    // refresh the paginated view
     if (!hitlistId) {
-      await fetchAndRenderHitlists();
-    } else {
-      const hitlistCard = document.querySelector(`.hitlist-card[data-id="${hitlistId}"]`);
-      if (hitlistCard) {
-        const titleElement = hitlistCard.querySelector('.hitlist-title');
-        const descriptionElement = hitlistCard.querySelector('.hitlist-description');
-        
-        if (titleElement) {
-          titleElement.innerHTML = `<span class="bullseye"><i class="fa-solid fa-bullseye"></i></span> ${hitlistData.name}`;
-        }
-        
-        if (descriptionElement) {
-          descriptionElement.textContent = hitlistData.description || "No description";
-        }
-      }
+      // for new hitlists, reset to page 1
+      hitlistCurrentPage = 1;
     }
+    renderPaginatedHitlists();
 
     // open business list modal after creating/editing
     if (savedHitlistId) {
@@ -440,7 +447,6 @@ async function handleHitlistSubmit(event) {
     Utils.showToast("Error saving hitlist");
   }
 }
-
 
 async function openBusinessListModal(hitlistId) {
   currentHitlistId = hitlistId;
@@ -713,7 +719,8 @@ async function deleteHitlist(hitlistId) {
 
     Utils.showToast("Hitlist deleted successfully");
 
-    renderHitlists(allHitlists);
+    // refresh the paginated view after deletion
+    renderPaginatedHitlists();
   } catch (error) {
     console.error("Error deleting hitlist:", error);
     Utils.showToast("Error deleting hitlist");
@@ -837,7 +844,6 @@ function updateHitlistLastModified(hitlistId, newDate = new Date()) {
   modifiedDateElement.innerHTML = `<i class="far fa-clock"></i> Modified: ${Utils.formatDate(newDate, dateFormat)}`;
 }
 
-
 function formatStatus(status) {
   if (!status) return "Unknown";
   return status
@@ -846,16 +852,7 @@ function formatStatus(status) {
     .join(" ");
 }
 
-function filterHitlists() {
-  const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-  const filteredHitlists = allHitlists.filter(
-    (hitlist) =>
-      hitlist.name.toLowerCase().includes(searchTerm) ||
-      (hitlist.description &&
-        hitlist.description.toLowerCase().includes(searchTerm))
-  );
-  renderHitlists(sortHitlistsAlphabetically(filteredHitlists));
-}
+// removed the old filterHitlists function - now handled by searchHitlists and getFilteredHitlists
 
 function filterBusinesses() {
   const searchTerm = document
@@ -1211,7 +1208,6 @@ function formatWebsiteUrlForDisplay(url) {
   }
 }
 
-
 async function handleBusinessSubmit(event) {
   event.preventDefault();
 
@@ -1335,7 +1331,6 @@ async function handleBusinessSubmit(event) {
     Utils.showToast("Error saving business");
   }
 }
-
 
 async function updateHitlistBusinessCount(hitlistId, addedCount = 1) {
   try {
@@ -1710,6 +1705,7 @@ export {
   setupEventListeners,
   fetchAndRenderHitlists,
   renderHitlists,
+  renderPaginatedHitlists,
   openBusinessListModal,
   openAddBusinessModal,
   convertBusinessToLead,
@@ -1717,4 +1713,6 @@ export {
   openViewBusinessModal,
   sortHitlistsAlphabetically,
   sortBusinessesAlphabetically,
+  searchHitlists,
+  getFilteredHitlists,
 };
