@@ -922,44 +922,54 @@ class WebInquiryForm extends HTMLElement {
     const prevBtn = this.shadowRoot.getElementById("prevBtn");
     const submitBtn = this.shadowRoot.getElementById("submitBtn");
 
-    // initialize phone formatting
+    // Initialize phone formatting
     this.loadCleavejs().then(() => {
       this.initializePhoneFormatting();
     });
 
-    // initialize conditional fields
+    // Initialize conditional fields
     this.initializeConditionalFields();
 
-    // initialize validation
+    // Initialize validation
     this.initializeValidation();
 
-    // navigation events
+    // Navigation events
     nextBtn.addEventListener("click", () => this.nextStep());
     prevBtn.addEventListener("click", () => this.prevStep());
 
-    // prevent premature form submission on Enter key
+    // Prevent premature form submission on Enter key
     form.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
         
-        // if we're on the last step (review), allow submission
+        // If we're on the last step (review), allow submission
         if (this.currentStep === this.totalSteps - 1) {
-          form.dispatchEvent(new Event("submit"));
+          // Call handleFormSubmit directly - NO untrusted events
+          this.handleFormSubmit(e);
         } else {
-          // otherwise, try to go to next step
+          // Otherwise, try to go to next step
           this.nextStep();
         }
       }
     });
 
-    // form submission
-    form.addEventListener("submit", this.handleFormSubmit.bind(this));
+    // Form submission - IMPORTANT: Remove the form submit event listener entirely for Firefox
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    console.log('Browser detected:', isFirefox ? 'Firefox' : 'Other', navigator.userAgent);
+    
+    if (!isFirefox) {
+      // Only add form submit listener for non-Firefox browsers
+      form.addEventListener("submit", this.handleFormSubmit.bind(this));
+    }
+    
+    // Submit button - always call directly
     submitBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      form.dispatchEvent(new Event("submit"));
+      console.log('Submit button clicked, calling handleFormSubmit directly');
+      this.handleFormSubmit(e);
     });
 
-    // validate current step on input
+    // Validate current step on input
     form.addEventListener("input", () => this.validateCurrentStep());
     form.addEventListener("change", () => this.validateCurrentStep());
   }
@@ -995,7 +1005,7 @@ class WebInquiryForm extends HTMLElement {
   }
 
   initializeConditionalFields() {
-    // phone extension
+    // Phone extension
     const phoneExtCheck = this.shadowRoot.getElementById("phoneExtCheck");
     const phoneExtField = this.shadowRoot.getElementById("phoneExtField");
 
@@ -1008,7 +1018,7 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // business phone extension
+    // Business phone extension
     const businessPhoneExtCheck = this.shadowRoot.getElementById(
       "businessPhoneExtCheck"
     );
@@ -1025,7 +1035,7 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // website address
+    // Website address
     const websiteYes = this.shadowRoot.getElementById("websiteYes");
     const websiteNo = this.shadowRoot.getElementById("websiteNo");
     const websiteAddressField = this.shadowRoot.getElementById(
@@ -1049,7 +1059,7 @@ class WebInquiryForm extends HTMLElement {
   initializeValidation() {
     const form = this.shadowRoot.getElementById("inquiry-form");
 
-    // real time validation
+    // Real-time validation
     const inputs = form.querySelectorAll("input, textarea");
     inputs.forEach((input) => {
       input.addEventListener("blur", () => this.validateField(input));
@@ -1071,7 +1081,7 @@ class WebInquiryForm extends HTMLElement {
 
     let isValid = true;
 
-    // check required fields
+    // Check required fields
     const requiredFields = currentSection.querySelectorAll(
       'input[required]:not([type="radio"]), textarea[required]'
     );
@@ -1081,11 +1091,11 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // check required radio groups find groups that have at least one required radio
+    // Check required radio groups - find groups that have at least one required radio
     const allRadios = currentSection.querySelectorAll('input[type="radio"]');
     const radioGroups = {};
 
-    // collect all radio groups and check if any in the group is required
+    // Collect all radio groups and check if any in the group is required
     allRadios.forEach((radio) => {
       if (!radioGroups[radio.name]) {
         radioGroups[radio.name] = {
@@ -1101,7 +1111,7 @@ class WebInquiryForm extends HTMLElement {
       }
     });
 
-    // validate required radio groups
+    // Validate required radio groups
     Object.values(radioGroups).forEach((group) => {
       if (group.hasRequired && !group.isChecked) {
         isValid = false;
@@ -1120,22 +1130,22 @@ class WebInquiryForm extends HTMLElement {
     if (this.currentStep < this.totalSteps - 1) {
       this.completedSteps.add(this.currentStep);
 
-      // hide current section
+      // Hide current section
       const currentSection = this.shadowRoot.querySelector(
         `.section[data-step="${this.currentStep}"]`
       );
       currentSection.classList.remove("active");
 
-      // move to next step
+      // Move to next step
       this.currentStep++;
 
-      // show next section
+      // Show next section
       const nextSection = this.shadowRoot.querySelector(
         `.section[data-step="${this.currentStep}"]`
       );
       nextSection.classList.add("active");
 
-      // if we're on the review step, populate the review
+      // If we're on the review step, populate the review
       if (this.currentStep === 4) {
         this.populateReview();
       }
@@ -1147,16 +1157,16 @@ class WebInquiryForm extends HTMLElement {
 
   prevStep() {
     if (this.currentStep > 0) {
-      // hide current section
+      // Hide current section
       const currentSection = this.shadowRoot.querySelector(
         `.section[data-step="${this.currentStep}"]`
       );
       currentSection.classList.remove("active");
 
-      // move to previous step
+      // Move to previous step
       this.currentStep--;
 
-      // show previous section
+      // Show previous section
       const prevSection = this.shadowRoot.querySelector(
         `.section[data-step="${this.currentStep}"]`
       );
@@ -1171,11 +1181,11 @@ class WebInquiryForm extends HTMLElement {
     const progressFill = this.shadowRoot.querySelector(".progress-fill");
     const stepIndicators = this.shadowRoot.querySelectorAll(".step-indicator");
 
-    // update progress bar
+    // Update progress bar
     const progress = (this.currentStep / (this.totalSteps - 1)) * 100;
     progressFill.style.width = `${progress}%`;
 
-    // update step indicators
+    // Update step indicators
     stepIndicators.forEach((indicator, index) => {
       indicator.classList.remove("active", "completed");
 
@@ -1195,10 +1205,10 @@ class WebInquiryForm extends HTMLElement {
     const nextBtn = this.shadowRoot.getElementById("nextBtn");
     const submitBtn = this.shadowRoot.getElementById("submitBtn");
 
-    // previous button
+    // Previous button
     prevBtn.style.visibility = this.currentStep > 0 ? "visible" : "hidden";
 
-    // next/submit buttons
+    // Next/Submit buttons
     if (this.currentStep === this.totalSteps - 1) {
       nextBtn.style.display = "none";
       submitBtn.style.display = "inline-block";
@@ -1265,13 +1275,13 @@ class WebInquiryForm extends HTMLElement {
   }
 
   showToast(message, isError = false) {
-    // remove any existing toast
+    // Remove any existing toast
     const existingToast = this.shadowRoot.querySelector('.toast');
     if (existingToast) {
       existingToast.remove();
     }
 
-    // create toast element
+    // Create toast element
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
@@ -1280,20 +1290,20 @@ class WebInquiryForm extends HTMLElement {
       toast.classList.add('error');
     }
 
-    // add to shadow DOM
+    // Add to shadow DOM
     this.shadowRoot.appendChild(toast);
 
-    // trigger animation after a brief delay to ensure element is in DOM
+    // Trigger animation after a brief delay to ensure element is in DOM
     setTimeout(() => {
       toast.classList.add('show');
     }, 50);
     
-    // hide after 5 seconds
+    // Auto-hide after 5 seconds
     setTimeout(() => {
       toast.classList.remove('show');
       toast.classList.add('hide');
       
-      // remove element after animation completes
+      // Remove element after animation completes
       setTimeout(() => {
         if (toast.parentNode) {
           toast.remove();
@@ -1405,16 +1415,16 @@ class WebInquiryForm extends HTMLElement {
   }
 
   editStep(stepNumber) {
-    // hide current section
+    // Hide current section
     const currentSection = this.shadowRoot.querySelector(
       `.section[data-step="${this.currentStep}"]`
     );
     currentSection.classList.remove("active");
 
-    // move to specified step
+    // Move to specified step
     this.currentStep = stepNumber;
 
-    // show target section
+    // Show target section
     const targetSection = this.shadowRoot.querySelector(
       `.section[data-step="${this.currentStep}"]`
     );
@@ -1424,8 +1434,15 @@ class WebInquiryForm extends HTMLElement {
     this.updateNavigation();
   }
 
+  // Enhanced Firefox-compatible form submission
   async handleFormSubmit(event) {
     event.preventDefault();
+    
+    // Debug logging
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    console.log('=== FORM SUBMISSION DEBUG ===');
+    console.log('Browser:', isFirefox ? 'Firefox' : 'Other');
+    console.log('User Agent:', navigator.userAgent);
 
     const form = this.shadowRoot.getElementById("inquiry-form");
     const formData = new FormData(form);
@@ -1435,7 +1452,7 @@ class WebInquiryForm extends HTMLElement {
       formObject[key] = value;
     });
 
-    // add billing address
+    // Add billing address
     formObject.billingAddress = {
       street: this.shadowRoot.getElementById("billingStreet").value || "",
       aptUnit: this.shadowRoot.getElementById("billingAptUnit").value || "",
@@ -1447,7 +1464,7 @@ class WebInquiryForm extends HTMLElement {
 
     formObject.isFormSubmission = true;
 
-    // dispatch event
+    // Dispatch event
     this.dispatchEvent(
       new CustomEvent("form-submit", {
         bubbles: true,
@@ -1456,27 +1473,32 @@ class WebInquiryForm extends HTMLElement {
       })
     );
 
+    const apiUrl = this.getAttribute("api-url") || "http://localhost:5000/api/leads";
+    console.log('API URL:', apiUrl);
+    
     try {
-      const apiUrl =
-        this.getAttribute("api-url") || "http://localhost:5000/api/leads";
+      let success = false;
+      
+      if (isFirefox) {
+        // Force XMLHttpRequest for Firefox
+        console.log('🔥 FIREFOX: Using XMLHttpRequest');
+        success = await this.submitWithXHR(apiUrl, formObject);
+      } else {
+        // Use fetch for other browsers
+        console.log('🌐 OTHER BROWSER: Using fetch');
+        success = await this.submitWithFetch(apiUrl, formObject);
+      }
 
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formObject),
-      });
-
-      if (response.ok) {
+      if (success) {
+        console.log('✅ Form submission successful');
         this.showToast("Thank you! We'll be in touch soon.");
 
-        // reset form
+        // Reset form
         form.reset();
         this.currentStep = 0;
         this.completedSteps.clear();
 
-        // reset sections
+        // Reset sections
         this.shadowRoot
           .querySelectorAll(".section")
           .forEach((section, index) => {
@@ -1494,13 +1516,25 @@ class WebInquiryForm extends HTMLElement {
             detail: { message: "Form submitted successfully" },
           })
         );
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Server error");
       }
+
     } catch (error) {
-      console.error("Error submitting form:", error);
-      this.showToast("Error: " + error.message, true);
+      console.error("❌ Form submission error:", error);
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      
+      let userMessage = "There was an error submitting your form. Please try again.";
+      
+      if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+        userMessage = "Network error. Please check your connection and try again.";
+      } else if (error.message.includes('timeout')) {
+        userMessage = "Request timed out. Please try again.";
+      }
+      
+      this.showToast(userMessage, true);
 
       this.dispatchEvent(
         new CustomEvent("form-error", {
@@ -1510,6 +1544,75 @@ class WebInquiryForm extends HTMLElement {
         })
       );
     }
+  }
+
+  // XMLHttpRequest method for Firefox
+  async submitWithXHR(url, data) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      
+      // Set up the request
+      xhr.open('POST', url, true);
+      
+      // Set headers that Firefox expects
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Accept', 'application/json');
+      
+      // Handle response
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            console.log('XHR Success:', xhr.status, xhr.responseText);
+            resolve(true);
+          } else {
+            console.error('XHR Error:', xhr.status, xhr.statusText, xhr.responseText);
+            reject(new Error(`Server responded with ${xhr.status}: ${xhr.statusText}`));
+          }
+        }
+      };
+      
+      // Handle network errors
+      xhr.onerror = function() {
+        console.error('XHR Network Error');
+        reject(new Error('Network error occurred'));
+      };
+      
+      // Handle timeout
+      xhr.ontimeout = function() {
+        console.error('XHR Timeout');
+        reject(new Error('Request timed out'));
+      };
+      
+      // Set timeout (30 seconds)
+      xhr.timeout = 30000;
+      
+      // Send the request
+      try {
+        xhr.send(JSON.stringify(data));
+      } catch (error) {
+        reject(new Error('Failed to send request: ' + error.message));
+      }
+    });
+  }
+
+  // Fetch method for other browsers
+  async submitWithFetch(url, data) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(data),
+      mode: 'cors',
+      credentials: 'omit',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+    }
+
+    return true;
   }
 }
 
