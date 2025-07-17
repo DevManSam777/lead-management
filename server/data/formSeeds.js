@@ -32,7 +32,7 @@
 const formSeeds = [
   {
     title: "Independent Developer Contract",
-    description: "Courtesy of Vish Singh",
+    description: "A comprehensive contract courtesy of Vish Singh",
     content: `# INDEPENDENT DEVELOPER CONTRACT
 
 This Independent Developer Contract (the "Contract") is made as of {{currentDate}} between {{businessName}} with its principal place of business located at {{billingAddress}} (the "Client") and [DEVELOPER NAME], located at [DEVELOPER PLACE OF BUSINESS] (the "Developer").
