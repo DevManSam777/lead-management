@@ -53,39 +53,8 @@ A comprehensive lead and project management application built with Node.js, Expr
 - **Backup Integration**: MongoDB Atlas built-in backups
 
 ### Resource Library
-The Resources page provides quick access to essential tools and services:
+The Resources page provides quick access to essential tools and services (Business Resources, Design Resources, Development Resources, and Tools/Utilities):
 
-**Business Resources**:
-- Cal.com for scheduling
-- Notion for project management
-- OpenSign for document signatures
-- Stripe for payment processing
-- Trello for task management
-- Professional proposal templates
-
-**Design Resources**:
-- Canva for graphic design
-- Coolors for color palette generation
-- Figma for interface design
-- Font Awesome for icons
-- Google Fonts for typography
-- Mobbin for UI/UX inspiration
-
-**Development Resources**:
-- 100Devs bootcamp and community
-- CSS-Tricks for web development tutorials
-- HTML5 UP for website templates
-- MDN Web Docs for documentation
-- Stack Overflow for technical support
-- Markdown Guide for formatting help
-
-**Tools & Utilities**:
-- Cron-job.org for task automation
-- Firebase for backend services
-- GitHub for code repository
-- MongoDB for database management
-- Postman for API testing
-- Render for cloud deployment
 
 ## Prerequisites
 
@@ -306,6 +275,8 @@ if (host === "your-domain.com") {
 - Connect GitHub repository
 - Set environment variables in dashboard
 - Auto-deploy on commits
+
+***<small>(Paid plan recommended.  Free-tier Render apps spin down after 15 minutes of inactivity.  If the free-tier is your only option, consider using a free service, such as https://cron-job.org to send and http request to your Render URL every 10 min or so, to keep it from spinning down.)</small>***
 
 **Other Options**:
 - **Heroku**: Use Heroku CLI or GitHub integration
