@@ -1,6 +1,6 @@
-# DevLeads - Professional Lead Management System
+# DevLeads - Professional Lead and Project Management System
 
-A comprehensive lead management application built with Node.js, Express, MongoDB, and Firebase Authentication. Features a powerful dashboard for managing leads, forms, payments, business hitlists, and document management with advanced analytics and reporting.
+A comprehensive lead and project management application built with Node.js, Express, MongoDB, and Firebase Authentication. Features a powerful dashboard for managing leads, forms, payments, business hitlists, and document management with analytics and visualizations.
 
 ## Table of Contents
 
@@ -35,7 +35,7 @@ A comprehensive lead management application built with Node.js, Express, MongoDB
 - **Performance Dashboards**: Key metrics with month-over-month comparisons
 
 ### User Experience
-- **Responsive Design**: Mobile-first design with adaptive layouts
+- **Responsive Design**: Clean and adaptive layouts
 - **Dark/Light Themes**: System preference detection with manual override
 - **Customizable Date Formats**: Multiple format options (MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD)
 - **Advanced Search & Filtering**: Multi-field search with status filters and sorting
@@ -43,12 +43,12 @@ A comprehensive lead management application built with Node.js, Express, MongoDB
 
 ### Communication & Automation
 - **Email Notifications**: Automatic notifications for new leads (optional)
-- **Web Component**: Embeddable inquiry form for websites
+- **Web Component**: Embeddable inquiry form for websites (optional)
 - **Form Generation**: Dynamic form creation with lead data population
 - **Timezone-Aware**: Proper handling of dates across timezones
 
 ### Data Management
-- **Import/Export**: JSON import for business data, Markdown export for forms
+- **Import/Export**: JSON import for business data, Markdown, PDF export for forms
 - **Data Validation**: Client-side and server-side validation
 - **Backup Integration**: MongoDB Atlas built-in backups
 
@@ -141,7 +141,7 @@ The Resources page provides quick access to essential tools and services:
 2. **Scroll to "Your apps" section**
 3. **Click Web icon** to add a web app
 4. **Register your app** with a nickname
-5. **Copy the Firebase configuration object**:
+5. **Copy the Firebase configuration object (public facing keys)**:
 
 ```javascript
 // Example - yours will be different
@@ -234,7 +234,7 @@ EMAIL_PORT=587
 EMAIL_SECURE=false
 ```
 
-**Important**: Never commit the `.env` file to version control!
+**Important**: Never commit the `.env` file to version control!  
 
 ### 5. Installation & Development
 
@@ -344,12 +344,18 @@ The reusable inquiry form component can be embedded on any website:
 </web-inquiry-form>
 ```
 
+### OR
+
 ### CDN Delivery
 ```html
+<!-- Include the component script -->
 <script src="https://cdn.jsdelivr.net/gh/yourusername/devleads@main/web-inquiry-form/web-inquiry-form.js" defer></script>
+
+<!-- Use the component -->
+<web-inquiry-form api-url="https://your-api-domain.com/api/leads"></web-inquiry-form>
 ```
 
-## Optional: YP-Scraper Integration
+## Optional: YP-Scraper Integration (recommended)
 
 Enhance lead generation with automated business data collection:
 
