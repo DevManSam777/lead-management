@@ -32,7 +32,7 @@
 const formSeeds = [
   {
     title: "Independent Developer Contract",
-    description: "A comprehensive contract courtesy of Vish Singh",
+    description: "A comprehensive contract, courtesy of Vish Singh",
     content: `# INDEPENDENT DEVELOPER CONTRACT
 
 This Independent Developer Contract (the "Contract") is made as of {{currentDate}} between {{businessName}} with its principal place of business located at {{billingAddress}} (the "Client") and [DEVELOPER NAME], located at [DEVELOPER PLACE OF BUSINESS] (the "Developer").
@@ -284,7 +284,6 @@ A notice that is sent by email but is not read by the addressee is nevertheless 
       "currentDate",
       "billingAddress",
       "estimatedBudget",
-      "currentDate",
       "businessEmail",
       "fullName",
     ],
@@ -301,49 +300,49 @@ A notice that is sent by email but is not read by the addressee is nevertheless 
 #### And {{businessName}}  
    
 ## Summary:  
-I will always do my best to fulfill your needs and meet your expectations, but it’s important to have things written down so that we both know what’s what, who should do what and when, and what will happen if something goes wrong.  
+I will always do my best to fulfill your needs and meet your expectations, but it's important to have things written down so that we both know what's what, who should do what and when, and what will happen if something goes wrong.  
   
-In this contract you won’t find any complicated legal terms or long passages of unreadable text. I would never want to trick you into signing something that you might later regret. What I do want is what’s best for both parties, now and in the future.  
+In this contract you won't find any complicated legal terms or long passages of unreadable text. I would never want to trick you into signing something that you might later regret. What I do want is what's best for both parties, now and in the future.  
   
 In short;  
   
-(“You”), {{businessName}}, located at:  
+("You"), {{businessName}}, located at:  
   
 {{billingAddress}}  
   
- are hiring me (“Me”) (Developer) for: 
+ are hiring me ("Me") (Developer) for: 
 ##### {{serviceDesired}}  
   
 For the estimated total price of {{estimatedBudget}} as outlined in our previous correspondence.  
   
 ## What do both parties agree to?
-**You**: You have the authority to enter into this contract on behalf of yourself, your company or your organization. You will give me the assets and information that I tell you I need to complete the project. You’ll do this when I ask and provide it in the formats I ask for. You’ll review my work, provide feedback and approval in a timely manner too. We will both be bound by dates we set together. You also agree to stick to the payment schedule set out at the end of this contract.  
+**You**: You have the authority to enter into this contract on behalf of yourself, your company or your organization. You will give me the assets and information that I tell you I need to complete the project. You'll do this when I ask and provide it in the formats I ask for. You'll review my work, provide feedback and approval in a timely manner too. We will both be bound by dates we set together. You also agree to stick to the payment schedule set out at the end of this contract.  
   
-**Me**: I have the experience and ability to do everything I’ve discussed with you and I will do it all in a professional and timely manner. I will do my best to meet every deadline that’s set, and I will maintain the confidentiality of everything you give me.  
+**Me**: I have the experience and ability to do everything I've discussed with you and I will do it all in a professional and timely manner. I will do my best to meet every deadline that's set, and I will maintain the confidentiality of everything you give me.  
   
 ## Design
 I create designs that adapt to the capabilities of many devices and screen sizes. I create them iteratively using HTML and CSS, and it would be a poor use of my time to mock up every template as a static visual. I may use visuals to indicate a creative direction (color, texture and typography).  
   
 You will have plenty of opportunities to review my work and provide feedback. I will share a Github repository and development site with you and we will have regular contact via phone, email, or any video chat provider we agree to, such as Zoom or Skype.  
   
-If, at any stage, you change your mind about what you want delivered or aren’t happy with the direction my work is taking, you will pay me in full for the time I've spent working until that point and may terminate this contract.  
+If, at any stage, you change your mind about what you want delivered or aren't happy with the direction my work is taking, you will pay me in full for the time I've spent working until that point and may terminate this contract.  
   
 ## Text content  
-Unless agreed separately, I am not responsible for inputting text or images into your content management system or creating every page on your website. I do provide professional copywriting and editing services, so if you’d like me to create new content or input content for you, I will provide a separate estimate.  
+Unless agreed separately, I am not responsible for inputting text or images into your content management system or creating every page on your website. I do provide professional copywriting and editing services, so if you'd like me to create new content or input content for you, I will provide a separate estimate.  
   
 ## Graphics and photographs
-You should supply graphic files in an editable, vector digital format. You should supply photographs in a high resolution digital format. If you choose to buy stock photographs, I can suggest stock libraries. If you’d like me to search for photographs for you, I can provide a separate estimate.  
+You should supply graphic files in an editable, vector digital format. You should supply photographs in a high resolution digital format. If you choose to buy stock photographs, I can suggest stock libraries. If you'd like me to search for photographs for you, I can provide a separate estimate.  
 
 ## HTML, CSS and JavaScript
 I deliver pages developed from HTML markup, CSS stylesheets for styling and JavaScript for behavior.  
   
 ## Browser testing
-Browser testing no longer means attempting to make a website look the same in browsers of different capabilities or on devices with different size screens. It does mean ensuring that a person’s experience of a design should be appropriate to the capabilities of a browser or device.  
+Browser testing no longer means attempting to make a website look the same in browsers of different capabilities or on devices with different size screens. It does mean ensuring that a person's experience of a design should be appropriate to the capabilities of a browser or device.  
   
 I test my work in current versions of major desktop browsers including those made by Apple (Safari), Google (Chrome), Microsoft (Edge), and Mozilla Firefox. I will not test in other older browsers unless we agreed separately. If you need an enhanced design for an older browser, I can provide a separate estimate for that.  
   
 ## Mobile browser testing
-Testing using popular smaller screen devices is essential in ensuring that a person’s experience of a design is appropriate to the capabilities of the device they’re using. I test my designs in:  
+Testing using popular smaller screen devices is essential in ensuring that a person's experience of a design is appropriate to the capabilities of the device they're using. I test my designs in:  
   
 iOS: Safari and Google Chrome  
 Android: Google Chrome  
@@ -351,33 +350,33 @@ Android: Google Chrome
 I will not test in Opera Mini/Mobile, specific Android devices, or other mobile browsers.  
   
 ## Technical support
-I am not a website hosting company so I do not offer support for website hosting, email or other services relating to hosting. You may already have professional hosting. If you don’t, I will recommend one of my preferred hosting providers. I can set up your site on a server if you'd like, and will provide a separate estimate for that. Then, the updates to, and management of that server will be up to you.  
+I am not a website hosting company so I do not offer support for website hosting, email or other services relating to hosting. You may already have professional hosting. If you don't, I will recommend one of my preferred hosting providers. I can set up your site on a server if you'd like, and will provide a separate estimate for that. Then, the updates to, and management of that server will be up to you.  
   
 For most projects, I prefer a serverless solution to save us both time and money. This means your website is hosted in the cloud and so there is no need for server management. I will recommend this option when I feel it is appropriate.  
   
 ## Search engine optimization (SEO)
-I do not guarantee improvements to your website’s search engine ranking, but the pages that I develop are accessible to search engines. I do offer search engine optimization services, and can provide a separate estimate for that.  
+I do not guarantee improvements to your website's search engine ranking, but the pages that I develop are accessible to search engines. I do offer search engine optimization services, and can provide a separate estimate for that.  
 
 ## Changes and revisions
-I do not want to limit your ability to change your mind. The price at the beginning of this contract is based on the amount of time that I estimate I'll need to accomplish everything you’ve told me you want to achieve, but I'm happy to be flexible. If you want to change your mind or add anything new, that won’t be a problem as I will provide a separate estimate for the additional time.  
+I do not want to limit your ability to change your mind. The price at the beginning of this contract is based on the amount of time that I estimate I'll need to accomplish everything you've told me you want to achieve, but I'm happy to be flexible. If you want to change your mind or add anything new, that won't be a problem as I will provide a separate estimate for the additional time.  
 
 ## Legal stuff
-I will carry out my work in accordance with good industry practice and at the standard expected from a suitably qualified person with relevant experience. That said, I can’t guarantee that my work will be error-free and so I can’t be liable to you or any third party for damages, including lost profits, lost savings or other incidental, consequential or special damages, even if you’ve advised me of them.  
+I will carry out my work in accordance with good industry practice and at the standard expected from a suitably qualified person with relevant experience. That said, I can't guarantee that my work will be error-free and so I can't be liable to you or any third party for damages, including lost profits, lost savings or other incidental, consequential or special damages, even if you've advised me of them.  
   
-Your liability to me will also be limited to the amount of fees payable under this contract and you won’t be liable to me or any third party for damages, including lost profits, lost savings or other incidental, consequential or special damages, even if I’ve advised you of them.  
+Your liability to me will also be limited to the amount of fees payable under this contract and you won't be liable to me or any third party for damages, including lost profits, lost savings or other incidental, consequential or special damages, even if I've advised you of them.  
   
 Finally, if any provision of this contract shall be unlawful, void, or for any reason unenforceable, then that provision shall be deemed severable from this contract and shall not affect the validity and enforceability of any remaining provisions.  
   
 ## Intellectual property rights
-“Intellectual property rights” means all patents, rights to inventions, copyright (including rights in software) and related rights, trademarks, service marks, get up and trade names, internet domain names, rights to goodwill or to sue for passing off, rights in designs, database rights, rights in confidential information (including know-how) and any other intellectual property rights, in each case whether registered or unregistered and including all applications (or rights to apply) for, and renewals or extensions of, such rights and all similar or equivalent rights or forms of protection which subsist or shall subsist now or in the future in any part of the world.  
+"Intellectual property rights" means all patents, rights to inventions, copyright (including rights in software) and related rights, trademarks, service marks, get up and trade names, internet domain names, rights to goodwill or to sue for passing off, rights in designs, database rights, rights in confidential information (including know-how) and any other intellectual property rights, in each case whether registered or unregistered and including all applications (or rights to apply) for, and renewals or extensions of, such rights and all similar or equivalent rights or forms of protection which subsist or shall subsist now or in the future in any part of the world.  
   
 First, you guarantee that all elements of text, images or other artwork you provide are either owned by you, or that you have permission to use them. When you provide text, images or other artwork to me, you agree to protect me from any claim by a third party that I'm using their intellectual property.  
   
-I guarantee that all elements of the work I deliver to you are either owned by me or I’ve obtained permission to provide them to you. When I provide text, images or other artwork to you, I agree to protect you from any claim by a third party that you’re using their intellectual property. Provided you’ve paid for the work and that this contract hasn’t been terminated, I will assign all intellectual property rights to you as follows:  
+I guarantee that all elements of the work I deliver to you are either owned by me or I've obtained permission to provide them to you. When I provide text, images or other artwork to you, I agree to protect you from any claim by a third party that you're using their intellectual property. Provided you've paid for the work and that this contract hasn't been terminated, I will assign all intellectual property rights to you as follows:  
   
-You’ll own the website I design for you plus the visual elements that I create for it. I’ll give you source files and finished files and you should keep them somewhere safe as I am not required to keep a copy. You own all intellectual property rights of text, images, site specification and data you provided, unless someone else owns them.  
+You'll own the website I design for you plus the visual elements that I create for it. I'll give you source files and finished files and you should keep them somewhere safe as I am not required to keep a copy. You own all intellectual property rights of text, images, site specification and data you provided, unless someone else owns them.  
   
-I will own any intellectual property rights I’ve developed prior to, or developed separately from this project and not paid for by you. I will own the unique combination of these elements that constitutes a complete design and I’ll license its use to you, exclusively and in perpetuity for this project only, unless we agree otherwise.  
+I will own any intellectual property rights I've developed prior to, or developed separately from this project and not paid for by you. I will own the unique combination of these elements that constitutes a complete design and I'll license its use to you, exclusively and in perpetuity for this project only, unless we agree otherwise.  
   
 ## Displaying my work
 I love to show off my work, so I reserve the right to display all aspects of my creative work, including sketches, work-in-progress designs and the completed project on my portfolio and in articles on websites, in magazine articles and in books.  
@@ -393,9 +392,9 @@ I issue invoices electronically. My payment terms are 30 days from the date of i
 I reserve the right to charge interest on all overdue debts at the rate of 5% per month or part of a month.  
   
 ## The not-so-small print
-Neither of us can transfer this contract to anyone else without the other’s permission.  
+Neither of us can transfer this contract to anyone else without the other's permission.  
   
-We both agree that we’ll adhere to all relevant laws and regulations in relation to our activities under this contract and not cause the other to breach any relevant laws or regulations.  
+We both agree that we'll adhere to all relevant laws and regulations in relation to our activities under this contract and not cause the other to breach any relevant laws or regulations.  
   
 This contract stays in place and need not be renewed. If for some reason one part of this contract becomes invalid or unenforceable, the remaining parts of it remain in place.  
   
@@ -506,7 +505,7 @@ Signed by {{fullName}}, {{currentDate}}
     ],
   },
   {
-    title: "Invoice Template",
+    title: "Standard Invoice",
     description: "Standard invoice for client billing",
     content: `# Invoice
 
@@ -528,7 +527,6 @@ Signed by {{fullName}}, {{currentDate}}
 | DESCRIPTION | PRICE | SUBTOTAL |
 |-------------|-------|----------|
 |{{serviceDesired}} | | |
-| | | |
 | | | |
 | | | |
 
@@ -858,7 +856,623 @@ Give it a try!
     "remainingBalance",
     "currentDate",
     "createdAt"
-  ],
+  ]
+},
+{
+  title: "Client Proposal",
+  description: "Project proposal with three service options, courtesy of Traversy Media",
+  content: `# Project Proposal
+
+**From:** [Your Name]  
+**Address:** [Your Business Address]  
+**Email:** [Your Email]  
+**Website:** [Your Website]  
+
+**Date:** {{currentDate}}
+
+---
+
+**To:**  
+{{fullName}}  
+*Owner*  
+{{businessName}}  
+{{billingAddress}}
+
+Dear {{firstName}},
+
+Thanks for discussing your business with me. I've compiled 3 options I believe will help achieve the business goals we've discussed for {{serviceDesired}}.
+
+Please review my proposal and let me know if you have any questions or comments. I will contact you next week if I haven't heard from you by then.
+
+Regards,
+
+[Your Name]
+
+---
+
+## PROJECT OVERVIEW
+
+**{{businessName}}** would like to improve their existing website to focus on getting more free consultations which will result in more paying clients.
+
+You recognize the importance of a conversion-centered website, and thus the reason for a professional redesign with this purpose in mind.
+
+As per your analytics data, over 50% of your website visitors are viewing the website on their mobile device. Our goal will be to create a clear and simplified process to request a free consultation with less distractions.
+
+You are currently running multiple marketing campaigns on various channels and the website will need to be tailored to the visitors from these channels using effective landing pages that are relevant to the visitor and achieves the necessary business goals.
+
+Currently, 2% of website visitors result in free consultations and 10% of free consultations result in paying clients.
+
+The goal would be to increase the number of free consultations to 4 or 5% which I believe is a low estimate based on the results I've seen in similar industries focused around effective call-to-actions (free consultations).
+
+At an average value of $1,250 per client and based on double your existing monthly client sign ups (4 per month), I'm very confident we could achieve **4 additional sign ups per month** (4 x $1,250 = $5,000) or 48 additional sign ups per year (48 x $1,250 = $60,000).
+
+Below is the contact email of John Smith. After working with him on a similar project, his business almost tripled in sales within one year. I mention this just to backup what I've stated above.
+
+**John Smith**  
+Director at XYZ  
+johnsmith@xyz.com
+
+---
+
+## PROJECT OPTIONS
+
+I've listed 3 possible options below for the project. You will notice that option 3 has a monthly retainer service included. This provides you with on-going access to my expertise in this area as well as the tasks outlined below.
+
+Based on our previous conversations, I would estimate and recommend that you will benefit from my retainer services for a minimum of 3-6 months.
+
+### Option 1:
+
+I will redesign {{businessName}} website focused on acquiring more free consultations as the main priority.
+
+Additional services under this option include:
+
+- Integrating social media profiles
+- Integrating your email marketing service provider
+- Google Analytics integration
+
+### Option 2:
+
+This option includes everything from option 1, but also includes the following additional services:
+
+- Submission to Google Search Console for SEO purposes
+- 10 Premium Stock Photo Images
+- Creation of 3 additional landing pages for various marketing campaigns
+
+### Option 3:
+
+This option includes everything from options 1 and 2, but also includes the following additional services:
+
+- AdWords account setup, creating effective campaigns and monitoring for improvements
+- Local directory submissions (this boosts your SEO results)
+- Google local listing (this boosts your SEO results)
+- Integrating and configuring additional CTA software tools like SumoMe
+- Integrating live-chat software (Zopim)
+
+---
+
+## TERMS OF AGREEMENT
+
+You will notice that I don't provide an hourly billing cost. This is harmful to you as it discourages efficiency and creativity from my part and in the end, we are both focused on the outcome and not inefficient hours worked.
+
+The prices provided below are fixed, which means there are no hidden fees and I absorb all the risk in completing the project within these boundaries.
+
+The pricing for each option is as follows:
+
+**Option 1:** $4,000 once-off  
+**Option 2:** $5,250 once-off  
+**Option 3:** $6,500 once-off + $750/month retainer
+
+Once-off fees are to be paid in full upfront and the retainer amounts are due at the beginning of each month.
+
+---
+
+## AGREEMENT
+
+Please select the option you prefer with an "X" and sign below:
+
+☐ Option 1  
+☐ Option 2  
+☐ Option 3
+
+<table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+  <tr>
+    <td style="border: 1px solid black; padding: 15px; width: 50%;">
+      <strong>Client Information</strong><br><br>
+      **Name:** {{fullName}}<br><br>
+      **Signature:** _____________________<br><br>
+      **Date Signed:** _____________________
+    </td>
+    <td style="border: 1px solid black; padding: 15px; width: 50%;">
+      <strong>Service Provider</strong><br><br>
+      **Name:** [Your Name]<br><br>
+      **Signature:** _____________________<br><br>
+      **Date Signed:** _____________________
+    </td>
+  </tr>
+</table>
+
+---
+
+*Upon receipt of this agreement, I will send through a contract and an invoice for payment.*
+
+**Note:** This proposal is only valid until [Expiration Date]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+`,
+  category: "proposal",
+  isTemplate: true,
+  variables: [
+    "fullName",
+    "firstName", 
+    "businessName",
+    "billingAddress",
+    "currentDate",
+    "serviceDesired"
+  ]
+},
+{
+  title: "Master Service Agreement Contract",
+  description: "Comprehensive service agreement, courtesy of Traversy Media",
+  content: `# CLIENT SERVICE AGREEMENT
+
+## 1. IDENTIFICATION OF THE PARTIES
+
+1. This Service Agreement (the 'Agreement') is made and entered into on {{currentDate}} by and between {{businessName}} with its registered address at {{billingAddress}} (the 'Client') and [Your Company Name] (the 'Service Provider').
+
+2. The Client and the Service Provider are hereinafter referred to individually as a 'Party' and collectively as the 'Parties'.
+
+3. By accepting this Agreement and subject to the terms and conditions herein, the Service Provider agrees to provide {{serviceDesired}} (the 'Services') to the Client in connection with its business operations.
+
+## 2. ENGAGEMENT AND SERVICES
+
+### 2.1 Project-Based Work
+
+1. The Client hereby engages the Service Provider to provide and perform the following Services in connection with {{serviceDesired}}. These Services shall include the following:
+
+   a. Website Development
+   b. Marketing Strategy and Improvements
+   c. AdWords Campaign Setup, On-page SEO Improvements, Social Media Ad Campaign Setup
+   d. Weekly Progress Reports
+
+### 2.2 Retainer-Based Work (Optional)
+
+2. The Client hereby engages the Service Provider to provide and perform the following Services on an ongoing basis, in terms of a retainer arrangement **OR** to be billed on an hourly basis. These Services shall include the following:
+
+   a. Website Development
+   b. Marketing Strategy and Improvements
+   c. AdWords Campaign Setup, Social Media Ad Campaign Setup
+   d. Content Writing and SEO
+   e. AB Split Testing and Optimization
+
+3. All Services to be performed by the Service Provider shall be performed with promptness, in a diligent manner and at a level of proficiency to be expected from the Service Provider with the background and experience that the Service Provider has represented it has.
+
+## 3. SERVICE PERIOD AND TERMINATION
+
+1. This Agreement shall commence on {{currentDate}} and shall remain in effect until the completion of the Service or the earlier termination of this Agreement as provided in section 3.2 of the Agreement.
+
+2. Either party may elect to terminate the Agreement by providing at least one months' notice (30 calendar days) to the other Party. Such notice must be in writing. Payment for the Services performed to date are not recoverable upon termination.
+
+3. Either Party will be informed in writing of any change in the Service Agreement at least one month in advance of the termination of a service.
+
+4. Upon the effective date of termination of this Agreement, all legal obligations, rights and duties arising out of this Agreement shall terminate except for such legal obligations, rights and duties as shall have accrued prior to the effective date of termination.
+
+## 4. FEES FOR SERVICES PERFORMED
+
+### 4.1 Payment Methods
+
+1. Payment is to be made via [PayPal / Electronic Bank Transfer / etc.] within 3 working days on receipt of invoice to the following account details:
+
+   [Insert your bank details or account information]
+
+### 4.2 Project Based Work
+
+1. The Client agrees to pay the Service Provider a project fee of {{estimatedBudget}}. The Service Provider's obligation to render the Services mentioned in Section 2 of this Agreement is conditional upon payment by the Client in the following terms:
+
+   a. 100% upfront payment upon receipt of Invoice.
+
+   *OR*
+
+   b. 50% down payment upon receipt of Invoice (the 'Down Payment').
+   c. The remaining 50% is to be paid upon completion of website **OR** on [specified date].
+
+2. The completion of the project is described as:
+   - Fully functional conversion-focused website
+   - Optimizing each page for on-page SEO
+   - Marketing campaigns for AdWords and Social Media
+
+3. If during any time of the project duration the Client fails to make payment in terms of the Project Based Schedule, the Service Provider may cease provision of the Services until payment of the outstanding fee has been made.
+
+### 4.3 Retainer Based Work
+
+1. In consideration for Services rendered, the Client agrees to pay the Service Provider's fee of [Amount] which will be due up front on the first of each month for that month's Services until the Agreement has ended.
+
+2. If such amount is not received by this date, the Service Provider reserves the right to cease provision of Services to the Client.
+
+### 4.4 Advertising Fees
+
+1. All advertising fees, such as Google Ads, Facebook Ads, and any other related advertising fees, are for the Client's account.
+
+2. The Client is committed to spend a minimum of [Amount] for Google Ads and [Amount] for Facebook Ads each month, for the validity of this Agreement.
+
+## 5. OBLIGATIONS OF THE CLIENT
+
+1. The Service Provider will not commence work until the Client has provided all the necessary data, photography, tools and other necessary information that may be required by the Service Provider to effectively perform the Services rendered.
+
+2. The Client agrees that the completion of one or more of the deliverables may depend on and require the Client's commitment of certain resources which should be promptly provided.
+
+## 6. OWNERSHIP AND RISK
+
+1. The Service Provider remains the owner of all equipment, software and records used or produced in the service of the Client, until the amount owed by the Client to the Service Provider has been paid in full.
+
+2. After payment in full, the Client is the owner of all products, data and reports produced by the Service Provider.
+
+3. The Service Provider is not responsible for anything falling outside the scope of services referred to in Section 2 of the Agreement unless such services have been agreed to in writing.
+
+4. The Client hereby guarantees that the Service Provider shall not be held liable for the results or does not warranty any results flowing from the Services provided by the Service Provider.
+
+## 7. CONFIDENTIALITY AND RESPONSIBILITY
+
+1. In this Agreement, the Services performed and any and all information relating to the Client's business, including, but not limited to, research, developments, products plans, products, services, diagrams, formulae, processes, techniques, technology, software, ideas, discoveries, designs, inventions, improvements, copyrights, trademarks, marketing, sales, trade secrets, intellectual property, finances disclosed by the Client is hereinafter referred to as 'Confidential Information'.
+
+2. Unless otherwise agreed to in advance and in writing by the Client, the Service Provider will not, except as required by law or court order, use the Confidential Information for any purpose whatsoever other than the performance of the Services or disclose the Confidential Information to any third party.
+
+## 8. NO COMPETITION
+
+1. During the term of this Agreement, the Service Provider will engage in no business or other activities which are directly competitive with the business activities of the Client's local geographic target audience in the Client's respective trading city/town without obtaining the prior written consent of the Client.
+
+## 9. WARRANTIES
+
+1. The Service Provider warrants and represents that it has full capacity and authority to enter into the Agreement and that the Services performed by the Service Provider will be rendered in accordance with sound professional practices.
+
+2. The Client warrants and represents that it has full capacity and authority to enter into the Agreement and has the ability, including relevant permissions, licences and consents necessary to perform its obligations in terms of the Agreement.
+
+## 10. INDEPENDENT CONTRACTORS
+
+1. The Service Provider agrees that all Services will be performed by the Service Provider as an independent contractor and that this Agreement does not create an employer-employee relationship between the Service Provider and the Client.
+
+## 11. LIMITATION OF LIABILITY
+
+1. In no event shall the Service Provider be liable to the Client for any loss of profit, loss of business, loss of data, or for any indirect, incidental, consequential, special or exemplary damages arising in connection with the services provided to client.
+
+2. The entire liability of the Service Provider to the Client in connection with the Services provided shall not exceed, in the aggregate, the total amount of fees paid or becoming due under this Agreement in the twelve (12) month period immediately preceding the event giving rise to such liability.
+
+## 12. TRANSFER OF INTELLECTUAL PROPERTY RIGHTS
+
+1. The Service Provider grants all IP rights to the Client upon final payment for the Services performed in exchange for a right to use the content developed for marketing and business development purposes.
+
+## 13. ASSIGNMENT
+
+1. The Services to be performed by the Service Provider herein are personal in nature, and the Client has engaged the Service Provider as a result of the Service Provider's expertise relating to such Services.
+
+## 14. GOVERNING LAW AND DISPUTE RESOLUTION
+
+1. This Agreement shall be construed in accordance with and be subject to the laws of [your state/country]. All court proceedings relating to or arising out of this Agreement shall be solved by the Courts of [your state/country].
+
+2. The Parties agree to attempt to settle any dispute arising out of or relating to the Agreement amicably, before commencing any court proceedings.
+
+## 15. RECOVERY OF LITIGATION EXPENSES
+
+1. If any legal action, arbitration or other proceeding is necessary for the enforcement of this Agreement, the prevailing party or parties shall be entitled to recover reasonable attorneys' fees and other costs incurred.
+
+## 16. GENERAL
+
+1. This Agreement constitutes the entire agreement of the Parties on the subject hereof and supersedes all prior understandings and instruments on such subject.
+
+2. This Agreement may not be modified other than by a written instrument executed by duly authorized representatives of the Parties.
+
+## 17. SEVERABILITY
+
+1. If any court of competent authority finds that any provision of this Agreement (or part of any provision) is invalid, illegal, or unenforceable, that provision or part provision shall, to the extent required, be deemed to be deleted, and the validity and enforceability of the other provisions of this Agreement shall not be affected.
+
+## 18. SIGNATURES
+
+The Parties duly execute this Agreement by their signatures below:
+
+<table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+  <tr>
+    <td style="border: 1px solid black; padding: 15px; width: 50%;">
+      <strong>Client</strong><br><br>
+      **Company:** {{businessName}}<br><br>
+      **Name:** {{fullName}}<br><br>
+      **Title:** _____________________<br><br>
+      **Date:** _____________________<br><br>
+      **Signature:** _____________________
+    </td>
+    <td style="border: 1px solid black; padding: 15px; width: 50%;">
+      <strong>Service Provider</strong><br><br>
+      **Company:** [Your Company Name]<br><br>
+      **Name:** [Your Name]<br><br>
+      **Title:** _____________________<br><br>
+      **Date:** _____________________<br><br>
+      **Signature:** _____________________
+    </td>
+  </tr>
+</table>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+`,
+  category: "contract",
+  isTemplate: true,
+  variables: [
+    "currentDate",
+    "businessName",
+    "billingAddress",
+    "serviceDesired",
+    "estimatedBudget",
+    "fullName"
+  ]
+},
+{
+  title: "Professional Invoice",
+  description: "Clean invoice template for billing, courtesy of Traversy Media",
+  content: `# INVOICE
+
+**[Your Company Name]**  
+[Your Address]  
+[City, State, ZIP]  
+[Phone Number]
+
+**Invoice #:** [Invoice Number]  
+**Date:** {{currentDate}}
+
+---
+
+## BILL TO:
+
+**{{businessName}}**  
+{{fullName}}  
+{{billingAddress}}
+
+---
+
+## SERVICES PROVIDED:
+
+| **Description** | **Price** | **Amount** |
+|-----------------|-----------|------------|
+| {{serviceDesired}} | {{billedAmount}} | {{billedAmount}} |
+| SEO Research + Implementation | [Amount] | [Amount] |
+| Social Media Setup + Integrations | [Amount] | [Amount] |
+| | | |
+| | **Subtotal** | {{billedAmount}} |
+| | **Total Due** | **{{remainingBalance}}** |
+
+---
+
+## PAYMENT SUMMARY:
+
+**Total Amount:** {{billedAmount}}  
+**Amount Paid:** {{paidAmount}}  
+**Remaining Balance:** {{remainingBalance}}
+
+---
+
+## PAYMENT TERMS:
+
+**Terms:** Payable on receipt
+
+**Payment Methods:** [List accepted payment methods]
+
+If you have any questions, please do not hesitate to contact me.
+
+---
+
+## BANK DETAILS:
+
+**Account Name:** [Your Business Name]  
+**Account Number:** [Account Number]  
+**Routing Number:** [Routing Number]  
+**Bank Name:** [Bank Name]
+
+---
+
+**Contact Information:**  
+**Email:** [Your Email]  
+**Phone:** [Your Phone]  
+**Website:** [Your Website]
+
+Thank you for your business!
+  
+  
+  
+  
+  
+  
+  
+  
+  
+`,
+  category: "invoice",
+  isTemplate: true,
+  variables: [
+    "currentDate",
+    "businessName",
+    "fullName",
+    "billingAddress",
+    "serviceDesired",
+    "billedAmount",
+    "paidAmount",
+    "remainingBalance"
+  ]
+},
+{
+  title: "Monthly Client Report",
+  description: "Marketing performance report template, courtesy of Traversy Media",
+  content: `# Monthly Performance Report
+
+**Date:** {{currentDate}}  
+**Prepared by:** [Your Agency Name]
+
+---
+
+**To:** {{fullName}}  
+**Company:** {{businessName}}
+
+Hi {{firstName}},
+
+It was a pleasure providing our marketing services for you.
+
+Please see the results below for the month of [Month]:
+
+---
+
+## WEBSITE PERFORMANCE
+
+### Bookings/Sales:
+**Total Bookings:** [Number]  
+**Previous Month:** [Number]  
+**Month Before:** [Number]
+
+### Google Maps Performance:
+**Total Calls:** [Number]  
+**Direction Requests:** [Number]
+
+---
+
+## SEO RANKING
+
+### "{{serviceDesired}} [Your City]"
+**Google Map:** [Position]  
+**Google Search:** [Page], [Position]
+
+### "[Secondary Keyword]"
+**Google Search:** [Page], [Position]
+
+---
+
+## WEBSITE ANALYTICS
+
+**Total Visitors:** [Number]  
+**Average Duration on Website:** [Time] minutes  
+**Bounce Rate:** [Percentage]%
+
+### Device Breakdown:
+**Mobile Phones:** [Percentage]%  
+**Laptops/Computers:** [Percentage]%  
+**Tablets:** [Percentage]%
+
+---
+
+## ADVERTISING PERFORMANCE
+
+### AdWords Spend Overview:
+**Total Spent:** [Amount]  
+**Total Clicks:** [Number]  
+**Cost Per Click:** [Amount]
+
+### Demographics:
+#### Gender:
+**Male:** [Percentage]%  
+**Female:** [Percentage]%
+
+#### Age Groups:
+**18-24:** [Percentage]%  
+**25-34:** [Percentage]%  
+**35-44:** [Percentage]%  
+**45-54:** [Percentage]%  
+**55-64:** [Percentage]%  
+**65+:** [Percentage]%
+
+---
+
+## CONCLUSION
+
+We achieved [highlight of the month] (great news!). We're optimistic for what lies ahead in the coming months as we continue to make improvements and optimizations.
+
+It was a pleasure providing you with this report.
+
+As always, please let me know if you have any questions, and I'll be glad to help.
+
+---
+
+**Regards,**
+
+[Your Name]  
+[Contact Number]  
+[Your Website]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+`,
+  category: "other",
+  isTemplate: true,
+  variables: [
+    "currentDate",
+    "fullName",
+    "firstName",
+    "businessName",
+    "serviceDesired"
+  ]
+}, 
+{
+ title: "Cold Outreach Email",
+ description: "Professional cold outreach email for business development",
+ content: `# Cold Outreach Email
+
+**Subject:** Quick question about {{businessName}}'s website
+
+Hi {{firstName}},
+
+I came across {{businessName}} while researching [industry/location] businesses and was impressed by [specific compliment about their business/website].
+
+I noticed a few opportunities that could help {{businessName}} [specific benefit - get more leads/increase sales/improve online presence]. 
+
+I specialize in helping businesses like yours with {{serviceDesired}} and have helped similar companies:
+- [Specific result #1]
+- [Specific result #2] 
+- [Specific result #3]
+
+I'd love to show you a quick 15-minute example of what this could look like for {{businessName}}.
+
+Would you be open to a brief call this week? I have availability on [day] at [time] or [day] at [time].
+
+If not, no worries at all - I know you're busy running {{businessName}}.
+
+Best regards,
+
+[Your Name]  
+[Your Title]  
+[Your Phone]  
+[Your Email]  
+[Your Website]
+
+P.S. Here's a link to a recent case study: [Link]
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+`,
+ category: "other",
+ isTemplate: true,
+ variables: [
+   "businessName",
+   "firstName",
+   "serviceDesired"
+ ]
 }
 ];
 
