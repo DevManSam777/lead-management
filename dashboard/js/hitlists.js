@@ -991,6 +991,26 @@ function setupJsonUploader() {
   });
 }
 
+// better approach - refresh the entire hitlist after import
+async function refreshHitlistAfterImport(hitlistId) {
+  try {
+    // fetch updated hitlist data
+    const updatedHitlist = await API.fetchHitlistById(hitlistId);
+    
+    // update the hitlist in the allHitlists array
+    const hitlistIndex = allHitlists.findIndex(h => h._id === hitlistId);
+    if (hitlistIndex !== -1) {
+      allHitlists[hitlistIndex] = updatedHitlist;
+    }
+    
+    // re-render the hitlists to show updated count
+    renderPaginatedHitlists();
+    
+  } catch (error) {
+    console.error("Error refreshing hitlist after import:", error);
+  }
+}
+
 async function processScrapedBusinesses(businesses) {
   if (!currentHitlistId) {
     Utils.showToast("Please select a hitlist first");
@@ -1116,11 +1136,11 @@ async function processScrapedBusinesses(businesses) {
       }
     }
 
-    updateHitlistBusinessCount(currentHitlistId, successCount);
-
-    const updatedBusinesses = await API.fetchBusinessesByHitlist(
-      currentHitlistId
-    );
+    // after all businesses are imported, refresh the hitlist data
+    await refreshHitlistAfterImport(currentHitlistId);
+    
+    // then update the business list in the modal
+    const updatedBusinesses = await API.fetchBusinessesByHitlist(currentHitlistId);
     const sortedBusinesses = sortBusinessesAlphabetically(updatedBusinesses);
     originalBusinesses = [...sortedBusinesses];
     currentBusinesses = [...sortedBusinesses];
@@ -1314,7 +1334,8 @@ async function handleBusinessSubmit(event) {
       currentBusinesses = sortBusinessesAlphabetically(currentBusinesses);
       originalBusinesses = sortBusinessesAlphabetically(originalBusinesses);
 
-      updateHitlistBusinessCount(hitlistId);
+      // Use the fixed function to update hitlist business count
+      await updateHitlistBusinessCount(hitlistId);
     }
 
     // update lastModified date for the hitlist
@@ -1345,16 +1366,28 @@ async function updateHitlistBusinessCount(hitlistId, addedCount = 1) {
     const hitlist = allHitlists.find((h) => h._id === hitlistId);
     if (!hitlist) return;
 
-    if (!hitlist.businesses) {
-      hitlist.businesses = [];
+    // get the current count from the actual businesses data
+    try {
+      const actualBusinesses = await API.fetchBusinessesByHitlist(hitlistId);
+      const actualCount = actualBusinesses ? actualBusinesses.length : 0;
+      
+      // update the UI with the actual count
+      businessStat.innerHTML = `<i class="far fa-building"></i> ${actualCount} businesses`;
+      
+      // update the hitlist object in memory
+      hitlist.businesses = actualBusinesses || [];
+      
+    } catch (error) {
+      console.error("Error fetching actual business count:", error);
+      
+      // fallback estimate the count
+      if (!hitlist.businesses) {
+        hitlist.businesses = [];
+      }
+      const estimatedCount = hitlist.businesses.length + addedCount;
+      businessStat.innerHTML = `<i class="far fa-building"></i> ${estimatedCount} businesses`;
     }
 
-    // add temporary placeholders for ui count update
-    for (let i = 0; i < addedCount; i++) {
-      hitlist.businesses.push({ _id: "temp-" + Date.now() + i });
-    }
-
-    businessStat.innerHTML = `<i class="fas fa-building"></i> ${hitlist.businesses.length} businesses`;
   } catch (error) {
     console.error("Error updating hitlist business count:", error);
   }
