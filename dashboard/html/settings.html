@@ -34,59 +34,83 @@
     <script>
       (function () {
         const savedTheme = localStorage.getItem("theme");
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
+          ? "dark"
+          : "light";
+        const immediateTheme = savedTheme || systemTheme;
 
-        if (savedTheme) {
-          document.documentElement.setAttribute("data-theme", savedTheme);
-        } else {
-          const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-            .matches
-            ? "dark"
-            : "light";
-          document.documentElement.setAttribute("data-theme", systemTheme);
+        document.documentElement.setAttribute("data-theme", immediateTheme);
 
-          localStorage.setItem("theme", systemTheme);
-        }
+        document.addEventListener("DOMContentLoaded", async function () {
+          try {
+            let authReady = false;
+            let attempts = 0;
 
-        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+            while (!authReady && attempts < 50) {
+              if (window.auth && window.auth.currentUser) {
+                authReady = true;
+                break;
+              }
+              await new Promise((resolve) => setTimeout(resolve, 100));
+              attempts++;
+            }
 
-        function handleSystemThemeChange(e) {
-          if (!localStorage.getItem("theme")) {
-            const newTheme = e.matches ? "dark" : "light";
-            document.documentElement.setAttribute("data-theme", newTheme);
-            localStorage.setItem("theme", newTheme);
+            if (authReady) {
+              const user = window.auth.currentUser;
+              const token = await user.getIdToken();
+
+              const hostname = window.location.hostname;
+              const apiUrl =
+                hostname === "localhost" || hostname === "127.0.0.1"
+                  ? "http://localhost:5000/api"
+                  : "/api";
+
+              const response = await fetch(`${apiUrl}/settings`, {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              });
+
+              if (response.ok) {
+                const settings = await response.json();
+
+                if (settings.theme) {
+                  document.documentElement.setAttribute(
+                    "data-theme",
+                    settings.theme
+                  );
+                  localStorage.setItem("theme", settings.theme);
+                }
+
+                if (settings.dateFormat) {
+                  window.dateFormat = settings.dateFormat;
+                }
+              }
+            }
+          } catch (error) {
+            console.error("Error during theme initialization:", error);
           }
-        }
 
-        mediaQuery.addListener(handleSystemThemeChange);
-
-        if (mediaQuery.addEventListener) {
-          mediaQuery.addEventListener("change", handleSystemThemeChange);
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
           const sidebar = document.querySelector(".sidebar");
           const mainContent = document.querySelector(".main-content");
 
-          const isSidebarCollapsed =
-            localStorage.getItem("sidebarCollapsed") === "true";
+          if (sidebar && mainContent) {
+            const isSidebarCollapsed =
+              localStorage.getItem("sidebarCollapsed") === "true";
 
-          if (isSidebarCollapsed) {
-            sidebar.classList.add("collapsed");
-            mainContent.classList.add("expanded");
-          } else {
-            sidebar.classList.remove("collapsed");
-            mainContent.classList.remove("expanded");
-          }
+            if (isSidebarCollapsed) {
+              sidebar.classList.add("collapsed");
+              mainContent.classList.add("expanded");
+            }
 
-          // run sidebar toggle setup (settings.js will also run it, but this ensures fade-in)
-          if (typeof setupSidebarToggle === "function") {
-            setupSidebarToggle();
+            setTimeout(function () {
+              sidebar.style.opacity = "1";
+              mainContent.style.opacity = "1";
+            }, 300);
           }
-          // fade in after sidebar state is set
-          setTimeout(function () {
-            if (sidebar) sidebar.style.opacity = "1";
-            if (mainContent) mainContent.style.opacity = "1";
-          }, 300);
         });
       })();
     </script>

@@ -79,36 +79,19 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // theme initialization
   try {
-    // Fetch all settings
     const settings = await API.fetchAllSettings();
     globalSettings = settings;
 
-    // make date format globally available
     window.dateFormat = settings.dateFormat || "MM/DD/YYYY";
 
-    // always use theme from server settings
     if (settings.theme) {
-      setTheme(settings.theme);
-    } else {
-      // if somehow server doesn't have theme, use system preference and save it
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-      setTheme(systemTheme);
-      await API.updateSetting("theme", systemTheme);
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      if (currentTheme !== settings.theme) {
+        setTheme(settings.theme);
+      }
     }
   } catch (error) {
     console.error("Error initializing theme:", error);
-    // fallback to localStorage or system preference
-    const savedTheme =
-      localStorage.getItem("theme") ||
-      (window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light");
-    setTheme(savedTheme);
-
-    // fallback for date format
     window.dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
   }
 
@@ -178,7 +161,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
   }
-
 
   initResponsiveTabs("#leadModal");
   initializeDateInputs();
@@ -368,7 +350,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-
   // event listeners for lead updates
   window.addEventListener("leadSaved", function (event) {
     const { lead, isNew } = event.detail;
@@ -410,72 +391,70 @@ document.addEventListener("DOMContentLoaded", async function () {
     UI.calculateStats(allLeads, payments);
   });
 
+  window.addEventListener("leadDeleted", function (event) {
+    const { leadId } = event.detail;
 
+    // check if the deleted lead was closed-won before removing it
+    const deletedLead = allLeads.find((lead) => lead._id === leadId);
+    const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
 
-window.addEventListener("leadDeleted", function (event) {
-  const { leadId } = event.detail;
+    // remove lead from array
+    allLeads = allLeads.filter((lead) => lead._id !== leadId);
 
-  // check if the deleted lead was closed-won before removing it
-  const deletedLead = allLeads.find((lead) => lead._id === leadId);
-  const wasClosedWon = deletedLead && deletedLead.status === "closed-won";
-
-  // remove lead from array
-  allLeads = allLeads.filter((lead) => lead._id !== leadId);
-
-  // remove payments associated with this lead
-  if (payments && payments.length > 0) {
+    // remove payments associated with this lead
+    if (payments && payments.length > 0) {
       payments = payments.filter((payment) => payment.leadId !== leadId);
       // update global payments variable to ensure charts have access to the updated data
       window.payments = payments;
-  }
+    }
 
-  // update the global variable to ensure it's accessible to charts
-  window.allLeads = allLeads;
-  console.log(
+    // update the global variable to ensure it's accessible to charts
+    window.allLeads = allLeads;
+    console.log(
       "Updated global allLeads array, now has",
       allLeads.length,
       "leads"
-  );
+    );
 
-  // reset to first page if we're on a page higher than max pages
-  if (currentPage > Math.ceil(allLeads.length / pageSize)) {
+    // reset to first page if we're on a page higher than max pages
+    if (currentPage > Math.ceil(allLeads.length / pageSize)) {
       currentPage = Math.max(1, Math.ceil(allLeads.length / pageSize));
-  }
+    }
 
-  // re-render and update stats
-  const filteredLeads = getFilteredLeads();
-  renderPaginatedLeads(filteredLeads);
-  UI.calculateStats(allLeads, payments);
+    // re-render and update stats
+    const filteredLeads = getFilteredLeads();
+    renderPaginatedLeads(filteredLeads);
+    UI.calculateStats(allLeads, payments);
 
-  // update the data watcher to force chart rebuilds
-  if (typeof window.updateDataWatcher === "function") {
+    // update the data watcher to force chart rebuilds
+    if (typeof window.updateDataWatcher === "function") {
       console.log("Updating data watcher after lead deletion");
       window.updateDataWatcher();
-  } else {
+    } else {
       console.warn(
-          "updateDataWatcher function not found, trying fallback methods"
+        "updateDataWatcher function not found, trying fallback methods"
       );
 
       // direct chart updates as a fallback
       if (typeof window.updateAllCharts === "function") {
-          console.log("Directly calling updateAllCharts as fallback");
-          window.updateAllCharts();
+        console.log("Directly calling updateAllCharts as fallback");
+        window.updateAllCharts();
       } else {
-          console.error("No chart update mechanisms available!");
+        console.error("No chart update mechanisms available!");
 
-          // else force a chart rebuild using a custom event
-          try {
-              console.log("Trying custom chartUpdate event as last resort");
-              const chartUpdateEvent = new CustomEvent("chartUpdate", {
-                  detail: { source: "leadDeleted", leadCount: allLeads.length },
-              });
-              window.dispatchEvent(chartUpdateEvent);
-          } catch (e) {
-              console.error("Failed to dispatch custom event:", e);
-          }
+        // else force a chart rebuild using a custom event
+        try {
+          console.log("Trying custom chartUpdate event as last resort");
+          const chartUpdateEvent = new CustomEvent("chartUpdate", {
+            detail: { source: "leadDeleted", leadCount: allLeads.length },
+          });
+          window.dispatchEvent(chartUpdateEvent);
+        } catch (e) {
+          console.error("Failed to dispatch custom event:", e);
+        }
       }
-  }
-});
+    }
+  });
 
   // month-leads stat card
   const monthNames = [
@@ -508,32 +487,31 @@ window.addEventListener("leadDeleted", function (event) {
     monthlyRevenueHeader.innerHTML = `${currentMonth} ${monthlyRevenueHeader.innerHTML}`;
   }
 
-
   window.addEventListener("paymentsUpdated", async function () {
     try {
       console.log("Payment update detected, refreshing data...");
       payments = await API.fetchPayments();
-      
+
       // update the global window.payments variable that charts.js uses
       window.payments = payments;
-      
+
       // force recalculation of stats
       UI.calculateStats(allLeads, payments);
-      
+
       // update the data watcher to trigger chart rebuilds
-      if (typeof window.updateDataWatcher === 'function') {
+      if (typeof window.updateDataWatcher === "function") {
         window.updateDataWatcher();
       } else {
         // direct fallback to update charts if watcher not available
-        if (typeof window.updateAllCharts === 'function') {
+        if (typeof window.updateAllCharts === "function") {
           window.updateAllCharts();
         }
       }
-      
+
       // refresh lead list display
       const filteredLeads = getFilteredLeads();
       renderPaginatedLeads(filteredLeads);
-      
+
       console.log("Dashboard data refreshed after payment update");
     } catch (error) {
       console.error("Error updating payments:", error);
@@ -964,14 +942,12 @@ if (document.readyState === "loading") {
   setupSidebarToggle();
 }
 
-
 function showLeadsLoadingSpinner() {
   const spinner = document.getElementById("leadsLoadingSpinner");
   if (spinner) {
     spinner.classList.remove("hidden");
   }
 }
-
 
 function hideLeadsLoadingSpinner() {
   const spinner = document.getElementById("leadsLoadingSpinner");
@@ -1177,7 +1153,6 @@ function performCleanupAndCloseModal() {
   window.leadSubmissionInProgress = false;
 }
 
-
 function renderPaginatedLeads(leads) {
   // initialize pagination with the filtered leads
   const paginationInfo = Pagination.initPagination(
@@ -1310,7 +1285,7 @@ function applySorting(leadsToSort, sortField, sortOrder) {
     return leadsToSort;
   }
 
-  // sort the leads array 
+  // sort the leads array
   leadsToSort.sort((a, b) => {
     let comparison = 0;
 
@@ -1425,7 +1400,7 @@ function applySorting(leadsToSort, sortField, sortOrder) {
           ? parseFloat(b.remainingBalance)
           : null;
 
-      // Handle N/A cases 
+      // Handle N/A cases
       if (valueA === null && valueB === null) {
         comparison = 0; // Both N/A, consider equal
       } else if (valueA === null) {
