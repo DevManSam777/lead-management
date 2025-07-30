@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const savedView = localStorage.getItem("preferredView");
   if (savedView && (savedView === "grid" || savedView === "list")) {
     console.log("Restoring saved view preference:", savedView);
-    currentView = savedView; // Set the current view variable first
+    currentView = savedView; // set the current view variable first
     window.switchView(savedView);
   }
 
