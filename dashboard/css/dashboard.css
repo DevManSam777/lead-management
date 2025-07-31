@@ -1256,10 +1256,6 @@ body {
     padding-inline: 1rem;
   }
 
-  .stats-cards {
-    grid-template-columns: 1fr;
-  }
-
   .lead-cards {
     padding-inline: 1rem;
   }
@@ -1294,6 +1290,12 @@ body {
   .use-template {
     margin: 0;
     width: 100%;
+  }
+}
+
+@media (max-width: 410px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
   }
 }
 
