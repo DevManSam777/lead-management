@@ -1,7 +1,3 @@
-// super-secret.js
-// Additional utility functions for enhanced user experience
-// Core functionality extensions
-
 (function () {
   "use strict";
 
@@ -414,7 +410,7 @@
             .pizza-mode .lead-card,
             .pizza-mode .template-card,
             .pizza-mode .business-item {
-                background-color: rgba(255, 255, 255, 0.65) !important;
+                background-color: rgba(255, 255, 255, 0.8) !important;
                 position: relative;
                 overflow: visible;
             }
@@ -703,6 +699,8 @@
             z-index: 10001;
             pointer-events: none;
             animation: pizzaFlash 0.5s infinite alternate;
+            white-space: nowrap;
+            width: max-content;
         `;
 
     document.body.appendChild(flashText);
