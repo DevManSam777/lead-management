@@ -8,7 +8,6 @@
   let flashTimer = null;
   let pizzaElements = [];
 
-  // Initialize when DOM is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initPizzaEasterEgg);
   } else {
@@ -16,7 +15,6 @@
   }
 
   function initPizzaEasterEgg() {
-    // Check if pizza mode was previously activated
     if (localStorage.getItem("pizzaModeActive") === "true") {
       applyPizzaBackground();
       applyPizzaTextStyling();
@@ -24,15 +22,12 @@
       showExitButton();
     }
 
-    // Find the header element (h2 with "Project Dashboard" or similar)
     const header = document.querySelector("h2");
-
     if (!header) {
       console.log("No h2 header found");
       return;
     }
 
-    // Add click and touch event listeners to header
     header.addEventListener("click", handleHeaderClick);
     header.addEventListener("touchend", handleHeaderTouch);
   }
@@ -42,7 +37,6 @@
   }
 
   function handleHeaderTouch(e) {
-    // Prevent the touch from also triggering a click event
     e.preventDefault();
     incrementClickCount();
   }
@@ -50,17 +44,14 @@
   function incrementClickCount() {
     clickCount++;
 
-    // Clear existing timer
     if (clickTimer) {
       clearTimeout(clickTimer);
     }
 
-    // Reset counter after 3 seconds
     clickTimer = setTimeout(() => {
       clickCount = 0;
     }, 3000);
 
-    // Check if we've reached 7 clicks
     if (clickCount >= 7) {
       clickCount = 0;
       clearTimeout(clickTimer);
@@ -69,26 +60,16 @@
   }
 
   function activatePizzaMode() {
-    if (pizzaMode) return; // Already active
+    if (pizzaMode) return;
 
     pizzaMode = true;
 
-    // Apply pizza background
     applyPizzaBackground();
-
-    // Apply text styling changes
     applyPizzaTextStyling();
-
-    // Apply card backgrounds
     applyPizzaCardBackgrounds();
-
-    // Start pizza rain for 5 seconds
     startPizzaRain();
-
-    // Start flashing "Pizza Gang!" text
     startFlashingText();
 
-    // Show exit button after pizza rain ends
     setTimeout(() => {
       showExitButton();
     }, 10000);
@@ -97,7 +78,6 @@
   }
 
   function applyPizzaBackground() {
-    // Create pizza background overlay for main background
     const pizzaOverlay = document.createElement("div");
     pizzaOverlay.id = "pizza-background-overlay";
     pizzaOverlay.style.cssText = `
@@ -115,7 +95,6 @@
             transition: opacity 0.5s ease-in-out;
         `;
 
-    // Add mobile-specific styles
     const isMobile = window.innerWidth <= 768;
     if (isMobile) {
       pizzaOverlay.style.cssText += `
@@ -132,15 +111,12 @@
 
     document.body.appendChild(pizzaOverlay);
 
-    // Fade in the pizza background
     setTimeout(() => {
       pizzaOverlay.style.opacity = "1";
     }, 100);
 
-    // Store in localStorage so other pages can access it
     localStorage.setItem("pizzaModeActive", "true");
 
-    // Add responsive background handling
     const handleResize = () => {
       const isMobileNow = window.innerWidth <= 768;
       if (isMobileNow) {
@@ -153,21 +129,13 @@
       }
     };
 
-    // Listen for resize events
     window.addEventListener('resize', handleResize);
-    
-    // Store the resize handler for cleanup
     pizzaOverlay._resizeHandler = handleResize;
   }
 
   function applyPizzaTextStyling() {
-    // Store the current theme for restoration later
     window.originalTheme = document.documentElement.getAttribute('data-theme');
     
-    // Force dark theme for pizza mode
-    document.documentElement.setAttribute('data-theme', 'dark');
-    
-    // Create style element for pizza-specific overrides
     const pizzaTextStyles = document.createElement("style");
     pizzaTextStyles.id = "pizza-text-styles";
     pizzaTextStyles.textContent = `
@@ -183,7 +151,6 @@
                 text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
             }
             
-            /* Chart text styling for pizza mode */
             .pizza-mode .chart-card h3,
             .pizza-mode .chart-container h3,
             .pizza-mode .chart-card .chart-container h3 {
@@ -191,7 +158,6 @@
                 text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
             }
             
-            /* Stats card text styling for pizza mode */
             .pizza-mode .stats-card h3,
             .pizza-mode .stats-card .value,
             .pizza-mode .stats-card .change,
@@ -206,7 +172,6 @@
                 text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
             }
             
-            /* Force all chart text elements to be white */
             .pizza-mode .chart-container svg text,
             .pizza-mode .chart-container svg tspan,
             .pizza-mode .chart-card svg text,
@@ -215,12 +180,10 @@
                 color: white !important;
             }
             
-            /* Chart.js specific text styling */
             .pizza-mode .chart-container canvas {
                 filter: brightness(1.2) contrast(1.1);
             }
             
-            /* Force chart center text to be white and visible - AGGRESSIVE */
             .pizza-mode .chart-container canvas + div,
             .pizza-mode .chart-card canvas + div,
             .pizza-mode canvas + div {
@@ -228,7 +191,6 @@
                 text-shadow: 2px 2px 4px rgba(0,0,0,0.9) !important;
             }
             
-            /* Override any chart center text styling */
             .pizza-mode .chart-container *[style*="color"],
             .pizza-mode .chart-card *[style*="color"] {
                 color: white !important;
@@ -237,23 +199,18 @@
         `;
 
     document.head.appendChild(pizzaTextStyles);
-
-    // Add pizza-mode class to body
     document.body.classList.add("pizza-mode");
 
-    // Force chart rebuild with dark theme
     if (window.updateAllCharts) {
       setTimeout(() => {
         window.updateAllCharts();
       }, 500);
     }
 
-    // Override the getThemeColors function for charts to ensure white text
     if (window.getThemeColors) {
       window.originalGetThemeColors = window.getThemeColors;
       window.getThemeColors = function() {
         const colors = window.originalGetThemeColors();
-        // Force white text in pizza mode
         return {
           ...colors,
           textColor: "#ffffff",
@@ -262,21 +219,17 @@
       };
     }
 
-    // Additional chart text override with interval for consistency
     window.pizzaModeChartOverride = function() {
       if (window.Chart && window.Chart.instances) {
         Object.values(window.Chart.instances).forEach(chart => {
           if (chart && chart.options) {
-            // Update legend colors
             if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
               chart.options.plugins.legend.labels.color = '#ffffff';
             }
-            // Update tooltip colors  
             if (chart.options.plugins && chart.options.plugins.tooltip) {
               chart.options.plugins.tooltip.titleColor = '#ffffff';
               chart.options.plugins.tooltip.bodyColor = '#ffffff';
             }
-            // Update scale colors
             if (chart.options.scales) {
               Object.keys(chart.options.scales).forEach(scaleKey => {
                 if (chart.options.scales[scaleKey].ticks) {
@@ -289,39 +242,31 @@
         });
       }
 
-      // AGGRESSIVE center text override - find and force white
       const chartContainers = document.querySelectorAll('.pizza-mode .chart-container, .pizza-mode .chart-card');
       chartContainers.forEach(container => {
         const canvas = container.querySelector('canvas');
         if (canvas) {
-          // Override the canvas drawing context
           const ctx = canvas.getContext('2d');
           if (ctx && !canvas._pizzaOverridden) {
             canvas._pizzaOverridden = true;
             
-            // Store original fillText
             const originalFillText = ctx.fillText;
             
-            // Override fillText to force white color
             ctx.fillText = function(text, x, y, maxWidth) {
-              // Save current state
               const originalStyle = this.fillStyle;
               const originalShadowColor = this.shadowColor;
               const originalShadowBlur = this.shadowBlur;
               const originalShadowOffsetX = this.shadowOffsetX;
               const originalShadowOffsetY = this.shadowOffsetY;
               
-              // Force white with shadow
               this.fillStyle = '#ffffff';
               this.shadowColor = 'rgba(0,0,0,0.8)';
               this.shadowBlur = 3;
               this.shadowOffsetX = 2;
               this.shadowOffsetY = 2;
               
-              // Call original function
               const result = originalFillText.call(this, text, x, y, maxWidth);
               
-              // Restore original state
               this.fillStyle = originalStyle;
               this.shadowColor = originalShadowColor;
               this.shadowBlur = originalShadowBlur;
@@ -335,15 +280,11 @@
       });
     };
 
-    // Set up interval to continuously ensure white chart text
     window.pizzaModeInterval = setInterval(window.pizzaModeChartOverride, 300);
-
-    // Run initial chart override
     setTimeout(window.pizzaModeChartOverride, 1000);
   }
 
   function applyPizzaCardBackgrounds() {
-    // Create style element for pizza card backgrounds
     const pizzaCardStyles = document.createElement("style");
     pizzaCardStyles.id = "pizza-card-styles";
     pizzaCardStyles.textContent = `
@@ -380,7 +321,6 @@
                 pointer-events: none;
             }
             
-            /* Keep main containers and stats/charts with dark backgrounds */
             .pizza-mode .leads-container,
             .pizza-mode .hitlists-container,
             .pizza-mode .forms-container .forms-category,
@@ -391,13 +331,11 @@
                 background-color: rgba(0, 0, 0, 0.9) !important;
             }
             
-            /* Make header and pagination transparent to show main pizza background */
             .pizza-mode .header,
             .pizza-mode .pagination {
                 background-color: transparent !important;
             }
             
-            /* Make pagination text white for better readability - comprehensive coverage */
             .pizza-mode .pagination,
             .pizza-mode .pagination *,
             .pizza-mode .pagination button,
@@ -423,7 +361,6 @@
                 text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
             }
             
-            /* View toggle buttons (Grid/List) - simple fix without dark band */
             .pizza-mode .view-toggle button {
                 background-color: rgba(0, 0, 0, 0.8) !important;
                 border-color: rgba(255, 255, 255, 0.5) !important;
@@ -438,7 +375,6 @@
                 text-shadow: none !important;
             }
             
-            /* ONLY individual cards get semi-transparent backgrounds - more opaque for accessibility */
             .pizza-mode .hitlist-card,
             .pizza-mode .lead-card,
             .pizza-mode .template-card,
@@ -448,7 +384,6 @@
                 overflow: visible;
             }
             
-            /* Table rows for grid view - less opaque for better pizza visibility */
             .pizza-mode .leads-table tbody tr,
             .pizza-mode .leads-table tr,
             .pizza-mode table tbody tr,
@@ -456,7 +391,6 @@
                 background-color: rgba(255, 255, 255, 0.6) !important;
             }
             
-            /* Table hover states */
             .pizza-mode .leads-table tbody tr:hover,
             .pizza-mode .leads-table tr:hover,
             .pizza-mode table tbody tr:hover,
@@ -464,7 +398,6 @@
                 background-color: rgba(255, 255, 255, 0.8) !important;
             }
             
-            /* Table text styling for better readability */
             .pizza-mode .leads-table,
             .pizza-mode .leads-table *,
             .pizza-mode table,
@@ -473,7 +406,6 @@
                 text-shadow: 1px 1px 2px rgba(0,0,0,0.5) !important;
             }
             
-            /* Remove pizza background from individual cards */
             .pizza-mode .hitlist-card::before,
             .pizza-mode .lead-card::before,
             .pizza-mode .template-card::before,
@@ -488,7 +420,6 @@
                 background-color: rgba(45, 50, 56, 0.6) !important;
             }
             
-            /* Dark theme table styling */
             [data-theme="dark"] .pizza-mode .leads-table tbody tr,
             [data-theme="dark"] .pizza-mode .leads-table tr,
             [data-theme="dark"] .pizza-mode table tbody tr,
@@ -503,7 +434,6 @@
                 background-color: rgba(45, 50, 56, 0.95) !important;
             }
             
-            /* Remove special hover backgrounds - keep normal hover states */
             .pizza-mode .hitlist-card:hover,
             .pizza-mode .lead-card:hover,
             .pizza-mode .template-card:hover,
@@ -518,7 +448,6 @@
                 background-color: rgba(45, 50, 56, 0.8) !important;
             }
             
-            /* Better text readability for light mode on resources and settings - NO BUTTONS */
             .pizza-mode .resource-card h3,
             .pizza-mode .resource-card h4,
             .pizza-mode .resource-card p,
@@ -528,7 +457,6 @@
                 text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
             }
             
-            /* Dark theme - keep main containers dark */
             [data-theme="dark"] .pizza-mode .leads-container,
             [data-theme="dark"] .pizza-mode .hitlists-container,
             [data-theme="dark"] .pizza-mode .forms-container .forms-category,
@@ -539,7 +467,6 @@
                 background-color: rgba(0, 0, 0, 0.9) !important;
             }
             
-            /* Ensure content stays above the pizza background */
             .pizza-mode .leads-container > *,
             .pizza-mode .hitlists-container > *,
             .pizza-mode .forms-container .forms-category > *,
@@ -551,7 +478,6 @@
                 z-index: 1;
             }
             
-            /* Special handling for forms category cards */
             .pizza-mode .template-card {
                 position: relative;
                 overflow: hidden;
@@ -573,7 +499,6 @@
                 pointer-events: none;
             }
             
-            /* Special handling for hitlist cards */
             .pizza-mode .hitlist-card {
                 position: relative;
                 overflow: hidden;
@@ -595,7 +520,6 @@
                 pointer-events: none;
             }
             
-            /* Special handling for lead cards */
             .pizza-mode .lead-card {
                 position: relative;
                 overflow: hidden;
@@ -637,17 +561,13 @@
 
     document.body.appendChild(pizzaContainer);
 
-    // Create pizza emojis continuously for 5 seconds
     const rainInterval = setInterval(() => {
       createPizzaEmoji(pizzaContainer);
       createConfetti(pizzaContainer);
-    }, 150); // Create new pizza every 150ms
+    }, 150);
 
-    // Stop creating new pizzas after 5 seconds
     setTimeout(() => {
       clearInterval(rainInterval);
-
-      // Remove remaining pizzas after animation completes
       setTimeout(() => {
         if (pizzaContainer.parentNode) {
           pizzaContainer.remove();
@@ -674,7 +594,6 @@
     container.appendChild(pizza);
     pizzaElements.push(pizza);
 
-    // Remove pizza element after animation
     setTimeout(() => {
       if (pizza.parentNode) {
         pizza.remove();
@@ -701,7 +620,6 @@
     container.appendChild(confetti);
     pizzaElements.push(confetti);
 
-    // Remove confetti element after animation
     setTimeout(() => {
       if (confetti.parentNode) {
         confetti.remove();
@@ -710,13 +628,11 @@
   }
 
   function startFlashingText() {
-    // Import Bagel Fat One font
     const fontLink = document.createElement('link');
     fontLink.href = 'https://fonts.googleapis.com/css2?family=Bagel+Fat+One&display=swap';
     fontLink.rel = 'stylesheet';
     document.head.appendChild(fontLink);
 
-    // Create flashing text element
     const flashText = document.createElement("div");
     flashText.id = "pizza-gang-text";
     flashText.textContent = "Pizza Party!";
@@ -738,7 +654,6 @@
 
     document.body.appendChild(flashText);
 
-    // Remove flashing text after 10 seconds
     setTimeout(() => {
       if (flashText.parentNode) {
         flashText.remove();
@@ -785,17 +700,11 @@
 
   function exitPizzaMode() {
     pizzaMode = false;
-
-    // Remove from localStorage
     localStorage.removeItem("pizzaModeActive");
-
-    // Remove pizza-mode class from body
     document.body.classList.remove("pizza-mode");
 
-    // Remove pizza background
     const pizzaOverlay = document.getElementById("pizza-background-overlay");
     if (pizzaOverlay) {
-      // Clean up resize event listener
       if (pizzaOverlay._resizeHandler) {
         window.removeEventListener('resize', pizzaOverlay._resizeHandler);
       }
@@ -808,48 +717,42 @@
       }, 500);
     }
 
-    // Remove pizza text styles
     const pizzaTextStyles = document.getElementById("pizza-text-styles");
     if (pizzaTextStyles) {
       pizzaTextStyles.remove();
     }
 
-    // Restore original theme
-    if (window.originalTheme) {
+    if (window.originalTheme && window.originalTheme !== document.documentElement.getAttribute('data-theme')) {
       document.documentElement.setAttribute('data-theme', window.originalTheme);
+    }
+    if (window.originalTheme) {
       delete window.originalTheme;
     }
 
-    // Restore original getThemeColors function
     if (window.originalGetThemeColors) {
       window.getThemeColors = window.originalGetThemeColors;
       delete window.originalGetThemeColors;
     }
 
-    // Clear the chart override interval
     if (window.pizzaModeInterval) {
       clearInterval(window.pizzaModeInterval);
       delete window.pizzaModeInterval;
     }
 
-    // Clean up the chart override function
     if (window.pizzaModeChartOverride) {
       delete window.pizzaModeChartOverride;
     }
 
-    // Remove pizza card styles
     const pizzaCardStyles = document.getElementById("pizza-card-styles");
     if (pizzaCardStyles) {
       pizzaCardStyles.remove();
     }
 
-    // Remove exit button
     const exitButton = document.getElementById("pizza-exit-button");
     if (exitButton) {
       exitButton.remove();
     }
 
-    // Clean up any remaining pizza elements
     pizzaElements.forEach((pizza) => {
       if (pizza.parentNode) {
         pizza.remove();
@@ -857,7 +760,6 @@
     });
     pizzaElements = [];
 
-    // Remove any remaining containers
     const rainContainer = document.getElementById("pizza-rain-container");
     if (rainContainer) {
       rainContainer.remove();
@@ -868,7 +770,6 @@
       gangText.remove();
     }
 
-    // Force chart rebuild to restore original colors
     if (window.updateAllCharts) {
       setTimeout(() => {
         window.updateAllCharts();
@@ -878,7 +779,6 @@
     console.log("Pizza mode deactivated 🍕➜🏠");
   }
 
-  // Add CSS animations
   function addPizzaStyles() {
     if (document.getElementById("pizza-styles")) return;
 
@@ -933,6 +833,5 @@
     document.head.appendChild(style);
   }
 
-  // Initialize styles
   addPizzaStyles();
 })();
