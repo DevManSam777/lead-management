@@ -110,11 +110,25 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-attachment: fixed;
             z-index: -1;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
         `;
+
+    // Add mobile-specific styles
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      pizzaOverlay.style.cssText += `
+              background-attachment: scroll;
+              background-size: cover;
+              min-height: 100vh;
+              min-width: 100vw;
+          `;
+    } else {
+      pizzaOverlay.style.cssText += `
+              background-attachment: fixed;
+          `;
+    }
 
     document.body.appendChild(pizzaOverlay);
 
@@ -125,6 +139,25 @@
 
     // Store in localStorage so other pages can access it
     localStorage.setItem("pizzaModeActive", "true");
+
+    // Add responsive background handling
+    const handleResize = () => {
+      const isMobileNow = window.innerWidth <= 768;
+      if (isMobileNow) {
+        pizzaOverlay.style.backgroundAttachment = "scroll";
+        pizzaOverlay.style.backgroundSize = "cover";
+        pizzaOverlay.style.minHeight = "100vh";
+        pizzaOverlay.style.minWidth = "100vw";
+      } else {
+        pizzaOverlay.style.backgroundAttachment = "fixed";
+      }
+    };
+
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+    
+    // Store the resize handler for cleanup
+    pizzaOverlay._resizeHandler = handleResize;
   }
 
   function applyPizzaTextStyling() {
@@ -762,6 +795,11 @@
     // Remove pizza background
     const pizzaOverlay = document.getElementById("pizza-background-overlay");
     if (pizzaOverlay) {
+      // Clean up resize event listener
+      if (pizzaOverlay._resizeHandler) {
+        window.removeEventListener('resize', pizzaOverlay._resizeHandler);
+      }
+      
       pizzaOverlay.style.opacity = "0";
       setTimeout(() => {
         if (pizzaOverlay.parentNode) {
