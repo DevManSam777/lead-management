@@ -1,3 +1,7 @@
+// super-secret.js
+// Additional utility functions for enhanced user experience
+// Core functionality extensions
+
 (function () {
   "use strict";
 
@@ -664,7 +668,7 @@
             position: fixed;
             top: 100px;
             right: 20px;
-            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            background: linear-gradient(45deg, #8b5cf6, #ec4899);
             color: white;
             border: none;
             padding: 12px 20px;
@@ -682,10 +686,12 @@
     exitButton.addEventListener("mouseenter", function () {
       this.style.transform = "scale(1.1)";
       this.style.boxShadow = "0 6px 20px rgba(0,0,0,0.4)";
+      this.style.background = "linear-gradient(45deg, #7c3aed, #db2777)";
     });
     exitButton.addEventListener("mouseleave", function () {
       this.style.transform = "scale(1)";
       this.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
+      this.style.background = "linear-gradient(45deg, #8b5cf6, #ec4899)";
     });
 
     document.body.appendChild(exitButton);
