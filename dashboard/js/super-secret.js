@@ -91,7 +91,7 @@
     // Show exit button after pizza rain ends
     setTimeout(() => {
       showExitButton();
-    }, 5000);
+    }, 10000);
 
     console.log("🍕 PIZZA MODE ACTIVATED! 🍕");
   }
@@ -410,7 +410,7 @@
             .pizza-mode .lead-card,
             .pizza-mode .template-card,
             .pizza-mode .business-item {
-                background-color: rgba(255, 255, 255, 0.8) !important;
+                background-color: rgba(255, 255, 255, 0.65) !important;
                 position: relative;
                 overflow: visible;
             }
@@ -452,7 +452,7 @@
             [data-theme="dark"] .pizza-mode .lead-card,
             [data-theme="dark"] .pizza-mode .template-card,
             [data-theme="dark"] .pizza-mode .business-item {
-                background-color: rgba(45, 50, 56, 0.8) !important;
+                background-color: rgba(45, 50, 56, 0.6) !important;
             }
             
             /* Dark theme table styling */
@@ -460,7 +460,7 @@
             [data-theme="dark"] .pizza-mode .leads-table tr,
             [data-theme="dark"] .pizza-mode table tbody tr,
             [data-theme="dark"] .pizza-mode table tr {
-                background-color: rgba(45, 50, 56, 0.85) !important;
+                background-color: rgba(45, 50, 56, 0.75) !important;
             }
             
             [data-theme="dark"] .pizza-mode .leads-table tbody tr:hover,
@@ -621,7 +621,7 @@
         }
         pizzaElements = [];
       }, 3000);
-    }, 5000);
+    }, 12000);
   }
 
   function createPizzaEmoji(container) {
@@ -673,7 +673,7 @@
       if (confetti.parentNode) {
         confetti.remove();
       }
-    }, 5000);
+    }, 12000);
   }
 
   function startFlashingText() {
@@ -705,12 +705,12 @@
 
     document.body.appendChild(flashText);
 
-    // Remove flashing text after 5 seconds
+    // Remove flashing text after 10 seconds
     setTimeout(() => {
       if (flashText.parentNode) {
         flashText.remove();
       }
-    }, 5000);
+    }, 10000);
   }
 
   function showExitButton() {
