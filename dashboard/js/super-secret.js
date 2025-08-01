@@ -686,7 +686,7 @@
     // Create flashing text element
     const flashText = document.createElement("div");
     flashText.id = "pizza-gang-text";
-    flashText.textContent = "Pizza Gang!";
+    flashText.textContent = "Pizza Party!";
     flashText.style.cssText = `
             position: fixed;
             top: 20%;
