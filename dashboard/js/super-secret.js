@@ -394,14 +394,54 @@
                 text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
             }
             
+            /* View toggle buttons (Grid/List) - simple fix without dark band */
+            .pizza-mode .view-toggle button {
+                background-color: rgba(0, 0, 0, 0.8) !important;
+                border-color: rgba(255, 255, 255, 0.5) !important;
+                color: white !important;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+            }
+            
+            .pizza-mode .view-toggle button.active {
+                background-color: var(--primary) !important;
+                border-color: var(--primary) !important;
+                color: white !important;
+                text-shadow: none !important;
+            }
+            
             /* ONLY individual cards get semi-transparent backgrounds - more opaque for accessibility */
             .pizza-mode .hitlist-card,
             .pizza-mode .lead-card,
             .pizza-mode .template-card,
             .pizza-mode .business-item {
-                background-color: rgba(255, 255, 255, 0.8) !important;
+                background-color: rgba(255, 255, 255, 0.65) !important;
                 position: relative;
                 overflow: visible;
+            }
+            
+            /* Table rows for grid view - less opaque for better pizza visibility */
+            .pizza-mode .leads-table tbody tr,
+            .pizza-mode .leads-table tr,
+            .pizza-mode table tbody tr,
+            .pizza-mode table tr {
+                background-color: rgba(255, 255, 255, 0.6) !important;
+            }
+            
+            /* Table hover states */
+            .pizza-mode .leads-table tbody tr:hover,
+            .pizza-mode .leads-table tr:hover,
+            .pizza-mode table tbody tr:hover,
+            .pizza-mode table tr:hover {
+                background-color: rgba(255, 255, 255, 0.8) !important;
+            }
+            
+            /* Table text styling for better readability */
+            .pizza-mode .leads-table,
+            .pizza-mode .leads-table *,
+            .pizza-mode table,
+            .pizza-mode table * {
+                color: var(--text-color) !important;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.5) !important;
             }
             
             /* Remove pizza background from individual cards */
@@ -417,6 +457,21 @@
             [data-theme="dark"] .pizza-mode .template-card,
             [data-theme="dark"] .pizza-mode .business-item {
                 background-color: rgba(45, 50, 56, 0.8) !important;
+            }
+            
+            /* Dark theme table styling */
+            [data-theme="dark"] .pizza-mode .leads-table tbody tr,
+            [data-theme="dark"] .pizza-mode .leads-table tr,
+            [data-theme="dark"] .pizza-mode table tbody tr,
+            [data-theme="dark"] .pizza-mode table tr {
+                background-color: rgba(45, 50, 56, 0.85) !important;
+            }
+            
+            [data-theme="dark"] .pizza-mode .leads-table tbody tr:hover,
+            [data-theme="dark"] .pizza-mode .leads-table tr:hover,
+            [data-theme="dark"] .pizza-mode table tbody tr:hover,
+            [data-theme="dark"] .pizza-mode table tr:hover {
+                background-color: rgba(45, 50, 56, 0.95) !important;
             }
             
             /* Remove special hover backgrounds - keep normal hover states */
